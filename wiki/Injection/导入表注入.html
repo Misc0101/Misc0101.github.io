@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>注入技术专题：导入表注入 - Misc010</title>
+
+  
+    <meta name="description" content="导入表注入原理 exe加载时，系统加载器根据它的导入表将需要用到的dll载入到进程空间中。每一张导入表，对应一个需要用到的dll。导入表注入就是新增一张导入表，这个表项描述自己的dll。如此，目标exe运行时，系统加载器便会将我们自己的这个dll也加载到进程空间中。  一些细节问题  需要移动导入表：导入表混在节数据中，现有的导入表后不够空间新增一张导入表，所以要移动导入表。移动的话只移动导入表">
+<meta property="og:type" content="website">
+<meta property="og:title" content="导入表注入">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="导入表注入原理 exe加载时，系统加载器根据它的导入表将需要用到的dll载入到进程空间中。每一张导入表，对应一个需要用到的dll。导入表注入就是新增一张导入表，这个表项描述自己的dll。如此，目标exe运行时，系统加载器便会将我们自己的这个dll也加载到进程空间中。  一些细节问题  需要移动导入表：导入表混在节数据中，现有的导入表后不够空间新增一张导入表，所以要移动导入表。移动的话只移动导入表">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511160212896.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240510145825545.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511164604181.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511143220841.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511143319948.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511143547208.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511143940574.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511144049411.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511144337567.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511144222264.png">
+<meta property="article:published_time" content="2024-05-10T03:28:10.000Z">
+<meta property="article:modified_time" content="2024-05-10T03:28:10.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511160212896.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><div class="main" ff="title">注入技术专题</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Injection/" placeholder="在/wiki/Injection/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc single" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">本文目录</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86"><span class="toc-text"> 导入表注入原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E7%BB%86%E8%8A%82%E9%97%AE%E9%A2%98"><span class="toc-text"> 一些细节问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E6%8A%97%E6%80%A7"><span class="toc-text"> 对抗性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-text"> 代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E7%9A%84dll"><span class="toc-text"> 测试的dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E6%B5%81%E7%A8%8B%E8%AE%BE%E8%AE%A1"><span class="toc-text"> 程序流程设计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E7%A8%8B%E5%AE%9E%E7%8E%B0"><span class="toc-text"> 编程实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C"><span class="toc-text"> 运行结果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AA%E6%9D%A5%E5%8F%AF%E7%BB%A7%E7%BB%AD%E5%AE%8C%E5%96%84%E4%BC%98%E5%8C%96%E7%9A%84"><span class="toc-text"> 未来可继续完善优化的</span></a></li></ol></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/PE/Overview_PE.html"><span class="title">PE</span><span class="excerpt">滴水三期_PE文件笔记(To finish...)。</span></a><a class="item wiki" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><span class="title">Protected_Mode</span><span class="excerpt">滴水三期_保护模式笔记。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html">注入技术专题</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-05-10T03:28:10.000Z">2024-05-10</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>导入表注入</span></h1>
+<h2 id="导入表注入原理"><a class="markdownIt-Anchor" href="#导入表注入原理"></a> 导入表注入原理</h2>
+<p>exe加载时，系统加载器根据它的导入表将需要用到的dll载入到进程空间中。每一张导入表，对应一个需要用到的dll。导入表注入就是新增一张导入表，这个表项描述自己的dll。如此，目标exe运行时，系统加载器便会将我们自己的这个dll也加载到进程空间中。</p>
+<h2 id="一些细节问题"><a class="markdownIt-Anchor" href="#一些细节问题"></a> 一些细节问题</h2>
+<ol>
+<li><strong>需要移动导入表</strong>：导入表混在节数据中，现有的导入表后不够空间新增一张导入表，所以要移动导入表。移动的话只移动导入表即可</li>
+<li><strong>新增要全套</strong>：即使加了一张导入表来描述自己的dll，但如果它的OriFirstThunk和FirstThunk是空的，当这个exe运行时，这个dll也不会被加载到exe中。INT和IAT表<strong>至少要有一项有效的导入函数条目</strong>，这一导入函数项是为了形成一个完整的导入表，并不需要exe真的用到这个导入函数。<br />
+这个导入函数要在dll中实际存在。如果是随便写的，而dll中不存在，运行exe时会报0xC0000007b，如下图<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511160212896.png" alt="image-20240511160212896" /></li>
+</ol>
+<div class="tag-plugin tabs" align="center"id="tab_79"><div class="nav-tabs"><div class="tab active"><a href="#tab_79-1">原有导入表</a></div><div class="tab"><a href="#tab_79-2">导入表注入后</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_79-1"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240510145825545.png" alt="image-20240510145825545" /></p></div><div class="tab-pane" id="tab_79-2"><blockquote>
+<p>红色部分为自己新增的</p>
+</blockquote>
+<p>Hint那里填零即可，也可以算一下再填</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511164604181.png" alt="image-20240511164604181" /></p></div></div></div>
+<p>新增一个全套导入表信息需要的空间大小：</p>
+<p>A：一张导入表，20个字节<br />
+B：INT表（一项+结尾），两个8字节<br />
+C：IAT表（一项+结尾），两个8字节<br />
+D：提示名表，2字节的Hint + 字符串长度 + 1</p>
+<p>B，C，D可以另找地方放。</p>
+<p>假设原来的IID数组大小为OldIIDSize（这个值就是数据目录表中导入表的Size值，这个值算上了结尾的20字节空结构体），那么找一个空白区放移动后的IID数组，至少要NewIIDSize=OldIIDSize+20字节（新增的导入表）的大小。找空白区可以写一个函数按指定长度在PE文件的空白区中找，或者通过扩大节，新增节来解决。</p>
+<blockquote>
+<p>后面的代码实现直接是新增节来解决</p>
+</blockquote>
+<ol start="3">
+<li><strong>IAT表存放的位置要可写</strong>。因为系统加载器加载PE时会进行IAT表替换工作，如果不可写，加载时会报错。</li>
+<li>如果目标exe本身存在绑定导入表，需要将数据目录表中关于绑定导入表的信息清零。让它加载时强制重新替换IAT表。</li>
+</ol>
+<h2 id="对抗性"><a class="markdownIt-Anchor" href="#对抗性"></a> 对抗性</h2>
+<p>这种直接修改PE文件输人表的方法，适用于EXE本身无校验（CRC、数字签名或其他校验算法）的情况。因为输人表的加载过程是递归的，所以假如EXE本身有校验，而它所加载的某个第三方模块无校验，那么修改第三方模块的输人表一样可以达到注人目标进程的目的。但是，如果所有模块都有校验，就不能直接修改文件了，而应该采用进程创建期修改PE输人表的方法。</p>
+<blockquote>
+<p>《加密与解密4th》P455</p>
+</blockquote>
+<h2 id="代码实现"><a class="markdownIt-Anchor" href="#代码实现"></a> 代码实现</h2>
+<h3 id="测试的dll"><a class="markdownIt-Anchor" href="#测试的dll"></a> 测试的dll</h3>
+<div class="tag-plugin tabs" align="center"id="tab_80"><div class="nav-tabs"><div class="tab active"><a href="#tab_80-1">Fun.h和Fun.cpp</a></div><div class="tab"><a href="#tab_80-2">dllmain.cpp</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_80-1"><figure class="highlight cpp"><figcaption><span>Fun.h</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> once</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Init</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Destroy</span><span class="params">()</span></span>;</span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> _declspec(dllexport) <span class="function"><span class="type">void</span> <span class="title">ExportFunction</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><figcaption><span>Fun.cpp</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;Fun.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Init</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">MessageBox</span>(<span class="number">0</span>, <span class="built_in">TEXT</span>(<span class="string">&quot;Init&quot;</span>), <span class="built_in">TEXT</span>(<span class="string">&quot;Init&quot;</span>), MB_OK);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Destroy</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">MessageBox</span>(<span class="number">0</span>, <span class="built_in">TEXT</span>(<span class="string">&quot;Destroy&quot;</span>), <span class="built_in">TEXT</span>(<span class="string">&quot;Destroy&quot;</span>), MB_OK);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">ExportFunction</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">MessageBox</span>(<span class="number">0</span>, <span class="built_in">TEXT</span>(<span class="string">&quot;ExportFunction&quot;</span>), <span class="built_in">TEXT</span>(<span class="string">&quot;ExportFunction&quot;</span>), MB_OK);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_80-2"><p>DLL_PROCESS_ATTACH：</p>
+<ul>
+<li>
+<p>dll被加载时会被调用</p>
+</li>
+<li>
+<p>主动用LoadLibrary加载这个dll时会被调用</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HINSTANCE   hModule = <span class="built_in">LoadLibrary</span>(<span class="string">&quot;InjectDll.dll&quot;</span>); </span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>DLL_PROCESS_DETACH：</p>
+<ul>
+<li>
+<p>dll被销毁时会被调用</p>
+</li>
+<li>
+<p>代码显式卸载时会被调用</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">FreeLibrary</span>(hModule);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<figure class="highlight cpp"><figcaption><span>dllmain.cpp</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;Fun.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">BOOL APIENTRY <span class="title">DllMain</span><span class="params">(HMODULE hModule,</span></span></span><br><span class="line"><span class="params"><span class="function">                        DWORD  ul_reason_for_call,</span></span></span><br><span class="line"><span class="params"><span class="function">                        LPVOID lpReserved</span></span></span><br><span class="line"><span class="params"><span class="function">                     )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (ul_reason_for_call)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_ATTACH:</span><br><span class="line">        <span class="built_in">Init</span>();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_ATTACH:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_DETACH:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_DETACH:</span><br><span class="line">        <span class="built_in">Destroy</span>();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+<p><strong>测试方法</strong></p>
+<ol>
+<li>
+<p>用DependenciesGui能看到导出函数被导出</p>
+</li>
+<li>
+<p>新建另一个工程，看能否正常显式加载，调用导出函数，卸载这个dll</p>
+<figure class="highlight cpp"><figcaption><span>用于测试刚才的dll</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*lpTest)</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">	lpTest MyFunction;</span><br><span class="line">	<span class="comment">//加载DLL</span></span><br><span class="line">	<span class="comment">//HINSTANCE hModule = LoadLibrary(&quot;E:\\temp\\IATInjection.dll&quot;);</span></span><br><span class="line"></span><br><span class="line">	HINSTANCE hModule = <span class="built_in">LoadLibrary</span>(<span class="string">&quot;D:\\005_Codefield\\VS2019\\IATHook_Dll\\Debug\\IATInjection_Dll.dll&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span> (hModule == <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[!] Failed to load IATInjection.dll\n&quot;</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取函数地址</span></span><br><span class="line">	MyFunction = (lpTest)<span class="built_in">GetProcAddress</span>(hModule, <span class="string">&quot;ExportFunction&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span> (MyFunction == <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[!] Failed to get the address of ExportFunction\n&quot;</span>);</span><br><span class="line">		<span class="built_in">FreeLibrary</span>(hModule);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//调用函数</span></span><br><span class="line">	<span class="built_in">MyFunction</span>();</span><br><span class="line"></span><br><span class="line">	<span class="comment">//释放DLL</span></span><br><span class="line">	<span class="built_in">FreeLibrary</span>(hModule);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>能看到三个弹窗，说明这个dll是ok的</p>
+</li>
+</ol>
+<h3 id="程序流程设计"><a class="markdownIt-Anchor" href="#程序流程设计"></a> 程序流程设计</h3>
+<ol>
+<li>
+<p>获得目标exe文件的m_lpFileBuffer文件内存映像（未拉伸），获取相关PE指针</p>
+</li>
+<li>
+<p>对m_lpFileBuffer新增大小为0x1000的节，返回出lpNewBuffer（未拉伸）</p>
+</li>
+<li>
+<p>在lpNewBuffer上移动导入表到新节</p>
+<p>具体做法是：</p>
+<ul>
+<li>
+<p>遍历导入表，统计个数，将导入表拷走，记录新导入表的RVA</p>
+</li>
+<li>
+<p>在现有导入表后新增一张导入表</p>
+</li>
+<li>
+<p>找地方放INT表，IAT表，提示名表，Name字段</p>
+</li>
+<li>
+<p>更新INT表表项，更新IAT表表项</p>
+</li>
+<li>
+<p>更新自己追加的导入表的字段</p>
+</li>
+<li>
+<p>更新数据目录项中重定位表的RVA地址指向和Size</p>
+<blockquote>
+<p>说得抽象点：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>、移动</span><br><span class="line"><span class="number">2</span>、记录位置</span><br><span class="line"><span class="number">3</span>、更新字段</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>
+<p>将lpNewBuffer存盘</p>
+</li>
+</ol>
+<p><strong>检验办法</strong>：运行修改后的exe，看自己的dll是否被执行</p>
+<h3 id="编程实现"><a class="markdownIt-Anchor" href="#编程实现"></a> 编程实现</h3>
+<figure class="highlight cpp"><figcaption><span>测试函数 大致流程</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">TestIATInjection</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//写死的，方便测试用</span></span><br><span class="line">    <span class="function">PEManipulator <span class="title">PEFile</span><span class="params">(<span class="string">&quot;E:\\temp\\IATInjection\\fg.exe&quot;</span>)</span></span>;                                <span class="comment">//文件对齐=内存对齐</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">MapPEFile</span>() || !PEFile.<span class="built_in">ValidateAndExtractPEPointers</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//新增节</span></span><br><span class="line">    LPVOID lpNewBuffer = PEFile.<span class="built_in">AddANewSection</span>(<span class="number">0x1000</span>);            <span class="comment">//新节直接0x1000，也可以先算一遍，按需新增节的大小</span></span><br><span class="line">    <span class="keyword">if</span> (!lpNewBuffer)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">INVOKE_ON_EXIT</span>([&amp;] &#123; <span class="keyword">delete</span>[] lpNewBuffer; &#125;);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] AddANewSection for m_lpFileBuffer successfully.\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//移动导出表到新节</span></span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">IATInjection</span>(lpNewBuffer))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] IATInjection successfully.\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//存盘</span></span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">SaveUnstretchedPEToDisk</span>(lpNewBuffer, <span class="string">&quot;IATInjection&quot;</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] SaveUnstretchedPEToDisk successfully.\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>
+<p>获取相关PE指针，和导入表指针</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取NewBuffer中相关的PE指针</span></span><br><span class="line"><span class="keyword">auto</span> pPeHdr_NewBuffer = <span class="built_in">GetPeHeader</span>(lpNewBuffer);</span><br><span class="line"><span class="keyword">auto</span> pOptionalPeHdr_NewBuffer = <span class="built_in">GetOptionPeHeaders</span>(lpNewBuffer);</span><br><span class="line"><span class="keyword">auto</span> pSecHdr_NewBuffer = <span class="built_in">GetSectionHeader</span>(lpNewBuffer);</span><br><span class="line"><span class="keyword">if</span> (!pPeHdr_NewBuffer || !pOptionalPeHdr_NewBuffer || !pSecHdr_NewBuffer)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [!] One or more PE Header pointers are invalid\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 获取导入表指针</span></span><br><span class="line"><span class="keyword">auto</span> pImportDirectory = (PIMAGE_IMPORT_DESCRIPTOR)<span class="built_in">GetDataDirectoryPointer</span>(IMAGE_DIRECTORY_ENTRY_IMPORT, lpNewBuffer);</span><br><span class="line"><span class="keyword">if</span> (!pImportDirectory)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>指向新节起始位置，准备移动数据</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 新节的起始位置</span></span><br><span class="line">PIMAGE_SECTION_HEADER pNewSection = pSecHdr_NewBuffer + (pPeHdr_NewBuffer-&gt;NumberOfSections - <span class="number">1</span>);</span><br><span class="line">DWORD dwDstOffset = pNewSection-&gt;PointerToRawData;</span><br></pre></td></tr></table></figure>
+<p>dwDstOffset这个值是新节.PointerToRawData，在后面拷贝完某块数据后会进行更新。</p>
+<p>dwDstOffset这个值是FOA（相对于文件头的偏移），因为我们都是在未拉伸的Buffer上操作。而导入表中存的字段都是RVA地址，所以要用到FOAToRVA</p>
+</li>
+<li>
+<p>移动导入表到新位置<br />
+这里直接偷懒用数据目录表中描述的导入表<strong>Size大小/单个导入表大小</strong>得到导入表个数，这个个数包括结尾用于结束标志的空导入表。但实际上，用Lord PE添加导入表后，数据目录表中的这个Size大小没有增加。也就是说，这个Size可能不准。严谨一点的做法，就要通过遍历导入表来得知有几张导入表。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1、移动导入表到新位置</span></span><br><span class="line">DWORD dwOldIIDSize = pOptionalPeHdr_NewBuffer-&gt;DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size;</span><br><span class="line"><span class="built_in">memcpy</span>((PBYTE)(DWORD)lpNewBuffer + dwDstOffset, pImportDirectory, dwOldIIDSize);</span><br><span class="line">   </span><br><span class="line">DWORD dwNewImportTableFOA = dwDstOffset;                <span class="comment">//记录导入表新位置，用于后面更新数据目录表中导入表描述的VirtualAddress字段</span></span><br><span class="line">DWORD dwNewImportTableRVA = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">if</span> (!<span class="built_in">FOAToRVA</span>(dwNewImportTableFOA, dwNewImportTableRVA, lpNewBuffer))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br><span class="line">dwDstOffset += dwOldIIDSize;</span><br><span class="line"></span><br><span class="line">pOptionalPeHdr_NewBuffer-&gt;DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress = dwNewImportTableRVA; <span class="comment">//更新数据目录表中的导入表地址指向和Size</span></span><br><span class="line">pOptionalPeHdr_NewBuffer-&gt;DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size += <span class="number">20</span>;                           <span class="comment">//不加也可以的</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>新增一张导入表</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//2、新增一张导入表</span></span><br><span class="line">BYTE OldIIDCount = dwOldIIDSize / <span class="built_in">sizeof</span>(IMAGE_IMPORT_DESCRIPTOR) - <span class="number">1</span>;    <span class="comment">//Size包含了结尾的空结构体，-1减掉就是实际上有多少个IID结构体 </span></span><br><span class="line"><span class="keyword">auto</span> pNewImportDirectory = (PIMAGE_IMPORT_DESCRIPTOR)((DWORD)lpNewBuffer + dwNewImportTableFOA);</span><br><span class="line"><span class="keyword">auto</span> pMyImportDirectory = pNewImportDirectory + OldIIDCount;              <span class="comment">//指向新增的导入表</span></span><br><span class="line"><span class="built_in">memset</span>(pMyImportDirectory, <span class="number">0</span>, <span class="built_in">sizeof</span>(IMAGE_IMPORT_DESCRIPTOR));           <span class="comment">//其实新增的导入表所有字段已为0，因为之前新增节时全填充为0</span></span><br><span class="line">                                                                          <span class="comment">//TimeDateStamp和ForwarderChain已为0</span></span><br><span class="line">dwDstOffset += <span class="built_in">sizeof</span>(IMAGE_IMPORT_DESCRIPTOR);                           <span class="comment">// 新增节本身全为0，让dwDstOffset前进一张导入表的大小（20字节）</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;[+] Imported table successfully copied and new import descriptor initialized.\n&quot;</span>);</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>构造提示名表</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//（1）提示名表</span></span><br><span class="line">DWORD dwMyHintNameTableFOA = dwDstOffset;         <span class="comment">//记录自己构造的提示名表的位置，用于后面让INT和IAT表指向这个值</span></span><br><span class="line">DWORD dwMyHintNameTableRVA = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">if</span> (!<span class="built_in">FOAToRVA</span>(dwMyHintNameTableFOA, dwMyHintNameTableRVA, lpNewBuffer))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br><span class="line">   </span><br><span class="line">WORD MyHint = <span class="number">0</span>;                                  <span class="comment">//构造提示名表</span></span><br><span class="line"><span class="type">char</span> MyName[] = <span class="string">&quot;ExportFunction&quot;</span>;</span><br><span class="line">BYTE MyNameLength = <span class="built_in">strlen</span>(MyName) + <span class="number">1</span>;</span><br><span class="line">   </span><br><span class="line"><span class="comment">//MyHint = 0                                      //移动</span></span><br><span class="line">dwDstOffset += <span class="built_in">sizeof</span>(MyHint);</span><br><span class="line"><span class="built_in">memcpy</span>((PBYTE)(DWORD)lpNewBuffer + dwDstOffset, MyName, MyNameLength);</span><br><span class="line">dwDstOffset += MyNameLength;                </span><br><span class="line">   </span><br><span class="line">DWORD dwThunkDataValue = dwMyHintNameTableRVA;    <span class="comment">//更新INT表和IAT表表项</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>构造INT表和IAT表</p>
+<div class="tag-plugin tabs" align="center"id="tab_81"><div class="nav-tabs"><div class="tab active"><a href="#tab_81-1">INT表</a></div><div class="tab"><a href="#tab_81-2">IAT表</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_81-1"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//（2）INT表</span></span><br><span class="line">DWORD dwMyINTTableFOA = dwDstOffset;                          <span class="comment">//记录自己构造的INT表的位置，用于后面更新导入表的OriginalFirstThunk字段</span></span><br><span class="line">DWORD dwMyINTTableRVA = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">if</span> (!<span class="built_in">FOAToRVA</span>(dwMyINTTableFOA, dwMyINTTableRVA, lpNewBuffer))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br><span class="line">   </span><br><span class="line"><span class="built_in">memcpy</span>((PBYTE)(DWORD)lpNewBuffer + dwDstOffset, &amp;dwThunkDataValue, <span class="built_in">sizeof</span>(dwThunkDataValue));</span><br><span class="line">dwDstOffset += <span class="built_in">sizeof</span>(dwThunkDataValue) * <span class="number">2</span>;                 <span class="comment">//更新dwDstOffset，再跳一个大小作为INT表结尾</span></span><br><span class="line">   </span><br><span class="line">pMyImportDirectory-&gt;OriginalFirstThunk = dwMyINTTableRVA;    <span class="comment">//更新新增导入表的OriginalFirstThunk字段</span></span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_81-2"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//（3）IAT表</span></span><br><span class="line">DWORD dwMyIATTableFOA = dwDstOffset;                         <span class="comment">//记录自己构造的IAT表的位置，用于后面更新导入表的FirstThunk字段</span></span><br><span class="line">DWORD dwMyIATTableRVA = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">if</span> (!<span class="built_in">FOAToRVA</span>(dwMyIATTableFOA, dwMyIATTableRVA, lpNewBuffer))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br><span class="line">   </span><br><span class="line"><span class="built_in">memcpy</span>((PBYTE)(DWORD)lpNewBuffer + dwDstOffset, &amp;dwThunkDataValue, <span class="built_in">sizeof</span>(dwThunkDataValue));</span><br><span class="line">dwDstOffset += <span class="built_in">sizeof</span>(dwThunkDataValue) * <span class="number">2</span>;                <span class="comment">//更新dwDstOffset，再跳一个大小作为IAT表结尾</span></span><br><span class="line">   </span><br><span class="line">pMyImportDirectory-&gt;FirstThunk = dwMyIATTableRVA;           <span class="comment">//更新新增导入表的FirstThunk字段</span></span><br></pre></td></tr></table></figure></div></div></div>
+</li>
+<li>
+<p>构造Dll名</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//（4）Dll 名</span></span><br><span class="line"><span class="comment">//记录位置</span></span><br><span class="line">DWORD dwMyDllNameFOA = dwDstOffset;                    <span class="comment">//记录自己构造的Dll名的位置，用于后面更新导入表的Name字段</span></span><br><span class="line">DWORD dwMyDllNameRVA = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">if</span> (!<span class="built_in">FOAToRVA</span>(dwMyDllNameFOA, dwMyDllNameRVA, lpNewBuffer))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br><span class="line">   </span><br><span class="line"><span class="type">char</span> MyDllName[] = <span class="string">&quot;IATInjection_Dll.dll&quot;</span>;</span><br><span class="line">BYTE MyDllNameLength = <span class="built_in">strlen</span>(MyDllName) + <span class="number">1</span>;</span><br><span class="line"><span class="built_in">memcpy</span>((PBYTE)(DWORD)lpNewBuffer + dwDstOffset, MyDllName, MyDllNameLength);</span><br><span class="line"><span class="comment">//dwDstOffset += MyDllNameLength;                           //更新dwDstOffset</span></span><br><span class="line">   </span><br><span class="line">pMyImportDirectory-&gt;Name = dwMyDllNameRVA;            <span class="comment">//更新新增导入表的Name字段</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>完整代码</span></summary><div class="body"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">PEManipulator::MoveImportTableToNewSection</span><span class="params">(LPVOID lpNewBuffer)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//获取NewBuffer中相关的PE指针</span></span><br><span class="line">    <span class="keyword">auto</span> pPeHdr_NewBuffer = <span class="built_in">GetPeHeader</span>(lpNewBuffer);</span><br><span class="line">    <span class="keyword">auto</span> pOptionalPeHdr_NewBuffer = <span class="built_in">GetOptionPeHeaders</span>(lpNewBuffer);</span><br><span class="line">    <span class="keyword">auto</span> pSecHdr_NewBuffer = <span class="built_in">GetSectionHeader</span>(lpNewBuffer);</span><br><span class="line">    <span class="keyword">if</span> (!pPeHdr_NewBuffer || !pOptionalPeHdr_NewBuffer || !pSecHdr_NewBuffer)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;   [!] One or more PE Header pointers are invalid\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 获取导入表指针</span></span><br><span class="line">    <span class="keyword">auto</span> pImportDirectory = (PIMAGE_IMPORT_DESCRIPTOR)<span class="built_in">GetDataDirectoryPointer</span>(IMAGE_DIRECTORY_ENTRY_IMPORT, lpNewBuffer);</span><br><span class="line">    <span class="keyword">if</span> (!pImportDirectory)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 新节的起始位置</span></span><br><span class="line">    PIMAGE_SECTION_HEADER pNewSection = pSecHdr_NewBuffer + (pPeHdr_NewBuffer-&gt;NumberOfSections - <span class="number">1</span>);</span><br><span class="line">    DWORD dwDstOffset = pNewSection-&gt;PointerToRawData;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//1、统计导入表个数，随后将导入表移动到新位置</span></span><br><span class="line">    BYTE ImportTableCount = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (pImportDirectory[ImportTableCount].OriginalFirstThunk &amp;&amp; pImportDirectory[ImportTableCount].FirstThunk)</span><br><span class="line">    &#123;</span><br><span class="line">        ++ImportTableCount;</span><br><span class="line">    &#125;</span><br><span class="line">    DWORD ImportTableSize = (ImportTableCount + <span class="number">1</span>) * <span class="built_in">sizeof</span>(IMAGE_IMPORT_DESCRIPTOR);       <span class="comment">// +1 for null terminator</span></span><br><span class="line">    <span class="built_in">memcpy</span>((PBYTE)((DWORD)lpNewBuffer + dwDstOffset), pImportDirectory, ImportTableSize);</span><br><span class="line"></span><br><span class="line">    DWORD dwNewImportTableFOA = dwDstOffset;</span><br><span class="line">    DWORD dwNewImportTableRVA = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">FOAToRVA</span>(dwNewImportTableFOA, dwNewImportTableRVA, lpNewBuffer))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    dwDstOffset += ImportTableSize;                     <span class="comment">//更新dwDstOffset</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//2、指向新新导入表，遍历它，将所有INT表拷到新位置</span></span><br><span class="line">    <span class="keyword">auto</span> pNewImportDirectory = (PIMAGE_IMPORT_DESCRIPTOR)((DWORD)lpNewBuffer + dwNewImportTableFOA);</span><br><span class="line">    <span class="keyword">while</span> (pNewImportDirectory-&gt;OriginalFirstThunk &amp;&amp; pNewImportDirectory-&gt;FirstThunk)</span><br><span class="line">    &#123;</span><br><span class="line">        DWORD dwOriginalFirstThunk_FOA = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pNewImportDirectory-&gt;OriginalFirstThunk, dwOriginalFirstThunk_FOA))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> FALSE;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">auto</span> pINTTable = (PDWORD)((DWORD)lpNewBuffer + dwOriginalFirstThunk_FOA);</span><br><span class="line"></span><br><span class="line">        BYTE count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (pINTTable[count])</span><br><span class="line">        &#123;</span><br><span class="line">            ++count;</span><br><span class="line">        &#125;</span><br><span class="line">        DWORD dwINTTableSize = (count + <span class="number">1</span>) * <span class="built_in">sizeof</span>(DWORD);                   <span class="comment">// +1 for null terminator</span></span><br><span class="line">        <span class="built_in">memcpy</span>((PBYTE)((DWORD)lpNewBuffer + dwDstOffset), pINTTable, dwINTTableSize);</span><br><span class="line"></span><br><span class="line">        DWORD dwNewINTTableFOA = dwDstOffset;</span><br><span class="line">        DWORD dwNewINTTableRVA = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">FOAToRVA</span>(dwNewINTTableFOA, dwNewINTTableRVA, lpNewBuffer))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> FALSE;</span><br><span class="line">        &#125;</span><br><span class="line">        dwDstOffset += dwINTTableSize;                     <span class="comment">//更新dwDstOffset</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//修正导入表中OriginalFirstThunk指向</span></span><br><span class="line">        pNewImportDirectory-&gt;OriginalFirstThunk = dwNewINTTableRVA;</span><br><span class="line">        </span><br><span class="line">        ++pNewImportDirectory;                              <span class="comment">//下一张导入表</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//3、遍历新导入表，遍历INT表，处理提示名表 +  处理导入表的Name字段</span></span><br><span class="line">    pNewImportDirectory = (PIMAGE_IMPORT_DESCRIPTOR)((DWORD)lpNewBuffer + dwNewImportTableFOA); <span class="comment">//回到第一张导入表</span></span><br><span class="line">    <span class="keyword">while</span> (pNewImportDirectory-&gt;OriginalFirstThunk &amp;&amp; pNewImportDirectory-&gt;FirstThunk)</span><br><span class="line">    &#123;</span><br><span class="line">        DWORD dwOriginalFirstThunk_FOA = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pNewImportDirectory-&gt;OriginalFirstThunk, dwOriginalFirstThunk_FOA, lpNewBuffer))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> FALSE;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">auto</span> pINTTable = (PDWORD)((DWORD)lpNewBuffer + dwOriginalFirstThunk_FOA);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (*pINTTable)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">IMAGE_SNAP_BY_ORDINAL</span>(*pINTTable))               <span class="comment">//最高位为1，序号方式输入</span></span><br><span class="line">            &#123;</span><br><span class="line">                ;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>                                                 <span class="comment">//最高位为0，指向Hint-Name Table</span></span><br><span class="line">            &#123;</span><br><span class="line">                DWORD dwHintNameTableFOA = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(*pINTTable, dwHintNameTableFOA))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">return</span> FALSE;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">auto</span> pHintNameTable = (PIMAGE_IMPORT_BY_NAME)((DWORD)lpNewBuffer + dwHintNameTableFOA);</span><br><span class="line"></span><br><span class="line">                BYTE SizeOfHintNameTableItem = <span class="built_in">sizeof</span>(pHintNameTable-&gt;Hint) + (<span class="built_in">strlen</span>((PCHAR)pHintNameTable-&gt;Name) + <span class="number">1</span>);</span><br><span class="line">                <span class="built_in">memcpy</span>((PBYTE)((DWORD)lpNewBuffer + dwDstOffset), (PBYTE)pHintNameTable, SizeOfHintNameTableItem);</span><br><span class="line"></span><br><span class="line">                DWORD dwNewHintNameTableFOA = dwDstOffset;</span><br><span class="line">                DWORD dwNewHintNameTableRVA = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">if</span> (!<span class="built_in">FOAToRVA</span>(dwNewHintNameTableFOA, dwNewHintNameTableRVA, lpNewBuffer))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">return</span> FALSE;</span><br><span class="line">                &#125;</span><br><span class="line">                dwDstOffset += SizeOfHintNameTableItem;</span><br><span class="line"></span><br><span class="line">                <span class="comment">//修正INT表项的指向</span></span><br><span class="line">                *pINTTable = dwNewHintNameTableRVA;</span><br><span class="line">            &#125;</span><br><span class="line">            ++pINTTable;                                            <span class="comment">//INT表下一项</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//处理导入表的Name字段</span></span><br><span class="line">        DWORD dwNameFOA = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pNewImportDirectory-&gt;Name, dwNameFOA))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> FALSE;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">auto</span> cName = (PCHAR)((DWORD)lpNewBuffer + dwNameFOA);</span><br><span class="line"></span><br><span class="line">        <span class="built_in">memcpy</span>((PBYTE)((DWORD)lpNewBuffer + dwDstOffset), cName, <span class="built_in">strlen</span>(cName) + <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        DWORD dwNewNameFOA = dwDstOffset;</span><br><span class="line">        DWORD dwNewNameRVA = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">FOAToRVA</span>(dwNewNameFOA, dwNewNameRVA, lpNewBuffer))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> FALSE;</span><br><span class="line">        &#125;</span><br><span class="line">        dwDstOffset += <span class="built_in">strlen</span>(cName) + <span class="number">1</span>;                           <span class="comment">//更新dwDstOffset</span></span><br><span class="line"></span><br><span class="line">        pNewImportDirectory-&gt;Name = dwNewNameRVA;                   <span class="comment">//修正导入表中Name字段指向</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">//下一张导入表</span></span><br><span class="line">        ++pNewImportDirectory;               </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//4、更新数据目录表中的导入表地址指向</span></span><br><span class="line">    pOptionalPeHdr_NewBuffer-&gt;DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress = dwNewImportTableRVA;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] Import table successfully moved and fixed.\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></details></div>
+<h3 id="运行结果"><a class="markdownIt-Anchor" href="#运行结果"></a> 运行结果</h3>
+<div class="tag-plugin tabs" align="center"id="tab_82"><div class="nav-tabs"><div class="tab active"><a href="#tab_82-1">用Lord PE工具新增节</a></div><div class="tab"><a href="#tab_82-2">代码运行效果</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_82-1"><p>用Lord PE新增导入表的功能来试下IAT注入。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511143220841.png" alt="image-20240511143220841" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511143319948.png" alt="image-20240511143319948" /></p>
+<p>如果勾选了Check imports for existenct。Lord PE要去查找写的API函数是否在这个dll中，它会用LoadLibrary加载这个dll。在我们这个例子中，点击“+”后就会看到Init那个Messagebox的弹窗</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511143547208.png" alt="image-20240511143547208" /></p>
+<p>只有当Lord PE这个进程关闭后，刚才加载的dll才会释放，才会看到Destory那个Messagebox的弹窗。</p>
+<hr />
+<p>Lord PE是在原exe的基础上直接修改。运行修改后的exe，观察到Init弹窗，退出fg后，看到Destory弹窗。</p>
+<blockquote>
+<p>运行exe前要把dll放到同一目录下，因为加载dll的查找顺序原因</p>
+</blockquote></div><div class="tab-pane" id="tab_82-2"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511143940574.png" alt="image-20240511143940574" /></p>
+<blockquote>
+<p>运行exe前要把dll放到同一目录下，因为加载dll的查找顺序原因</p>
+</blockquote>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511144049411.png" alt="image-20240511144049411" /></p>
+<p>退出fg，能看到Destory的窗口</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511144337567.png" alt="image-20240511144337567" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5/image-20240511144222264.png" alt="image-20240511144222264" /></p></div></div></div>
+<h2 id="未来可继续完善优化的"><a class="markdownIt-Anchor" href="#未来可继续完善优化的"></a> 未来可继续完善优化的</h2>
+<ol>
+<li>感染标记，如果这个PE文件已经IAT表注入过，程序退出。如，在DOS头中随便找个没啥用的字段，将它的值修改，作为感染标记。</li>
+<li>在空白区查找指定大小，符合节属性的函数。调用查找函数，实在没位置，用扩大节或新增节来解决。</li>
+</ol>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

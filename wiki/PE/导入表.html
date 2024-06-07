@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>PE：导入表 - Misc010</title>
+
+  
+    <meta name="description" content="前言 一个PE文件的导入表中记录了当前PE文件运行时需要用到哪些PE文件，用到那个PE文件中的哪些函数。 比如fg.exe的导入表指出，运行时需要用到kernel32.dll，user32.dll等dll。其中，要用到kernel32.dll中CreateProcess，ExitProcess等函数。 导入的dll如果也有导入表，系统加载器会递归地继续加载它所依赖的dll，直到所有的依赖都被加载">
+<meta property="og:type" content="website">
+<meta property="og:title" content="导入表">
+<meta property="og:url" content="https://misc0101.github.io/wiki/PE/%E5%AF%BC%E5%85%A5%E8%A1%A8.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="前言 一个PE文件的导入表中记录了当前PE文件运行时需要用到哪些PE文件，用到那个PE文件中的哪些函数。 比如fg.exe的导入表指出，运行时需要用到kernel32.dll，user32.dll等dll。其中，要用到kernel32.dll中CreateProcess，ExitProcess等函数。 导入的dll如果也有导入表，系统加载器会递归地继续加载它所依赖的dll，直到所有的依赖都被加载">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505130743508.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505130853289.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505130701840.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505131128808.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505132026276.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505162414914.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505162227634.png">
+<meta property="article:published_time" content="2024-05-02T09:30:58.000Z">
+<meta property="article:modified_time" content="2024-05-02T09:30:58.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505130743508.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/PE/Overview_PE.html"><div class="main" ff="title">PE</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/PE/" placeholder="在/wiki/PE/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">基本概念</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/Overview_PE.html#start"><span class="toc-text">Overview</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5_PE.html"><span class="toc-text">一些概念</span></a></div></div><div class="widget-header cap dis-select"><span class="name">字段解读</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/DOS%E9%83%A8%E5%88%86.html"><span class="toc-text">DOS部分</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/PE%E5%A4%B4.html"><span class="toc-text">PE头</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E8%8A%82%E8%A1%A8.html"><span class="toc-text">节表</span></a></div></div><div class="widget-header cap dis-select"><span class="name">练习和项目</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BB%83%E4%B9%A0_PE.html"><span class="toc-text">练习</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BC%96%E7%A8%8B%E7%BB%83%E4%B9%A0_PE.html"><span class="toc-text">编程练习</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/PE%E8%A7%A3%E6%9E%90%E5%99%A8.html"><span class="toc-text">PE解析器</span></a></div></div><div class="widget-header cap dis-select"><span class="name">节操作</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%A9%BA%E7%99%BD%E5%8C%BA%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81.html"><span class="toc-text">空白区添加代码</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E6%89%A9%E5%A4%A7%E8%8A%82.html"><span class="toc-text">扩大节</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E6%96%B0%E5%A2%9E%E8%8A%82.html"><span class="toc-text">新增节</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%90%88%E5%B9%B6%E8%8A%82.html"><span class="toc-text">合并节</span></a></div></div><div class="widget-header cap dis-select"><span class="name">数据目录表</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E5%92%8C%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93.html"><span class="toc-text">静态链接库和动态链接库</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%AF%BC%E5%87%BA%E8%A1%A8.html"><span class="toc-text">导出表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8.html"><span class="toc-text">重定位表</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/PE/%E5%AF%BC%E5%85%A5%E8%A1%A8.html"><span class="toc-text">导入表</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text"> 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%BC%E5%85%A5%E8%A1%A8"><span class="toc-text"> 导入表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text"> 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%93%E5%8D%B0%E5%AF%BC%E5%85%A5%E8%A1%A8"><span class="toc-text"> 打印导入表</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BB%91%E5%AE%9A%E5%AF%BC%E5%85%A5%E8%A1%A8.html"><span class="toc-text">绑定导入表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E8%B5%84%E6%BA%90%E8%A1%A8.html"><span class="toc-text">资源表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%A7%BB%E5%8A%A8%E5%90%84%E7%A7%8D%E8%A1%A8.html"><span class="toc-text">移动各种表</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/To_Learn_List.html"><span class="toc-text">To Learn List</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><span class="title">Protected_Mode</span><span class="excerpt">滴水三期_保护模式笔记。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/PE/Overview_PE.html">PE</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-05-02T09:30:58.000Z">2024-05-02</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>导入表</span></h1>
+<h2 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h2>
+<p>一个PE文件的导入表中记录了当前PE文件运行时需要用到哪些PE文件，用到那个PE文件中的哪些函数。<br />
+比如fg.exe的导入表指出，运行时需要用到kernel32.dll，user32.dll等dll。其中，要用到kernel32.dll中CreateProcess，ExitProcess等函数。<br />
+导入的dll如果也有导入表，系统加载器会递归地继续加载它所依赖的dll，直到所有的依赖都被加载到进程空间为止。</p>
+<hr />
+<p>我们写一段示例代码，观察下自己写的普通函数和导入函数在反汇编上调用代码的区别。</p>
+<figure class="highlight cpp"><figcaption><span>VCdebug模式编译</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">Fun</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x + y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> r = <span class="built_in">Fun</span>(<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">MessageBox</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin tabs" align="center"id="tab_106"><div class="nav-tabs"><div class="tab active"><a href="#tab_106-1">Fun，代表自己写的普通函数</a></div><div class="tab"><a href="#tab_106-2">MessageBox，代表导入的函数</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_106-1"><p>直接调用，写死的地址，直接call，call过去</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505130743508.png" alt="image-20240505130743508" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505130853289.png" alt="image-20240505130853289" /></p></div><div class="tab-pane" id="tab_106-2"><p>用的call是间接调用，调用42A2ACh里存的那个数</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505130701840.png" alt="image-20240505130701840" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505131128808.png" alt="image-20240505131128808" /></p></div></div></div>
+<p>现在我们看看在文件中42A2ACh，这块地址里存的内容是什么。这是运行时的PE，将42A2ACh减去400000h（ImageBase）得到2A2ACh（RVA），RVA转FOA得到（过程略）282ACh。用十六进制编辑器找过去，看到282ACh存的不是上面OD看到的函数地址757B15F0h。而是00022ADCh这么一个数（后面会提，这个值是个RVA，转FOA后找过去，找到的是提示名表Hint-name Table，会找到MessageBoxA函数名）。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505132026276.png" alt="image-20240505132026276" /></p>
+<p>这一块是IAT表的知识，后面会提。通过这个实验可以先粗浅地得知：</p>
+<ul>
+<li>PE文件加载前，42A2ACh这里是一个指向提示名表Hint-name的RVA地址，提示名表中记录了导入函数的名字。</li>
+<li>PE文件加载后，42A2ACh这里会被替换成MessaBoxA的实际地址</li>
+</ul>
+<p>（由一堆42A2ACh这样的地址组成的就是IAT表，在文件时IAT表表项指向提示名表Hint-name Table，在模块载入后，IAT表中的表项会由系统加载器替换为导入函数的函数地址）。</p>
+<h2 id="导入表"><a class="markdownIt-Anchor" href="#导入表"></a> 导入表</h2>
+<p>从<strong>拓展PE头.数据目录表数据</strong>的第2个成员得到导入表的起始地址（这个值是RVA）和大小。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_DATA_DIRECTORY</span> &#123;</span><br><span class="line">    DWORD   VirtualAddress;</span><br><span class="line">    DWORD   Size;</span><br><span class="line">&#125; IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;</span><br></pre></td></tr></table></figure>
+<p>将RVA转为FOA后，找过去，是第一个导入表的起始位置。导入表由一堆<strong>IMAGE_IMPORT_DESCRIPTOR</strong>（IID）类型的结构体数组组成。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_IMPORT_DESCRIPTOR</span> &#123;</span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        DWORD   Characteristics;            </span><br><span class="line">        DWORD   OriginalFirstThunk;         <span class="comment">// 指向INT表的RVA地址</span></span><br><span class="line">    &#125; DUMMYUNIONNAME;</span><br><span class="line">    DWORD   TimeDateStamp;                  <span class="comment">// 时间戳</span></span><br><span class="line">    DWORD   ForwarderChain;                 <span class="comment">// 不使用</span></span><br><span class="line">    DWORD   Name;                           <span class="comment">// 指向导入的DLL名，RVA地址</span></span><br><span class="line">    DWORD   FirstThunk;                     <span class="comment">// 指向IAT表的RVA地址</span></span><br><span class="line">&#125; IMAGE_IMPORT_DESCRIPTOR;</span><br><span class="line"><span class="keyword">typedef</span> IMAGE_IMPORT_DESCRIPTOR UNALIGNED *PIMAGE_IMPORT_DESCRIPTOR;</span><br></pre></td></tr></table></figure>
+<p>以全0的IMAGE_IMPORT_DESCRIPTOR结构体作为结束标志。</p>
+<ol>
+<li>
+<p>OriginalFirstThunk：一个指向导入名称表（INT，Import Name Table）的RVA地址。</p>
+</li>
+<li>
+<p>TimeDateStamp：时间戳，可以忽略。</p>
+</li>
+<li>
+<p>ForwarderChain：没啥用</p>
+<blockquote>
+<p>这是第1个被转向的API的索引，一般为0，在程序引用一个DLL中的API, 而这个API又在引用其他DLL的API时使用(但这样的情况很少出现)。《加密与解密4th》P423</p>
+</blockquote>
+</li>
+<li>
+<p>Name：指向一个以’\0’结尾的ASCII字符串，这个值是RVA。指向的字符串是导入的DLL名字，例如Kernel32.dll，User32.dll。</p>
+</li>
+<li>
+<p>FirstThunk：一个指向导入地址表（IAT，Import Address Table）的RVA地址。<br />
+数据目录表的第13项直接指向了IAT表的RVA地址，通过这个也能直接找到IAT表。</p>
+</li>
+</ol>
+<p>INT表是一个IMAGE_THUNK_DATA结构的数组，IAT表也是一个IMAGE_THUNK_DATA结构的数组。它们都是以全0的IMAGE_THUNK_DATA结构体作为结束标志。</p>
+<p>在PE文件运行前INT表和IAT表的内容完全一样。假设OriginalFirstThunk指向的INT表在文件的位置A，FirstThunk指向的IAT表在文件的位置B，它们位置不同，但是INT表和IAT表的内容完全一样。且都指向同一份提示名表（Hint-name Table）。</p>
+<div class="tag-plugin tabs" align="center"id="tab_107"><div class="nav-tabs"><div class="tab active"><a href="#tab_107-1">PE32</a></div><div class="tab"><a href="#tab_107-2">PE32+</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_107-1"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_THUNK_DATA32</span> &#123;</span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        DWORD ForwarderString;      </span><br><span class="line">        DWORD Function;             </span><br><span class="line">        DWORD Ordinal;              <span class="comment">// 序号</span></span><br><span class="line">        DWORD AddressOfData;        <span class="comment">// 指向PIMAGE_IMPORT_BY_NAME，是一个RVA地址</span></span><br><span class="line">    &#125; u1;</span><br><span class="line">&#125; IMAGE_THUNK_DATA32;</span><br><span class="line"><span class="keyword">typedef</span> IMAGE_THUNK_DATA32 * PIMAGE_THUNK_DATA32;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_107-2"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_THUNK_DATA64</span> &#123;</span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        ULONGLONG ForwarderString;  <span class="comment">// PBYTE </span></span><br><span class="line">        ULONGLONG Function;         <span class="comment">// PDWORD</span></span><br><span class="line">        ULONGLONG Ordinal;</span><br><span class="line">        ULONGLONG AddressOfData;    <span class="comment">// PIMAGE_IMPORT_BY_NAME</span></span><br><span class="line">    &#125; u1;</span><br><span class="line">&#125; IMAGE_THUNK_DATA64;</span><br><span class="line"><span class="keyword">typedef</span> IMAGE_THUNK_DATA64 * PIMAGE_THUNK_DATA64;</span><br></pre></td></tr></table></figure></div></div></div>
+<p>IMAGE_THUNK_DATA是个联合结构，联合结构占的空间取决于联合结构中最宽的那个成员。PE32是DWORD大小。</p>
+<ul>
+<li>当这个DWORD值最高位为1时，表示函数以序号方式导入。此时低31位是一个函数序号。</li>
+<li>当这个DWORD值最高位为0时，表示函数以函数名方式导入。此时这个DWORD值是一个指向<strong>IMAGE_IMPORT_BY_NAME</strong>结构的RVA地址。</li>
+</ul>
+<figure class="highlight cpp"><figcaption><span>有时被称为提示名表（Hint-name Table）</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_IMPORT_BY_NAME</span> &#123;</span><br><span class="line">    WORD    Hint;</span><br><span class="line">    CHAR   Name[<span class="number">1</span>];</span><br><span class="line">&#125; IMAGE_IMPORT_BY_NAME, *PIMAGE_IMPORT_BY_NAME;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>
+<p>Hint：这个导入函数在其所驻留DLL输出表中的序号（这个序号不等于导出函数的导出序号，是导出序号-Base后的值），可以直接拿这个序号当数组索引去导出函数地址表查表。</p>
+<blockquote>
+<p>不过Hint这个值可能不准确。因为是这样的，根据IAT表更新的过程可以知道：先查到INT表，</p>
+<ul>
+<li>INT表里的值如果高位为0，表示是名字方式导入，这时才会继续找到IMAGE_IMPORT_BY_NAME结构。那通过名字去查导出表获得函数地址呗，不用关心这个序号了。</li>
+<li>而INT表里的值如果高位为1，表示是序号导出，那直接拿序号去查地址表了，没有后续的IMAGE_IMPORT_BY_NAME结构了。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>hint在英文中是提示的意思</p>
+</blockquote>
+</li>
+<li>
+<p>Name：导入函数的函数名。这个函数名是一个以’\0’结尾的ASCII字符串。因为函数名长度不定，这里结构体中用的CHAR（一个字节）的数据类型来表示。在实际用这个名字时要遍历到’\0’结尾。</p>
+</li>
+</ul>
+<h3 id="小结"><a class="markdownIt-Anchor" href="#小结"></a> 小结</h3>
+<p>通过数据目录表第2项的RVA地址，可找到一张张的导入表。每个导入表描述一个要导入的dll文件。每个IID结构中分别有OriginalFirstThunk指向INT表，有FirstThunk指向IAT表。在INT表和IAT表中，描述了要导入这个dll中的哪些函数（包括函数名描述和序号描述）。</p>
+<p>在PE文件运行前，INT表和IAT表存在文件中的不同位置，但INT表和IAT表的内容一样。当PE文件运行后，IAT表的内容会被由系统加载器替换为实际的函数地址，替换的步骤如下：</p>
+<ol>
+<li>读取IID的Name成员，获取库名称字符串(“kernel32.dll”)。</li>
+<li>装载相应库
+<ul>
+<li>→LoadLibrary(“kernel32.dll”)</li>
+</ul>
+</li>
+<li>读取IID的OriginalFirstThunk成员，获取INT地址。</li>
+<li>逐一读取INT中数组的值，获取相应IMAGE_IMPORT_BY_NAME地址(RVA) 。</li>
+<li>使用IMAGE_IMPORT_BY_NAME的Hint(ordinal)或Name项，获取相应函数的起始地址。
+<ul>
+<li>→GetProcAddress(“GetCurrentThreadld”)</li>
+</ul>
+</li>
+<li>根据IID的FirstThunk (IAT)成员，获得IAT地址</li>
+<li>用上面获得的函数地址替换相应IAT数组中的值</li>
+<li>重复以上步骤4~7，直至遍历所有INT结束（遇到NULL时）</li>
+</ol>
+<blockquote>
+<p>《逆向核心工程原理》P108</p>
+</blockquote>
+<p>从一个PE文件装载过程说起的话便是：</p>
+<ol>
+<li>双击一个exe</li>
+<li>系统加载器将exe以拉伸态贴到进程空间的ImageBase处</li>
+<li>遍历exe的导入表<strong>逐一</strong>将dll以拉伸态贴到进程空间的ImageBase处<br />
+某些dll预设的ImageBase可能被其他dll占了，那么这个dll会加载到其他基址，并按重定位表修复重定位数据</li>
+<li>替换IAT表内容：通过遍历导入表-INT表去dll获取导出函数地址，替换IAT表内容</li>
+</ol>
+<div class="tag-plugin tabs" align="center"id="tab_108"><div class="nav-tabs"><div class="tab active"><a href="#tab_108-1">PE文件加载前</a></div><div class="tab"><a href="#tab_108-2">PE文件加载后</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_108-1"><blockquote>
+<p>下面示意图中名称提示表Hint-name Table看起来好像是要连续的。实际上它们之间可以有缝隙放些其他内容，但一般情况下它们中间没缝隙。编程时名称提示表的每一项都是由INT表或IAT表表项找过去的。</p>
+</blockquote>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505162414914.png" alt="image-20240505162414914" /></p></div><div class="tab-pane" id="tab_108-2"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%85%A5%E8%A1%A8/image-20240505162227634.png" alt="image-20240505162227634" /></p>
+<p>程序中调用导入函数都是间接调用，指向IAT表。当系统加载器完成IAT表表项函数地址的更新后，这些间接调用就能正确调用到导入函数了。</p>
+<p>程序中调用导入函数的汇编指令可能是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">	call 00401164</span><br><span class="line">	……</span><br><span class="line">:00401164</span><br><span class="line">	jmp dword ptr [00402010]	;指向User32.LoadIconA函数</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call dword ptr [00402010]	;指向User32.LoadIconA函数</span><br></pre></td></tr></table></figure>
+<p>（上面画图只画了其中一种情况）</p></div></div></div>
+<p><strong>Q&amp;A</strong></p>
+<ol>
+<li>导入函数的地址为什么要用间接调用的方式，而不是像普通函数那样直接将地址写死？直接写死效率不是更高吗（间接调用要先去取目标内存里的值，然后才调用，先比于直接调用会花费更多的执行时间）？<br />
+答：用间接调用的方式是因为导入函数的函数地址在PE文件加载后才能确定，这有两方面的因素：
+<ul>
+<li>Windows引入了DLL是为了模块化。一个exe+多个dll，哪个模块有问题改那个模块的dll即可。当notepad.exe在不同的操作系统下运行，不同操作系统版本的kernel32.dll版本各不相同，CreateFileW函数的位置（地址）也不相同。目标导入函数地址只能在执行文件时由PE加载器填充后才知道。</li>
+<li>DLL重定位：DLL文件加载进进程空间时可能发生重定位，只有当目标DLL加载完了+修复完重定位数据后才能确定函数地址。</li>
+</ul>
+</li>
+<li>只有IAT表不就好了，根据IAT表指向名称提示表，然后更新IAT表为导入函数的函数地址，随后就能正常使用了。为什么还要额外的INT表？<br />
+答：
+<ul>
+<li>留一份作为备份。当IAT表都更新为导入函数的实际地址后，万一什么时候出错了，还可以根据INT表修复IAT表里的内容。</li>
+<li>IAT表更新为导入函数的实际地址后。此时还有一份INT表，就能知道IAT表里的函数地址对应的函数名是什么。</li>
+</ul>
+</li>
+</ol>
+<h2 id="打印导入表"><a class="markdownIt-Anchor" href="#打印导入表"></a> 打印导入表</h2>
+<p>分别打印导入表各个字段、INT表、IAT表</p>
+<p>这里注意下打印IAT表时要分情况：</p>
+<ul>
+<li><strong>导入表.TimeDateStamp时间戳</strong> = 0xFFFFFFFF，表示IAT表已绑定地址。绑定时间为绑定导入表IMAGE_BOUND_IMPORT_DESCRIPTOR的TimeDateStamp字段（这是绑定导入表的知识）</li>
+<li><strong>导入表.TimeDateStamp时间戳</strong> = 0，表示IAT表未绑定地址，此时IAT表和INT表内容一样</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">VOID <span class="title">PEManipulator::PrintImpotrTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> pImportDirectory = (PIMAGE_IMPORT_DESCRIPTOR)<span class="built_in">GetDataDirectoryPointer</span>(IMAGE_DIRECTORY_ENTRY_IMPORT);</span><br><span class="line">    <span class="keyword">if</span> (!pImportDirectory)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="type">int</span> Index = <span class="number">0</span>; <span class="comment">// 第几个导入表</span></span><br><span class="line">    <span class="keyword">while</span> (pImportDirectory-&gt;OriginalFirstThunk &amp;&amp; pImportDirectory-&gt;FirstThunk)        <span class="comment">//重要成员为0时结束循环</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//打印导入表各个字段</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n   %d. Image Import Descriptor:\n&quot;</span>, Index++);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;    OriginalFirstThunk:  0x%08X\n&quot;</span>, pImportDirectory-&gt;OriginalFirstThunk);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;    TimeDateStamp:       0x%08X\n&quot;</span>, pImportDirectory-&gt;TimeDateStamp);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;    ForwarderChain:      0x%08X\n&quot;</span>, pImportDirectory-&gt;ForwarderChain);</span><br><span class="line">        DWORD dwNameFOA = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pImportDirectory-&gt;Name, dwNameFOA))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">auto</span> cModuleName = (PCHAR)((DWORD)m_lpFileBuffer + dwNameFOA);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;    Name:                0x%08X  (\&quot;%s\&quot;)\n&quot;</span>, pImportDirectory-&gt;Name, cModuleName);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;    FirstThunk:          0x%08X\n&quot;</span>, pImportDirectory-&gt;FirstThunk);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//打印INT表</span></span><br><span class="line">        DWORD dwOriginalFirstThunk_FOA = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pImportDirectory-&gt;OriginalFirstThunk, dwOriginalFirstThunk_FOA))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">auto</span> pINTTable = (PDWORD)((DWORD)m_lpFileBuffer + dwOriginalFirstThunk_FOA);</span><br><span class="line"></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n      INT Table：\n&quot;</span>);</span><br><span class="line">            <span class="comment">// 对齐表头</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\t    Thunk RVA      Thunk FOA    Thunk Value     ----------------&gt;  Hint         API Name\n&quot;</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\t    -----------    -----------  ------------                      ----------    ------------\n&quot;</span>);</span><br><span class="line">        <span class="keyword">while</span> (*pINTTable)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">IMAGE_SNAP_BY_ORDINAL</span>(*pINTTable))               <span class="comment">//最高位为1，序号方式输入</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;\t    0x%08X     0x%08X   0x%08X    Original:0x%08X  -             -\n&quot;</span>,</span><br><span class="line">                    pImportDirectory-&gt;OriginalFirstThunk, dwOriginalFirstThunk_FOA, *pINTTable, *pINTTable &amp; <span class="number">0x7fff</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>                                                 <span class="comment">//最高位为0，函数名方式输入</span></span><br><span class="line">            &#123;</span><br><span class="line">                DWORD dwHintNameTable_FOA = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(*pINTTable, dwHintNameTable_FOA))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">return</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">auto</span> pHintNameTable = (PIMAGE_IMPORT_BY_NAME)((DWORD)m_lpFileBuffer + dwHintNameTable_FOA);</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;\t    0x%08X     0x%08X   0x%08X                        0x%04X        %s\n&quot;</span>,</span><br><span class="line">                    pImportDirectory-&gt;OriginalFirstThunk, dwOriginalFirstThunk_FOA, *pINTTable, pHintNameTable-&gt;Hint, (PCHAR)pHintNameTable-&gt;Name);</span><br><span class="line">            &#125;</span><br><span class="line">            ++pINTTable;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">//打印IAT表</span></span><br><span class="line">        DWORD dwFirstThunk_FOA = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pImportDirectory-&gt;FirstThunk, dwFirstThunk_FOA))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">auto</span> pIATTable = (PDWORD)((DWORD)m_lpFileBuffer + dwFirstThunk_FOA);</span><br><span class="line"></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n      IAT Table：\n&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (pImportDirectory-&gt;TimeDateStamp == <span class="number">0xFFFFFFFF</span>)          <span class="comment">//时间戳 = 0xFFFFFFFF，IAT表已绑定地址</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 对齐表头</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;\t    Thunk RVA      Thunk FOA    Thunk Value     \n&quot;</span>);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;\t    -----------    -----------  ------------    \n&quot;</span>);</span><br><span class="line">            <span class="keyword">while</span> (*pIATTable)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;\t    0x%08X     0x%08X   0x%08X    Func Address:0x%08X  \n&quot;</span>,</span><br><span class="line">                    pImportDirectory-&gt;FirstThunk, dwFirstThunk_FOA, *pIATTable, *pIATTable);</span><br><span class="line"></span><br><span class="line">                ++pIATTable;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (pImportDirectory-&gt;TimeDateStamp == <span class="number">0</span>)              <span class="comment">//时间戳 = 0，IAT表未绑定地址，和INT表内容一样</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 对齐表头</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;\t    Thunk RVA      Thunk FOA    Thunk Value     ----------------&gt;  Hint         API Name\n&quot;</span>);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;\t    -----------    -----------  ------------                      ----------    ------------\n&quot;</span>);</span><br><span class="line">            <span class="keyword">while</span> (*pIATTable)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="built_in">IMAGE_SNAP_BY_ORDINAL</span>(*pIATTable))               <span class="comment">//最高位为1，序号方式输入</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="built_in">printf</span>(<span class="string">&quot;\t    0x%08X     0x%08X   0x%08X    Original:0x%08X  -             -\n&quot;</span>,</span><br><span class="line">                        pImportDirectory-&gt;FirstThunk, dwFirstThunk_FOA, *pIATTable, *pIATTable &amp; <span class="number">0x7fff</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span>                                                 <span class="comment">//最高位为0，函数名方式输入</span></span><br><span class="line">                &#123;</span><br><span class="line">                    DWORD dwHintNameTable_FOA = <span class="number">0</span>;</span><br><span class="line">                    <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(*pIATTable, dwHintNameTable_FOA))</span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">return</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">auto</span> pHintNameTable = (PIMAGE_IMPORT_BY_NAME)((DWORD)m_lpFileBuffer + dwHintNameTable_FOA);</span><br><span class="line">                    <span class="built_in">printf</span>(<span class="string">&quot;\t    0x%08X     0x%08X   0x%08X                        0x%04X        %s\n&quot;</span>,</span><br><span class="line">                        pImportDirectory-&gt;FirstThunk, dwFirstThunk_FOA, *pIATTable, pHintNameTable-&gt;Hint, (PCHAR)pHintNameTable-&gt;Name);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                ++pIATTable;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ++pImportDirectory;               <span class="comment">//下一个导入表</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/PE/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8.html">重定位表</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/PE/%E7%BB%91%E5%AE%9A%E5%AF%BC%E5%85%A5%E8%A1%A8.html">绑定导入表</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

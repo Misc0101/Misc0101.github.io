@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>PE：PE头 - Misc010</title>
+
+  
+    <meta name="description" content="PE头是一个结构体IMAGE_NT_HEADERS，该结构体有三个成员：PE标识，标准PE头，扩展PE头。    结构体 成员 大小     IMAGE_NT_HEADERS Signature 4字节    IMAGE_FILE_HEADER 20字节    IMAGE_OPTIONAL_HEADER 32位是224字节，0xE0h字节。64位是240字节，0xF0h字节。大小可修改    wi">
+<meta property="og:type" content="website">
+<meta property="og:title" content="PE头">
+<meta property="og:url" content="https://misc0101.github.io/wiki/PE/PE%E5%A4%B4.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="PE头是一个结构体IMAGE_NT_HEADERS，该结构体有三个成员：PE标识，标准PE头，扩展PE头。    结构体 成员 大小     IMAGE_NT_HEADERS Signature 4字节    IMAGE_FILE_HEADER 20字节    IMAGE_OPTIONAL_HEADER 32位是224字节，0xE0h字节。64位是240字节，0xF0h字节。大小可修改    wi">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PE%E5%A4%B4/image2021-11-24_14-52-7.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PE%E5%A4%B4/image-20231219152422900.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PE%E5%A4%B4/image-20231219154541659.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PE%E5%A4%B4/image-20231219154733096.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PE%E5%A4%B4/image2021-11-24_17-11-3-17030439801409.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PE%E5%A4%B4/image-20231220105840934-17030428861855-170304413938611.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PE%E5%A4%B4/image-20231220110712775-17030429086367-170304417089513.png">
+<meta property="article:published_time" content="2023-12-19T06:10:40.000Z">
+<meta property="article:modified_time" content="2023-12-19T06:10:40.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/PE%E5%A4%B4/image2021-11-24_14-52-7.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/PE/Overview_PE.html"><div class="main" ff="title">PE</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/PE/" placeholder="在/wiki/PE/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">基本概念</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/Overview_PE.html#start"><span class="toc-text">Overview</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5_PE.html"><span class="toc-text">一些概念</span></a></div></div><div class="widget-header cap dis-select"><span class="name">字段解读</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/DOS%E9%83%A8%E5%88%86.html"><span class="toc-text">DOS部分</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/PE/PE%E5%A4%B4.html"><span class="toc-text">PE头</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#pe%E6%A0%87%E8%AF%86"><span class="toc-text"> PE标识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E5%87%86pe%E5%A4%B4"><span class="toc-text"> 标准PE头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A9%E5%B1%95pe%E5%A4%B4"><span class="toc-text"> 扩展PE头</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E8%8A%82%E8%A1%A8.html"><span class="toc-text">节表</span></a></div></div><div class="widget-header cap dis-select"><span class="name">练习和项目</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BB%83%E4%B9%A0_PE.html"><span class="toc-text">练习</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BC%96%E7%A8%8B%E7%BB%83%E4%B9%A0_PE.html"><span class="toc-text">编程练习</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/PE%E8%A7%A3%E6%9E%90%E5%99%A8.html"><span class="toc-text">PE解析器</span></a></div></div><div class="widget-header cap dis-select"><span class="name">节操作</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%A9%BA%E7%99%BD%E5%8C%BA%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81.html"><span class="toc-text">空白区添加代码</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E6%89%A9%E5%A4%A7%E8%8A%82.html"><span class="toc-text">扩大节</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E6%96%B0%E5%A2%9E%E8%8A%82.html"><span class="toc-text">新增节</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%90%88%E5%B9%B6%E8%8A%82.html"><span class="toc-text">合并节</span></a></div></div><div class="widget-header cap dis-select"><span class="name">数据目录表</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E5%92%8C%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93.html"><span class="toc-text">静态链接库和动态链接库</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%AF%BC%E5%87%BA%E8%A1%A8.html"><span class="toc-text">导出表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8.html"><span class="toc-text">重定位表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%AF%BC%E5%85%A5%E8%A1%A8.html"><span class="toc-text">导入表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BB%91%E5%AE%9A%E5%AF%BC%E5%85%A5%E8%A1%A8.html"><span class="toc-text">绑定导入表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E8%B5%84%E6%BA%90%E8%A1%A8.html"><span class="toc-text">资源表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%A7%BB%E5%8A%A8%E5%90%84%E7%A7%8D%E8%A1%A8.html"><span class="toc-text">移动各种表</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/To_Learn_List.html"><span class="toc-text">To Learn List</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><span class="title">Protected_Mode</span><span class="excerpt">滴水三期_保护模式笔记。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/PE/Overview_PE.html">PE</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-12-19T06:10:40.000Z">2023-12-19</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>PE头</span></h1>
+<p>PE头是一个结构体<code>IMAGE_NT_HEADERS</code>，该结构体有三个成员：PE标识，标准PE头，扩展PE头。</p>
+<table>
+<thead>
+<tr>
+<th>结构体</th>
+<th>成员</th>
+<th>大小</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IMAGE_NT_HEADERS</td>
+<td>Signature</td>
+<td>4字节</td>
+</tr>
+<tr>
+<td></td>
+<td>IMAGE_FILE_HEADER</td>
+<td>20字节</td>
+</tr>
+<tr>
+<td></td>
+<td>IMAGE_OPTIONAL_HEADER</td>
+<td>32位是224字节，0xE0h字节。</br>64位是240字节，0xF0h字节。</br>大小可修改</td>
+</tr>
+</tbody>
+</table>
+<div class="tag-plugin tabs" align="center"id="tab_89"><div class="nav-tabs"><div class="tab active"><a href="#tab_89-1">winnt.h</a></div><div class="tab"><a href="#tab_89-2">带偏移版</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_89-1"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_NT_HEADERS</span> &#123;</span></span><br><span class="line">    DWORD Signature;                            <span class="comment">// PE标识</span></span><br><span class="line">    IMAGE_FILE_HEADER FileHeader;               <span class="comment">// 标准PE头</span></span><br><span class="line">    IMAGE_OPTIONAL_HEADER32 OptionalHeader;     <span class="comment">// 扩展PE头</span></span><br><span class="line">&#125; IMAGE_NT_HEADERS32, *PIMAGE_NT_HEADERS32;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_89-2"><p>以下的偏移量是基于PE文件头（IMAGE_NT_HEADERS）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_NT_HEADERS_STRUCT&#123;  </span><br><span class="line"> +<span class="number">0</span>h   Signature       DWORD                    ?                ;PE文件标识</span><br><span class="line"> +<span class="number">4</span>h   FileHeader      IMAGE_FILE_HEADER        &lt;&gt;               ;标准PE头    </span><br><span class="line"> +<span class="number">18</span>h  OptionalHeader  IMAGE_OPTIONAL_HEADER32  &lt;&gt;               ;扩展PE头</span><br><span class="line">&#125;IMAGE_DOS_HEADER_ENDS;</span><br></pre></td></tr></table></figure></div></div></div>
+<h2 id="pe标识"><a class="markdownIt-Anchor" href="#pe标识"></a> PE标识</h2>
+<p>结构体中第一个成员是PE标识，PE标识不能破坏，操作系统在启动一个程序的时候会检测这个标识。</p>
+<p>在一个有效的PE文件里，<code>Signature</code>字段被设置为0x00004550，ASCII 码字符是“PE00”，#define IMAGE_NT_SIGNATURE定义了这个值：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_NT_SIGNATURE  0x00004550</span></span><br></pre></td></tr></table></figure>
+<p>“PE00”是PE文件头的开始，MS-DOS头部的e_lfanew字段正是指向“PE\0\0”。</p>
+<h2 id="标准pe头"><a class="markdownIt-Anchor" href="#标准pe头"></a> 标准PE头</h2>
+<p>结构体中第二个成员是个结构体<code>IMAGE_FILE_HEADER</code>，大小为20个字节，该结构体又称为标准PE头。</p>
+<div class="tag-plugin tabs" align="center"id="tab_90"><div class="nav-tabs"><div class="tab active"><a href="#tab_90-1">winnt.h</a></div><div class="tab"><a href="#tab_90-2">带偏移版</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_90-1"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_FILE_HEADER</span> &#123;</span></span><br><span class="line">    WORD    Machine;                        <span class="comment">//该PE文件支持运行的平台</span></span><br><span class="line">    WORD    NumberOfSections;               <span class="comment">//Section的数量</span></span><br><span class="line">    DWORD   TimeDateStamp;                  <span class="comment">//编译器填写的时间戳</span></span><br><span class="line">    DWORD   PointerToSymbolTable;           <span class="comment">//调试相关</span></span><br><span class="line">    DWORD   NumberOfSymbols;                <span class="comment">//调试相关</span></span><br><span class="line">    WORD    SizeOfOptionalHeader;           <span class="comment">//标识了IMAGE_OPTIONAL_HEADER32结构的大小</span></span><br><span class="line">    WORD    Characteristics;                <span class="comment">//文件属性</span></span><br><span class="line">&#125; IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_90-2"><p>以下的偏移量是基于PE文件头（IMAGE_NT_HEADERS）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_FILE_HEADER</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"> +<span class="number">04</span>h    WORD          Machine;              <span class="comment">//该PE文件支持运行的平台  </span></span><br><span class="line"> +<span class="number">06</span>h    WORD          NumberOfSections;     <span class="comment">//Section的数量</span></span><br><span class="line"> +<span class="number">08</span>h    DWORD         TimeDateStamp;        <span class="comment">//编译器填写的时间戳</span></span><br><span class="line"> +<span class="number">0</span>Ch    DWORD         PointerToSymbolTable; <span class="comment">//调试相关</span></span><br><span class="line"> +<span class="number">10</span>h    DWORD         NumberOfSymbols;      <span class="comment">//调试相关</span></span><br><span class="line"> +<span class="number">14</span>h    WORD          SizeOfOptionalHeader; <span class="comment">//标识了IMAGE_OPTIONAL_HEADER32结构的大小</span></span><br><span class="line"> +<span class="number">16</span>h    WORD          Characteristics;      <span class="comment">//文件属性</span></span><br><span class="line">&#125; IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;</span><br></pre></td></tr></table></figure></div></div></div>
+<ol>
+<li>
+<p><code>Machine</code>：表示当前可执行文件可以在哪些CPU上运行。如下是几种典型的机器类型标志。</p>
+<table>
+<thead>
+<tr>
+<th>机器</th>
+<th>标志</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任意CPU</td>
+<td>0x0000h</td>
+</tr>
+<tr>
+<td>Intel i386及后续的型号CPU</td>
+<td>0x14Ch</td>
+</tr>
+<tr>
+<td>64位的CPU型号</td>
+<td>0x8664</td>
+</tr>
+<tr>
+<td>MIPS R3000</td>
+<td>162h</td>
+</tr>
+<tr>
+<td>MIPS R4000</td>
+<td>166h</td>
+</tr>
+<tr>
+<td>Alpha AXP</td>
+<td>184h</td>
+</tr>
+<tr>
+<td>Power PC</td>
+<td>1F0h</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_UNKNOWN           0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_TARGET_HOST       0x0001  <span class="comment">// Useful for indicating we want to interact with the host and not a WoW guest.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_I386              0x014c  <span class="comment">// Intel 386.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_R3000             0x0162  <span class="comment">// MIPS little-endian, 0x160 big-endian</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_R4000             0x0166  <span class="comment">// MIPS little-endian</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_R10000            0x0168  <span class="comment">// MIPS little-endian</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_WCEMIPSV2         0x0169  <span class="comment">// MIPS little-endian WCE v2</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_ALPHA             0x0184  <span class="comment">// Alpha_AXP</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_SH3               0x01a2  <span class="comment">// SH3 little-endian</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_SH3DSP            0x01a3</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_SH3E              0x01a4  <span class="comment">// SH3E little-endian</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_SH4               0x01a6  <span class="comment">// SH4 little-endian</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_SH5               0x01a8  <span class="comment">// SH5</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_ARM               0x01c0  <span class="comment">// ARM Little-Endian</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_THUMB             0x01c2  <span class="comment">// ARM Thumb/Thumb-2 Little-Endian</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_ARMNT             0x01c4  <span class="comment">// ARM Thumb-2 Little-Endian</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_AM33              0x01d3</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_POWERPC           0x01F0  <span class="comment">// IBM PowerPC Little-Endian</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_POWERPCFP         0x01f1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_IA64              0x0200  <span class="comment">// Intel 64</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_MIPS16            0x0266  <span class="comment">// MIPS</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_ALPHA64           0x0284  <span class="comment">// ALPHA64</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_MIPSFPU           0x0366  <span class="comment">// MIPS</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_MIPSFPU16         0x0466  <span class="comment">// MIPS</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_AXP64             IMAGE_FILE_MACHINE_ALPHA64</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_TRICORE           0x0520  <span class="comment">// Infineon</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_CEF               0x0CEF</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_EBC               0x0EBC  <span class="comment">// EFI Byte Code</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_AMD64             0x8664  <span class="comment">// AMD64 (K8)</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_M32R              0x9041  <span class="comment">// M32R little-endian</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_ARM64             0xAA64  <span class="comment">// ARM64 Little-Endian</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_MACHINE_CEE               0xC0EE</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>NumberOfSections</code>：当前PE文件含有Section的数量，也就是PE头（IMAGE_NT_HEADERS）后有几个节表。</p>
+</li>
+<li>
+<p><code>TimeDateStamp</code>：编译器编译时填写的时间戳。这个值是自1970年1月1日以来用格林威治时间(GMT)计算的秒数，即计算的是当前时间与<code>1970年01月01日00时00分00秒</code>差的秒数，比如2010年10月10号10点10分10秒编译的，这个时间相比于1970年01月01日00时00分00秒过去了多少秒，转成十六进制。将这个值翻译为易读的字符串需要使用_ctime函数(它是时区敏感型的)。另一个对此字段计算有用的函数是gmtime。</p>
+<ul>
+<li>与在操作系统上对一个文件右键看到的创建、修改、访问时间没关系。右键看到的创建、修改、访问时间是操作系统记录的时间。</li>
+<li>TimeDateStamp可以随意修改。</li>
+<li>一些加壳软件加壳时要求提供.exe和.map文件，通过比对exe和.map文件的该字段来判断.map是否和这个exe是否是配对的。例：.map是上周生成的，.exe是刚编译的，它两不是配对的一堆，这样的话加壳时会乱套。<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>.map文件是什么</span></summary><div class="body"><p>.map文件在C语言编程中是由链接器生成的一种文件，它提供了编译后的程序中函数和变量的地址映射信息。这个文件包含了源代码中的符号（如函数、变量等）到其在可执行文件中的地址的映射关系。这对于调试和程序分析非常有用。<br />加壳软件可以通过.map文件提供的符号信息来对exe进行加壳保护。</p></div></details></div>
+</li>
+</ul>
+</li>
+<li>
+<p><code>PointerToSymbolTable</code>：调试相关，暂不了解</p>
+</li>
+<li>
+<p><code>NumberOfSymbols</code>：调试相关，暂不了解</p>
+</li>
+<li>
+<p><code>SizeOfOptionalHeader</code>：标识了<code>IMAGE_OPTIONAL_HEADER</code>结构的大小。未做修改的默认情况下，32位和64位PE文件扩展PE头的大小如下：</p>
+<table>
+<thead>
+<tr>
+<th>文件位数</th>
+<th>十六进制</th>
+<th>十进制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>32位</td>
+<td>E0h</td>
+<td>224字节</td>
+</tr>
+<tr>
+<td>64位</td>
+<td>F0h</td>
+<td>240字节</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><code>Characteristics</code>：文件属性。该字段长度16位，每一位都有两种含义，由0-15的每一位提供文件属性。这个字段是一个位掩码，可以通过对这个值进行位运算来确定设置了哪些标志。</p>
+<table>
+<thead>
+<tr>
+<th>数据位</th>
+<th>常量符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0001h</td>
+<td>IMAGE_FILE_RELOCS_STRIPPED</td>
+<td>文件中不存在重定位信息</td>
+</tr>
+<tr>
+<td>0002h</td>
+<td>IMAGE_FILE_EXECUTABLE_IMAGE</td>
+<td>文件是可执行的。如果为0，一般是链接时出问题了</td>
+</tr>
+<tr>
+<td>0004h</td>
+<td>IMAGE_FILE_LINE_NUMS_STRIPPED</td>
+<td>不存在行号信息，行号信息被移去</td>
+</tr>
+<tr>
+<td>0008h</td>
+<td>IMAGE_FILE_LOCAL_SYMS_STRIPPED</td>
+<td>不存在符号信息，符号信息被移去</td>
+</tr>
+<tr>
+<td>0010h</td>
+<td>IMAGE_FILE_AGGRESSIVE_WS_TRIM</td>
+<td>调整工作集</td>
+</tr>
+<tr>
+<td>0020h</td>
+<td>IMAGE_FILE_LARGE_ADDRESS_AWARE</td>
+<td>应用程序可以处理超过2GB的地址。该功能是从NT SP3开始被支持的。因为大部分数据库服务器需要很大的内存，而NT仅提供2CB给应用程序，所以从NT SP3开始，通过加载/3GB参数，可以使应用程序被分配2～3GB区域的地址,而该处原来属于系统内存区</td>
+</tr>
+<tr>
+<td>0040h</td>
+<td></td>
+<td>此标志保留</td>
+</tr>
+<tr>
+<td>0080h</td>
+<td>IMAGE_FILE_BYTES_REVERSED_LO</td>
+<td>小尾方式，处理机的低位字节是相反的</td>
+</tr>
+<tr>
+<td>0100h</td>
+<td>IMAGE_FILE_32BIT_MACHINE</td>
+<td>只在32位平台上运行</td>
+</tr>
+<tr>
+<td>0200h</td>
+<td>IMAGE_FILE_DEBUG_STRIPPED</td>
+<td>不包含调试信息，.DBG文件的调试信息被移去</td>
+</tr>
+<tr>
+<td>0400h</td>
+<td>IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP</td>
+<td>不能从可移动盘运行。如果映像文件在可移动介质中,则先复制到交换文件中再运行。</td>
+</tr>
+<tr>
+<td>0800h</td>
+<td>IMAGE_FILE_NET_RUN_FROM_SWAP</td>
+<td>不能从网络运行如果映像文件在网络中,则复制到交换文件后才能运行。</td>
+</tr>
+<tr>
+<td>1000h</td>
+<td>IMAGE_FILE_SYSTEM</td>
+<td>系统文件（如驱动程序），不能直接运行</td>
+</tr>
+<tr>
+<td>2000h</td>
+<td>IMAGE_FILE_DLL</td>
+<td>这是一个DLL文件</td>
+</tr>
+<tr>
+<td>4000h</td>
+<td>IMAGE_FILE_UP_SYSTEM_ONLY</td>
+<td>文件只能运行在单处理器上，不能在多处理器计算机上运行</td>
+</tr>
+<tr>
+<td>8000h</td>
+<td>IMAGE_FILE_BYTES_REVERSED_HI</td>
+<td>大尾方式，处理机的高位字节是相反的</td>
+</tr>
+</tbody>
+</table>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>表格的由来</span></summary><div class="body"><p>原来是这张图，每一个位代表各自的含义，但是根据这个表来查文件属性要将得到的值拆开。</p><p>比如一个文件的Characteristics字段的值为0102h。0000  0001  0000  0010。第2位为1，根据下表，表示文件可执行。第8位为1，根据下表，表示该PE文件只在32位平台上运行。</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PE%E5%A4%B4/image2021-11-24_14-52-7.png" alt="images/download/attachments/1015828/image2021-11-24_14-52-7.png" /></p><p>不如下面这张表，直接写成十六进制，不用将每位拆成二进制位。</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PE%E5%A4%B4/image-20231219152422900.png" alt="image-20231219152422900" /></p><p>于是我将上述两张表作了合并形成了表格。</p></div></details></div>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_RELOCS_STRIPPED           0x0001  <span class="comment">// Relocation info stripped from file.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_EXECUTABLE_IMAGE          0x0002  <span class="comment">// File is executable  (i.e. no unresolved external references).</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_LINE_NUMS_STRIPPED        0x0004  <span class="comment">// Line nunbers stripped from file.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_LOCAL_SYMS_STRIPPED       0x0008  <span class="comment">// Local symbols stripped from file.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_AGGRESIVE_WS_TRIM         0x0010  <span class="comment">// Aggressively trim working set</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_LARGE_ADDRESS_AWARE       0x0020  <span class="comment">// App can handle &gt;2gb addresses</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_BYTES_REVERSED_LO         0x0080  <span class="comment">// Bytes of machine word are reversed.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_32BIT_MACHINE             0x0100  <span class="comment">// 32 bit word machine.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_DEBUG_STRIPPED            0x0200  <span class="comment">// Debugging info stripped from file in .DBG file</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP   0x0400  <span class="comment">// If Image is on removable media, copy and run from the swap file.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_NET_RUN_FROM_SWAP         0x0800  <span class="comment">// If Image is on Net, copy and run from the swap file.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_SYSTEM                    0x1000  <span class="comment">// System File.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_DLL                       0x2000  <span class="comment">// File is a DLL.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_UP_SYSTEM_ONLY            0x4000  <span class="comment">// File should only be run on a UP machine</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_FILE_BYTES_REVERSED_HI         0x8000  <span class="comment">// Bytes of machine word are reversed.</span></span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>当Characteristics有IMAGE_FILE_RELOCS_STRIPPED属性时，表明该PE文件中不包含重定位表信息。那么该PE文件只能加载到它预设的ImageBase，如果这个基址被占用，系统加载器会报错。</li>
+</ul>
+</li>
+</ol>
+<p><strong>例</strong></p>
+<p>从win7分别拷出了32位和64位的notepad，查看它们标准PE头的字段</p>
+<ul>
+<li>32位notepad路径：C:\Windows\SysWOW64\notepad.exe</li>
+<li>64位notepad路径：C:\Windows\System32\notepad.exe</li>
+</ul>
+<div class="tag-plugin tabs" align="center"id="tab_91"><div class="nav-tabs"><div class="tab active"><a href="#tab_91-1">notepad_32</a></div><div class="tab"><a href="#tab_91-2">notepad_64</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_91-1"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PE%E5%A4%B4/image-20231219154541659.png" alt="image-20231219154541659" /></p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WORD  Machine</td>
+<td>014Ch</td>
+<td>可运行在Intel i386及后续的型号CPU</td>
+</tr>
+<tr>
+<td>WORD  NumberOfSections</td>
+<td>4h</td>
+<td>Section的数量为4</td>
+</tr>
+<tr>
+<td>DWORD TimeDateStamp</td>
+<td>4A5BC60Fh</td>
+<td></td>
+</tr>
+<tr>
+<td>DWORD PointerToSymbolTable</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>DWORD NumberOfSymbols</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>WORD  SizeOfOptionalHeader</td>
+<td>0E0h</td>
+<td>扩展PE头的大小为0E0h</td>
+</tr>
+<tr>
+<td>WORD  Characteristics</td>
+<td>0102</td>
+<td>文件可执行，只在32位平台上运行</td>
+</tr>
+</tbody>
+</table></div><div class="tab-pane" id="tab_91-2"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PE%E5%A4%B4/image-20231219154733096.png" alt="image-20231219154733096" /></p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WORD  Machine</td>
+<td>8664h</td>
+<td>可运行在64位的CPU型号</td>
+</tr>
+<tr>
+<td>WORD  NumberOfSections</td>
+<td>6h</td>
+<td>Section的数量为6</td>
+</tr>
+<tr>
+<td>DWORD TimeDateStamp</td>
+<td>4A5BC9B3h</td>
+<td></td>
+</tr>
+<tr>
+<td>DWORD PointerToSymbolTable</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>DWORD NumberOfSymbols</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>WORD  SizeOfOptionalHeader</td>
+<td>0F0h</td>
+<td>扩展PE头的大小为0F0h</td>
+</tr>
+<tr>
+<td>WORD  Characteristics</td>
+<td>0022</td>
+<td>文件可执行，应用程序可以处理超过2GB的地址</td>
+</tr>
+</tbody>
+</table></div></div></div>
+<h2 id="扩展pe头"><a class="markdownIt-Anchor" href="#扩展pe头"></a> 扩展PE头</h2>
+<p>32位和64位扩展PE头不一样，但它们的差异很小，这里以32位的扩展PE头为例进行介绍。</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>32位和64位扩展PE头</span></summary><div class="body"><div class="tag-plugin tabs" align="center"id="tab_94"><div class="nav-tabs"><div class="tab active"><a href="#tab_94-1">winnt.h</a></div><div class="tab"><a href="#tab_94-2">diff版</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_94-1"><div class="tag-plugin tabs" align="center"id="tab_92"><div class="nav-tabs"><div class="tab active"><a href="#tab_92-1">PE32</a></div><div class="tab"><a href="#tab_92-2">PE64</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_92-1"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_OPTIONAL_HEADER</span> &#123;</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// Standard fields.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line"></span><br><span class="line">    WORD    Magic;</span><br><span class="line">    BYTE    MajorLinkerVersion;</span><br><span class="line">    BYTE    MinorLinkerVersion;</span><br><span class="line">    DWORD   SizeOfCode;</span><br><span class="line">    DWORD   SizeOfInitializedData;</span><br><span class="line">    DWORD   SizeOfUninitializedData;</span><br><span class="line">    DWORD   AddressOfEntryPoint;</span><br><span class="line">    DWORD   BaseOfCode;</span><br><span class="line">    DWORD   BaseOfData;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// NT additional fields.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line"></span><br><span class="line">    DWORD   ImageBase;</span><br><span class="line">    DWORD   SectionAlignment;</span><br><span class="line">    DWORD   FileAlignment;</span><br><span class="line">    WORD    MajorOperatingSystemVersion;</span><br><span class="line">    WORD    MinorOperatingSystemVersion;</span><br><span class="line">    WORD    MajorImageVersion;</span><br><span class="line">    WORD    MinorImageVersion;</span><br><span class="line">    WORD    MajorSubsystemVersion;</span><br><span class="line">    WORD    MinorSubsystemVersion;</span><br><span class="line">    DWORD   Win32VersionValue;</span><br><span class="line">    DWORD   SizeOfImage;</span><br><span class="line">    DWORD   SizeOfHeaders;</span><br><span class="line">    DWORD   CheckSum;</span><br><span class="line">    WORD    Subsystem;</span><br><span class="line">    WORD    DllCharacteristics;</span><br><span class="line">    DWORD   SizeOfStackReserve;</span><br><span class="line">    DWORD   SizeOfStackCommit;</span><br><span class="line">    DWORD   SizeOfHeapReserve;</span><br><span class="line">    DWORD   SizeOfHeapCommit;</span><br><span class="line">    DWORD   LoaderFlags;</span><br><span class="line">    DWORD   NumberOfRvaAndSizes;</span><br><span class="line">    IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];</span><br><span class="line">&#125; IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_92-2"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_OPTIONAL_HEADER64</span> &#123;</span></span><br><span class="line">    WORD        Magic;</span><br><span class="line">    BYTE        MajorLinkerVersion;</span><br><span class="line">    BYTE        MinorLinkerVersion;</span><br><span class="line">    DWORD       SizeOfCode;</span><br><span class="line">    DWORD       SizeOfInitializedData;</span><br><span class="line">    DWORD       SizeOfUninitializedData;</span><br><span class="line">    DWORD       AddressOfEntryPoint;</span><br><span class="line">    DWORD       BaseOfCode;</span><br><span class="line">    ULONGLONG   ImageBase;</span><br><span class="line">    DWORD       SectionAlignment;</span><br><span class="line">    DWORD       FileAlignment;</span><br><span class="line">    WORD        MajorOperatingSystemVersion;</span><br><span class="line">    WORD        MinorOperatingSystemVersion;</span><br><span class="line">    WORD        MajorImageVersion;</span><br><span class="line">    WORD        MinorImageVersion;</span><br><span class="line">    WORD        MajorSubsystemVersion;</span><br><span class="line">    WORD        MinorSubsystemVersion;</span><br><span class="line">    DWORD       Win32VersionValue;</span><br><span class="line">    DWORD       SizeOfImage;</span><br><span class="line">    DWORD       SizeOfHeaders;</span><br><span class="line">    DWORD       CheckSum;</span><br><span class="line">    WORD        Subsystem;</span><br><span class="line">    WORD        DllCharacteristics;</span><br><span class="line">    ULONGLONG   SizeOfStackReserve;</span><br><span class="line">    ULONGLONG   SizeOfStackCommit;</span><br><span class="line">    ULONGLONG   SizeOfHeapReserve;</span><br><span class="line">    ULONGLONG   SizeOfHeapCommit;</span><br><span class="line">    DWORD       LoaderFlags;</span><br><span class="line">    DWORD       NumberOfRvaAndSizes;</span><br><span class="line">    IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];</span><br><span class="line">&#125; IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;</span><br></pre></td></tr></table></figure></div></div></div></div><div class="tab-pane" id="tab_94-2"><p>PE32+相比于PE32：</p><ul><li>没有BaseOfData成员</li><li>ImageBase、SizeOfStackReserve、SizeOfStackCommit、SizeOfHeapReserve、SizeOfHeapCommit成员由DWORD增加到了ULONGLONG。</li></ul><p>DWORD：unsigned long，32位，4字节；<br />UNLONGLONG：unsigned __int64，64位，8字节。</p><p>减少了1个DWORD，增加了5个4字节，所以PE32+的扩展PE头相比于PE32的扩展PE头大了16字节。</p><p>IMAGE_OPTIONAL_HEADER32（224字节）-&gt;IMAGE_OPTIONAL_HEADER64（240字节）</p><div class="tag-plugin tabs" align="center"id="tab_93"><div class="nav-tabs"><div class="tab active"><a href="#tab_93-1">PE32</a></div><div class="tab"><a href="#tab_93-2">PE32+</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_93-1"><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">typedef struct _IMAGE_OPTIONAL_HEADER &#123;</span><br><span class="line">    //</span><br><span class="line">    // Standard fields.</span><br><span class="line">    //</span><br><span class="line"></span><br><span class="line">    WORD    Magic;</span><br><span class="line">    BYTE    MajorLinkerVersion;</span><br><span class="line">    BYTE    MinorLinkerVersion;</span><br><span class="line">    DWORD   SizeOfCode;</span><br><span class="line">    DWORD   SizeOfInitializedData;</span><br><span class="line">    DWORD   SizeOfUninitializedData;</span><br><span class="line">    DWORD   AddressOfEntryPoint;</span><br><span class="line">    DWORD   BaseOfCode;</span><br><span class="line">    DWORD   BaseOfData;</span><br><span class="line"></span><br><span class="line">    //</span><br><span class="line">    // NT additional fields.</span><br><span class="line">    //</span><br><span class="line"></span><br><span class="line">    DWORD   ImageBase;</span><br><span class="line">    DWORD   SectionAlignment;</span><br><span class="line">    DWORD   FileAlignment;</span><br><span class="line">    WORD    MajorOperatingSystemVersion;</span><br><span class="line">    WORD    MinorOperatingSystemVersion;</span><br><span class="line">    WORD    MajorImageVersion;</span><br><span class="line">    WORD    MinorImageVersion;</span><br><span class="line">    WORD    MajorSubsystemVersion;</span><br><span class="line">    WORD    MinorSubsystemVersion;</span><br><span class="line">    DWORD   Win32VersionValue;</span><br><span class="line">    DWORD   SizeOfImage;</span><br><span class="line">    DWORD   SizeOfHeaders;</span><br><span class="line">    DWORD   CheckSum;</span><br><span class="line">    WORD    Subsystem;</span><br><span class="line">    WORD    DllCharacteristics;</span><br><span class="line">    DWORD   SizeOfStackReserve;</span><br><span class="line">    DWORD   SizeOfStackCommit;</span><br><span class="line">    DWORD   SizeOfHeapReserve;</span><br><span class="line">    DWORD   SizeOfHeapCommit;</span><br><span class="line">    DWORD   LoaderFlags;</span><br><span class="line">    DWORD   NumberOfRvaAndSizes;</span><br><span class="line">    IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];</span><br><span class="line">&#125; IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_93-2"><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">typedef struct _IMAGE_OPTIONAL_HEADER64 &#123;</span><br><span class="line">    WORD        Magic;</span><br><span class="line">    BYTE        MajorLinkerVersion;</span><br><span class="line">    BYTE        MinorLinkerVersion;</span><br><span class="line">    DWORD       SizeOfCode;</span><br><span class="line">    DWORD       SizeOfInitializedData;</span><br><span class="line">    DWORD       SizeOfUninitializedData;</span><br><span class="line">    DWORD       AddressOfEntryPoint;</span><br><span class="line">    DWORD       BaseOfCode;</span><br><span class="line"><span class="deletion">-    DWORD   BaseOfData;</span></span><br><span class="line"><span class="addition">+    ULONGLONG   ImageBase;</span></span><br><span class="line">    DWORD       SectionAlignment;</span><br><span class="line">    DWORD       FileAlignment;</span><br><span class="line">    WORD        MajorOperatingSystemVersion;</span><br><span class="line">    WORD        MinorOperatingSystemVersion;</span><br><span class="line">    WORD        MajorImageVersion;</span><br><span class="line">    WORD        MinorImageVersion;</span><br><span class="line">    WORD        MajorSubsystemVersion;</span><br><span class="line">    WORD        MinorSubsystemVersion;</span><br><span class="line">    DWORD       Win32VersionValue;</span><br><span class="line">    DWORD       SizeOfImage;</span><br><span class="line">    DWORD       SizeOfHeaders;</span><br><span class="line">    DWORD       CheckSum;</span><br><span class="line">    WORD        Subsystem;</span><br><span class="line">    WORD        DllCharacteristics;</span><br><span class="line"><span class="addition">+    ULONGLONG   SizeOfStackReserve;</span></span><br><span class="line"><span class="addition">+    ULONGLONG   SizeOfStackCommit;</span></span><br><span class="line"><span class="addition">+    ULONGLONG   SizeOfHeapReserve;</span></span><br><span class="line"><span class="addition">+    ULONGLONG   SizeOfHeapCommit;</span></span><br><span class="line">    DWORD       LoaderFlags;</span><br><span class="line">    DWORD       NumberOfRvaAndSizes;</span><br><span class="line">    IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];</span><br><span class="line">&#125; IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;</span><br></pre></td></tr></table></figure></div></div></div></div></div></div></div></details></div>
+<div class="tag-plugin tabs" align="center"id="tab_95"><div class="nav-tabs"><div class="tab active"><a href="#tab_95-1">winnt.h</a></div><div class="tab"><a href="#tab_95-2">带偏移版</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_95-1"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_OPTIONAL_HEADER</span> &#123;</span></span><br><span class="line">    WORD    Magic;                          <span class="comment">// PE32：10Bh PE32+：20Bh</span></span><br><span class="line">    BYTE    MajorLinkerVersion;             <span class="comment">// 链接器主版本号</span></span><br><span class="line">    BYTE    MinorLinkerVersion;             <span class="comment">// 链接器次版本号</span></span><br><span class="line">    DWORD   SizeOfCode;                     <span class="comment">// 所有代码节的总和（文件对齐后的大小），编译器填的（没用）</span></span><br><span class="line">    DWORD   SizeOfInitializedData;          <span class="comment">// 包含所有已经初始化数据的节的总大小（文件对齐后的大小），编译器填的（没用）</span></span><br><span class="line">    DWORD   SizeOfUninitializedData;        <span class="comment">// 包含未初始化数据的节的总大小（文件对齐后的大小），编译器填的（没用）</span></span><br><span class="line">    DWORD   AddressOfEntryPoint;            <span class="comment">// 程序入口</span></span><br><span class="line">    DWORD   BaseOfCode;                     <span class="comment">// 代码开始的基址，编译器填的（没用）</span></span><br><span class="line">    DWORD   BaseOfData;                     <span class="comment">// 数据开始的基址，编译器填的（没用）</span></span><br><span class="line">    DWORD   ImageBase;                      <span class="comment">// 内存镜像基址</span></span><br><span class="line">    DWORD   SectionAlignment;               <span class="comment">// 内存对齐</span></span><br><span class="line">    DWORD   FileAlignment;                  <span class="comment">// 文件对齐</span></span><br><span class="line">    WORD    MajorOperatingSystemVersion;    <span class="comment">// 标识操作系统版本号，主版本号</span></span><br><span class="line">    WORD    MinorOperatingSystemVersion;    <span class="comment">// 标识操作系统版本号，次版本号</span></span><br><span class="line">    WORD    MajorImageVersion;              <span class="comment">// PE文件自身的版本号 </span></span><br><span class="line">    WORD    MinorImageVersion;              <span class="comment">// PE文件自身的版本号</span></span><br><span class="line">    WORD    MajorSubsystemVersion;          <span class="comment">// 运行所需子系统版本号</span></span><br><span class="line">    WORD    MinorSubsystemVersion;          <span class="comment">// 运行所需子系统版本号</span></span><br><span class="line">    DWORD   Win32VersionValue;              <span class="comment">// 子系统版本的值，必须为0</span></span><br><span class="line">    DWORD   SizeOfImage;                    <span class="comment">// 内存中整个PE文件的映射的尺寸，可比实际的大，是SectionAlighment的整数倍</span></span><br><span class="line">    DWORD   SizeOfHeaders;                  <span class="comment">// DOS头+PE头+节表的大小总和，按照文件对齐后的大小</span></span><br><span class="line">    DWORD   CheckSum;                       <span class="comment">// 校验和 一些系统文件会有这个值，用来判断文件是否被修改</span></span><br><span class="line">    WORD    Subsystem;                      <span class="comment">// 子系统，驱动程序(1)、图形界面(2) 、控制台/DLL(3)</span></span><br><span class="line">    WORD    DllCharacteristics;             <span class="comment">// 文件特性，并不只对dll文件</span></span><br><span class="line">    DWORD   SizeOfStackReserve;             <span class="comment">// 初始化时保留的栈大小 </span></span><br><span class="line">    DWORD   SizeOfStackCommit;              <span class="comment">// 初始化时实际提交的大小 </span></span><br><span class="line">    DWORD   SizeOfHeapReserve;              <span class="comment">// 初始化时保留的堆大小</span></span><br><span class="line">    DWORD   SizeOfHeapCommit;               <span class="comment">// 初始化时实践提交的大小 </span></span><br><span class="line">    DWORD   LoaderFlags;                    <span class="comment">// 调试相关</span></span><br><span class="line">    DWORD   NumberOfRvaAndSizes;            <span class="comment">// 目录项数目</span></span><br><span class="line">    IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES]; <span class="comment">// 数据目录表，结构体数组</span></span><br><span class="line">&#125; IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_95-2"><p>以下的偏移量是基于PE文件头（IMAGE_NT_HEADERS）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">typedef struct _IMAGE_OPTIONAL_HEADER </span><br><span class="line">&#123;</span><br><span class="line"> +18h    WORD    Magic;                         // PE32：10Bh PE32+：20Bh</span><br><span class="line"> +1Ah    BYTE    MajorLinkerVersion;            // 链接器主版本号</span><br><span class="line"> +1Bh    BYTE    MinorLinkerVersion;            // 链接器次版本号</span><br><span class="line"> +1Ch    DWORD   SizeOfCode;                    // 所有代码节的总和（文件对齐后的大小），编译器填的（没用）</span><br><span class="line"> +20h    DWORD   SizeOfInitializedData;         // 包含所有已经初始化数据的节的总大小（文件对齐后的大小），编译器填的（没用）</span><br><span class="line"> +24h    DWORD   SizeOfUninitializedData;       // 包含未初始化数据的节的总大小（文件对齐后的大小），编译器填的（没用）</span><br><span class="line"> +28h    DWORD   AddressOfEntryPoint;           // 程序入口</span><br><span class="line"> +2Ch    DWORD   BaseOfCode;                    // 代码开始的基址，编译器填的（没用）</span><br><span class="line"> +30h    DWORD   BaseOfData;                    // 数据开始的基址，编译器填的（没用）</span><br><span class="line"> +34h    DWORD   ImageBase;                     // 内存镜像基址</span><br><span class="line"> +38h    DWORD   SectionAlignment;              // 内存对齐</span><br><span class="line"> +3Ch    DWORD   FileAlignment;                 // 文件对齐</span><br><span class="line"> +40h    WORD    MajorOperatingSystemVersion;   // 标识操作系统版本号，主版本号</span><br><span class="line"> +42h    WORD    MinorOperatingSystemVersion;   // 标识操作系统版本号，次版本号</span><br><span class="line"> +44h    WORD    MajorImageVersion;             // PE文件自身的版本号 </span><br><span class="line"> +46h    WORD    MinorImageVersion;             // PE文件自身的版本号</span><br><span class="line"> +48h    WORD    MajorSubsystemVersion;         // 运行所需子系统版本号</span><br><span class="line"> +4Ah    WORD    MinorSubsystemVersion;         // 运行所需子系统版本号</span><br><span class="line"> +4Ch    DWORD   Win32VersionValue;             // 子系统版本的值，必须为0</span><br><span class="line"> +50h    DWORD   SizeOfImage;                   // 内存中整个PE文件的映射的尺寸，可比实际的大，是SectionAlighment的整数倍</span><br><span class="line"> +54h    DWORD   SizeOfHeaders;                 // DOS头+PE头+节表的大小总和，按照文件对齐后的大小</span><br><span class="line"> +58h    DWORD   CheckSum;                      // 校验和 一些系统文件会有这个值，用来判断文件是否被修改</span><br><span class="line"> +5Ch    WORD    Subsystem;                     // 子系统，驱动程序(1)、图形界面(2) 、控制台/DLL(3)</span><br><span class="line"> +5Eh    WORD    DllCharacteristics;            // 文件特性，并不只对dll文件</span><br><span class="line"> +60h    DWORD   SizeOfStackReserve;            // 初始化时保留的栈大小 </span><br><span class="line"> +64h    DWORD   SizeOfStackCommit;             // 初始化时实际提交的大小 </span><br><span class="line"> +68h    DWORD   SizeOfHeapReserve;             // 初始化时保留的堆大小</span><br><span class="line"> +6Ch    DWORD   SizeOfHeapCommit;              // 初始化时实践提交的大小 </span><br><span class="line"> +70h    DWORD   LoaderFlags;                   // 调试相关</span><br><span class="line"> +74h    DWORD   NumberOfRvaAndSizes;           // 目录项数目</span><br><span class="line"> +78h    IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];   // 数据目录表，结构体数组</span><br><span class="line">&#125;IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;</span><br></pre></td></tr></table></figure></div></div></div>
+<blockquote>
+<p>加粗的字段是重要字段，代码样式的字段了解即可</p>
+</blockquote>
+<ol>
+<li>
+<p><strong>Magic</strong>：标识当前PE文件是PE32还是PE32+。是判断PE位数的关键属性。之前讲的一些属性也能看出PE是32还是64位，但那些属性不是特别准，最准确的是这个属性。</p>
+<table>
+<thead>
+<tr>
+<th>PE的位数</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PE32</td>
+<td>010Bh</td>
+</tr>
+<tr>
+<td>PE32+</td>
+<td>020Bh</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_NT_OPTIONAL_HDR32_MAGIC      0x10b</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_NT_OPTIONAL_HDR64_MAGIC      0x20b</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>MajorLinkerVersion</code>：链接器的主版本号。由链接器填写的辅助性信息。</p>
+</li>
+<li>
+<p><code>MinorLinkerVersion</code>：链接器的次版本号。由链接器填写的辅助性信息。</p>
+</li>
+<li>
+<p><strong><code>SizeOfCode</code></strong>：有IMAGE_SCN_CNT_CODE属性的区块的总大小(只入不舍)，这个值是已向上对齐到某一个值的整数倍。例如，本例是200h，即对齐的是一个磁盘扇区字节数（200h）的整数倍。在通常情况下，多数文件只有1个Code块，所以这个字段和.text块的大小匹配。</p>
+<ul>
+<li>如果有两个节，每个节大小都是10字节，FileAlignment是200h。那么SizeOfCode是400h（2个200h）。</li>
+</ul>
+</li>
+<li>
+<p><code>SizeOfInitializedData</code>：已初始化数据块的大小，即在编译时所构成的块的大小（不包括代码段)。但这个数据不太准确。</p>
+<blockquote>
+<p>比如声明了一个全局变量，赋了初值。就是已初始化的数据</p>
+</blockquote>
+</li>
+<li>
+<p><code>SizeOfUninitializedData</code>：未初始化数据块的大小，装载程序要在虚拟地址空间中为这些数据约定空间。这些块在磁盘文件中不占空间，就像“UninitializedData”这一术语所暗示的一样，这些块在程序开始运行时没有指定值。未初始化数据通常在.bss块中。</p>
+<blockquote>
+<p>比如声明了一个全局变量，没有赋初值。就是未初始化的数据</p>
+</blockquote>
+<blockquote>
+<p>SizeOfCode、SizeOfInitializedData、SizeOfUninitializedData是编译器填写的统计信息，不具备参考意义。</p>
+</blockquote>
+</li>
+<li>
+<p><strong>AddressOfEntryPoint</strong>：程序执行入口RVA。指PE文件在内存展开后，程序在哪个地址开始执行。这个值是相对于ImageBase的偏移。</p>
+</li>
+<li>
+<p><code>BaseOfCode</code>：代码段的起始地址RVA。这个值是相对于ImageBase的偏移。</p>
+</li>
+<li>
+<p><code>BaseOfData</code>：数据段的起始地址RVA。这个值是相对于ImageBase的偏移。</p>
+</li>
+<li>
+<p><strong>ImageBase</strong>：内存镜像基址。指PE文件在内存中首选在哪个地址开始载入拉伸。如果目前有其他文件占据了这个地址，要进行基址重定位。对于DLL这个值通常并不被操作系统采纳，如果开启了随机基址的EXE也是如此。</p>
+</li>
+<li>
+<p><strong>SectionAlignment</strong>：PE文件在内存时的区块对齐值。每个区块在载入内存时的地址必须是该字段数值的整数倍。默认的对齐尺寸是目标CPU的页尺寸。对运行在Windows 9x/Me下的用户模式可执行文件，最小的对齐尺寸是每页1000h(4KB)。</p>
+</li>
+<li>
+<p><strong>FileAlignment</strong>：PE文件在磁盘上时的区块对齐值。每个区块在磁盘上的地址必须是该字段数值的整数倍。对于x86可执行文件，这个值通常是200h或1000h，这是为了保证块总是从磁盘的扇区开始。这个值必须是2的幂，其最小值为200h。</p>
+</li>
+<li>
+<p><code>MajorOperatingSystemVersion</code>：要求操作系统的最低版本号的主版本号。</p>
+</li>
+<li>
+<p><code>MinorOperatingSystemVersion</code>：要求操作系统的最低版本号的次版本号。</p>
+</li>
+<li>
+<p><code>MajorImageVersion</code>：该PE文件自身的主版本号，由程序员定义。</p>
+</li>
+<li>
+<p><code>MinorImageVersion</code>：该PE文件自身的次版本号，由程序员定义。</p>
+</li>
+<li>
+<p><code>MajorSubsystemVersion</code>：要求最低子系统版本的主版本号。这个值与下一个字段一起，通常被设置为4，可以通过链接器开关ISUBSYSTEM来设置。</p>
+</li>
+<li>
+<p><code>MinorSubsystemVersion</code>：要求最低子系统版本的次版本号。</p>
+</li>
+<li>
+<p><code>Win32VersionValue</code>：子系统版本的值，从来不用的字段，必须为0，别的不可以。</p>
+</li>
+<li>
+<p><strong>SizeOfImage</strong>：内存中整个PE文件映射的大小，可比实际的值大。是指文件载入内存后从ImageBase开始到最后一个块的大小（最后一个块已向上对齐）。该值是SectionAlignment的整数倍。</p>
+</li>
+<li>
+<p><strong>SizeOfHeaders</strong>：DOS头+PE文件头+节表按照文件对齐后的大小。比如文件对齐大小是0x200h，DOS头+PE头+节表的总大小加起来目前是0x302h，要对齐，所以最终是0x400h。即<code>SizeOfHeaders</code>的值要是<code>FileAlignment</code>的整数倍。</p>
+</li>
+<li>
+<p><strong>CheckSum</strong>：该PE文件的检验和。该字段不是所有的文件都有，往往是系统中一些重要的dll、sys有这个值，是操作系统用来判断这个文件是否被人修改。<br />
+计算方法：文件中两个字节两个字节地相加，再+文件长度（溢出无所谓），最终的值就是校验和。比如，0x5A4Dh+下两个字节+…+下两个字节<br />
+但这个值达不到检验一个文件是否被篡改的功能。因为计算方法公开，而且微软也提供了现成的api来计算校验和。攻击者对文件进行修改，顺手把ChekSum计算一下，也改了就好了。</p>
+</li>
+<li>
+<p><code>Subsystem</code>：表明可执行文件的子系统，即指定了指定了可执行文件的运行环境。它告诉操作系统如何管理和执行该程序。这个字段的值决定了程序的界面类型，比如是命令行工具、图形界面应用程序还是其他类型的程序。该字段是个枚举类型。</p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>子系统</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>未知</td>
+</tr>
+<tr>
+<td>1</td>
+<td>不需要子系统（例如驱动程序）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>图形接口子系统（GUI），表示程序运行在Windows图形用户界面（GUI）下</td>
+</tr>
+<tr>
+<td>3</td>
+<td>字符子系统（CUI），表示程序是一个控制台应用程序，运行在命令行界面(CUI，即Console User Interface)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>OS/2字符子系统</td>
+</tr>
+<tr>
+<td>7</td>
+<td>POSIX字符子系统，表示程序遵循POSIX标准的控制台应用程序</td>
+</tr>
+<tr>
+<td>8</td>
+<td>保留</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Windows CE图形界面，表示程序是为Windows CE设计的图形界面应用程序</td>
+</tr>
+<tr>
+<td>10</td>
+<td>表示程序是一个EFI(可扩展固件接口)应用程序。</td>
+</tr>
+</tbody>
+</table>
+<p>驱动程序(1)、图形界面(2) 、控制台/DLL(3)。所有的值如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_UNKNOWN              0   <span class="comment">// Unknown subsystem.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_NATIVE               1   <span class="comment">// Image doesn&#x27;t require a subsystem.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_WINDOWS_GUI          2   <span class="comment">// Image runs in the Windows GUI subsystem.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_WINDOWS_CUI          3   <span class="comment">// Image runs in the Windows character subsystem.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_OS2_CUI              5   <span class="comment">// image runs in the OS/2 character subsystem.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_POSIX_CUI            7   <span class="comment">// image runs in the Posix character subsystem.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_NATIVE_WINDOWS       8   <span class="comment">// image is a native Win9x driver.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_WINDOWS_CE_GUI       9   <span class="comment">// Image runs in the Windows CE subsystem.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_EFI_APPLICATION      10  <span class="comment">//</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER  11   <span class="comment">//</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER   12  <span class="comment">//</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_EFI_ROM              13</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_XBOX                 14</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_WINDOWS_BOOT_APPLICATION 16</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_SUBSYSTEM_XBOX_CODE_CATALOG    17</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><code>DllCharacteristics</code>：指定了PE文件的一些特性和行为。不要被名字所迷惑，它不是只针对DLL文件的，是对PE文件的。这个字段是一个位掩码，可以通过对这个值进行位运算来确定设置了哪些标志。它的数据宽度是16位（4字节），其每一数据位对应的属性如下所示：</p>
+<table>
+<thead>
+<tr>
+<th>数据位</th>
+<th>常量符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x0001</td>
+<td>IMAGE_LIBRARY_PROCESS_INIT</td>
+<td>Reserved</td>
+</tr>
+<tr>
+<td>0x0002</td>
+<td>IMAGE_LIBRARY_PROCESS_TERM</td>
+<td>Reserved</td>
+</tr>
+<tr>
+<td>0x0004</td>
+<td>IMAGE_LIBRARY_THREAD_INIT</td>
+<td>Reserved</td>
+</tr>
+<tr>
+<td>0x0008</td>
+<td>IMAGE_LIBRARY_THREAD_TERM</td>
+<td>Reserved</td>
+</tr>
+<tr>
+<td>0x0020</td>
+<td>IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA</td>
+<td>支持高熵的地址空间布局随机化（ASLR）</td>
+</tr>
+<tr>
+<td>0x0040</td>
+<td>IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE</td>
+<td>可以在内存中随机位置加载，支持地址空间布局随机化（ASLR）</td>
+</tr>
+<tr>
+<td>0x0080</td>
+<td>IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY</td>
+<td>必须进行签名校验</td>
+</tr>
+<tr>
+<td>0x0100</td>
+<td>IMAGE_DLLCHARACTERISTICS_NX_COMPAT</td>
+<td>支持数据执行防止（DEP）</td>
+</tr>
+<tr>
+<td>0x0200</td>
+<td>IMAGE_DLLCHARACTERISTICS_NO_ISOLATION</td>
+<td>不是隔离的。这个标志位指示PE文件不使用Windows资源隔离机制。资源隔离机制是一种允许开发者为不同的区域设置或语言版本的应用程序提供特定资源（如字符串、图标等）的技术。如果设置了 NO_ISOLATION 标志，它表明该PE文件不使用这种隔离机制，可能是因为它不包含任何本地化资源，或者它使用了其他机制来处理资源。</td>
+</tr>
+<tr>
+<td>0x0400</td>
+<td>IMAGE_DLLCHARACTERISTICS_NO_SEH</td>
+<td>不使用结构化异常处理（SEH）。没有SEH的DLL更安全，因为它们不会被异常处理相关的攻击所利用。</td>
+</tr>
+<tr>
+<td>0x0800</td>
+<td>IMAGE_DLLCHARACTERISTICS_NO_BIND</td>
+<td>表示不允许对该PE文件进行绑定。绑定是一种优化技术，它在PE文件（通常是DLL）被加载时减少了解析导入函数地址所需的时间。当一个DLL被绑定到一个可执行文件时，它的导入地址表（IAT）会被预先填充具体的地址，而不是在运行时解析。如果设置了 NO_BIND 标志，它表明该PE文件不应该被绑定。这可能是因为开发者希望确保导入的地址总是在运行时解析，以便于更新或安全性考虑。</td>
+</tr>
+<tr>
+<td>0x1000</td>
+<td>IMAGE_DLLCHARACTERISTICS_APPCONTAINER</td>
+<td>表示该PE文件是为运行在AppContainer中的应用程序设计的。AppContainer是一种沙箱机制，由Windows 8和更高版本的Windows操作系统提供，用于限制应用程序的权限，从而提高系统的安全性。当这个标志被设置时，它表明该程序或库被设计为在这种受限的执行环境中运行，通常用于现代的Windows Store应用。</td>
+</tr>
+<tr>
+<td>0x2000</td>
+<td>IMAGE_DLLCHARACTERISTICS_WDM_DRIVER</td>
+<td>表示该PE文件是一个WDM驱动程序</td>
+</tr>
+<tr>
+<td>0x4000</td>
+<td>IMAGE_DLLCHARACTERISTICS_GUARD_CF</td>
+<td>表示该PE文件支持控制流保护。控制流保护（Control Flow Guard, CFG）是一种由Microsoft开发的安全特性，用于防止内存损坏漏洞被利用，特别是那些可能导致代码执行流程被恶意篡改的漏洞。当设置了 GUARD_CF 标志时，它表明PE文件已经使用CFG进行了编译和链接，操作系统加载器将会启用CFG，以增加对攻击者利用未经验证或不安全的间接函数调用的防护。</td>
+</tr>
+<tr>
+<td>0x8000</td>
+<td>IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE</td>
+<td>表示该PE文件是终端服务兼容的</td>
+</tr>
+</tbody>
+</table>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>制作表格参考的图和枚举常量</span></summary><div class="body"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PE%E5%A4%B4/image2021-11-24_17-11-3-17030439801409.png" alt="images/download/attachments/1015828/image2021-11-24_17-11-3.png" /></p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//      IMAGE_LIBRARY_PROCESS_INIT            0x0001     // Reserved.</span></span><br><span class="line"><span class="comment">//      IMAGE_LIBRARY_PROCESS_TERM            0x0002     // Reserved.</span></span><br><span class="line"><span class="comment">//      IMAGE_LIBRARY_THREAD_INIT             0x0004     // Reserved.</span></span><br><span class="line"><span class="comment">//      IMAGE_LIBRARY_THREAD_TERM             0x0008     // Reserved.</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA    0x0020  <span class="comment">// Image can handle a high entropy 64-bit virtual address space.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE 0x0040     <span class="comment">// DLL can move.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY    0x0080     <span class="comment">// Code Integrity Image</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DLLCHARACTERISTICS_NX_COMPAT    0x0100     <span class="comment">// Image is NX compatible</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DLLCHARACTERISTICS_NO_ISOLATION 0x0200     <span class="comment">// Image understands isolation and doesn&#x27;t want it</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DLLCHARACTERISTICS_NO_SEH       0x0400     <span class="comment">// Image does not use SEH.  No SE handler may reside in this image</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DLLCHARACTERISTICS_NO_BIND      0x0800     <span class="comment">// Do not bind this image.</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DLLCHARACTERISTICS_APPCONTAINER 0x1000     <span class="comment">// Image should execute in an AppContainer</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DLLCHARACTERISTICS_WDM_DRIVER   0x2000     <span class="comment">// Driver uses WDM model</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DLLCHARACTERISTICS_GUARD_CF     0x4000     <span class="comment">// Image supports Control Flow Guard.</span></span></span><br></pre></td></tr></table></figure></div></details></div>
+</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>例  win10下找一个exe和dll看下这个位</span></summary><div class="body"><div class="tag-plugin tabs" align="center"id="tab_96"><div class="nav-tabs"><div class="tab active"><a href="#tab_96-1">notepad.exe</a></div><div class="tab"><a href="#tab_96-2">ntdll.dll</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_96-1"><p>subsystem：2h，GUI界面程序</p><p>DllCharacteristics：0xC140h</p><table><thead><tr><th>被设置的位</th><th>含义</th></tr></thead><tbody><tr><td>IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE (0x0040)</td><td>支持ASLR</td></tr><tr><td>IMAGE_DLLCHARACTERISTICS_NX_COMPAT (0x0100)</td><td>支持DEP</td></tr><tr><td>IMAGE_DLLCHARACTERISTICS_NO_ISOLATION (0x0200)</td><td>不是隔离的</td></tr><tr><td>IMAGE_DLLCHARACTERISTICS_NO_SEH (0x0400)</td><td>不使用SEH</td></tr><tr><td>IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE (0x8000)</td><td>终端服务器兼容，意味着可以在远程桌面会话中正常工作</td></tr></tbody></table><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PE%E5%A4%B4/image-20231220105840934-17030428861855-170304413938611.png" alt="image-20231220105840934" /></p></div><div class="tab-pane" id="tab_96-2"><p>subsystem：3h，控制台/DLL</p><p>DllCharacteristics：0x4140h</p><table><thead><tr><th>被设置的位</th><th>含义</th></tr></thead><tbody><tr><td>IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE (0x0040)</td><td>支持ASLR</td></tr><tr><td>IMAGE_DLLCHARACTERISTICS_NX_COMPAT (0x0100)</td><td>支持DEP</td></tr><tr><td>IMAGE_DLLCHARACTERISTICS_NO_SEH (0x0400)</td><td>不使用SEH</td></tr></tbody></table><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PE%E5%A4%B4/image-20231220110712775-17030429086367-170304417089513.png" alt="image-20231220110712775" /></p></div></div></div></div></details></div>
+<ol start="25">
+<li>
+<p><code>SizeOfStackReserve</code>：在EXE文件里，初始化时为线程保留的栈的大小。它在一开始只提交其中一部分，只有在必要时才提交剩下的部分。</p>
+</li>
+<li>
+<p><code>SizeOfStackCommit</code>：在EXE文件里，初始化时实际提交的栈的大小，默认值是4KB。</p>
+</li>
+<li>
+<p><code>SizeOfHeapReserve</code>：在EXE文件里，初始化时为线程默认保留的堆的大小，默认值是1MB。</p>
+</li>
+<li>
+<p><code>SizeOfHeapCommit</code>：在EXE文件里，初始化时实际提交的堆的小小，默认值是4KB</p>
+</li>
+<li>
+<p><code>LoaderFlags</code>：与调试有关，默认值为0。Reserved, must be zero.（MSDN）。被废弃的成员值，MSDN上原话为“This member is obsolete”。但是该值在某些情况下还是会被用到的，比如针对原始的低版本的OD来说，修改该值会起到反调试的作用。</p>
+</li>
+<li>
+<p><code>NumberOfRvaAndSizes</code>：数据目录表的个数。这个字段的值从Windows NT 发布以来一直是16。</p>
+</li>
+<li>
+<p><strong>DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES]</strong>：数据目录表，是个结构体数组，每个成员是<code>IMAGE_DATA_DIRECTORY</code>结构体。不同的索引是不同的表。该字段是个枚举类型。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_DATA_DIRECTORY</span> &#123;</span></span><br><span class="line">    DWORD   VirtualAddress;</span><br><span class="line">    DWORD   Size;</span><br><span class="line">&#125; IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>VirtualAddress：这张表起始地址，这个值是RVA
+<ul>
+<li>想在文件中找，还需转成FOA</li>
+</ul>
+</li>
+<li>Size：表的大小。
+<ul>
+<li>是指<code>IMAGE_DATA_DIRECTORY</code>结构体和其使用的所有数据之和（比如导出表里有指针，要算上这个指针其指向子表所占用的空间）</li>
+<li>这个值是编译器编译完填写的值，没有实际意义。该值不会影响程序的运行（没尝试修改验证过？）</li>
+</ul>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>成员</th>
+<th>结构</th>
+<th>偏移量（PE）</th>
+<th>偏移量PE32+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Export Table</td>
+<td>IMAGE_DIRECTORY_ENTRY_EXPORT</td>
+<td>78h</td>
+<td>88h</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Import Table</td>
+<td>IMAGE_DIRECTORY_ENTRY_IMPORT</td>
+<td>80h</td>
+<td>90h</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Resources Table</td>
+<td>IMAGE_DIRECTORY_ENTRY_RESOURCE</td>
+<td>88h</td>
+<td>98h</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Exception Table</td>
+<td>IMAGE_DIRECTORY_ENTRY_EXCEPTION</td>
+<td>90h</td>
+<td>A0h</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Security Table</td>
+<td>IMAGE_DIRECTORY_ENTRY_SECURITY</td>
+<td>98h</td>
+<td>A8h</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Base relocation Table</td>
+<td>IMAGE_DIRECTORY_ENTRY_BASERELOC</td>
+<td>A0h</td>
+<td>B0h</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Debug</td>
+<td>IMAGE_DIRECTORY_ENTRY_DEBUG</td>
+<td>A8h</td>
+<td>B8h</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Copyright</td>
+<td>IMAGE_DIRECTORY_ENTRY_ARCHITECTURE</td>
+<td>B0h</td>
+<td>C0h</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Global Ptr</td>
+<td>IMAGE_DIRECTORY_ENTRY_GLOBALPTR</td>
+<td>B8h</td>
+<td>C8h</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Thread local storage(TLS)</td>
+<td>IMAGE_DIRECTORY_ENTRY_TLS</td>
+<td>C0h</td>
+<td>D0h</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Load configuration</td>
+<td>IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG</td>
+<td>C8h</td>
+<td>D8h</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Bound Import</td>
+<td>IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT</td>
+<td>D0h</td>
+<td>E0h</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Import Address Table(IAT)</td>
+<td>IMAGE_DIRECTORY_ENTRY_IAT</td>
+<td>D8h</td>
+<td>E8h</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Delay Import</td>
+<td>IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT</td>
+<td>E0h</td>
+<td>F0h</td>
+</tr>
+<tr>
+<td>14</td>
+<td>COM descriptor</td>
+<td>IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR</td>
+<td>E8h</td>
+<td>F8h</td>
+</tr>
+<tr>
+<td>15</td>
+<td>保留，必须为0</td>
+<td></td>
+<td>F0h</td>
+<td>100h</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_EXPORT          0   <span class="comment">// Export Directory</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_IMPORT          1   <span class="comment">// Import Directory</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_RESOURCE        2   <span class="comment">// Resource Directory</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_EXCEPTION       3   <span class="comment">// Exception Directory</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_SECURITY        4   <span class="comment">// Security Directory</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_BASERELOC       5   <span class="comment">// Base Relocation Table</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_DEBUG           6   <span class="comment">// Debug Directory</span></span></span><br><span class="line"><span class="comment">//      IMAGE_DIRECTORY_ENTRY_COPYRIGHT       7   // (X86 usage)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_ARCHITECTURE    7   <span class="comment">// Architecture Specific Data</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_GLOBALPTR       8   <span class="comment">// RVA of GP</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_TLS             9   <span class="comment">// TLS Directory</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG    10   <span class="comment">// Load Configuration Directory</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT   11   <span class="comment">// Bound Import Directory in headers</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_IAT            12   <span class="comment">// Import Address Table</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT   13   <span class="comment">// Delay Load Import Descriptors</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR 14   <span class="comment">// COM Runtime descriptor</span></span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/PE/DOS%E9%83%A8%E5%88%86.html">DOS部分</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/PE/%E8%8A%82%E8%A1%A8.html">节表</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

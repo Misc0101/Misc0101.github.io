@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Thinking in C++：static（废弃草稿） - Misc010</title>
+
+  
+    <meta name="description" content="In both C and C++ the keyword static has two basic meanings, which unfortunately often step on each other’s toes:  Static storage  Allocated once at a fixed address; that is, the object is created in">
+<meta property="og:type" content="website">
+<meta property="og:title" content="static（废弃草稿）">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Thinking_in_C++/static%EF%BC%88%E5%BA%9F%E5%BC%83%E8%8D%89%E7%A8%BF%EF%BC%89.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="In both C and C++ the keyword static has two basic meanings, which unfortunately often step on each other’s toes:  Static storage  Allocated once at a fixed address; that is, the object is created in">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/static/image-20200425142233717.png">
+<meta property="article:published_time" content="2024-03-04T07:31:00.000Z">
+<meta property="article:modified_time" content="2024-03-04T07:31:00.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/static/image-20200425142233717.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Thinking_in_C++/Pointers.html"><div class="main" ff="title">Thinking in C++</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Thinking_in_C++/" placeholder="在/wiki/Thinking_in_C++/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">Ch8 Constants</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/Pointers.html#start"><span class="toc-text">Pointers</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/Function_arguments&return_values.html"><span class="toc-text">Function arguments & return values</span></a></div></div><div class="widget-header cap dis-select"><span class="name">Ch10 Name Control</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/static.html"><span class="toc-text">static</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Thinking_in_C++/static%EF%BC%88%E5%BA%9F%E5%BC%83%E8%8D%89%E7%A8%BF%EF%BC%89.html"><span class="toc-text">static（废弃草稿）</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E5%BF%B5%E8%A1%A5%E5%85%85"><span class="toc-text"> 概念补充</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#static-elements-in-cc"><span class="toc-text"> static elements in C&#x2F;C++</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#static-variables-inside-functions"><span class="toc-text"> static variables inside functions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#static-class-objects-inside-functions"><span class="toc-text"> static class objects inside functions</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#confusion"><span class="toc-text"> Confusion</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#example"><span class="toc-text"> Example</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%9D%E8%80%83"><span class="toc-text"> 思考</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#static-initialization-dependency"><span class="toc-text"> Static initialization dependency</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#static-members-in-c"><span class="toc-text"> Static members in C++</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#static-members"><span class="toc-text"> Static members</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#static-member-function"><span class="toc-text"> Static member function</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text"> 总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text"> 小结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E6%96%B9%E6%B3%95"><span class="toc-text"> 分析方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B%E4%B8%8D%E5%90%AB%E5%AF%B9%E8%B1%A1"><span class="toc-text"> 全局变量（基本类型，不含对象）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%E5%9C%A8%E5%87%BD%E6%95%B0%E4%B8%AD%E7%9A%84%E5%8F%98%E9%87%8F"><span class="toc-text"> 局部变量（在函数中的变量）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0"><span class="toc-text"> 函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B1%BB"><span class="toc-text"> 类</span></a></li></ol></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/Namespaces.html"><span class="toc-text">Namespaces</span></a></div></div><div class="widget-header cap dis-select"><span class="name">Ch11 References&the Copy-Constructor</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/%E5%BC%95%E7%94%A8I-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5.html"><span class="toc-text">引用I-基础概念</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/%E5%BC%95%E7%94%A8II.html"><span class="toc-text">引用II</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/%E6%8B%B7%E8%B4%9D%E6%9E%84%E9%80%A0I.html"><span class="toc-text">拷贝构造I</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><span class="title">汇编语言</span><span class="excerpt">x86汇编笔记：以滴水三期_汇编语言课程为框架，《汇编语言4th-王爽》和《汇编语言-基于x86处理器-第七版》为补充。</span></a><a class="item wiki" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><span class="title">C++</span><span class="excerpt">滴水三期_C++语言笔记，C++能做的C都能做，只不过如果使用C++，可以节省很多时间，因为编译器帮编程人员做了很多工作，让编程人员省事。学习的目标：相对于C，编译器替我们做了哪些工作。</span></a><a class="item wiki" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><span class="title">C</span><span class="excerpt">滴水三期_C语言笔记，以逆向角度看待和学习C语言，精彩点：堆栈图与指针。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="title">科学上网技术</span><span class="excerpt">从正常网络通信数据包通信过程出发，逐步推导到使用代理协议进行科学上网，随后依次介绍各代理协议ss、trojan、vmess、vless原理与节点搭建，还有相关的工具、技术、概念介绍。</span></a><a class="item wiki" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><span class="title">Windows API编程</span><span class="excerpt">滴水三期_win32 api笔记，学习Windows API编程的困难并不在于函数参数参数众多或者英文不好这类表象原因，而是需要从Windows系统的整体知识架构出发来学习这些API，深入理解每个参数背后的含义和背景。如此，未来查阅MSDN时便不再像是看天书。</span></a><a class="item wiki" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><span class="title">数据的运算与表示</span><span class="excerpt">滴水三期_进制笔记，学习与理解进制、数据宽度、数的表示、位运算等概念。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Thinking_in_C++/Pointers.html">Thinking in C++</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-03-04T07:31:00.000Z">2024-03-04</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>static（废弃草稿）</span></h1>
+<p>In both C and C++ the keyword <strong>static</strong> has two basic meanings, which unfortunately often step on each other’s toes:</p>
+<ol>
+<li>Static storage
+<ul>
+<li><u>Allocated once at a fixed address</u>; that is, the object is created in a special <strong>static data area</strong> rather than on the stack each time a function is called.</li>
+</ul>
+</li>
+<li>Visibility of a name
+<ul>
+<li><u>Local to a particular translation unit</u> (and local to a class scope in C++). Here, <strong>static</strong> controls the <strong>visibility</strong> of a name, so that name cannot be seen outside the translation unit or class.</li>
+<li><u>internal linkage</u>:This also describes the concept of <strong>linkage</strong>, which determines what names the linker will see.</li>
+</ul>
+</li>
+</ol>
+<hr />
+<ol>
+<li>持久存储
+<ul>
+<li><code>static 局部变量</code>存放在静态数据区（static data area）而不在函数调用时的堆中中分配。其实，<code>static 局部变量</code>就是全局变量。</li>
+</ul>
+</li>
+<li>访问性的限制
+<ul>
+<li>如果一个全局变量/函数是static的，表明这个全局变量/函数只在这个.c/.cpp文件中有效，其他文件不能访问到这个全局变量/函数。</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h2 id="概念补充"><a class="markdownIt-Anchor" href="#概念补充"></a> 概念补充</h2>
+<p>存储类型：变量存放在哪，全局区，堆栈，堆等。</p>
+<p>变量的生命周期：变量所在的内存从分配到释放的这段时间。</p>
+<p>变量的作用域：变量在源码中可以被访问到的范围。</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>含义</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>进程作用域</td>
+<td>在整个进程中都被能访问到。</td>
+<td>全局变量</td>
+</tr>
+<tr>
+<td>文件作用域</td>
+<td>在当前源码文件内可以访问到</td>
+<td>静态变量</td>
+</tr>
+<tr>
+<td>函数作用域</td>
+<td>在函数内可以访问到</td>
+<td>局部变量</td>
+</tr>
+<tr>
+<td>块作用域</td>
+<td>只能在定义变量的&quot;{}&quot;块内访问</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>作用域会影响这个名字在link时能不能被其他translation unit访问到。全局变量默认是external linkage，所有translation units都能访问到。</p>
+<p><strong>Controlling linkage</strong></p>
+<p>Ordinarily, any name at <strong>file scope</strong> (that is, not nested inside a class or function) is visible throughout all translation units in a program. This is often called <strong>external linkage</strong> because at link time the name is visible to the linker everywhere, external to that translation unit. Global variables and ordinary functions have external linkage.</p>
+<p>如果在object或function前加了static，就表明这个object或function的名字只在当前的translation unit有效，这个name是<strong>internal linkage</strong>，其他translation unit无法看见也无法访问到。</p>
+<h2 id="static-elements-in-cc"><a class="markdownIt-Anchor" href="#static-elements-in-cc"></a> static elements in C/C++</h2>
+<h3 id="static-variables-inside-functions"><a class="markdownIt-Anchor" href="#static-variables-inside-functions"></a> static variables inside functions</h3>
+<ul>
+<li>
+<p>存储是全局的，Value is remembered for entire program</p>
+</li>
+<li>
+<p>作用域：函数作用域，仅在函数内可以访问到</p>
+</li>
+<li>
+<p>生命周期：</p>
+<ul>
+<li>函数首次被调用时，静态成员被初始化，初始化只会发生一次</li>
+<li>程序结束时销毁</li>
+</ul>
+</li>
+</ul>
+<p>Example:</p>
+<ul>
+<li>num_calls将在每次函数执行时候++</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">int</span> num_calls = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    num_calls++;</span><br><span class="line">&#125; <span class="comment">// 全局变量，但只能在函数里访问</span></span><br></pre></td></tr></table></figure>
+<h3 id="static-class-objects-inside-functions"><a class="markdownIt-Anchor" href="#static-class-objects-inside-functions"></a> static class objects inside functions</h3>
+<ul>
+<li>存储是全局的，Value is remembered for entire program</li>
+<li>作用域：函数作用域，仅在函数内可以访问到</li>
+<li>生命周期：
+<ul>
+<li>函数首次被调用时，对象通过构造函数被初始化，初始化只会发生一次</li>
+<li>程序结束时销毁，会调用析构函数</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><figcaption><span>本地变量是一个自定义的类</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">X</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">X</span>(<span class="type">int</span>, <span class="type">int</span>);</span><br><span class="line">    ~<span class="built_in">X</span>();</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function"><span class="type">static</span> X <span class="title">my_X</span><span class="params">(<span class="number">10</span>, <span class="number">20</span>)</span></span>;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Construction occurs when definition is encountered
+<ul>
+<li>Constructor called at-most once 构造只发生一次，在函数第一次被调用时发生</li>
+<li>The constructor arguments must be satisfied</li>
+</ul>
+</li>
+<li>Destruction takes place on exit from program 析构在程序结束时发生
+<ul>
+<li>Compiler assures LIFO order of destructors 所有被创建的对象的析构函数按创建时相反的顺序被调用</li>
+</ul>
+</li>
+</ul>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>析构函数在exit()被调用时才被调用</span></summary><div class="body"><p>Destructors for static objects (that is, all objects with static storage, not just local static objects as in the example above) are called when <strong>main( )</strong> exits or when the Standard C library function <strong>exit( )</strong> is explicitly called. In most implementations, <strong>main( )</strong> just calls <strong>exit( )</strong> when it terminates. This means that it can be dangerous to call <strong>exit( )</strong> inside a destructor because you can end up with infinite recursion. Static object destructors are <em>not</em> called if you exit the program using the Standard C library function <strong>abort( )</strong>.</p><p>You can specify actions to take place when leaving <strong>main( )</strong> (or calling <strong>exit( )</strong>) by using the Standard C library function <strong>atexit( )</strong>. In this case, the functions registered by <strong>atexit( )</strong> may be called before the destructors for any objects constructed before leaving <strong>main( )</strong> (or calling <strong>exit( )</strong>).</p></div></details></div>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//: C10:StaticDestructors.cpp</span></span><br><span class="line"><span class="comment">// Static object destructors</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function">ofstream <span class="title">out</span><span class="params">(<span class="string">&quot;statdest.out&quot;</span>)</span></span>; <span class="comment">// Trace file</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Obj</span> &#123;</span><br><span class="line">  <span class="type">char</span> c; <span class="comment">// Identifier</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">Obj</span>(<span class="type">char</span> cc) : <span class="built_in">c</span>(cc) &#123;</span><br><span class="line">    out &lt;&lt; <span class="string">&quot;Obj::Obj() for &quot;</span> &lt;&lt; c &lt;&lt; endl;</span><br><span class="line">  &#125;</span><br><span class="line">  ~<span class="built_in">Obj</span>() &#123;</span><br><span class="line">    out &lt;&lt; <span class="string">&quot;Obj::~Obj() for &quot;</span> &lt;&lt; c &lt;&lt; endl;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">Obj <span class="title">a</span><span class="params">(<span class="string">&#x27;a&#x27;</span>)</span></span>; <span class="comment">// Global (static storage)</span></span><br><span class="line"><span class="comment">// Constructor &amp; destructor always called</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="type">static</span> Obj <span class="title">b</span><span class="params">(<span class="string">&#x27;b&#x27;</span>)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">g</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="type">static</span> Obj <span class="title">c</span><span class="params">(<span class="string">&#x27;c&#x27;</span>)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  out &lt;&lt; <span class="string">&quot;inside main()&quot;</span> &lt;&lt; endl;</span><br><span class="line">  <span class="built_in">f</span>(); <span class="comment">// Calls static constructor for b</span></span><br><span class="line">  <span class="comment">// g() not called</span></span><br><span class="line">  out &lt;&lt; <span class="string">&quot;leaving main()&quot;</span> &lt;&lt; endl;</span><br><span class="line">&#125; <span class="comment">///:~</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><figcaption><span>运行输出</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Obj::<span class="built_in">Obj</span>() <span class="function"><span class="keyword">for</span> a</span></span><br><span class="line"><span class="function">inside <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="title">Obj::Obj</span><span class="params">()</span> <span class="keyword">for</span> b</span></span><br><span class="line"><span class="function">leaving <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function">Obj::~<span class="title">Obj</span><span class="params">()</span> <span class="keyword">for</span> b</span></span><br><span class="line"><span class="function">Obj::~<span class="title">Obj</span><span class="params">()</span> <span class="keyword">for</span> a</span></span><br></pre></td></tr></table></figure>
+<p>The constructor for <strong>a</strong> is called before <strong>main( )</strong> is entered, and the constructor for <strong>b</strong> is called only because <strong>f( )</strong> is called. When <strong>main( )</strong> exits, <u>the destructors for the objects that have been constructed are called in reverse order of their construction.</u> This means that if <strong>g( )</strong> <em>is</em> called, the order in which the destructors for <strong>b</strong> and <strong>c</strong> are called depends on whether <strong>f( )</strong> or <strong>g( )</strong> is called first.</p>
+<h2 id="confusion"><a class="markdownIt-Anchor" href="#confusion"></a> Confusion</h2>
+<p>正因为static关键字可以表示两种含义（<strong>存储类型</strong>和<strong>可见性</strong>），所以有时会造成理解上的困扰，现在我们展示下how the two meanings of <strong>static</strong> can cross over each other.</p>
+<div class="tag-plugin quot"><p class="content" type="text">对于全局变量，static改变的是可见性</p></div>
+<p>All global objects implicitly have static storage class</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>存储类型：变量a将存放在static data area，变量a的初始化在进入main()前完成</li>
+<li>可见性：变量a在all translation units都是可见的（visibility）</li>
+</ul>
+<p>仅从visibility上对比，extren表示这个名字对所有translation units都可见，是static的opposite（visible only in this translation unit）</p>
+<p>所以上面definition的等价写法如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="type">int</span> a = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>但如果是</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> a = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>存储类型：static在这里不会修改到变量a的存储类型（还是放在static data area）</li>
+<li>可见性：修改的是可见性，表明a这个名字只在当前文件可见</li>
+</ul>
+<div class="tag-plugin quot"><p class="content" type="text">对于局部变量，static改变的是存储类型</p></div>
+<ul>
+<li>存储类型：变为持久存储，放在static data area</li>
+<li>可见性：不会改变。这时加上extern是没意义的</li>
+</ul>
+<p>这时加上extern是表明这个变量的the storage exists elsewhere</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//: C10:LocalExtern.cpp</span></span><br><span class="line"><span class="comment">//&#123;L&#125; LocalExtern2</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">extern</span> <span class="type">int</span> i;</span><br><span class="line">    std::cout &lt;&lt; i;</span><br><span class="line">&#125; <span class="comment">///:~</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//: C10:LocalExtern2.cpp &#123;O&#125;</span></span><br><span class="line"><span class="type">int</span> i = <span class="number">5</span>;</span><br><span class="line"><span class="comment">///:~</span></span><br></pre></td></tr></table></figure>
+<div class="tag-plugin quot"><p class="content" type="text">对于函数名（非成员函数），static改变的是可见性</p></div>
+<p>对于非成员函数，static和extern只会改变可见性，函数地址都是全局的</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// external linkage</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等价写法</span></span><br><span class="line"><span class="function"><span class="keyword">extern</span> <span class="type">void</span> <span class="title">f</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+<p>加static就表明函数f()只在当前文件可见，有时称作文件静态（file static）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">f</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+<h3 id="example"><a class="markdownIt-Anchor" href="#example"></a> Example</h3>
+<p><code>g_global</code>：</p>
+<ul>
+<li>File1中的<code>g_global</code>是个全局变量，对所有translation units可见，所以在File12中可以用<code>extern int g_global</code>来表明g_global定义在别处，然后就可以使用g_global1了。</li>
+</ul>
+<p><code>s_local</code>：</p>
+<ul>
+<li>static，只对当前文件可见。即使File2中用<code>extern int s_local</code>表明s_local定义在别处，编译能过，但link时过不去（File1说s_local只给自己这个文件用）</li>
+</ul>
+<p><code>hidden</code>：</p>
+<ul>
+<li>static，函数名只对当前文件可见，File2不可见，不可使用</li>
+</ul>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/static/image-20200425142233717.png" alt="image-20200425142233717" /></p>
+<h3 id="思考"><a class="markdownIt-Anchor" href="#思考"></a> 思考</h3>
+<p>换个角度其实可以理解，加上static后，无法同时将两个含义都修改，加上static后变的只有一个含义。比如</p>
+<ul>
+<li>全局变量，本身就是全局存储，加了static还是全局存储，所以加static就是限制可见性</li>
+<li>局部变量，本身可见性是在块作用域，加了static可见性还是在块作用域里，所以加static就是修改为持久存储</li>
+<li>函数（非成员），函数地址本身就是全局地址，加了static还是全局，所以加static就是限制可见性</li>
+</ul>
+<p>当然，忘了的话，从<strong>存储类型</strong>和<strong>可见性</strong>进行分析即可，不用想是这个没变，所以另外一个变了。</p>
+<h2 id="static-initialization-dependency"><a class="markdownIt-Anchor" href="#static-initialization-dependency"></a> Static initialization dependency</h2>
+<p>有多个文件都有作用域为多个translation units的静态对象，这些静态对象之间互有依赖，如</p>
+<figure class="highlight cpp"><figcaption><span>一个文件</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="type">int</span> y;</span><br><span class="line"><span class="type">int</span> x = y + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><figcaption><span>另一个文件</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="type">int</span> x;</span><br><span class="line"><span class="type">int</span> y = x + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>谁先初始化谁后初始化的顺序是不确定的</p>
+<p>解决办法：</p>
+<ol>
+<li>不使用，避免静态对象之间初始化的依赖</li>
+<li>将所有有依赖的这些静态对象放到同一个文件中，文件中的顺序就是初始化的顺序</li>
+<li>两种办法
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cs.swarthmore.edu/~newhall/unixhelp/thinkinginc++/Chapter10.html">10: Name Control</a>What to do标题</li>
+</ul>
+</li>
+</ol>
+<h2 id="static-members-in-c"><a class="markdownIt-Anchor" href="#static-members-in-c"></a> Static members in C++</h2>
+<p>从设计层面上来看：</p>
+<p>在C中，static意味着<strong>Hidden</strong>和<strong>Persistent</strong>，而在C++ 中多了对象的概念，我们来看下Hidden和Persistent的概念在C++中是如何延续的：</p>
+<p>Hidden，实现数据隐藏<br />
+在C中，我们通过static来修改一个变量/函数的可见性，达到Hidden的目的。但在C++中，我们有access rules(访问控制符，public，protected，private）来做Hidden的事。于是，对一个static的成员变量来说，static用来实现Hidden的任务结束了。</p>
+<p>Persistent，持久</p>
+<ul>
+<li>同一个函数多次调用却仍存在的东西，persistent。C语言中有两种东西是persistent的，全局变量和malloc的东西（malloc的在整个程序的运行周期都存在）</li>
+<li>在C++，对象instances之间共享的东西，不随着对象的不同而不同。所以说static成员变量是class-wide（类级别）上的东西。</li>
+</ul>
+<hr />
+<p>有时我们需要一个在所有类中都共享的变量，在C中可以用全局变量实现，但全局变量没有隐藏在类的内部。如果既能让所有类的对象都共享，并且能放在类里，那就再理想不过了。<code>static数据成员</code>就是这个问题的解决方法。</p>
+<h3 id="static-members"><a class="markdownIt-Anchor" href="#static-members"></a> Static members</h3>
+<ol>
+<li>
+<p>static member也是类的成员，类外对静态成员变量的访问需要遵守access rules(访问控制符，public，protected，private）</p>
+</li>
+<li>
+<p>静态成员变量存储在全局区，且必须在一个地方定义（definition）<br />
+类中的是declaration，declaration并没分空间。必须有一个地方写上definition，编译器才会给静态成员变量分空间。通常是.h放类的declaration，在.cpp中写definition</p>
+<div class="tag-plugin grid"  style="grid-template-columns: repeat(2, 1fr);"><div class="cell" style="">
+    <figure class="highlight cpp"><figcaption><span>.h</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">A</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">static</span> <span class="type">int</span> i;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+    </div>
+    <div class="cell" style="">
+    <p><strong>正确的写法</strong></p><div class="tag-plugin colorful note" color="green" child="codeblock"><div class="body"><figure class="highlight cpp"><figcaption><span>.cpp</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// definition</span></span><br><span class="line"><span class="type">int</span> A::i;               <span class="comment">// ok,编译器会默认初始化为0</span></span><br></pre></td></tr></table></figure><figure class="highlight cpp"><figcaption><span>.cpp</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// definition</span></span><br><span class="line"><span class="type">int</span> A::i = <span class="number">20</span>;          <span class="comment">// ok,编译器会初始化为20</span></span><br></pre></td></tr></table></figure></div></div><p><strong>错误的写法</strong></p><p>从设计上来讲，static限制<code>A::i</code>只在当前文件可见，但<code>A::i</code>已经在类A中是private，private是说只有类才能访问，这会冲突。所以definition这里前面不用再加上static</p><div class="tag-plugin colorful note" color="red" child="codeblock"><div class="body"><figure class="highlight cpp"><figcaption><span>.cpp</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// definition</span></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> A::i;        <span class="comment">//error</span></span><br></pre></td></tr></table></figure></div></div>
+    </div>
+    </div>
+</li>
+<li>
+<p>静态成员变量是所有对象instances共享的，是属于整个类的一部分，所以：</p>
+<ul>
+<li>
+<p>不能在构造函数初始化列表中进行初始化，因为静态成员变量与是否有对象实例无关。初始化列表只能对非静态成员变量进行初始化</p>
+</li>
+<li>
+<p>可以在构造函数的函数体中进行赋值，因为静态成员变量也是类的成员，类中的函数可以访问到。对象也可以通过this指针访问到</p>
+</li>
+<li>
+<p>两种访问方式</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">A</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:                     <span class="comment">//public，所以main中可以直接访问到i</span></span><br><span class="line">    <span class="type">static</span> <span class="type">int</span> i;           <span class="comment">//如果private的，main中的两行也访问不到</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> A::i = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    A a;</span><br><span class="line">    </span><br><span class="line">    <span class="type">int</span> r1 = A::i;          <span class="comment">//方式一：类名::静态数据成员</span></span><br><span class="line">    <span class="type">int</span> r2 = a.i;           <span class="comment">//方式二：类对象名 静态数据成员</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="static-member-function"><a class="markdownIt-Anchor" href="#static-member-function"></a> Static member function</h3>
+<ol>
+<li>
+<p>static member function也是类的成员，类外对静态成员变量的访问需要遵守access rules(访问控制符，public，protected，private）</p>
+</li>
+<li>
+<p>出现在类外的函数定义（definition）不用再写关键字static</p>
+</li>
+<li>
+<p>静态成员函数只能访问静态成员变量和其他静态成员函数<br />
+因为，静态成员函数与是否有对象实例无关，那也就没有this指针(this指针指向当前调用成员函数的对象)，没有this指针，也就访问不到非静态成员，也不能调用非静态的成员函数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//: C10:StaticMemberFunctions.cpp</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">X</span> </span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line">  <span class="type">static</span> <span class="type">int</span> j;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">X</span>(<span class="type">int</span> ii = <span class="number">0</span>) : <span class="built_in">i</span>(ii) </span><br><span class="line">  &#123;</span><br><span class="line">     <span class="comment">// Non-static member function can access static member function or data:</span></span><br><span class="line">    j = i;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="type">int</span> <span class="title">val</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> i; &#125;</span><br><span class="line">  <span class="function"><span class="type">static</span> <span class="type">int</span> <span class="title">incr</span><span class="params">()</span> </span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    <span class="comment">//! i++; </span></span><br><span class="line">    <span class="comment">// Error: static member functioncannot access non-static member data</span></span><br><span class="line">    <span class="keyword">return</span> ++j;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="type">static</span> <span class="type">int</span> <span class="title">f</span><span class="params">()</span> </span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    <span class="comment">//! val(); </span></span><br><span class="line">    <span class="comment">// Error: static member function cannot access non-static member function</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">incr</span>(); <span class="comment">// OK -- calls static</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> X::j = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  X x;</span><br><span class="line">  X* xp = &amp;x;</span><br><span class="line"></span><br><span class="line">  x.<span class="built_in">f</span>();</span><br><span class="line">  xp-&gt;<span class="built_in">f</span>();</span><br><span class="line">  X::<span class="built_in">f</span>(); <span class="comment">// Only works with static members</span></span><br><span class="line">&#125; <span class="comment">///:~</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>调用静态成员函数的两种方式</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//: C10:SimpleStaticMemberFunction.cpp </span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">X</span> </span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">f</span><span class="params">()</span></span>&#123;&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    </span><br><span class="line">  <span class="comment">//方式一</span></span><br><span class="line">  X::<span class="built_in">f</span>();</span><br><span class="line"></span><br><span class="line">  <span class="comment">//方式二</span></span><br><span class="line">  X x;</span><br><span class="line">  x.<span class="built_in">f</span>();</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>However, it’s more typical to call a <strong>static</strong> member function by itself, without any specific object, using the scope-resolution operator</p>
+</li>
+</ol>
+<p>静态成员函数提供了一种方法：在一个类没有创建任何对象之前来调用类中的函数；有这么一个东西，与是否存在类的对象无关的<br />
+静态成员变量同理：在一个类没有创建任何对象示例之前，就能让其他人来访问类中的数据</p>
+<h2 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h2>
+<h3 id="小结"><a class="markdownIt-Anchor" href="#小结"></a> 小结</h3>
+<table>
+  <tr>
+    <th colspan="2">Uses of "static" in C++</th>
+  </tr>
+  <tr>
+    <td>Static free functions</td>
+    <td><del>Internal Linkage </del>(deprecated)</td>
+  </tr>
+  <tr>
+    <td>Static global variables</td>
+    <td><del>Internal Linkage </del>(deprecated)</td>
+  </tr>
+  <tr>
+    <td>Static local variables</td>
+    <td>Persistent storage</td>
+  </tr>
+  <tr>
+    <td>Static member variables</td>
+    <td>Shared by all instances</td>
+  </tr>
+  <tr>
+    <td>Static member function</td>
+    <td>Shared by all instances, can only access static member variables</td>
+  </tr>
+</table>
+<ol>
+<li>Static free functions：指的是在类外定义的、具有静态链接（internal linkage）的函数。这意味着这些函数仅在定义它们的翻译单元（通常是一个.cpp文件）内部可见，而不能被其他翻译单元看到或链接。这样可以避免与其他翻译单元中具有相同名称的函数发生命名冲突。</li>
+<li>Static global variables：指的是在所有函数外面定义的、具有静态链接的全局变量。这种变量也只在定义它的翻译单元内部可见，从而避免了在不同的翻译单元之间共享。</li>
+</ol>
+<p>废弃（deprecated）<br />
+自C++11开始，匿名命名空间（anonymous namespaces）被推荐用于替代静态全局变量和静态自由函数，因为它提供了更好的封装和防止命名冲突的手段。</p>
+<h3 id="分析方法"><a class="markdownIt-Anchor" href="#分析方法"></a> 分析方法</h3>
+<p>从存储类型和可见性两方面进行分析。然后，注意静态成员变量和静态成员函数的一些特点。比如静态成员变量注意要有definition，静态成员函数只能访问静态成员变量和调用静态成员函数等。</p>
+<h3 id="全局变量基本类型不含对象"><a class="markdownIt-Anchor" href="#全局变量基本类型不含对象"></a> 全局变量（基本类型，不含对象）</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>非static</th>
+<th>static</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存储位置</td>
+<td>全局数据区</td>
+<td>全局数据区</td>
+</tr>
+<tr>
+<td>生命周期</td>
+<td>程序启动时初始化</br>程序结束时销毁</td>
+<td>程序启动时初始化</br>程序结束时销毁</td>
+</tr>
+<tr>
+<td>可见性</td>
+<td>所有文件</td>
+<td>当前文件</td>
+</tr>
+</tbody>
+</table>
+<p>static 变量初始化：</p>
+<ul>
+<li>如果没有显式初始化，基本类型会自动初始化为零</li>
+</ul>
+<hr />
+<p>非static，基本类型：</p>
+<ul>
+<li>存储位置和生命周期：全局数据区；程序启动时在启动函数中初始化（main函数前），程序结束时销毁</li>
+<li>可见性：所有文件</li>
+</ul>
+<p>static，基本类型：</p>
+<ul>
+<li>存储位置和生命周期：全局数据区；程序启动时在启动函数中初始化（main函数前），程序结束时销毁</li>
+<li>可见性：当前文件</li>
+</ul>
+<p>如果没有显式初始化，基本类型会自动初始化为零</p>
+<h3 id="局部变量在函数中的变量"><a class="markdownIt-Anchor" href="#局部变量在函数中的变量"></a> 局部变量（在函数中的变量）</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>非static</th>
+<th>static</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存储位置</td>
+<td>栈</td>
+<td>全局数据区</td>
+</tr>
+<tr>
+<td>生命周期</td>
+<td>函数调用时初始化</br>函数结束时释放</td>
+<td>程序启动时初始化</br>程序结束时销毁</td>
+</tr>
+<tr>
+<td>可见性</td>
+<td>函数内部，块作用域（左右花括号<code>&#123;&#125;</code>）</td>
+<td>函数内部，块作用域（左右花括号<code>&#123;&#125;</code>）</td>
+</tr>
+</tbody>
+</table>
+<p>非static，基本类型和对象：</p>
+<ul>
+<li>存储位置和生命周期：堆栈；函数调用时在相应栈帧中初始化，函数调用结束时释放</li>
+<li>可见性：当前作用域（函数左右花括号<code>&#123;&#125;</code>里），其他函数无法访问该变量。
+<ul>
+<li>对象：需要遵守access rules</li>
+</ul>
+</li>
+</ul>
+<p>static，基本类型和对象：</p>
+<ul>
+<li>存储位置和生命周期：全局数据区，函数第一次调用时初始化，程序结束时销毁</li>
+<li>可见性：还是当前作用域（函数左右花括号<code>&#123;&#125;</code>里），其他函数无法访问该变量
+<ul>
+<li>对象：需要遵守access rules</li>
+</ul>
+</li>
+</ul>
+<h3 id="函数"><a class="markdownIt-Anchor" href="#函数"></a> 函数</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>非static</th>
+<th>static</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存储位置</td>
+<td>函数地址在全局数据区</td>
+<td>函数地址在全局数据区</td>
+</tr>
+<tr>
+<td>可见性</td>
+<td>所有文件</td>
+<td>当前文件</td>
+</tr>
+</tbody>
+</table>
+<p>非static：</p>
+<ul>
+<li>存储位置：全局数据区，函数地址本身是全局的</li>
+<li>可见性：所有文件；或被限制在namaspace中</li>
+</ul>
+<p>static：</p>
+<ul>
+<li>存储位置：全局数据区，函数地址本身是全局的</li>
+<li>可见性：当前文件</li>
+</ul>
+<h3 id="类"><a class="markdownIt-Anchor" href="#类"></a> 类</h3>
+<p><strong>成员变量</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>非static</th>
+<th>static</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存储位置</td>
+<td>看是局部对象还是全局对象</td>
+<td>全局数据区</td>
+</tr>
+<tr>
+<td>生命周期</td>
+<td>看是局部对象还是全局对象</td>
+<td>程序启动时初始化</br>程序结束时销毁</td>
+</tr>
+<tr>
+<td>可见性</td>
+<td>受public、protected、private限制</td>
+<td>被该类所有对象共有，受public、protected、private限制</td>
+</tr>
+</tbody>
+</table>
+<p>非static：</p>
+<ul>
+<li>存储位置，看对象在哪里实例化
+<ul>
+<li>局部变量</li>
+<li>全局变量</li>
+</ul>
+</li>
+<li>可见性：受public、protected、private限制</li>
+</ul>
+<p>static：</p>
+<ul>
+<li>存储位置和生命周期：全局数据区；程序启动时在启动函数中初始化（main函数前），程序结束时销毁</li>
+<li>可见性：被该类所有对象共有，受public、protected、private限制</li>
+<li>特性：
+<ol>
+<li>被所有对象所共有</li>
+<li>类中的是declaration，必须要有definition。definition不用在写static</li>
+<li>也是类的成员，所以对象可以通过this指针访问到；成员函数（包括静态和非静态）也可以访问到</li>
+<li>访问方式可以是<code>类::静态成员变量</code>或<code>对象.静态成员变量</code></li>
+</ol>
+</li>
+</ul>
+<p><strong>成员函数</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>非static</th>
+<th>static</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存储位置</td>
+<td>函数地址在全局数据区</td>
+<td>函数地址在全局数据区</td>
+</tr>
+<tr>
+<td>可见性</td>
+<td>受public、protected、private限制</td>
+<td>被该类所有对象共有，受public、protected、private限制</td>
+</tr>
+</tbody>
+</table>
+<p>非static：</p>
+<ul>
+<li>存储位置：全局数据区，函数地址本身是全局的，不占用类和对象的空间大小</li>
+<li>可见性：受public、protected、private限制</li>
+</ul>
+<p>static：</p>
+<ul>
+<li>存储位置和生命周期：全局数据区，函数地址本身是全局的，不占用类和对象的空间大小</li>
+<li>可见性：被该类所有对象共有，受public、protected、private限制</li>
+<li>特性：
+<ol>
+<li>只能访问静态成员变量和调用静态成员函数（因为与对象实例无关，没有this指针）</li>
+<li>被所有对象所共有</li>
+<li>调用方式可以是<code>类::静态成员函数(参数列表)</code>或<code>对象.静态成员函数(参数列表)</code></li>
+</ol>
+</li>
+</ul>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Thinking_in_C++/static.html">static</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/Thinking_in_C++/Namespaces.html">Namespaces</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

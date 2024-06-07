@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>C：函数的入口 - Misc010</title>
+
+  
+    <meta name="description" content="参考 C++反汇编第一版，pdf 第二版，京东，https:&#x2F;&#x2F;cread.jd.com&#x2F;read&#x2F;startRead.action?bookId&#x3D;30746348&amp;readType&#x3D;1 记录：crt0.c源码文件：https:&#x2F;&#x2F;blog.csdn.net&#x2F;daiyutage&#x2F;article&#x2F;details&#x2F;17102261  程序的真正入口 main或Winmain函数是“语法规定的">
+<meta property="og:type" content="website">
+<meta property="og:title" content="函数的入口">
+<meta property="og:url" content="https://misc0101.github.io/wiki/C/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="参考 C++反汇编第一版，pdf 第二版，京东，https:&#x2F;&#x2F;cread.jd.com&#x2F;read&#x2F;startRead.action?bookId&#x3D;30746348&amp;readType&#x3D;1 记录：crt0.c源码文件：https:&#x2F;&#x2F;blog.csdn.net&#x2F;daiyutage&#x2F;article&#x2F;details&#x2F;17102261  程序的真正入口 main或Winmain函数是“语法规定的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231006153931117.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231007120824904.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231007111210084.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231007111308350.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231007120527014.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231008151222066.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231008151247008.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231008151540634.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231008151901651.png">
+<meta property="article:published_time" content="2023-10-06T07:18:06.000Z">
+<meta property="article:modified_time" content="2023-10-06T07:18:06.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231006153931117.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><div class="main" ff="title">C</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/C/" placeholder="在/wiki/C/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">函数</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%87%BD%E6%95%B0.html#start"><span class="toc-text">函数</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/C/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3.html"><span class="toc-text">函数的入口</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text"> 参考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%9C%9F%E6%AD%A3%E5%85%A5%E5%8F%A3"><span class="toc-text"> 程序的真正入口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vc60%E7%9A%84%E5%90%AF%E5%8A%A8%E5%87%BD%E6%95%B0"><span class="toc-text"> VC++6.0的启动函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E5%85%A5%E5%8F%A3%E5%87%BD%E6%95%B0"><span class="toc-text"> 修改入口函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-text"> 结论</span></a></li></ol></li></ol></div></div><div class="widget-header cap dis-select"><span class="name">基本数据类型</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%95%B4%E6%95%B0%E7%B1%BB%E5%9E%8B%E5%92%8C%E6%B5%AE%E7%82%B9%E7%B1%BB%E5%9E%8B.html"><span class="toc-text">整数类型和浮点类型</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%AD%97%E7%AC%A6%E5%92%8C%E5%AD%97%E7%AC%A6%E4%B8%B2.html"><span class="toc-text">字符和字符串</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%E5%92%8C%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F.html"><span class="toc-text">全局变量和局部变量</span></a></div></div><div class="widget-header cap dis-select"><span class="name">构造数据类型</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%95%B0%E7%BB%84.html"><span class="toc-text">数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%A4%9A%E7%BB%B4%E6%95%B0%E7%BB%84.html"><span class="toc-text">多维数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E7%BB%93%E6%9E%84%E4%BD%93.html"><span class="toc-text">结构体</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90.html"><span class="toc-text">字节对齐</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E7%BB%93%E6%9E%84%E4%BD%93%E6%95%B0%E7%BB%84.html"><span class="toc-text">结构体数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E8%81%94%E5%90%88%E4%BD%93.html"><span class="toc-text">联合体</span></a></div></div><div class="widget-header cap dis-select"><span class="name">指针数据类型</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%8C%87%E9%92%88%E7%89%B9%E5%BE%81%E6%8E%A2%E6%B5%8B.html"><span class="toc-text">指针特征探测</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%8F%96%E5%9D%80%E5%92%8C%E5%8F%96%E5%80%BC%E8%BF%90%E7%AE%97%E7%AC%A6.html"><span class="toc-text">取址&运算符和取值*运算符</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E7%94%A8%E6%8C%87%E9%92%88%E6%93%8D%E4%BD%9C%E6%95%B0%E7%BB%84.html"><span class="toc-text">用指针操作数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%8C%87%E9%92%88%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2.html"><span class="toc-text">指针与字符串</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%8C%87%E9%92%88%E6%95%B0%E7%BB%84.html"><span class="toc-text">指针数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E7%BB%93%E6%9E%84%E4%BD%93%E6%8C%87%E9%92%88.html"><span class="toc-text">结构体指针</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%A4%9A%E7%BA%A7%E6%8C%87%E9%92%88.html"><span class="toc-text">多级指针</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%95%B0%E7%BB%84%E6%8C%87%E9%92%88.html"><span class="toc-text">数组指针</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88.html"><span class="toc-text">函数指针</span></a></div></div><div class="widget-header cap dis-select"><span class="name">流程控制语句</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5.html"><span class="toc-text">分支语句</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%BE%AA%E7%8E%AF%E8%AF%AD%E5%8F%A5.html"><span class="toc-text">循环语句</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/Switch%E8%AF%AD%E5%8F%A5.html"><span class="toc-text">Switch语句</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E8%BF%90%E7%AE%97%E7%AC%A6%E5%92%8C%E8%A1%A8%E8%BE%BE%E5%BC%8F.html"><span class="toc-text">运算符和表达式</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/typedef.html"><span class="toc-text">typedef</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E9%A2%84%E5%A4%84%E7%90%86.html"><span class="toc-text">预处理</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E4%B8%8E%E9%87%8A%E6%94%BE.html"><span class="toc-text">内存分配与释放</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E9%9A%8F%E6%89%8B%E8%AE%B0%E4%B8%80%E4%BA%9B%E5%87%BD%E6%95%B0.html"><span class="toc-text">随手记一些函数</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><span class="title">汇编语言</span><span class="excerpt">x86汇编笔记：以滴水三期_汇编语言课程为框架，《汇编语言4th-王爽》和《汇编语言-基于x86处理器-第七版》为补充。</span></a><a class="item wiki" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><span class="title">C++</span><span class="excerpt">滴水三期_C++语言笔记，C++能做的C都能做，只不过如果使用C++，可以节省很多时间，因为编译器帮编程人员做了很多工作，让编程人员省事。学习的目标：相对于C，编译器替我们做了哪些工作。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="title">科学上网技术</span><span class="excerpt">从正常网络通信数据包通信过程出发，逐步推导到使用代理协议进行科学上网，随后依次介绍各代理协议ss、trojan、vmess、vless原理与节点搭建，还有相关的工具、技术、概念介绍。</span></a><a class="item wiki" href="/wiki/Thinking_in_C++/Pointers.html"><span class="title">Thinking in C++</span><span class="excerpt">《Thinking in C++ vol 1》笔记，知识内化后的输出，少部分是摘抄，少用的细节不做记录用时在查，参考视频：《面向对象程序设计_C++_翁恺老师》。</span></a><a class="item wiki" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><span class="title">Windows API编程</span><span class="excerpt">滴水三期_win32 api笔记，学习Windows API编程的困难并不在于函数参数参数众多或者英文不好这类表象原因，而是需要从Windows系统的整体知识架构出发来学习这些API，深入理解每个参数背后的含义和背景。如此，未来查阅MSDN时便不再像是看天书。</span></a><a class="item wiki" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><span class="title">数据的运算与表示</span><span class="excerpt">滴水三期_进制笔记，学习与理解进制、数据宽度、数的表示、位运算等概念。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/C/%E5%87%BD%E6%95%B0.html">C</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-10-06T07:18:06.000Z">2023-10-06</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>函数的入口</span></h1>
+<h2 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h2>
+<p>C++反汇编第一版，pdf</p>
+<p>第二版，京东，<a target="_blank" rel="noopener" href="https://cread.jd.com/read/startRead.action?bookId=30746348&amp;readType=1">https://cread.jd.com/read/startRead.action?bookId=30746348&amp;readType=1</a></p>
+<p>记录：crt0.c源码文件：<a target="_blank" rel="noopener" href="https://blog.csdn.net/daiyutage/article/details/17102261">https://blog.csdn.net/daiyutage/article/details/17102261</a></p>
+<h2 id="程序的真正入口"><a class="markdownIt-Anchor" href="#程序的真正入口"></a> 程序的真正入口</h2>
+<p>main或Winmain函数是“语法规定的用户入口”，而不是“应用程序入口”。当用户双击执行一个位于磁盘上的程序后，操作系统会加载它，分析PE文件格式，分配相关资源，读取执行文件中的代码和数据到合适的内存单元，然后才执行入口代码，通常是[w]mainCRTStartup或[w]WinMainCRTStartup。在[w]mainCRTStartup或[w]WinMainCRTStartup里调用main或Winmain函数。不同编码和编程环境对应的启动启动函数如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>控制台环境</th>
+<th>Windows环境</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>多字节编码</td>
+<td>mainCRTStartup</td>
+<td>WinMainCRTStartup</td>
+</tr>
+<tr>
+<td>Unicode编码</td>
+<td>wmainCRTStartup</td>
+<td>wWinMainCRTStartup</td>
+</tr>
+</tbody>
+</table>
+<p>在开发过程中，编译器也允许程序员自己指定入口函数。</p>
+<h2 id="vc60的启动函数"><a class="markdownIt-Anchor" href="#vc60的启动函数"></a> VC++6.0的启动函数</h2>
+<p>在调试环境下，依次选择菜单View→Debug Windows→Call Stack打开出栈窗口（快捷键：Alt+7）。此窗口中显示了程序启动后，函数的调用流程。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231006153931117.png" alt="image-20231006153931117" /></p>
+<p>在安装了完整版的VC++双击mainCRTStartup就能查看这个函数的源码。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231007120824904.png" alt="image-20231007120824904" /></p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>环境问题</span></summary><div class="body"><div class="tag-plugin tabs" align="center"id="tab_6"><div class="nav-tabs"><div class="tab active"><a href="#tab_6-1">完整版安装</a></div><div class="tab"><a href="#tab_6-2">精简版+单独的CRT文件</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_6-1"><p>我从winworld下载的iso在xp上安装时卡在这一步，安装不成功，估计这个是完整版。</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231007111210084.png" alt="image-20231007111210084" /></p><p><a target="_blank" rel="noopener" href="https://winworldpc.com/product/microsoft-visual-stu/60">https://winworldpc.com/product/microsoft-visual-stu/60</a></p><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/370249267">https://www.zhihu.com/question/370249267</a></p><hr /><p>从别的地方下的安装包能成功安装，但双击mainCRTStartup会让弹窗找我找crt0.c源文件，估计是精简版，没找到。</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231007111308350.png" alt="image-20231007111308350" /></p></div><div class="tab-pane" id="tab_6-2"><p>根据<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/46125094/source-code-for-maincrtstartup-in-visual-c">Source code for mainCRTStartup() in Visual C++</a>指明的路径<code>%VSINSTALLDIR%VC\crt\src\vcruntime\</code>，想办法找到源代码自己放进去。然后从CSDN上找到了，下载<a target="_blank" rel="noopener" href="https://download.csdn.net/download/dragoo1/6866395?utm_medium=distribute.pc_relevant_download.none-task-download-2~default~BlogCommendFromBaidu~Rate-1-6866395-download-20564153.257%5Ev14%5Epc_dl_relevant_base&amp;depth_1-utm_source=distribute.pc_relevant_download.none-task-download-2~default~BlogCommendFromBaidu~Rate-1-6866395-download-20564153.257%5Ev14%5Epc_dl_relevant_base&amp;spm=1003.2020.3001.6616.1">vc6.0中缺少的VC98\CRT\SRC文件夹</a>，将其放到<code>安装目录\VC98\</code>下。这次再双击就能找到了。</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231007120527014.png" alt="image-20231007120527014" /></p></div></div></div></div></details></div>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/***</span></span><br><span class="line"><span class="comment">*BaseProcessStartup(PVOID Peb)</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*Purpose:</span></span><br><span class="line"><span class="comment">*       This routine does the C runtime initialization, calls main(), and</span></span><br><span class="line"><span class="comment">*       then exits.  It never returns.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*Entry:</span></span><br><span class="line"><span class="comment">*       PVOID Peb - pointer to Win32 Process Environment Block (not used)</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*Exit:</span></span><br><span class="line"><span class="comment">*       This function never returns.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*******************************************************************************/</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> _WINMAIN_</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> WPRFLAG</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">wWinMainCRTStartup</span><span class="params">(</span></span><br><span class="line"><span class="params">#<span class="keyword">else</span>  <span class="comment">/* WPRFLAG */</span></span></span><br><span class="line"><span class="params"><span class="type">void</span> WinMainCRTStartup(</span></span><br><span class="line"><span class="params">#endif  <span class="comment">/* WPRFLAG */</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">#<span class="keyword">else</span>  <span class="comment">/* _WINMAIN_ */</span></span></span><br><span class="line"><span class="params">#ifdef WPRFLAG</span></span><br><span class="line"><span class="params"><span class="comment">//宽字符版控制台启动函数</span></span></span><br><span class="line"><span class="params"><span class="type">void</span> wmainCRTStartup(</span></span><br><span class="line"><span class="params">#<span class="keyword">else</span>  <span class="comment">/* WPRFLAG */</span></span></span><br><span class="line"><span class="params"><span class="comment">//多字节版控制台启动函数</span></span></span><br><span class="line"><span class="params"><span class="type">void</span> mainCRTStartup(</span></span><br><span class="line"><span class="params">#endif  <span class="comment">/* WPRFLAG */</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">#endif  <span class="comment">/* _WINMAIN_ */</span></span></span><br><span class="line"><span class="params">        <span class="type">void</span></span></span><br><span class="line"><span class="params">        )</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">&#123;</span></span><br><span class="line"><span class="params">        <span class="type">int</span> mainret;</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">#ifdef _WINMAIN_</span></span><br><span class="line"><span class="params">        _TUCHAR *lpszCommandLine;</span></span><br><span class="line"><span class="params">        STARTUPINFO StartupInfo;</span></span><br><span class="line"><span class="params">#endif  <span class="comment">/* _WINMAIN_ */</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">        <span class="comment">/*</span></span></span><br><span class="line"><span class="comment"><span class="params">         * Get the full Win32 version，获取版本信息</span></span></span><br><span class="line"><span class="comment"><span class="params">         */</span></span></span><br><span class="line"><span class="params">        _osver = GetVersion();</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">        _winminor = (_osver &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0x00FF</span> ;</span></span><br><span class="line"><span class="params">        _winmajor = _osver &amp; <span class="number">0x00FF</span> ;</span></span><br><span class="line"><span class="params">        _winver = (_winmajor &lt;&lt; <span class="number">8</span>) + _winminor;</span></span><br><span class="line"><span class="params">        _osver = (_osver &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x00FFFF</span> ;</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">        <span class="comment">//堆空间初始化过程，在此函数中，指定了程序中堆空间的起始地址</span></span></span><br><span class="line"><span class="params">        <span class="comment">//_MT是多线程标记</span></span></span><br><span class="line"><span class="params">#ifdef _MT</span></span><br><span class="line"><span class="params">        <span class="keyword">if</span> ( !_heap_init(<span class="number">1</span>) )               <span class="comment">/* initialize heap */</span></span></span><br><span class="line"><span class="params">#<span class="keyword">else</span>  <span class="comment">/* _MT */</span></span></span><br><span class="line"><span class="params">        <span class="keyword">if</span> ( !_heap_init(<span class="number">0</span>) )               <span class="comment">/* initialize heap */</span></span></span><br><span class="line"><span class="params">#endif  <span class="comment">/* _MT */</span></span></span><br><span class="line"><span class="params">            fast_error_exit(_RT_HEAPINIT);  <span class="comment">/* write message and die */</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">        <span class="comment">//初始化多线程环境</span></span></span><br><span class="line"><span class="params">#ifdef _MT</span></span><br><span class="line"><span class="params">        <span class="keyword">if</span>( !_mtinit() )                    <span class="comment">/* initialize multi-thread */</span></span></span><br><span class="line"><span class="params">            fast_error_exit(_RT_THREAD);    <span class="comment">/* write message and die */</span></span></span><br><span class="line"><span class="params">#endif  <span class="comment">/* _MT */</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">        <span class="comment">/*</span></span></span><br><span class="line"><span class="comment"><span class="params">         * Guard the remainder of the initialization code and the call</span></span></span><br><span class="line"><span class="comment"><span class="params">         * to user&#x27;s main, or WinMain, function in a __try/__except</span></span></span><br><span class="line"><span class="comment"><span class="params">         * statement.</span></span></span><br><span class="line"><span class="comment"><span class="params">         */</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">        __try &#123;</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">            _ioinit();                      <span class="comment">/* initialize lowio */</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">#ifdef WPRFLAG</span></span><br><span class="line"><span class="params">        <span class="comment">//宽字符处理</span></span></span><br><span class="line"><span class="params">            <span class="comment">/* get wide cmd line info */</span></span></span><br><span class="line"><span class="params">            _wcmdln = (<span class="type">wchar_t</span> *)__crtGetCommandLineW();        <span class="comment">//获取命令行信息</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">            <span class="comment">/* get wide environ info */</span></span></span><br><span class="line"><span class="params">            _wenvptr = (<span class="type">wchar_t</span> *)__crtGetEnvironmentStringsW();<span class="comment">//获取环境变量信息</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">            _wsetargv();</span></span><br><span class="line"><span class="params">            _wsetenvp();</span></span><br><span class="line"><span class="params">#<span class="keyword">else</span>  <span class="comment">/* WPRFLAG */</span></span></span><br><span class="line"><span class="params">        <span class="comment">//多字节处理</span></span></span><br><span class="line"><span class="params">            <span class="comment">/* get cmd line info */</span></span></span><br><span class="line"><span class="params">            _acmdln = (<span class="type">char</span> *)GetCommandLineA();                <span class="comment">//获取命令行信息</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">            <span class="comment">/* get environ info */</span></span></span><br><span class="line"><span class="params">            _aenvptr = (<span class="type">char</span> *)__crtGetEnvironmentStringsA();   <span class="comment">//获取环境变量信息</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">            _setargv();</span></span><br><span class="line"><span class="params">            _setenvp();</span></span><br><span class="line"><span class="params">#endif  <span class="comment">/* WPRFLAG */</span></span></span><br><span class="line"><span class="params">        <span class="comment">//初始化全局数据和浮点寄存器</span></span></span><br><span class="line"><span class="params">            _cinit();                       <span class="comment">/* do C data initialize */</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params"><span class="comment">//窗口程序处理代码       </span></span></span><br><span class="line"><span class="params">#ifdef _WINMAIN_</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">            StartupInfo.dwFlags = <span class="number">0</span>;</span></span><br><span class="line"><span class="params">            GetStartupInfo( &amp;StartupInfo );</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">#ifdef WPRFLAG</span></span><br><span class="line"><span class="params">            lpszCommandLine = _wwincmdln();</span></span><br><span class="line"><span class="params">            mainret = wWinMain(</span></span><br><span class="line"><span class="params">#<span class="keyword">else</span>  <span class="comment">/* WPRFLAG */</span></span></span><br><span class="line"><span class="params">            lpszCommandLine = _wincmdln();</span></span><br><span class="line"><span class="params">            mainret = WinMain(</span></span><br><span class="line"><span class="params">#endif  <span class="comment">/* WPRFLAG */</span></span></span><br><span class="line"><span class="params">                               GetModuleHandleA(<span class="literal">NULL</span>),</span></span><br><span class="line"><span class="params">                               <span class="literal">NULL</span>,</span></span><br><span class="line"><span class="params">                               lpszCommandLine,</span></span><br><span class="line"><span class="params">                               StartupInfo.dwFlags &amp; STARTF_USESHOWWINDOW</span></span><br><span class="line"><span class="params">                                    ? StartupInfo.wShowWindow</span></span><br><span class="line"><span class="params">                                    : SW_SHOWDEFAULT</span></span><br><span class="line"><span class="params">                             );</span></span><br><span class="line"><span class="params">#<span class="keyword">else</span>  <span class="comment">/* _WINMAIN_ */</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params"><span class="comment">//调用wmain或main函数，传递命令行参数信息</span></span></span><br><span class="line"><span class="params">#ifdef WPRFLAG</span></span><br><span class="line"><span class="params">            __winitenv = _wenviron;</span></span><br><span class="line"><span class="params">            mainret = wmain(__argc, __wargv, _wenviron);</span></span><br><span class="line"><span class="params">#<span class="keyword">else</span>  <span class="comment">/* WPRFLAG */</span></span></span><br><span class="line"><span class="params">            __initenv = _environ;</span></span><br><span class="line"><span class="params">            mainret = main(__argc, __argv, _environ);</span></span><br><span class="line"><span class="params">#endif  <span class="comment">/* WPRFLAG */</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">#endif  <span class="comment">/* _WINMAIN_ */</span></span></span><br><span class="line"><span class="params">            <span class="built_in">exit</span>(mainret);                      <span class="comment">//检查main函数返回值执行析构函数或atexit注册的函数指针，并结束程序</span></span></span><br><span class="line"><span class="params">        &#125;</span></span><br><span class="line"><span class="params">        __except ( _XcptFilter(GetExceptionCode(), GetExceptionInformation()) )</span></span><br><span class="line"><span class="params">        &#123;</span></span><br><span class="line"><span class="params">            <span class="comment">/*</span></span></span><br><span class="line"><span class="comment"><span class="params">             * Should never reach here</span></span></span><br><span class="line"><span class="comment"><span class="params">             */</span></span></span><br><span class="line"><span class="params">            _exit( GetExceptionCode() );</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">        &#125; <span class="comment">/* end of try - except */</span></span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>以VC++6.0控制台程序启动函数来解读启动函数的工作流程：</p>
+<ul>
+<li><code>GetVersion函数</code>：获取当前运行平台的版本号。控制台程序运行在Windows模拟的DOS下，因此这里获取的版本号为MS-DOS的版本信息。</li>
+<li><code>_heap_init函数</code>：用于初始化堆空间。在函数实现中使用HeapCreate申请堆空间，申请空间的大小由_heap_init传递的参数决定。_sbh_heap_init函数用于初始化堆结构信息。</li>
+<li><code>GetCommandLineA函数</code>：获取命令行参数信息的首地址。</li>
+<li><code>_crtGetEnvironmentStringsA函数</code>：获取环境变量信息的首地址。</li>
+<li><code>_setargv函数</code>：此函数根据GetCommandLineA获取命令行参数信息的首地址并进行参数分析，将分离出的参数的个数保存在全局变量_argc中，将分析出的每个命令行参数的首地址存放在数组中，并将这个字符指针数组的首地址保存在全局变量_argv中。这样就得到了命令行参数的个数，以及命令行参数信息。</li>
+<li><code>_setenvp函数</code>：此函数根据_crtGetEnvironmentStringsA函数获取环境变量信息的首地址并进行分析，将得到的每条环境变量字符串的首地址存放在字符指针数组中，并将这个数组的首地址存放在全局变量env中。得到main函数所需的三个参数信息之后，当调用main函数时，便可以将_argc、_argv、env这三个全局变量作为参数，以栈传参方式传递到main函数中。</li>
+</ul>
+<p>得到main函数所需的三个参数信息之后，当调用main函数时，便可以将_argc、_argv、env这三个全局变量作为参数，以栈传参方式传递到main函数中。</p>
+<ul>
+<li>
+<p><code>_cinit函数</code>：用于全局数据和浮点寄存器的初始化。全局对象和IO流等的初始化都是通过这个函数实现的。利用函数_initterm进行数据链初始化，这个函数由两个参数组成，类型为“_PVFV*”，这是一个函数指针数组，其中保留了每个初始化函数的地址。初始化函数的类型为_PVFV，其定义原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="title function_">void</span><span class="params">(_cdecl*_PVFV)</span><span class="params">(<span class="type">void</span>)</span>；</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>也就是说，这个初始化函数是无参数也无返回值的。大家知道，C++规定全局对象和静态对象必须在main函数前构造，在main函数返回后析构。所以，这里的_PVFV函数指针数组就是用来代理调用构造函数的，具体的代码清单如下（<code>_cinite函数</code>的代码片段）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//用于初始化寄存器</span></span><br><span class="line"><span class="keyword">if</span>(_FPinit！=<span class="literal">NULL</span>)</span><br><span class="line">(*_FPinit)();<span class="comment">//初始化浮点寄存器</span></span><br><span class="line"><span class="comment">//用于初始化C语法中的数据</span></span><br><span class="line">_initterm(_xi_a，_xi_z);</span><br><span class="line"><span class="comment">//用于初始化C++语法中的数据</span></span><br><span class="line">_initterm(_xc_a，_xc_z);</span><br></pre></td></tr></table></figure>
+<p>在上述代码清单中，_FPinit是一个全局函数指针，类型也是_PVFV，如果编译器扫描代码时发现有浮点计算，则此指针保存了初始化浮点寄存器的代码地址，否则为0值。如果浮点寄存器未被初始化而进行浮点计算，程序会产生异常或错误（详见2.2节），这类错误应属于VC<ins>6.0自身设计的Bug，在VC</ins>6.0以后的版本中已将其修复。一般而言，第一个_initterm初始化的都是C支持库中所需的数据。参数_xi_a为函数指针数组的起始地址，_xi_z为结束地址。_initterm的实现如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="title function_">void__cdecl_initterm</span><span class="params">(</span></span><br><span class="line"><span class="params">        _PVFV*pfbegin,</span></span><br><span class="line"><span class="params">        _PVFV*pfend</span></span><br><span class="line"><span class="params">)</span></span><br><span class="line">&#123;</span><br><span class="line">        <span class="comment">//遍历数组的各元素</span></span><br><span class="line">        <span class="keyword">while</span>(pfbegin＜pfend)</span><br><span class="line">        &#123;</span><br><span class="line">                <span class="comment">//若函数指针不为空,则执行该函数</span></span><br><span class="line">                <span class="keyword">if</span>(*pfbegin！=<span class="literal">NULL</span>)</span><br><span class="line">                        (**pfbegin)();</span><br><span class="line">                ++pfbegin;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>C++所需数据的初始化操作会在代码清单3-2中第二次对_initterm调用时执行，一般都是全局对象或静态对象的初始化函数。关于全局对象的初始化流程的更多内容请见第10章。</p>
+<hr />
+<p>VC编译器的版本不同，mainCRTStartup函数也可能会有所不同，如Microsoft Visual Studio 2005又称VC++8.0，其中mainCRTStartup的名字就变为了_tmainCRTStartup。</p>
+<h3 id="修改入口函数"><a class="markdownIt-Anchor" href="#修改入口函数"></a> 修改入口函数</h3>
+<p>在控制台程序，入口函数是main，程序启动时会从mainCRTStartup启动，再传入main所需要的三个参数，然后调用main函数。</p>
+<p>如果自己指定入口函数，将直接从KERNEL32中调用重新指定的入口函数，而不会先调用mainCRTStarup。</p>
+<p>菜单Project-&gt;Settings-&gt;Link-&gt;Output，在Entry-point symbol中填写重新指定的新入口函数的名称，编译后调试查看call stack，可以看到从自己指定的新入口函数启动。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231008151222066.png" alt="image-20231008151222066" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231008151247008.png" alt="image-20231008151247008" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231008151540634.png" alt="image-20231008151540634" /></p>
+<p>mainCRTStartup()函数中会用_heap_init初始化堆空间，实际上malloc函数是从现有的堆空间拿一块来使用。如果自定义了入口函数，因为没有调用入口函数前没有调用mainCRTStartup()，堆空间没被初始化，当使用到堆空间时，程序会报错并崩溃。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3/image-20231008151901651.png" alt="image-20231008151901651" /></p>
+<h3 id="结论"><a class="markdownIt-Anchor" href="#结论"></a> 结论</h3>
+<p><u>VC++6.0下的main函数是启动函数中唯一具有3个参数的函数。WinMain是启动函数中唯一的具有4个参数的函数。</u></p>
+<p>在VC++6.0中，main函数被调用前要先调用的函数如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GetVersion()</span><br><span class="line"></span><br><span class="line">_heap_init()</span><br><span class="line"></span><br><span class="line">GetCommandLineA()</span><br><span class="line"></span><br><span class="line">_crtGetEnvironmentStringsA()</span><br><span class="line"></span><br><span class="line">_setargv()</span><br><span class="line"></span><br><span class="line">_setenvp()</span><br><span class="line"></span><br><span class="line">_cinit()</span><br></pre></td></tr></table></figure>
+<p>这些函数调用结束后就会调用main函数。OD可能会识别出以上某个函数，往后找，根据main函数调用的特征，会将3个参数压入栈内作为函数的参数，它就是main函数。</p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/C/%E5%87%BD%E6%95%B0.html">函数</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/C/%E6%95%B4%E6%95%B0%E7%B1%BB%E5%9E%8B%E5%92%8C%E6%B5%AE%E7%82%B9%E7%B1%BB%E5%9E%8B.html">整数类型和浮点类型</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

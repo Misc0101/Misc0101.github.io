@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Protected_Mode：任务段 - Misc010</title>
+
+  
+    <meta name="description" content="要点回顾 在调用门、中断门与陷阱门中，一旦出现权限切换，那么就会有堆栈的切换。而且，由于CS的CPL发生改变，也导致了SS也必须要切换。 切换时，会有新的ESP和SS(CS是由中断门或者调用门指定)，这2个值从哪里来的呢? 答案:TSS (Task-state segment)，任务状态段. TSS的结构 TSS是一块内存，大小为104字节，内存结构如图。从下往上看，最下面那行是前4个字节。  R">
+<meta property="og:type" content="website">
+<meta property="og:title" content="任务段">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Protected_Mode/%E4%BB%BB%E5%8A%A1%E6%AE%B5.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="要点回顾 在调用门、中断门与陷阱门中，一旦出现权限切换，那么就会有堆栈的切换。而且，由于CS的CPL发生改变，也导致了SS也必须要切换。 切换时，会有新的ESP和SS(CS是由中断门或者调用门指定)，这2个值从哪里来的呢? 答案:TSS (Task-state segment)，任务状态段. TSS的结构 TSS是一块内存，大小为104字节，内存结构如图。从下往上看，最下面那行是前4个字节。  R">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/o_2109250300299-1.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230808115312610.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/o_2109250300369-2.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/o_2109250300409-3.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230731171756146.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230801161638121.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230801161903539.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230801161939997.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230801162625311.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230801163125868.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230802151513146.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230804144503472.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230802174627613.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230804145558494.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230804155439679.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230807155016679.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230807165247134.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230807165317714.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230808103211710.png">
+<meta property="article:published_time" content="2023-07-28T07:30:54.000Z">
+<meta property="article:modified_time" content="2023-07-28T07:30:54.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/o_2109250300299-1.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><div class="main" ff="title">Protected_Mode</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Protected_Mode/" placeholder="在/wiki/Protected_Mode/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">段</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html#start"><span class="toc-text">段寄存器</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90.html"><span class="toc-text">段描述符与段选择子</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E6%9D%83%E9%99%90%E6%A3%80%E6%9F%A5.html"><span class="toc-text">段权限检查</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E9%97%B4%E8%B7%B3%E8%BD%AC.html"><span class="toc-text">段间跳转</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%B7%A8%E6%AE%B5%E8%B7%B3%E8%BD%AC.html"><span class="toc-text">跨段跳转</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%B0%83%E7%94%A8%E9%97%A8.html"><span class="toc-text">调用门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%B8%AD%E6%96%AD%E9%97%A8.html"><span class="toc-text">中断门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%99%B7%E9%98%B1%E9%97%A8.html"><span class="toc-text">陷阱门</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Protected_Mode/%E4%BB%BB%E5%8A%A1%E6%AE%B5.html"><span class="toc-text">任务段</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A6%81%E7%82%B9%E5%9B%9E%E9%A1%BE"><span class="toc-text">要点回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TSS%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-text">TSS的结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TSS%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-text">TSS的作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU%E5%A6%82%E4%BD%95%E6%89%BE%E5%88%B0TSS"><span class="toc-text">CPU如何找到TSS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TSS%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E7%BB%93%E6%9E%84"><span class="toc-text">TSS段描述符结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TR%E5%AF%84%E5%AD%98%E5%99%A8%E8%AF%BB%E5%86%99"><span class="toc-text">TR寄存器读写</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BDtss"><span class="toc-text"> 加载TSS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BBtr%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-text"> 读TR寄存器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E7%B3%BB%E8%BE%A8%E6%9E%90"><span class="toc-text">关系辨析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%EF%BC%9A%E8%87%AA%E5%B7%B1%E6%9E%84%E9%80%A0TSS%E5%AE%9E%E7%8E%B0%E4%BB%BB%E5%8A%A1%E5%88%87%E6%8D%A2"><span class="toc-text">实验：自己构造TSS实现任务切换</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-text"> 分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9tr%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-text"> 修改TR寄存器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E6%A8%A1%E6%9D%BF"><span class="toc-text"> 代码模板</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%93%E4%BC%9A"><span class="toc-text"> 体会</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tss%E4%BB%BB%E5%8A%A1%E6%AE%B5%E5%88%87%E6%8D%A2%E6%AD%A5%E9%AA%A4"><span class="toc-text"> TSS任务段切换步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#call%E5%92%8Cjmp%E8%BF%9B%E8%A1%8C%E4%BB%BB%E5%8A%A1%E5%88%87%E6%8D%A2%E7%9A%84%E4%B8%8D%E5%90%8C%E4%B9%8B%E5%A4%84"><span class="toc-text"> call和jmp进行任务切换的不同之处</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#esp%E5%92%8Cesp0"><span class="toc-text"> ESP和ESP0</span></a></li></ol></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%BB%BB%E5%8A%A1%E9%97%A8.html"><span class="toc-text">任务门</span></a></div></div><div class="widget-header cap dis-select"><span class="name">页</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/10-10-12%E5%88%86%E9%A1%B5.html"><span class="toc-text">10-10-12分页</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97.html"><span class="toc-text">PDE、PTE初步感受</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7.html"><span class="toc-text">PDE、PTE属性</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%9F%BA%E5%9D%80.html"><span class="toc-text">页目录表基址</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%A1%B5%E8%A1%A8%E5%9F%BA%E5%9D%80.html"><span class="toc-text">页表基址</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/2-9-9-12%E5%88%86%E9%A1%B5.html"><span class="toc-text">2-9-9-12分页</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%8D%89%E7%A8%BF%E6%9C%AC.html"><span class="toc-text">草稿本</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/PE/Overview_PE.html"><span class="title">PE</span><span class="excerpt">滴水三期_PE文件笔记(To finish...)。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html">Protected_Mode</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-07-28T07:30:54.000Z">2023-07-28</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>任务段</span></h1>
+<div class="tag-plugin quot"><h2 class="content" id="要点回顾" type="text"><a href="#要点回顾" class="headerlink" title="要点回顾"></a>要点回顾</h2></div>
+<p>在调用门、中断门与陷阱门中，一旦出现权限切换，那么就会有堆栈的切换。而且，由于CS的CPL发生改变，也导致了SS也必须要切换。<br />
+切换时，会有新的ESP和SS(CS是由中断门或者调用门指定)，这2个值从哪里来的呢?<br />
+答案:<strong>TSS</strong> (Task-state segment)，任务状态段.</p>
+<div class="tag-plugin quot"><h2 class="content" id="TSS的结构" type="text"><a href="#TSS的结构" class="headerlink" title="TSS的结构"></a>TSS的结构</h2></div>
+<p>TSS是一块<u>内存</u>，大小为104字节，内存结构如图。从下往上看，最下面那行是前4个字节。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/o_2109250300299-1.png" alt="img" /></p>
+<p>Reserved的没法用，Intel不允许用。</p>
+<p>Previous Task Link：指向前一个任务段的链接。</p>
+<p>SS0、ESP0是0环的堆栈，SS1、ESP1是1环的堆栈，SS2、ESP2是2环的堆栈.虽然windows和linux都没使用1环和2环，但如果我们想用，是可以去1环，用1环的堆栈；去2环，用2环的堆栈。3环切3环，不换堆栈，所以没有ESP3，SS3。</p>
+<hr />
+<p>像EDI、ESI、EBP、ESP、EBX、EDX、ECX、EAX、EFLAGS、EIP、CR3在发生任务切换时就是直接替换值。</p>
+<p>但是段寄存器，如GS、FS、DS、SS、CS、ES、LDTR，发生任务切换时，比如GS，是用TSS-GS里存的16位充当段选择子，查GDT表，再填充GS的96位（忘了的话翻回去看《段描述符与段选择子》那一章）。</p>
+<p><u>TSS里的LDT Segment Seletctor字段（LDT段描述符），也是存的段选择子，只不过用这个段选择子去查描述符时必须是LDT系统段，然后填充LDTR段寄存器，LDTR.base和LDTR.limit指示了LDT表的起始地址和大小。</u></p>
+<blockquote>
+<p>这里贴图回忆下：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230808115312610.png" alt="image-20230808115312610" /></p>
+</blockquote>
+<p>1个核1个GDT表。</p>
+<p>LDT有多少个取决于有多少个任务，取决于有多少个TSS。1个TSS对应1个TSS表。</p>
+<p>执行诸如这行指令，查的是IDT表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov ds,0x5c</span><br></pre></td></tr></table></figure>
+<p>0000 0000 0101 1100</p>
+<p>Index：0000 0000 0101 1</p>
+<p>TI：1，查LDT表</p>
+<p>RPL：00</p>
+<p>CPU如何知道GDT表的位置？查gdtr寄存器。</p>
+<p>如何知道LDT表的位置？查ldtr段寄存器。</p>
+<p>假设有100个任务，有100个LDT表。发生任务切换时，ldtr的值会换，gdtr不换（跟任务没关系）。在某个具体的时刻，ldtr有且仅有1个值，就找到了是100个LDT表中的哪个表。</p>
+<p>只对单个任务有影响，跟别人没关系。所以叫局部表。</p>
+<blockquote>
+<p>这些是CPU对于任务的设计想法，但windows和linux都没用LDT、TSS，自己实现了线程切换。</p>
+<p>在16位的实模式下，因为段寄存器长度限制，所以要通过不同的段来区分不同的内存区域，段的概念很重要。</p>
+<p>为了保持向下兼容，这种思想延续到32位。但段寄存器长度够长，寻址空间够，虽然可以给不同的base，分段，但没必要这样。windows除了fs，其他段寄存器base都设0，也就是平坦模式。没必要分那么多段，所以也没用LDT表了。</p>
+<p>windows发生线程切换时直接存当前堆栈中，不用TSS，觉得太麻烦了。windows只用了TSS中的SS0和ESP0</p>
+</blockquote>
+<blockquote>
+<p>开机时CPU自己会用TSS，从实模式开机，然后转到保护模式</p>
+</blockquote>
+<div class="tag-plugin quot"><h2 class="content" id="TSS的作用" type="text"><a href="#TSS的作用" class="headerlink" title="TSS的作用"></a>TSS的作用</h2></div>
+<p><u>Intel的设计思想</u></p>
+<p>Intel设计TSS的目的：实现“任务切换”。任务一切换，执行需要的环境就变了，即所有寄存器的值，需要保存供下一次切换到该任务的时候再换回去重新执行。</p>
+<blockquote>
+<p>CPU没有进程和线程的概念，只有任务的概念。CPU的“任务”在操作系统方面就是指“线程”。所以我等下讲任务，你理解成线程。</p>
+</blockquote>
+<blockquote>
+<p>抛开操作系统不说，单核CPU同时只能做一件事，因为CPU只有一套寄存器。但我还是想单核CPU同时做多个事情怎么办？分时。比如任务A跑着跑着，然后我将它的全部寄存器都存起来；然后去做任务B，做着做着，保存，再恢复做任务A。</p>
+<p>所以，TSS存在的目的就是为了让一个CPU可以同时执行多个任务。</p>
+</blockquote>
+<blockquote>
+<p>1个CPU只有1个TSS。</p>
+</blockquote>
+<p><u>操作系统的设计思想</u></p>
+<p>觉得TSS不够好，所以自己实现了一套任务切换（线程切换）（后面课程讲）</p>
+<hr />
+<p><u>TSS的意义就在于可以同时换掉一大堆寄存器。</u></p>
+<p>不要一看到TSS就想到任务切换，想到TSS的作用就是一次性换掉大量寄存器，就行了，不要继续拓展联想。</p>
+<blockquote>
+<p>从某个角度看，所有汇编指令要么改寄存器，要么改地址<br />
+jmp，改了eip<br />
+jmp far，改了cs和eip</p>
+<p>call短调用，改了esp、eip<br />
+call长调用，跨段不提权，改esp、eip、cs<br />
+call长调用，跨段并提权，改esp、esip、cs、ss</p>
+<p>调用门：<br />
+不提权：cs和eip<br />
+提权：ss、esp、cs、eip</p>
+<p>中断门、陷阱门<br />
+不提权：cs、eflags、eip<br />
+提权：ss、esp、eflag、cs、eip</p>
+<p>但这种方式每次改寄存器改得太少了，我想一次性换掉所有寄存器？</p>
+<p>用TSS</p>
+<p>TSS存在的目的：替换所有寄存器。</p>
+</blockquote>
+<div class="tag-plugin quot"><h2 class="content" id="CPU如何找到TSS" type="text"><a href="#CPU如何找到TSS" class="headerlink" title="CPU如何找到TSS"></a>CPU如何找到TSS</h2></div>
+<p>TSS是一个内存，不是寄存器（不在CPU中）。CPU通过TR寄存器来找到TSS。</p>
+<p>段寄存器TR（TaskRegister）有96位，其中16位可见部分为选择子，可以找到GDT表中的一个段描述符，通过该描述符加载TR段寄存器中后80位。<u>TR寄存器的Base指示了TSS表的位置。Limit指示了TSS表有多大。</u></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SegMent</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="comment">//可见</span></span><br><span class="line">    WORD Selector;<span class="comment">//16位Selector</span></span><br><span class="line">    <span class="comment">//不可见</span></span><br><span class="line">    WORD Attributes;<span class="comment">//16位Attributes</span></span><br><span class="line">    DWORD Base;<span class="comment">//32位Base</span></span><br><span class="line">    DWORD Limit;<span class="comment">//32位Limit</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/o_2109250300369-2.png" alt="img" /></p>
+<div class="tag-plugin quot"><h2 class="content" id="TSS段描述符结构" type="text"><a href="#TSS段描述符结构" class="headerlink" title="TSS段描述符结构"></a>TSS段描述符结构</h2></div>
+<p>任务段描述符是系统段中的一种，S=0。其他就不详细讲了。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/o_2109250300409-3.png" alt="img" /></p>
+<p>Type里的B位：</p>
+<table>
+<thead>
+<tr>
+<th>B位</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>当前TSS段描述符已经加载到TR寄存器中</td>
+</tr>
+<tr>
+<td>0</td>
+<td>当前TSS段描述符没有加载到TR寄存器中</td>
+</tr>
+</tbody>
+</table>
+<div class="tag-plugin quot"><h2 class="content" id="TR寄存器读写" type="text"><a href="#TR寄存器读写" class="headerlink" title="TR寄存器读写"></a>TR寄存器读写</h2></div>
+<h3 id="加载tss"><a class="markdownIt-Anchor" href="#加载tss"></a> 加载TSS</h3>
+<p>将TSS段描述符加载到TR寄存器。</p>
+<p>指令：<code>LTR</code></p>
+<p>说明：</p>
+<ul>
+<li>用LTR指令去装载，只是改变TR寄存器的值（96位），并没有去修改到内存中TSS的值。</li>
+<li>LTR指令只能在系统层使用。</li>
+<li>加载后TSS段描述符的状态位（Type中的B位）会发生改变。</li>
+</ul>
+<h3 id="读tr寄存器"><a class="markdownIt-Anchor" href="#读tr寄存器"></a> 读TR寄存器</h3>
+<p>指令：<code>STR</code></p>
+<p>说明：如果用STR去读的话,只读TR的16位，也就是选择子部分。</p>
+<div class="tag-plugin quot"><h2 class="content" id="关系辨析" type="text"><a href="#关系辨析" class="headerlink" title="关系辨析"></a>关系辨析</h2></div>
+<p>TSS：一块104字节的内存</p>
+<p>TR段寄存器：TR.base和TR.limit一起指示了TSS的起始地址和大小，TR的值来自于GDT表的TSS段描述符。当需要替换TSS时，CPU会通过TR寄存器去找这104个字节。</p>
+<p>TSS段描述符：GDT表中段描述符的一种。</p>
+<p>1个任务对应1个TSS段描述符。</p>
+<div class="tag-plugin quot"><h2 class="content" id="实验：自己构造TSS实现任务切换" type="text"><a href="#实验：自己构造TSS实现任务切换" class="headerlink" title="实验：自己构造TSS实现任务切换"></a>实验：自己构造TSS实现任务切换</h2></div>
+<blockquote>
+<p>其实也可以从系统自身的TSS段描述符，找到系统目前的TSS，复制一份。但这里，这个实验，我们自己写一份TSS。</p>
+</blockquote>
+<h3 id="分析"><a class="markdownIt-Anchor" href="#分析"></a> 分析</h3>
+<p>我们自己找一块内存当作TSS用，CPU是通过TR寄存器来找到TSS的，所以我们要修改TR寄存器的值。而TR寄存器的值是来自于TSS段描述符，所以TSS段描述符也要我们自己构造。</p>
+<p>注意：构造TSS段描述符时G位要为0，因为这个描述符指向的TSS是以字节为单位的。</p>
+<h3 id="修改tr寄存器"><a class="markdownIt-Anchor" href="#修改tr寄存器"></a> 修改TR寄存器</h3>
+<ol>
+<li>
+<p>在Ring0我们可以通过LTR指令去修改TR寄存器</p>
+</li>
+<li>
+<p>在Ring3我们可以通过<code>CALL FAR</code>或者<code>JMP FAR</code>指令来修改</p>
+<ul>
+<li>
+<p>用JMP去访问一个代码段的时候,改变的是CS和EIP:比如JMP 0x480x123456，如果0x48是代码段，执行后:CS–&gt;0x48 EIP–&gt;0x123456</p>
+</li>
+<li>
+<p>用JMP去访间一个任务段的时候：如果0x48是TSS段描述符,先修改TR寄存器,<u>再用TR.Base指向的TSS中的值修改当前的寄存器</u></p>
+</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>注意：</p>
+<ol>
+<li>Ring0中用LTR指令，只改了TR寄存器，没改TSS</li>
+<li>JMP 任务段或CALL 任务段的方式，不仅改了TR寄存器，还用TSS改了寄存器</li>
+</ol>
+</blockquote>
+<h3 id="代码模板"><a class="markdownIt-Anchor" href="#代码模板"></a> 代码模板</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">DWORD dwOK;</span><br><span class="line">DWORD dwESP;</span><br><span class="line">DWORD dwCS;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> __declspec(naked)  func()</span><br><span class="line">&#123;</span><br><span class="line">    dwOK=<span class="number">1</span>;</span><br><span class="line">    __asm</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> <span class="number">3</span>;</span><br><span class="line">        mov eax,esp;</span><br><span class="line">        mov dwESP,eax;</span><br><span class="line">        mov word ptr [dwCS],cs;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//回去的代码自己写。因为jmp 代码段和call代码段回去的代码不同</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> <span class="built_in">stack</span>[<span class="number">100</span>]=&#123;<span class="number">0</span>&#125;;    <span class="comment">//找了一个局部变量的地址当堆栈堆栈用</span></span><br><span class="line">    DWORD cr3=<span class="number">0</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;input CR3:\n&quot;</span>);</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%x&quot;</span>,&amp;cr3);    <span class="comment">//执行该exe后，在WinDbg中用该指令获取：!process 0 0</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//下一步构造TSS，注释标有*说明为必填值</span></span><br><span class="line"></span><br><span class="line">    DWORD tss[<span class="number">0x68</span>]=&#123;      <span class="comment">//0x68，104字节</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//link，上一个任务的link，在发生任务切换时CPU会自动填充</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//esp0</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ss0</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//esp1</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ss1</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//esp2</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ss2</span></span><br><span class="line">        cr3,                         <span class="comment">//cr3*</span></span><br><span class="line">        (DWORD)func,                 <span class="comment">//eip *  跳转的地址</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//eflags</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//eax</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ecx</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//edx</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ebx</span></span><br><span class="line">        ((DWORD)<span class="built_in">stack</span>) + <span class="number">100</span>,        <span class="comment">//esp *</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ebp</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//esi</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//edi</span></span><br><span class="line">        <span class="number">0x00000023</span>,                  <span class="comment">//es *   </span></span><br><span class="line">        <span class="number">0x00000008</span>,                  <span class="comment">//cs *   3环：0x1B</span></span><br><span class="line">        <span class="number">0x00000010</span>,                  <span class="comment">//ss *   3环：0x23</span></span><br><span class="line">        <span class="number">0x00000023</span>,                  <span class="comment">//ds *</span></span><br><span class="line">        <span class="number">0x00000030</span>,                  <span class="comment">//fs *   3环：0x3B</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//gs</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ldt</span></span><br><span class="line">        <span class="number">0x20ac0000</span>         <span class="comment">//IO权限位图，VISTA之后不再用了，这是从现有的TSS结构体拷出来的</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="type">char</span> buffer[<span class="number">6</span>];<span class="comment">//构造任务段</span></span><br><span class="line">    *(DWORD*)(&amp;buffer[<span class="number">0</span>])=<span class="number">0x12345678</span>;</span><br><span class="line">    *(WORD*)(&amp;buffer[<span class="number">4</span>])=<span class="number">0x88</span>;          <span class="comment">//这个目前是乱写的，要改</span></span><br><span class="line">    __asm</span><br><span class="line">    &#123;</span><br><span class="line">        call fword ptr [buffer];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;ok = %x  ESP = %x  CS = %x  \n&quot;</span>,dwOK,dwESP,dwCS);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>
+<p>变量tss大小0x68，即104字节。是自己构造的TSS，里面填上所有寄存器的值。</p>
+<blockquote>
+<p>TSS可以使用数组，也可以VirtualAlloc，建议后者，因为白皮书说tss要在一个内存页或者连续的内存页。用数组蓝了的话重来一次，但实际过程中我用数组我没遇到过</p>
+</blockquote>
+<ul>
+<li>必填的注释有*号，非必填的注释没。</li>
+<li>link字段，当你一次性切换一堆寄存器时，这个地方存储的就是你上一次任务原来104字节的段选择子。当发生任务切换时，会由硬件CPU自动填充。</li>
+<li>3组esp和ss，因为本次实验是3环进0环，没用到，所以都写0。</li>
+<li>CR3的值（目前不解释，后面讲到页的知识在讲），在运行该exe后，使用windbg下断点，使用<code>!process 0 0</code>指令，找到该exe名称那栏，获得cr3的值。</li>
+<li>eip是切换后，接着执行的代码地址。</li>
+<li>gs寄存器，windows没有使用，永远是0.</li>
+<li>ldt永远是0。</li>
+<li>cs、ss、fs代码目前写是跳0环后的值，如果是3环通过TSS跳3环，这三个的值改成注释的值。</li>
+<li>es、ds无论3环还是0环，都是0x23。</li>
+<li>tss最后一项，这个字段叫IO权限位图，Windows 2000之后不再使用了，但TSS结构体要有这个值。所以从现有的TSS结构体拷出来0x20ac0000直接贴在这。</li>
+</ul>
+</li>
+<li>
+<p>stack是自己定义的一个变量，未来将它的内存拿来当堆栈使用。堆栈从高地址开始使用，所以tss数组里stack+了100</p>
+</li>
+<li>
+<p>func函数里返回的代码没写，这取决于调用时是jmp还是call调用。这两种调用方式进来func，返回部门的代码不一样，自己做一下。</p>
+</li>
+</ol>
+<p>步骤：</p>
+<ol>
+<li>构造TSS的104字节</li>
+<li>准备好TSS段描述符，写到GDT表里</li>
+<li>使用jmp/call 任务段，修改TR寄存器</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>后面文章内容通用部分：构造TSS段描述符</span></summary><div class="body"><p>Base指示了TSS表的位置（就是我们自己要切换到的TSS表的位置，就是程序中我们的tss数组，即tss数组的起始地址）。</p><p>Limit指示了TSS表有多大（没有特殊设置就设置成0x68，也就是十进制的104，其实更大一些也没关系）。</p><p>Base假设是0x0012FDE0。</p><p>Base31:24 ：00</p></br><p>G：0，以字节为单位</p><p>0</p><p>0</p><p>AVL：0</p></br><p>Limit19:16：0</p></br><p>P：1</p><p>DPL：11</p><p>0</p></br><p>Type：9，即1001。B位为0，表当前TSS段描述符没加载到TR寄存器中。</p></br><p>Base23:16：12。程序输出打印的tss数组地址的一部分。</p><hr /><p>Base Address 15:00：fde0。程序输出打印的tss数组地址的一部分。</p></br><p>Segment Limit 15:00：0068。</p><p>综上，构造的任务段段描述符是：</p><p><u>00</u>00E9<u>12</u>`<u>fde0</u>0068</p><blockquote><p>下划线部分是tss数组地址，我用代码输出到终端，就不用每次都调试查看</p></blockquote><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Print the address of the tss array in hexadecimal form</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;Address of the tss array: %p\n\n&quot;</span>, tss);</span><br><span class="line"><span class="comment">// Print the 1st (leftmost) hexadecimal digit, 2nd hexadecimal digit, and the low 16 bits of the tss array address</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;1st Hex Digit: %02x, 2nd Hex Digit: %02x, Low 16 bits: %04x\n\n&quot;</span>,</span><br><span class="line">       (DWORD)tss &gt;&gt; <span class="number">28</span>,</span><br><span class="line">       ((DWORD)tss &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x000000FF</span>,</span><br><span class="line">       (DWORD)tss &amp; <span class="number">0x0000FFFF</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;In WinDbg, modify your constructed Task Segment Descriptor in the GDT table using the following command: eq 8003f048 %02x00e9%02x`%04x0068\n\n&quot;</span>,</span><br><span class="line">        (DWORD)tss &gt;&gt; <span class="number">28</span>,</span><br><span class="line">        ((DWORD)tss &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x000000FF</span>,</span><br><span class="line">        (WORD)tss);</span><br></pre></td></tr></table></figure><div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>代码分析</span></summary><div class="body"><p>%02x  00e9  %02x</p><p>%04x  0068</p><ul><li><code>%02x</code>: 以十六进制输出，最少两位，不足补零。</li><li><code>%04x</code>: 以十六进制输出，最少四位，不足补零。</li><li>(DWORD)tss &gt;&gt; 28得到tss地址的高两位十六进制数</li><li>((DWORD)tss &gt;&gt; 16) &amp; 0x000000FF得到tss地址的高第3和第4位十六进制数</li><li>(DWORD)tss &amp; 0x0000FFFF)或(WORD)tss)得到tss地址的低4位十六进制数</li></ul><p>测试程序运行示意：</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230731171756146.png" alt="image-20230731171756146" /></p></div></details></div></div></details></div>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>调试提示</span></summary><div class="body"><p>如果多次运行，windbg用<code>!process 0 0</code>看时会有多个xxx.exe，用最后一行的CR3</p></div></details></div>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>call 任务段</span></summary><div class="body"><div class="tag-plugin tabs" align="center"id="tab_161"><div class="nav-tabs"><div class="tab active"><a href="#tab_161-1">测试代码</a></div><div class="tab"><a href="#tab_161-2">运行</a></div><div class="tab"><a href="#tab_161-3">调试</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_161-1"><div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>C89变量声明报错问题</span></summary><div class="body"><p>在ANSI C99之前，变量的声明必须放在其它语句之前，否则C99以前的编译器就会报错。</p><p>我遇到的报错如：</p><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">C:\<span class="title">CODE</span>\<span class="title">tss_array</span>\<span class="title">main.c</span>(30) : <span class="title">error</span> <span class="title">C2275</span>: &#x27;<span class="title">DWORD</span>&#x27; : <span class="title">illegal</span> <span class="title">use</span> <span class="title">of</span> <span class="title">this</span> <span class="title">type</span> <span class="title">as</span> <span class="title">an</span> <span class="title">expression</span></span></span><br><span class="line"><span class="function"><span class="title">c</span>:\<span class="title">program</span> <span class="title">files</span>\<span class="title">microsoft</span> <span class="title">visual</span> <span class="title">studio</span>\<span class="title">vc98</span>\<span class="title">include</span>\<span class="title">windef.h</span>(141) : <span class="title">see</span> <span class="title">declaration</span> <span class="title">of</span> &#x27;<span class="title">DWORD</span>&#x27;</span></span><br><span class="line"><span class="function"><span class="title">C</span>:\<span class="title">CODE</span>\<span class="title">tss_array</span>\<span class="title">main.c</span>(30) : <span class="title">error</span> <span class="title">C2146</span>: <span class="title">syntax</span> <span class="title">error</span> : <span class="title">missing</span> &#x27;;&#x27; <span class="title">before</span> <span class="title">identifier</span> &#x27;<span class="title">tss</span>&#x27;</span></span><br><span class="line"><span class="function"><span class="title">C</span>:\<span class="title">CODE</span>\<span class="title">tss_array</span>\<span class="title">main.c</span>(30) : <span class="title">error</span> <span class="title">C2065</span>: &#x27;<span class="title">tss</span>&#x27; : <span class="title">undeclared</span> <span class="title">identifier</span></span></span><br><span class="line"><span class="function"><span class="title">C</span>:\<span class="title">CODE</span>\<span class="title">tss_array</span>\<span class="title">main.c</span>(30) : <span class="title">error</span> <span class="title">C2109</span>: <span class="title">subscript</span> <span class="title">requires</span> <span class="title">array</span> <span class="title">or</span> <span class="title">pointer</span> <span class="title">type</span></span></span><br><span class="line"><span class="function"><span class="title">C</span>:\<span class="title">CODE</span>\<span class="title">tss_array</span>\<span class="title">main.c</span>(30) : <span class="title">error</span> <span class="title">C2059</span>: <span class="title">syntax</span> <span class="title">error</span> : &#x27;&#123;&#x27;</span></span><br><span class="line"><span class="function"><span class="title">C</span>:\<span class="title">CODE</span>\<span class="title">tss_array</span>\<span class="title">main.c</span>(72) : <span class="title">error</span> <span class="title">C2143</span>: <span class="title">syntax</span> <span class="title">error</span> : <span class="title">missing</span> &#x27;;&#x27; <span class="title">before</span> &#x27;<span class="title">type</span>&#x27;</span></span><br><span class="line"><span class="function"><span class="title">C</span>:\<span class="title">CODE</span>\<span class="title">tss_array</span>\<span class="title">main.c</span>(73) : <span class="title">error</span> <span class="title">C2065</span>: &#x27;<span class="title">buffer</span>&#x27; : <span class="title">undeclared</span> <span class="title">identifier</span></span></span><br><span class="line"><span class="function"><span class="title">C</span>:\<span class="title">CODE</span>\<span class="title">tss_array</span>\<span class="title">main.c</span>(73) : <span class="title">error</span> <span class="title">C2109</span>: <span class="title">subscript</span> <span class="title">requires</span> <span class="title">array</span> <span class="title">or</span> <span class="title">pointer</span> <span class="title">type</span></span></span><br><span class="line"><span class="function"><span class="title">C</span>:\<span class="title">CODE</span>\<span class="title">tss_array</span>\<span class="title">main.c</span>(73) : <span class="title">error</span> <span class="title">C2102</span>: &#x27;&amp;&#x27; <span class="title">requires</span> <span class="title">l</span>-<span class="title">value</span></span></span><br><span class="line"><span class="function"><span class="title">C</span>:\<span class="title">CODE</span>\<span class="title">tss_array</span>\<span class="title">main.c</span>(74) : <span class="title">error</span> <span class="title">C2109</span>: <span class="title">subscript</span> <span class="title">requires</span> <span class="title">array</span> <span class="title">or</span> <span class="title">pointer</span> <span class="title">type</span></span></span><br><span class="line"><span class="function"><span class="title">C</span>:\<span class="title">CODE</span>\<span class="title">tss_array</span>\<span class="title">main.c</span>(74) : <span class="title">error</span> <span class="title">C2102</span>: &#x27;&amp;&#x27; <span class="title">requires</span> <span class="title">l</span>-<span class="title">value</span></span></span><br></pre></td></tr></table></figure></div></details></div><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">DWORD dwOK;</span><br><span class="line">DWORD dwESP;</span><br><span class="line">DWORD dwCS;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> __declspec(naked)  func() </span><br><span class="line">&#123;</span><br><span class="line">    dwOK=<span class="number">1</span>;</span><br><span class="line">    __asm</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//int 3</span></span><br><span class="line">        mov eax,esp</span><br><span class="line">        mov dwESP,eax          <span class="comment">//存任务切换后的esp的值</span></span><br><span class="line"></span><br><span class="line">        mov word ptr [dwCS],cs <span class="comment">//存任务切换后cs的值</span></span><br><span class="line">        </span><br><span class="line">        iretd                  <span class="comment">//call方式返回              </span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> buffer[<span class="number">6</span>];         <span class="comment">//构造任务段</span></span><br><span class="line"></span><br><span class="line">    <span class="type">char</span> <span class="built_in">stack</span>[<span class="number">100</span>]=&#123;<span class="number">0</span>&#125;;    <span class="comment">//找了一个局部变量的地址当堆栈堆栈用</span></span><br><span class="line">    DWORD cr3=<span class="number">0</span>;</span><br><span class="line">    <span class="comment">//构造TSS，注释标有*说明为必填值</span></span><br><span class="line">    DWORD tss[<span class="number">0x68</span>]=&#123;      <span class="comment">//0x68，104字节</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//link，上一个任务的TR段选择子。在发生任务切换时CPU会自动填充</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//esp0</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ss0</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//esp1</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ss1</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//esp2</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ss2</span></span><br><span class="line">        cr3,                         <span class="comment">//cr3*</span></span><br><span class="line">        (DWORD)func,                 <span class="comment">//eip *  跳转的地址</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//eflags</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//eax</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ecx</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//edx</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ebx</span></span><br><span class="line">        ((DWORD)<span class="built_in">stack</span>) + <span class="number">100</span>,        <span class="comment">//esp *</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ebp</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//esi</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//edi</span></span><br><span class="line">        <span class="number">0x00000023</span>,                  <span class="comment">//es *   </span></span><br><span class="line">        <span class="number">0x00000008</span>,                  <span class="comment">//cs *   3环：0x1B</span></span><br><span class="line">        <span class="number">0x00000010</span>,                  <span class="comment">//ss *   3环：0x23</span></span><br><span class="line">        <span class="number">0x00000023</span>,                  <span class="comment">//ds *</span></span><br><span class="line">        <span class="number">0x00000030</span>,                  <span class="comment">//fs *   3环：0x3B</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//gs</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ldt</span></span><br><span class="line">        <span class="number">0x20ac0000</span>         <span class="comment">//IO权限位图，VISTA之后不再用了，这是从现有的TSS结构体拷出来的</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//输出看((DWORD)stack) + 100的地址，后面用windbg看任务切换的esp作对比用</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Address of the ((DWORD)stack) + 100 :%p\n\n&quot;</span>,((DWORD)<span class="built_in">stack</span>) + <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//修改GDT表</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Address of the tss array: %p\n\n&quot;</span>, tss);</span><br><span class="line">    <span class="comment">// Print the 1st (leftmost) hexadecimal digit, 2nd hexadecimal digit, and the low 16 bits of the tss array address</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;1st Hex Digit: %02x, 2nd Hex Digit: %02x, Low 16 bits: %04x\n\n&quot;</span>,</span><br><span class="line">           (DWORD)tss &gt;&gt; <span class="number">28</span>,</span><br><span class="line">           ((DWORD)tss &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x000000FF</span>,</span><br><span class="line">           (DWORD)tss &amp; <span class="number">0x0000FFFF</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;In WinDbg, modify your constructed Task Segment Descriptor in the GDT table using the following command: eq 8003f048 %02x00e9%02x`%04x0068\n\n&quot;</span>,</span><br><span class="line">            (DWORD)tss &gt;&gt; <span class="number">28</span>,</span><br><span class="line">            ((DWORD)tss &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x000000FF</span>,</span><br><span class="line">            (WORD)tss);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//因为变量声明顺序的问题，输入cr3的语句在这里。然后再赋给tss数组里的cr3字段</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;After running this executable, execute !process 0 0 in WinDbg, copy the value of DirBase for the TSS.exe process, and input it below.\n\nCR3: &quot;</span>);</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%x&quot;</span>,&amp;cr3);    <span class="comment">//执行该exe后，在WinDbg中用该指令获取：!process 0 0</span></span><br><span class="line">    tss[<span class="number">7</span>]=cr3;</span><br><span class="line"></span><br><span class="line">    *(DWORD*)(&amp;buffer[<span class="number">0</span>])=<span class="number">0x12345678</span>;</span><br><span class="line">    *(WORD*)(&amp;buffer[<span class="number">4</span>])=<span class="number">0x48</span>;          <span class="comment">//段选择子0x48，拆完索引到的是8003f048</span></span><br><span class="line">    __asm</span><br><span class="line">    &#123;</span><br><span class="line">        call fword ptr [buffer];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;ok = %x  ESP = %x  CS = %x  \n&quot;</span>,dwOK,dwESP,dwCS);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>修改的是GDT表，8003f048对应的段选择子是0x48，所以call的CS是0x48</p></div><div class="tab-pane" id="tab_161-2"><p>执行exe，根据终端输出，windbg下break，</p><ol><li>修改GDT表</li><li>使用<code>!process 0 0</code>查看该exe的DirBase，输入到终端</li></ol><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230801161638121.png" alt="image-20230801161638121" /></p><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dq <span class="number">8003</span>f000 LA</span><br><span class="line"><span class="number">8003</span>f000  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00</span>cf9b00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f010  <span class="number">00</span>cf9300`<span class="number">0000</span>ffff <span class="number">00</span>cffb00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f020  <span class="number">00</span>cff300`<span class="number">0000</span>ffff <span class="number">80008</span>b04`<span class="number">200020</span>ab</span><br><span class="line"><span class="number">8003</span>f030  ffc093df`f0000001 <span class="number">0040</span>f300`<span class="number">00000</span>fff</span><br><span class="line"><span class="number">8003</span>f040  <span class="number">0000</span>f200`<span class="number">0400</span>ffff <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line">kd&gt; eq <span class="number">8003</span>f048 <span class="number">0000</span>e912`fd700068</span><br><span class="line">kd&gt; dq <span class="number">8003</span>f000 LA</span><br><span class="line"><span class="number">8003</span>f000  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00</span>cf9b00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f010  <span class="number">00</span>cf9300`<span class="number">0000</span>ffff <span class="number">00</span>cffb00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f020  <span class="number">00</span>cff300`<span class="number">0000</span>ffff <span class="number">80008</span>b04`<span class="number">200020</span>ab</span><br><span class="line"><span class="number">8003</span>f030  ffc093df`f0000001 <span class="number">0040</span>f300`<span class="number">00000</span>fff</span><br><span class="line"><span class="number">8003</span>f040  <span class="number">0000</span>f200`<span class="number">0400</span>ffff <span class="number">0000</span>e912`fd700068</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230801161903539.png" alt="image-20230801161903539" /></p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230801161939997.png" alt="image-20230801161939997" /></p><p>运行成功，执行过程没遇到错误</p></div><div class="tab-pane" id="tab_161-3"><div class="tag-plugin tabs" align="center"id="tab_160"><div class="nav-tabs"><div class="tab active"><a href="#tab_160-1">直接加int 3</a></div><div class="tab"><a href="#tab_160-2">在int 3后将NT位复原</a></div><div class="tab"><a href="#tab_160-3">int 3 后恢复原来efl的值</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_160-1"><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">void __declspec(naked)  func() </span><br><span class="line">&#123;</span><br><span class="line">    dwOK=1;</span><br><span class="line">    __asm</span><br><span class="line">    &#123;</span><br><span class="line"><span class="addition">+        int 3</span></span><br><span class="line">        mov eax,esp</span><br><span class="line">        mov dwESP,eax          //存任务切换后的esp的值</span><br><span class="line"></span><br><span class="line">        mov word ptr [dwCS],cs //存任务切换后cs的值</span><br><span class="line">        </span><br><span class="line">        iretd                  //call方式返回              </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>然后执行，因为int 3，所以会断在windbg。</p><p>可以看到寄存器都切换了</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230801162625311.png" alt="image-20230801162625311" /></p><p>可以看到，除了efl是4002，不是我设的0。其他都修改了。</p><p>因为跳到了func执行指令，所以eip是被修改为我设的值。esp是设定的stack+100，终端有输出，可以对应到。</p><p>注意efl，现在是0100 0000 0000 0010，第14位，NT位为1。</p><p>然后注意下，如果输入指令p单步执行，会一直busy</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230801163125868.png" alt="image-20230801163125868" /></p><p>输入指令g，如果能回到VC，就没问题。但是输入指令g后会蓝屏</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230802151513146.png" alt="image-20230802151513146" /></p><p>为什么？int 3究竟做了什么导致了蓝屏</p><div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>原因</span></summary><div class="body"><p>与EFLAGS的嵌套任务标志NT（Nested Task）有关，它是用来控制中断返回指令IRET的执行。</p><table><thead><tr><th>NT的值</th><th>含义</th></tr></thead><tbody><tr><td>0</td><td>用堆栈中保存的值恢复SS、ESP、EFLAGS、CS和EIP，执行常规的中断返回操作</td></tr><tr><td>1</td><td>通过任务转换实现中断返回</td></tr></tbody></table><p>efl第14位，NT位</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230804144503472.png" alt="image-20230804144503472" /></p><hr /><p>无论任何时候处理器碰到iret指令，都要检查NT位，如果此位是 0，表明是一般的中断过程，按一般的中断返回处理，即，中断返回是任务内的（中断处理过程虽然属于操作系统，但属于任务的全局空间）；如果此位是 1，则表明当前任务之所以能够正在执行，是因为中断了别的任务。因此，应当返回原先被中断的任务继续执行。</p><blockquote><p>这段话作了拓展，需要未来继续学习，这里浅浅看下就行。</p><p>参考连接：<a target="_blank" rel="noopener" href="https://www.yhspy.com/2023/06/03/%E3%80%8Ax86-%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%EF%BC%9A%E4%BB%8E%E5%AE%9E%E6%A8%A1%E5%BC%8F%E5%88%B0%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F%EF%BC%88%E7%AC%AC2%E7%89%88%EF%BC%89%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%88%E7%AC%AC-12-20-%E7%AB%A0%EF%BC%89/">《x86 汇编语言：从实模式到保护模式（第2版）》读书笔记（第 12-20 章）</a></p></blockquote><hr /><p>没加int 3时，call 任务段进来，会将NT位置1。返回时iretd，此时NT位为1，就回去找前一个任务的指针（TSS里的Previous Task Link字段）。</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230802174627613.png" alt="image-20230802174627613" /></p><p>而执行int 3后，终端指令将NT位置0了，返回时iretd，此时NT位为0，就回去从堆栈找值弹栈返回，导致蓝屏。</p><p>所以：</p><p>int 3改变了NT位标识，我们可以在int 3之后再重新将NT位复原，这样也是可以正确返回的。</p><p>但我还看到一种说法是因为fs变了，改fs也能正常返回。但我试了下这个说法博客贴的代码，发现起作用的不是fs的原因，这个在第二种方式细讲。</p></div></details></div></div><div class="tab-pane" id="tab_160-2"><blockquote><p>参考链接：<a target="_blank" rel="noopener" href="https://www.braveenough.cn/2021/12/15/%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/#toc-heading-58">https://www.braveenough.cn/2021/12/15/保护模式/#toc-heading-58</a></p><p>任务段章</p></blockquote><p>核心代码：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __declspec(naked)  func() </span><br><span class="line">&#123;</span><br><span class="line">    dwOK=<span class="number">1</span>;</span><br><span class="line">    __asm</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> <span class="number">3</span></span><br><span class="line">        <span class="comment">//调用int 3后将NT位置1</span></span><br><span class="line">        pushfd</span><br><span class="line">        pop eax</span><br><span class="line">        or eax,<span class="number">0x4000</span>            <span class="comment">//or或。0000 0000 0000 0000 0100 0000 0000 0000</span></span><br><span class="line">                                 <span class="comment">//0x4000</span></span><br><span class="line">        push eax</span><br><span class="line">        popfd</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        mov eax,esp</span><br><span class="line">        mov dwESP,eax          <span class="comment">//存任务切换后的esp的值</span></span><br><span class="line"></span><br><span class="line">        mov word ptr [dwCS],cs <span class="comment">//存任务切换后cs的值</span></span><br><span class="line">        </span><br><span class="line">        iretd                  <span class="comment">//call方式返回              </span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>断在windbg后，输入指令g，能回到3环。</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230804145558494.png" alt="image-20230804145558494" /></p><p>int 3在windbg中断下后，调试，可以看到efl由4002变成了2，NT位由1到0了。然后我们的代码将NT位置1，efl又变成4002。但是最后当下一条指令是iretd时，输入指令p或指令g都会蓝屏，这里我不懂了。但是如果int 3一断进来，然后输入g，是能回到3环的。</p></div><div class="tab-pane" id="tab_160-3"><blockquote><p>参考链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Kwansy/article/details/108890586">https://blog.csdn.net/Kwansy/article/details/108890586</a></p></blockquote><p>上面链接博客里的代码是这样的：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 任务切换后的EIP</span></span><br><span class="line"><span class="type">void</span> __declspec(naked) R0Func()</span><br><span class="line">&#123;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		pushad</span><br><span class="line">		pushfd</span><br><span class="line"></span><br><span class="line">		push fs</span><br><span class="line">		<span class="type">int</span> <span class="number">3</span> <span class="comment">// int 3 会修改FS</span></span><br><span class="line">		pop fs</span><br><span class="line"></span><br><span class="line">		mov eax,<span class="number">1</span></span><br><span class="line">		mov dword ptr ds:[dwOk],eax</span><br><span class="line">		mov eax,esp</span><br><span class="line">		mov dword ptr ds:[dwESP],eax</span><br><span class="line">		mov ax,cs</span><br><span class="line">		mov word ptr ds:[dwCS],ax</span><br><span class="line"></span><br><span class="line">		popfd</span><br><span class="line">		popad</span><br><span class="line">		iretd</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>实际上起作用能返回的原因是int 3前面的pushfd和之后的popfd</p><p>我试了只有成对的push fs和pop fs，是没法返回的，代码如下：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __declspec(naked)  func() </span><br><span class="line">&#123;</span><br><span class="line">    dwOK=<span class="number">1</span>;</span><br><span class="line">    __asm</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//手动保存int 3前fs的值</span></span><br><span class="line">        push fs</span><br><span class="line">        <span class="type">int</span> <span class="number">3</span></span><br><span class="line">        pop fs</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        mov eax,esp</span><br><span class="line">        mov dwESP,eax          <span class="comment">//存任务切换后的esp的值</span></span><br><span class="line"></span><br><span class="line">        mov word ptr [dwCS],cs <span class="comment">//存任务切换后cs的值</span></span><br><span class="line">        </span><br><span class="line">        iretd                  <span class="comment">//call方式返回              </span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>试了仅有成对的pushfd和popfd，这样是可以返回的</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __declspec(naked)  func() </span><br><span class="line">&#123;</span><br><span class="line">    dwOK=<span class="number">1</span>;</span><br><span class="line">    __asm</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//pushad</span></span><br><span class="line">        pushfd</span><br><span class="line">        <span class="comment">//手动保存int 3前fs的值</span></span><br><span class="line">        <span class="comment">//push fs</span></span><br><span class="line">        <span class="type">int</span> <span class="number">3</span></span><br><span class="line">        <span class="comment">//pop fs</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        mov eax,esp</span><br><span class="line">        mov dwESP,eax          <span class="comment">//存任务切换后的esp的值</span></span><br><span class="line"></span><br><span class="line">        mov word ptr [dwCS],cs <span class="comment">//存任务切换后cs的值</span></span><br><span class="line">        </span><br><span class="line">        popfd</span><br><span class="line">        <span class="comment">//popad</span></span><br><span class="line">        iretd                  <span class="comment">//call方式返回              </span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>所以，参考链接博客里的代码实际起作用的是pushfd和popfd，而不是fs的原因。本质就是在int 3前，保存efl的值，int 3后恢复efl的值，与fs无关。而且我在windbg里调试，int 3前后fs的值没变，一直是0x30</p><p>成功返回的截图：</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230804155439679.png" alt="image-20230804155439679" /></p></div></div></div></div></div></div></div></details></div>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>jmp 任务段</span></summary><div class="body"><div class="tag-plugin tabs" align="center"id="tab_162"><div class="nav-tabs"><div class="tab active"><a href="#tab_162-1">分析及代码</a></div><div class="tab"><a href="#tab_162-2">运行</a></div><div class="tab"><a href="#tab_162-3">调试</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_162-1"><p>使用jmp far进行任务切换，TSS段中的Previous Task Link不会填充旧的TR，而且NT位不会置1。</p><p>那就没法通过TSS段中的Previous Task Link返回上一个任务，堆栈也是空的。所以我们要自己手动保存旧的Previous Task Link，也就是TR寄存器，切换到新任务后，再JMP FAR回旧任务。</p><blockquote><p>用STR指令来读TR寄存器的16位</p></blockquote><p>核心代码：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BYTE PrevTR[<span class="number">6</span>];</span><br></pre></td></tr></table></figure><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">__asm</span><br><span class="line">&#123;   </span><br><span class="line">    <span class="comment">//切换前保存旧TR</span></span><br><span class="line">    str ax</span><br><span class="line">    lea edi,[PrevTR+<span class="number">4</span>]</span><br><span class="line">    mov [edi],ax</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>完整代码：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">DWORD dwOK;</span><br><span class="line">DWORD dwESP;</span><br><span class="line">DWORD dwCS;</span><br><span class="line"></span><br><span class="line">BYTE PrevTR[<span class="number">6</span>];</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> __declspec(naked)  func() </span><br><span class="line">&#123;</span><br><span class="line">    dwOK=<span class="number">1</span>;</span><br><span class="line">    __asm</span><br><span class="line">    &#123;</span><br><span class="line">        mov eax,esp</span><br><span class="line">        mov dwESP,eax               <span class="comment">//存任务切换后的esp的值</span></span><br><span class="line"></span><br><span class="line">        mov word ptr [dwCS],cs      <span class="comment">//存任务切换后cs的值</span></span><br><span class="line">        </span><br><span class="line">        jmp fword ptr ds:[PrevTR]   <span class="comment">//jmp方式返回           </span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> buffer[<span class="number">6</span>];         <span class="comment">//构造任务段</span></span><br><span class="line"></span><br><span class="line">    <span class="type">char</span> <span class="built_in">stack</span>[<span class="number">100</span>]=&#123;<span class="number">0</span>&#125;;    <span class="comment">//找了一个局部变量的地址当堆栈堆栈用</span></span><br><span class="line">    DWORD cr3=<span class="number">0</span>;</span><br><span class="line">    <span class="comment">//构造TSS，注释标有*说明为必填值</span></span><br><span class="line">    DWORD tss[<span class="number">0x68</span>]=&#123;      <span class="comment">//0x68，104字节</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//link，上一个任务的TR段选择子。在发生任务切换时CPU会自动填充</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//esp0</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ss0</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//esp1</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ss1</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//esp2</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ss2</span></span><br><span class="line">        cr3,                         <span class="comment">//cr3*</span></span><br><span class="line">        (DWORD)func,                 <span class="comment">//eip *  跳转的地址</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//eflags</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//eax</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ecx</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//edx</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ebx</span></span><br><span class="line">        ((DWORD)<span class="built_in">stack</span>) + <span class="number">100</span>,        <span class="comment">//esp *</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ebp</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//esi</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//edi</span></span><br><span class="line">        <span class="number">0x00000023</span>,                  <span class="comment">//es *   </span></span><br><span class="line">        <span class="number">0x00000008</span>,                  <span class="comment">//cs *   3环：0x1B</span></span><br><span class="line">        <span class="number">0x00000010</span>,                  <span class="comment">//ss *   3环：0x23</span></span><br><span class="line">        <span class="number">0x00000023</span>,                  <span class="comment">//ds *</span></span><br><span class="line">        <span class="number">0x00000030</span>,                  <span class="comment">//fs *   3环：0x3B</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//gs</span></span><br><span class="line">        <span class="number">0x00000000</span>,        <span class="comment">//ldt</span></span><br><span class="line">        <span class="number">0x20ac0000</span>         <span class="comment">//IO权限位图，VISTA之后不再用了，这是从现有的TSS结构体拷出来的</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//输出看((DWORD)stack) + 100的地址，后面用windbg看任务切换的esp作对比用</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Address of the ((DWORD)stack) + 100 :%p\n\n&quot;</span>,((DWORD)<span class="built_in">stack</span>) + <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//修改GDT表</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Address of the tss array: %p\n\n&quot;</span>, tss);</span><br><span class="line">    <span class="comment">// Print the 1st (leftmost) hexadecimal digit, 2nd hexadecimal digit, and the low 16 bits of the tss array address</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;1st Hex Digit: %02x, 2nd Hex Digit: %02x, Low 16 bits: %04x\n\n&quot;</span>,</span><br><span class="line">           (DWORD)tss &gt;&gt; <span class="number">28</span>,</span><br><span class="line">           ((DWORD)tss &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x000000FF</span>,</span><br><span class="line">           (DWORD)tss &amp; <span class="number">0x0000FFFF</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;In WinDbg, modify your constructed Task Segment Descriptor in the GDT table using the following command: eq 8003f048 %02x00e9%02x`%04x0068\n\n&quot;</span>,</span><br><span class="line">            (DWORD)tss &gt;&gt; <span class="number">28</span>,</span><br><span class="line">            ((DWORD)tss &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0x000000FF</span>,</span><br><span class="line">            (WORD)tss);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//因为变量声明顺序的问题，输入cr3的语句在这里。然后再赋给tss数组里的cr3字段</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;After running this executable, execute !process 0 0 in WinDbg, copy the value of DirBase for the TSS.exe process, and input it below.\n\nCR3: &quot;</span>);</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%x&quot;</span>,&amp;cr3);    <span class="comment">//执行该exe后，在WinDbg中用该指令获取：!process 0 0</span></span><br><span class="line">    tss[<span class="number">7</span>]=cr3;</span><br><span class="line"></span><br><span class="line">    *(DWORD*)(&amp;buffer[<span class="number">0</span>])=<span class="number">0x12345678</span>;</span><br><span class="line">    *(WORD*)(&amp;buffer[<span class="number">4</span>])=<span class="number">0x48</span>;          <span class="comment">//段选择子0x48，拆完索引到的是8003f048</span></span><br><span class="line">    __asm</span><br><span class="line">    &#123;   </span><br><span class="line">        <span class="comment">//切换前保存旧TR</span></span><br><span class="line">        str ax</span><br><span class="line">        lea edi,[PrevTR+<span class="number">4</span>]</span><br><span class="line">        mov [edi],ax</span><br><span class="line"></span><br><span class="line">        jmp fword ptr [buffer];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;ok = %x  ESP = %x  CS = %x  \n&quot;</span>,dwOK,dwESP,dwCS);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>返回代码：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">    __asm</span><br><span class="line">    &#123;</span><br><span class="line"></span><br><span class="line">        jmp fword ptr ds:[PrevTR]   <span class="comment">//jmp方式返回           </span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_162-2"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230807155016679.png" alt="image-20230807155016679" /></p></div><div class="tab-pane" id="tab_162-3"><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">    __asm</span><br><span class="line">    &#123;</span><br><span class="line"><span class="addition">+		int 3</span></span><br><span class="line">        mov eax,esp</span><br><span class="line">        mov dwESP,eax               //存任务切换后的esp的值</span><br><span class="line"></span><br><span class="line">        mov word ptr [dwCS],cs      //存任务切换后cs的值</span><br><span class="line">        </span><br><span class="line">        jmp fword ptr ds:[PrevTR]   //jmp方式返回           </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure><p>直接执行，因int 3会断在windbg下</p><p>efl是2，NT位为0</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230807165247134.png" alt="image-20230807165247134" /></p><p>TR是0x48，就是刚才jmp的buffer</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230807165317714.png" alt="image-20230807165317714" /></p><p>再jmp回去前，PrevTR[6]如图：</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%BB%BB%E5%8A%A1%E6%AE%B5/image-20230808103211710.png" alt="image-20230808103211710" /></p><p>回跳时不依靠NT位，相当于是直接跳过去的，不会依赖上一次的任务链</p></div></div></div></div></details></div>
+<div class="tag-plugin quot"><h2 class="content" id="总结" type="text"><a href="#总结" class="headerlink" title="总结"></a>总结</h2></div>
+<h3 id="体会"><a class="markdownIt-Anchor" href="#体会"></a> 体会</h3>
+<p>对于修改TR寄存器部分的内容有新的理解：</p>
+<p>CALL FAR或JMP FAR访问0x48:0x123456</p>
+<p>如果0x48是代码段，由CS当选择子</p>
+<p>如果0x48是任务段，由TR当选择子</p>
+<h3 id="tss任务段切换步骤"><a class="markdownIt-Anchor" href="#tss任务段切换步骤"></a> TSS任务段切换步骤</h3>
+<ol>
+<li>调用 call/jmp + TSS任务段选择子</li>
+<li>CPU将调用者的寄存器存入当前TR寄存器对应的TSS中。</li>
+<li>将TSS任务段选择子加载到TR寄存器中</li>
+<li>将新的TR寄存器对应的TSS任务段中的所有寄存器全部替换。</li>
+</ol>
+<h3 id="call和jmp进行任务切换的不同之处"><a class="markdownIt-Anchor" href="#call和jmp进行任务切换的不同之处"></a> call和jmp进行任务切换的不同之处</h3>
+<p>JMP指令进行任务切换，TSS段中的PreviousLink不会被赋值。且NT位不变。</p>
+<p>CALL指令进行任务切换，TSS段中的PreviousLink会被填入上一个TSS段所属TSS段描述符的段选择子。且NT位被置1.</p>
+<h3 id="esp和esp0"><a class="markdownIt-Anchor" href="#esp和esp0"></a> ESP和ESP0</h3>
+<p>当我们主动JMP CALL任务段或任务门时，CPU会将ESP SS替换。</p>
+<p>当我们通过调用门、中断门这种提权时，CPU会去找TSS，这种可以理解为被动。这时会根据新CS的权限来选择替换ESP0 SS0、ESP1 SS1还是ESP2 SS2。</p>
+<p>线程切换时用TSS赋值，一个线程一个TSS。进0环后使用堆栈，比如ESP来到F1234567，用完是1234660，然后离开了。下次进来，因为TSS的值没变，下次还是从F1234567进来。</p>
+<p>每个线程两个堆栈，一个3环的，一个0环的。</p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Protected_Mode/%E9%99%B7%E9%98%B1%E9%97%A8.html">陷阱门</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/Protected_Mode/%E4%BB%BB%E5%8A%A1%E9%97%A8.html">任务门</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

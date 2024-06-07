@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Windows API编程：控制线程 - Misc010</title>
+
+  
+    <meta name="description" content="挂起和恢复 挂起几次就要恢复几次，suspend count不为0这个线程仍挂起  Each thread has a suspend count (with a maximum value of MAXIMUM_SUSPEND_COUNT). If the suspend count is greater than zero, the thread is suspended; otherwis">
+<meta property="og:type" content="website">
+<meta property="og:title" content="控制线程">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Windows_API/%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="挂起和恢复 挂起几次就要恢复几次，suspend count不为0这个线程仍挂起  Each thread has a suspend count (with a maximum value of MAXIMUM_SUSPEND_COUNT). If the suspend count is greater than zero, the thread is suspended; otherwis">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B/image-20240523154432872.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B/image-20240523154708529.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B/image-20240530115021501.png">
+<meta property="article:published_time" content="2024-03-11T11:31:15.000Z">
+<meta property="article:modified_time" content="2024-03-11T11:31:15.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B/image-20240523154432872.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><div class="main" ff="title">Windows API编程</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Windows_API/" placeholder="在/wiki/Windows_API/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">字符</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html#start"><span class="toc-text">字符编码</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/C%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84%E5%AE%BD%E5%AD%97%E7%AC%A6.html"><span class="toc-text">C语言中的宽字符</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/Win32_API%E4%B8%AD%E7%9A%84%E5%AE%BD%E5%AD%97%E7%AC%A6.html"><span class="toc-text">Win32 API中的宽字符</span></a></div></div><div class="widget-header cap dis-select"><span class="name">进程</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%88%9B%E5%BB%BA%E8%BF%9B%E7%A8%8B.html"><span class="toc-text">创建进程</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%8F%A5%E6%9F%84%E8%A1%A8.html"><span class="toc-text">句柄表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E8%BF%9B%E7%A8%8B%E7%9B%B8%E5%85%B3API.html"><span class="toc-text">进程相关API</span></a></div></div><div class="widget-header cap dis-select"><span class="name">线程</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B.html"><span class="toc-text">创建线程</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Windows_API/%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B.html"><span class="toc-text">控制线程</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%82%E8%B5%B7%E5%92%8C%E6%81%A2%E5%A4%8D"><span class="toc-text"> 挂起和恢复</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#suspendthread"><span class="toc-text"> SuspendThread</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#resumethread"><span class="toc-text"> ResumeThread</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%88%E6%AD%A2%E7%BA%BF%E7%A8%8B"><span class="toc-text"> 终止线程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%87%BD%E6%95%B0%E9%87%8Creturn"><span class="toc-text"> 线程函数里return</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exitthread"><span class="toc-text"> ExitThread</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#terminatethread"><span class="toc-text"> TerminateThread</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exitthread-vs-terminatethread"><span class="toc-text"> ExitThread VS TerminateThread</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AD%89%E5%BE%85%E7%BA%BF%E7%A8%8B%E7%BB%93%E6%9D%9F"><span class="toc-text"> 等待线程结束</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#waitforsingleobject"><span class="toc-text"> WaitForSingleObject</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#waitformultipleobjects"><span class="toc-text"> WaitForMultipleObjects</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#getexitcodethread"><span class="toc-text"> GetExitCodeThread</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE-%E8%8E%B7%E5%8F%96%E7%BA%BF%E7%A8%8B%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="toc-text"> 设置、获取线程上下文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#context"><span class="toc-text"> CONTEXT结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#getthreadcontext"><span class="toc-text"> GetThreadContext</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#setthreadcontext"><span class="toc-text"> SetThreadContext</span></a></li></ol></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E4%B8%B4%E7%95%8C%E5%8C%BA.html"><span class="toc-text">临界区（Critical Section）</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E4%BA%92%E6%96%A5%E4%BD%93.html"><span class="toc-text">互斥体（Mutex）</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E4%BA%8B%E4%BB%B6.html"><span class="toc-text">事件（Event）</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E4%BF%A1%E5%8F%B7%E9%87%8F.html"><span class="toc-text">信号量（Semaphore）</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E7%BA%BF%E7%A8%8B%E4%BA%92%E6%96%A5%E4%B8%8E%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98.html"><span class="toc-text">线程互斥与线程同步问题</span></a></div></div><div class="widget-header cap dis-select"><span class="name">窗口程序编写及逆向分析</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E7%AA%97%E5%8F%A3%E7%9A%84%E6%9C%AC%E8%B4%A8.html"><span class="toc-text">窗口的本质</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97.html"><span class="toc-text">消息队列</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E7%AC%AC%E4%B8%80%E4%B8%AA%E7%AA%97%E5%8F%A3%E7%A8%8B%E5%BA%8F.html"><span class="toc-text">第一个窗口程序</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E6%B6%88%E6%81%AF%E7%B1%BB%E5%9E%8B.html"><span class="toc-text">消息类型</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E7%AA%97%E5%8F%A3%E7%A8%8B%E5%BA%8F%E9%80%86%E5%90%91%E5%88%86%E6%9E%90.html"><span class="toc-text">窗口程序逆向分析</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%AD%90%E7%AA%97%E5%8F%A3.html"><span class="toc-text">子窗口</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%AD%90%E7%AA%97%E5%8F%A3%E6%B6%88%E6%81%AF%E5%A4%84%E7%90%86%E9%80%BB%E8%BE%91%E5%8F%8A%E9%80%86%E5%90%91%E5%88%86%E6%9E%90.html"><span class="toc-text">子窗口消息处理逻辑及逆向分析</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%AF%B9%E8%AF%9D%E6%A1%86%E5%8F%8A%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E5%AE%9A%E4%BD%8D.html"><span class="toc-text">对话框及回调函数定位</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E4%BD%BF%E7%94%A8%E5%9B%BE%E6%A0%87.html"><span class="toc-text">使用图标</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E9%80%9A%E7%94%A8%E6%8E%A7%E4%BB%B6.html"><span class="toc-text">通用控件</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E6%9E%9A%E4%B8%BE%E7%AA%97%E5%8F%A3%E4%B8%8E%E6%A8%A1%E6%8B%9F%E9%BC%A0%E6%A0%87%E5%92%8C%E6%A8%A1%E6%8B%9F%E9%94%AE%E7%9B%98.html"><span class="toc-text">枚举窗口与模拟鼠标和模拟键盘</span></a></div></div><div class="widget-header cap dis-select"><span class="name">内存管理</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E4%B8%8E%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98.html"><span class="toc-text">虚拟内存与物理内存</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E7%A7%81%E6%9C%89%E5%86%85%E5%AD%98%E7%9A%84%E7%94%B3%E8%AF%B7%E5%92%8C%E9%87%8A%E6%94%BE.html"><span class="toc-text">私有内存的申请和释放</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98%E7%9A%84%E7%94%B3%E8%AF%B7%E5%92%8C%E9%87%8A%E6%94%BE.html"><span class="toc-text">共享内存的申请和释放</span></a></div></div><div class="widget-header cap dis-select"><span class="name">文件系统</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F.html"><span class="toc-text">文件系统</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84%E6%96%87%E4%BB%B6.html"><span class="toc-text">内存映射文件</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><span class="title">汇编语言</span><span class="excerpt">x86汇编笔记：以滴水三期_汇编语言课程为框架，《汇编语言4th-王爽》和《汇编语言-基于x86处理器-第七版》为补充。</span></a><a class="item wiki" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><span class="title">C++</span><span class="excerpt">滴水三期_C++语言笔记，C++能做的C都能做，只不过如果使用C++，可以节省很多时间，因为编译器帮编程人员做了很多工作，让编程人员省事。学习的目标：相对于C，编译器替我们做了哪些工作。</span></a><a class="item wiki" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><span class="title">C</span><span class="excerpt">滴水三期_C语言笔记，以逆向角度看待和学习C语言，精彩点：堆栈图与指针。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="title">科学上网技术</span><span class="excerpt">从正常网络通信数据包通信过程出发，逐步推导到使用代理协议进行科学上网，随后依次介绍各代理协议ss、trojan、vmess、vless原理与节点搭建，还有相关的工具、技术、概念介绍。</span></a><a class="item wiki" href="/wiki/Thinking_in_C++/Pointers.html"><span class="title">Thinking in C++</span><span class="excerpt">《Thinking in C++ vol 1》笔记，知识内化后的输出，少部分是摘抄，少用的细节不做记录用时在查，参考视频：《面向对象程序设计_C++_翁恺老师》。</span></a><a class="item wiki" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><span class="title">数据的运算与表示</span><span class="excerpt">滴水三期_进制笔记，学习与理解进制、数据宽度、数的表示、位运算等概念。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html">Windows API编程</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-03-11T11:31:15.000Z">2024-03-11</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>控制线程</span></h1>
+<h2 id="挂起和恢复"><a class="markdownIt-Anchor" href="#挂起和恢复"></a> 挂起和恢复</h2>
+<p>挂起几次就要恢复几次，suspend count不为0这个线程仍挂起</p>
+<blockquote>
+<p>Each thread has a suspend count (with a maximum value of <strong>MAXIMUM_SUSPEND_COUNT</strong>). If the suspend count is greater than zero, the thread is suspended; otherwise, the thread is not suspended and is eligible for execution.</p>
+<ul>
+<li>Calling <strong>SuspendThread</strong> causes the target thread’s suspend count to be incremented.</li>
+<li>The <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/desktop/api/processthreadsapi/nf-processthreadsapi-resumethread">ResumeThread</a> function decrements the suspend count of a suspended thread.</li>
+</ul>
+</blockquote>
+<h3 id="suspendthread"><a class="markdownIt-Anchor" href="#suspendthread"></a> <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-suspendthread?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(MAIN%252FSuspendThread)%3Bk(SuspendThread)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">SuspendThread</a></h3>
+<p>Suspends the specified thread.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DWORD <span class="title function_">SuspendThread</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in] HANDLE hThread</span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>hThread：A handle to the thread that is to be suspended.
+<ul>
+<li>The handle must have the <strong>THREAD_SUSPEND_RESUME</strong> access right.</li>
+</ul>
+</li>
+</ul>
+<h3 id="resumethread"><a class="markdownIt-Anchor" href="#resumethread"></a> <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-resumethread">ResumeThread</a></h3>
+<p>Decrements a thread’s suspend count. When the suspend count is decremented to zero, the execution of the thread is resumed.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DWORD <span class="title function_">ResumeThread</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in] HANDLE hThread</span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>hThread：A handle to the thread to be restarted.
+<ul>
+<li>This handle must have the THREAD_SUSPEND_RESUME access right.</li>
+</ul>
+</li>
+</ul>
+<p>即使线程的挂起计数器（suspend count）减为0后，线程也不是立即恢复执行，要看调度程序是否给这个线程分CPU时间。<br />
+Windows操作系统的内核是不可抢占的，即在执行内核代码时，不能被中断。它不是一个实时操作系统(RTOS)，无法保证线程在ResumeThread被调用后立即获得CPU时间。因此，不要抱有能精确控制线程执行时间点的这种期望。</p>
+<blockquote>
+<p>不可抢占的、非实时操作系统通常在执行内核功能时是不可中断的。</p>
+</blockquote>
+<h2 id="终止线程"><a class="markdownIt-Anchor" href="#终止线程"></a> 终止线程</h2>
+<p>有三种方式可以终止线程：</p>
+<ul>
+<li>线程函数里return，函数结束执行</li>
+<li>使用ExitThread函数</li>
+<li>使用TerminateThread函数</li>
+</ul>
+<p>退出码用于让程序其他地方知道该线程因什么原因退出，是正常结束，还是其他原因结束。退出码来源：</p>
+<ul>
+<li>线程函数中return的值</li>
+<li>ExitThread传参给的退出码</li>
+<li>TerminateThread传参给的退出码</li>
+</ul>
+<blockquote>
+<p>退出码能在IDE的输出窗口中看到：线程xxx已退出，返回值为xx（这个就是退出码）</p>
+</blockquote>
+<h3 id="线程函数里return"><a class="markdownIt-Anchor" href="#线程函数里return"></a> 线程函数里return</h3>
+<p>线程函数结束调用。return返回的值即为退出码</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">DWORD WINAPI <span class="title">ThreadProc</span><span class="params">(LPVOID lpParam)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;		<span class="comment">//函数调用结束，return的值是退出码</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="exitthread"><a class="markdownIt-Anchor" href="#exitthread"></a> ExitThread</h3>
+<p>ExitThread是在线程函数内部中调用。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">ExitThread</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">  [in] DWORD dwExitCode</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>常见的用法，在线程函数外用一个标志（Flag）来控制这个线程是否停止。</p>
+<figure class="highlight cpp"><figcaption><span>例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">BOOL bFlag=FALSE;						<span class="comment">//控制线程是否退出</span></span><br><span class="line"></span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">ThreadProc</span><span class="params">(LPVOID lpParam)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">while</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//...执行功能</span></span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span>(bFlag)						<span class="comment">//根据外部Flag的状态选择是否退出线程</span></span><br><span class="line">		&#123;</span><br><span class="line">			::<span class="built_in">ExitThread</span>(<span class="number">1</span>); 			<span class="comment">//传递退出码</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="terminatethread"><a class="markdownIt-Anchor" href="#terminatethread"></a> TerminateThread</h3>
+<p>TerminateThread在线程函数外部调用。TerminateThread是告诉操作系统说我要结束这个线程（异步调用）。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">TerminateThread</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">  [in, out] HANDLE hThread,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]      DWORD  dwExitCode</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><figcaption><span>示例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HANDLE hThread = <span class="built_in">CreateThread</span>(...);</span><br><span class="line"></span><br><span class="line"><span class="built_in">TerminateThread</span>(hThread, <span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="exitthread-vs-terminatethread"><a class="markdownIt-Anchor" href="#exitthread-vs-terminatethread"></a> ExitThread VS TerminateThread</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>是否清理堆栈</th>
+<th>调用方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ExitThread</td>
+<td>清理</td>
+<td>同步调用</td>
+</tr>
+<tr>
+<td>TerminateThread</td>
+<td>不清理</td>
+<td>异步调用</td>
+</tr>
+</tbody>
+</table>
+<p><strong>是否清理线程的堆栈</strong></p>
+<ul>
+<li>
+<p><strong>ExitThread</strong>：会将线程使用到的堆栈释放掉（线程开始运行时用到的堆栈中的所有内容）。这可能会导致资源泄露，因为在线程函数中申请的资源可能没有机会释放。假如在线程函数中申请了资源，执行ExitThread后，申请的那些资源就没机会做释放了。</p>
+<blockquote>
+<p>因此推荐让线程函数正常结束调用，正常返回，自己就能在函数结束前将资源释放掉。</p>
+</blockquote>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body">  <div class="tag-plugin tabs" align="center"id="tab_212"><div class="nav-tabs"><div class="tab active"><a href="#tab_212-1">例1</a></div><div class="tab"><a href="#tab_212-2">例2</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_212-1"><p>例1：在线程函数中实例化一个对象，ExitThread后这个对象的析构不会被调用。</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> </span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">MyClass</span>() &#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;MyClass Constructor&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    ~<span class="built_in">MyClass</span>() &#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;MyClass Destructor&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">ThreadProc</span><span class="params">(LPVOID lpParam)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    MyClass obj;  <span class="comment">// 创建对象</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行一些操作</span></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Thread running...&quot;</span> &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用 ExitThread 终止线程</span></span><br><span class="line">    <span class="built_in">ExitThread</span>(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 由于 ExitThread 的调用，下面的代码不会被执行</span></span><br><span class="line">    <span class="comment">// 并且 MyClass 的析构函数不会被调用</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">// 这行代码永远不会被执行</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    HANDLE hThread = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="number">0</span>, ThreadProc, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="built_in">WaitForSingleObject</span>(hThread, INFINITE);</span><br><span class="line">    <span class="built_in">CloseHandle</span>(hThread);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B/image-20240523154432872.png" alt="image-20240523154432872" /></p></div><div class="tab-pane" id="tab_212-2"><p>例2：在线程函数中动态分配一块内存。ExitThread后这块内存不会被释放，导致内存泄漏。</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">ThreadProc</span><span class="params">(LPVOID lpParam)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span>* p = <span class="keyword">new</span> <span class="built_in">int</span>(<span class="number">5</span>);  <span class="comment">// 动态分配内存并初始化为5</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行一些操作</span></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;Thread running...&quot;</span> &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用 ExitThread 终止线程</span></span><br><span class="line">    <span class="built_in">ExitThread</span>(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 由于 ExitThread 的调用，下面的代码不会被执行</span></span><br><span class="line">    <span class="comment">// 并且动态分配的内存不会被释放</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">delete</span> p;  <span class="comment">// 这行代码永远不会被执行</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">// 这行代码永远不会被执行</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    HANDLE hThread = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="number">0</span>, ThreadProc, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="built_in">WaitForSingleObject</span>(hThread, INFINITE);</span><br><span class="line">    <span class="built_in">CloseHandle</span>(hThread);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B/image-20240523154708529.png" alt="image-20240523154708529" /></p></div></div></div></div></details></div>
+</li>
+<li>
+<p><strong>TerminateThread</strong>：不会清理堆栈。微软就是这么设计的，考虑这么一个场景，如果将一个线程的堆栈清理了，假设还有其他线程在使用这个堆栈中的值，那就会出错，这种错误通常难以调试。（因为TerminateThread是从外部终止线程，而不是线程自行终止，所以在设计上不释放线程的堆栈）</p>
+</li>
+</ul>
+<p><strong>同步调用和异步调用</strong></p>
+<p>ExitThread是同步调用，TerminateThread是异步调用。</p>
+<ul>
+<li>
+<p>ExitThread：同步调用<br />
+程序执行到B时，说明ExitThread一定是执行完了的，即线程已经结束了</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//...				A</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">ExitThread</span>();		<span class="comment">//结束线程</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//...				B（此时ExitThread已执行完毕）</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>TerminateThread：异步调用<br />
+程序执行到B时，TerminateThread不一定执行完毕，即不确定线程是否已经结束。因为TerminateThread是异步调用，它会新起一个线程去终止目标线程，而我们的代码在调用TerminateThread后会立即继续执行到B。</p>
+<blockquote>
+<p>就是一个异步操作，触发了一个并行的分支，当前分支不知道另外一个分支是否执行完毕</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//...							A</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">TerminateThread</span>(hThread,<span class="number">3</span>);		<span class="comment">//结束线程</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//...							B（不确定TreminateThread执行完毕，即线程是否被终止是不确定的）</span></span><br></pre></td></tr></table></figure>
+<p>如果B处的代码需要在线程已经关闭的前提下执行，上面的代码就会有问题。为确保线程已经终止，用WaitForSingObject函数等待线程结束，确保线程已终止。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//...									A</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">TerminateThread</span>(hThread, <span class="number">3</span>);			<span class="comment">//结束线程</span></span><br><span class="line"><span class="built_in">WaitForSingleObject</span>(hThread, INFINITE);	<span class="comment">//确保线程结束</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//...									B(此时线程已确定终止)</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="等待线程结束"><a class="markdownIt-Anchor" href="#等待线程结束"></a> 等待线程结束</h2>
+<h3 id="waitforsingleobject"><a class="markdownIt-Anchor" href="#waitforsingleobject"></a> <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(SYNCHAPI%252FWaitForSingleObject)%3Bk(WaitForSingleObject)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">WaitForSingleObject</a></h3>
+<p>等待一个内核对象执行，特定对象处于已通知状态(in the signaled state)或等的时间等够了就结束等待。</p>
+<p>Waits until the specified object is <u>in the signaled state</u> or <u>the time-out interval elapses</u>.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DWORD <span class="title function_">WaitForSingleObject</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in] HANDLE hHandle,          <span class="comment">// handle to object 句柄</span></span></span><br><span class="line"><span class="params">  [in] DWORD  dwMilliseconds    <span class="comment">// time-out interval 等待超时时间（毫秒）</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>
+<p>[in] hHandle：A handle to the object. For a list of the object types whose handles can be specified, see the following Remarks section.</p>
+<ul>
+<li>If this handle is closed while the wait is still pending, the function’s behavior is undefined.</li>
+<li>The handle must have the <strong>SYNCHRONIZE</strong> access right.</li>
+</ul>
+</li>
+<li>
+<p>[in] dwMilliseconds：The time-out interval, in milliseconds. If a nonzero value is specified, the function waits until the object is signaled or the interval elapses.</p>
+<ul>
+<li>
+<p>If <em>dwMilliseconds</em> is zero, the function does not enter a wait state if the object is not signaled; it always returns immediately.</p>
+</li>
+<li>
+<p>If <em>dwMilliseconds</em> is <strong>INFINITE</strong>, the function will return only when the object is signaled.INFINITE：无限等待</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="waitformultipleobjects"><a class="markdownIt-Anchor" href="#waitformultipleobjects"></a> <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitformultipleobjects">WaitForMultipleObjects</a></h3>
+<p>Waits until one or all of the specified objects are <u>in the signaled state</u> or the time-out interval elapses.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DWORD <span class="title function_">WaitForMultipleObjects</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in] DWORD        nCount,         <span class="comment">// number of handles in array 内核对象的数量</span></span></span><br><span class="line"><span class="params">  [in] <span class="type">const</span> HANDLE *lpHandles,     <span class="comment">// object-handle array        内核对象的句柄数组</span></span></span><br><span class="line"><span class="params">  [in] BOOL         bWaitAll,       <span class="comment">// wait option                等待模式</span></span></span><br><span class="line"><span class="params">  [in] DWORD        dwMilliseconds  <span class="comment">// time-out interval          等待超时时间（毫秒）</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>[in] nCount:The number of object handles in the array pointed to by <em>lpHandles</em>.</li>
+<li>[in] lpHandles：An array of object handles.</li>
+<li>[in] bWaitAll
+<ul>
+<li><strong>TRUE</strong>：等待所有对象的状态发生变更</li>
+<li><strong>FALSE</strong>：等待任一对象的状态发生变更</li>
+<li>In the latter case, the return value indicates the object whose state caused the function to return.</li>
+</ul>
+</li>
+<li>[in] dwMilliseconds：The time-out interval, in milliseconds.</li>
+</ul>
+<h3 id="getexitcodethread"><a class="markdownIt-Anchor" href="#getexitcodethread"></a> <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getexitcodethread?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(PROCESSTHREADSAPI%252FGetExitCodeThread)%3Bk(GetExitCodeThread)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetExitCodeThread</a></h3>
+<p>Retrieves the termination status of the specified thread.</p>
+<p>开发者可以根据业务需要，用返回值表示线程函数的执行情况。比如一个线程函数的功能是：写一个文件到磁盘上，成功返回1，失败返回0。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">DWORD WINAPI <span class="title">ThreadProc</span><span class="params">(LPVOID lpParameter)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 线程执行的代码</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">Sleep</span>(<span class="number">500</span>); </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Thread: %d \n&quot;</span>, i);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用GetExitCodeThread函数获得这个返回值</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">BOOL <span class="title function_">GetExitCodeThread</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in]  HANDLE  hThread,            <span class="comment">// handle to the thread</span></span></span><br><span class="line"><span class="params">  [out] LPDWORD lpExitCode          <span class="comment">// termination status</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><figcaption><span>例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">ThreadProc</span><span class="params">(LPVOID lpParameter)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 线程执行的代码</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">Sleep</span>(<span class="number">50</span>); </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Thread: %d \n&quot;</span>, i);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    HANDLE hThread;</span><br><span class="line">    <span class="comment">// 创建线程，不接收返回值</span></span><br><span class="line">    hThread=<span class="built_in">CreateThread</span>(</span><br><span class="line">        <span class="literal">NULL</span>,         <span class="comment">// lpThreadAttributes, 线程安全属性，NULL表示默认安全级别</span></span><br><span class="line">        <span class="number">0</span>,            <span class="comment">// dwStackSize, 线程堆栈大小，0表示默认大小</span></span><br><span class="line">        ThreadProc,   <span class="comment">// lpStartAddress, 线程函数的指针</span></span><br><span class="line">        <span class="literal">NULL</span>,         <span class="comment">// lpParameter, 传递给线程函数的参数</span></span><br><span class="line">        <span class="number">0</span>,            <span class="comment">// dwCreationFlags, 线程创建标志，0表示线程立即运行</span></span><br><span class="line">        <span class="literal">NULL</span>          <span class="comment">// lpThreadId, 返回线程ID的指针，NULL表示不需要</span></span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="built_in">WaitForSingleObject</span>(hThread, INFINITE);         <span class="comment">//在这里阻塞</span></span><br><span class="line">                                                    <span class="comment">//要不线程函数还没执行完，就GetExitCodeThread获取ExitCode，此时获取到的ExitCode是乱的</span></span><br><span class="line">    DWORD exitCode;</span><br><span class="line">    <span class="built_in">GetExitCodeThread</span>(hThread, &amp;exitCode);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Exit Code: %d \n&quot;</span>, exitCode);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 保持等待，防止控制台退出</span></span><br><span class="line">    <span class="built_in">getchar</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B/image-20240530115021501.png" alt="image-20240530115021501" /></p>
+<h2 id="设置-获取线程上下文"><a class="markdownIt-Anchor" href="#设置-获取线程上下文"></a> 设置、获取线程上下文</h2>
+<p><strong>引言</strong></p>
+<p>在Windows系统中，CPU的时间片通常为20ms。当线程A的时间片耗尽后，CPU会切换到线程B执行。线程B的时间片耗尽后，CPU再切回到线程A执行。用OD调试过程序就会知道，每行指令的执行都会用到一堆寄存器。当从线程A切换到线程B时，系统需要保存线程A的寄存器状态，并在切回到线程A时恢复这些寄存器值。<code>CONTEXT</code> 结构用于保存和恢复这些寄存器的状态，以确保线程的执行环境在上下文切换时能够正确恢复。</p>
+<h3 id="context"><a class="markdownIt-Anchor" href="#context"></a> <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-context">CONTEXT</a>结构</h3>
+<p>就是常说的线程上下文</p>
+<blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[in, out] lpContext</span><br></pre></td></tr></table></figure>
+<p>A pointer to a <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-context">CONTEXT</a> structure (such as <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-arm64_nt_context">ARM64_NT_CONTEXT</a>) that receives the appropriate context of the specified thread.The value of the <strong>ContextFlags</strong> member of this structure specifies which portions of a thread’s context are retrieved.The <strong>CONTEXT</strong> structure is highly processor specific. Refer to the WinNT.h header file for processor-specific definitions of this structures and any alignment requirements.CONTEXT字段和具体处理器高度相关，所以要在具体的编译环境中的WinNT.h头文件中去看，在头文件中CONTEXT定义的注释中可以看到ContextFlags有哪些字段供选择。</p>
+<figure class="highlight c"><figcaption><span>VC++下</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">CONTEXT</span> &#123;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// The flags values within this flag control the contents of</span></span><br><span class="line">    <span class="comment">// a CONTEXT record.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// If the context record is used as an input parameter, then</span></span><br><span class="line">    <span class="comment">// for each portion of the context record controlled by a flag</span></span><br><span class="line">    <span class="comment">// whose value is set, it is assumed that that portion of the</span></span><br><span class="line">    <span class="comment">// context record contains valid context. If the context record</span></span><br><span class="line">    <span class="comment">// is being used to modify a threads context, then only that</span></span><br><span class="line">    <span class="comment">// portion of the threads context will be modified.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// If the context record is used as an IN OUT parameter to capture</span></span><br><span class="line">    <span class="comment">// the context of a thread, then only those portions of the thread&#x27;s</span></span><br><span class="line">    <span class="comment">// context corresponding to set flags will be returned.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// The context record is never used as an OUT only parameter.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line"></span><br><span class="line">    DWORD ContextFlags;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// This section is specified/returned if CONTEXT_DEBUG_REGISTERS is</span></span><br><span class="line">    <span class="comment">// set in ContextFlags.  Note that CONTEXT_DEBUG_REGISTERS is NOT</span></span><br><span class="line">    <span class="comment">// included in CONTEXT_FULL.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line"></span><br><span class="line">    DWORD   Dr0;</span><br><span class="line">    DWORD   Dr1;</span><br><span class="line">    DWORD   Dr2;</span><br><span class="line">    DWORD   Dr3;</span><br><span class="line">    DWORD   Dr6;</span><br><span class="line">    DWORD   Dr7;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// This section is specified/returned if the</span></span><br><span class="line">    <span class="comment">// ContextFlags word contians the flag CONTEXT_FLOATING_POINT.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line"></span><br><span class="line">    FLOATING_SAVE_AREA FloatSave;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// This section is specified/returned if the</span></span><br><span class="line">    <span class="comment">// ContextFlags word contians the flag CONTEXT_SEGMENTS.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line"></span><br><span class="line">    DWORD   SegGs;</span><br><span class="line">    DWORD   SegFs;</span><br><span class="line">    DWORD   SegEs;</span><br><span class="line">    DWORD   SegDs;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// This section is specified/returned if the</span></span><br><span class="line">    <span class="comment">// ContextFlags word contians the flag CONTEXT_INTEGER.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line"></span><br><span class="line">    DWORD   Edi;</span><br><span class="line">    DWORD   Esi;</span><br><span class="line">    DWORD   Ebx;</span><br><span class="line">    DWORD   Edx;</span><br><span class="line">    DWORD   Ecx;</span><br><span class="line">    DWORD   Eax;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// This section is specified/returned if the</span></span><br><span class="line">    <span class="comment">// ContextFlags word contians the flag CONTEXT_CONTROL.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line"></span><br><span class="line">    DWORD   Ebp;</span><br><span class="line">    DWORD   Eip;</span><br><span class="line">    DWORD   SegCs;              <span class="comment">// MUST BE SANITIZED</span></span><br><span class="line">    DWORD   EFlags;             <span class="comment">// MUST BE SANITIZED</span></span><br><span class="line">    DWORD   Esp;</span><br><span class="line">    DWORD   SegSs;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// This section is specified/returned if the ContextFlags word</span></span><br><span class="line">    <span class="comment">// contains the flag CONTEXT_EXTENDED_REGISTERS.</span></span><br><span class="line">    <span class="comment">// The format and contexts are processor specific</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line"></span><br><span class="line">    BYTE    ExtendedRegisters[MAXIMUM_SUPPORTED_EXTENSION];</span><br><span class="line"></span><br><span class="line">&#125; CONTEXT;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>由于<code>CONTEXT</code>结构体成员太多了, 其成员<code>ContextFlags</code>用于指定要获取或设置哪些部分的上下文。常用的值包括：</p>
+<ul>
+<li><code>CONTEXT_DEBUG_REGISTERS</code>: 获取或设置调试寄存器。（Note that CONTEXT_DEBUG_REGISTERS is NOT included in CONTEXT_FULL.）</li>
+<li><code>CONTEXT_FLOATING_POINT</code>: 获取或设置浮点寄存器</li>
+<li><code>CONTEXT_SEGMENTS</code>: 包含数据段寄存器DS、源段寄存器SS、堆栈段寄存器SS和附加段寄存器ES、FS和GS。</li>
+<li><code>CONTEXT_INTEGER</code>: 获取或设置整数寄存器（如 EAX, EBX, ECX, EDX 在 x86 架构上）</li>
+<li><code>CONTEXT_CONTROL</code>: 只获取或设置控制寄存器（如 EIP, ESP, EBP 在 x86 架构上）。</li>
+<li><code>CONTEXT_FULL</code>: 获取或设置所有的寄存器。、</li>
+</ul>
+<p>可以用<code>|</code>进行组合，如 <code>CONTEXT_INTEGER | CONTEXT_CONTROL</code></p>
+<p>可以通过<code>GetThreadContext</code>和<code>SetThreadContext</code>函数来获取和设置线程上下文。</p>
+<p>使用GetThreadContext获取前必须先挂起进程，如果是执行中的线程，虽然可以获取成功，但这个context并不是有效的，因为这个context是执行GetThreadContext的那一瞬间得到的，获取后线程还在跑，context可能发生了变化。</p>
+<h3 id="getthreadcontext"><a class="markdownIt-Anchor" href="#getthreadcontext"></a> <a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadcontext?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(PROCESSTHREADSAPI%252FGetThreadContext)%3Bk(GetThreadContext)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetThreadContext</a></h3>
+<p>Retrieves the context of the specified thread.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">GetThreadContext</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]      HANDLE    hThread,      <span class="comment">// handle to thread</span></span></span></span><br><span class="line"><span class="params"><span class="function">  [in, out] LPCONTEXT lpContext     <span class="comment">// context structure</span></span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
+<h3 id="setthreadcontext"><a class="markdownIt-Anchor" href="#setthreadcontext"></a> <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreadcontext?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(PROCESSTHREADSAPI%252FSetThreadContext)%3Bk(SetThreadContext)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">SetThreadContext</a></h3>
+<p>Sets the context for the specified thread.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">SetThreadContext</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">  [in] HANDLE        hThread,       <span class="comment">// handle to thread</span></span></span></span><br><span class="line"><span class="params"><span class="function">  [in] <span class="type">const</span> CONTEXT *lpContext     <span class="comment">// context structure</span></span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
+<p><strong>例</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">ThreadProc</span><span class="params">(LPVOID lpParameter)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 线程执行的代码</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">Sleep</span>(<span class="number">50</span>); </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Thread: %d \n&quot;</span>, i);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    HANDLE hThread;</span><br><span class="line">    <span class="comment">// 创建线程，不接收返回值</span></span><br><span class="line">    hThread=<span class="built_in">CreateThread</span>(</span><br><span class="line">        <span class="literal">NULL</span>,         <span class="comment">// lpThreadAttributes, 线程安全属性，NULL表示默认安全级别</span></span><br><span class="line">        <span class="number">0</span>,            <span class="comment">// dwStackSize, 线程堆栈大小，0表示默认大小</span></span><br><span class="line">        ThreadProc,   <span class="comment">// lpStartAddress, 线程函数的指针</span></span><br><span class="line">        <span class="literal">NULL</span>,         <span class="comment">// lpParameter, 传递给线程函数的参数</span></span><br><span class="line">        <span class="number">0</span>,            <span class="comment">// dwCreationFlags, 线程创建标志，0表示线程立即运行</span></span><br><span class="line">        <span class="literal">NULL</span>          <span class="comment">// lpThreadId, 返回线程ID的指针，NULL表示不需要</span></span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="built_in">SuspendThread</span>(hThread);</span><br><span class="line">    </span><br><span class="line">    CONTEXT c;</span><br><span class="line">    c.ContextFlags = CONTEXT_INTEGER;		<span class="comment">//获取context中哪些部分</span></span><br><span class="line">    <span class="built_in">GetThreadContext</span>(hThread, &amp;c);          <span class="comment">//获取线程上下文</span></span><br><span class="line">    </span><br><span class="line">    CONTEXT c1;</span><br><span class="line">    c1.ContextFlags = CONTEXT_INTEGER;</span><br><span class="line">    c1.Eax = <span class="number">0x123</span>;</span><br><span class="line">    <span class="built_in">SetThreadContext</span>(hThread, &amp;c1);         <span class="comment">//设置线程上下文</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//再次GetThreadContext，然后打印输出</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Windows_API/%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B.html">创建线程</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/Windows_API/%E4%B8%B4%E7%95%8C%E5%8C%BA.html">临界区（Critical Section）</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

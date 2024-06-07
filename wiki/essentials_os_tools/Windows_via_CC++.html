@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Essentials OS & Tools：Windows via C/C++ - Misc010</title>
+
+  
+    <meta name="description" content="wait functions等待函数 WaitForSingleObject123HANDLE hThread1 &#x3D; CreateThread(NULL, NULL, ThreadProc, NULL, 0, NULL);WaitForSingleObject(hThread, INFINITE); WaitForMultipleObjects123456789101112131415&#x2F;&#x2F; 创建">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Windows via C&#x2F;C++">
+<meta property="og:url" content="https://misc0101.github.io/wiki/essentials_os_tools/Windows_via_CC++.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="wait functions等待函数 WaitForSingleObject123HANDLE hThread1 &#x3D; CreateThread(NULL, NULL, ThreadProc, NULL, 0, NULL);WaitForSingleObject(hThread, INFINITE); WaitForMultipleObjects123456789101112131415&#x2F;&#x2F; 创建">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-05-28T09:02:49.000Z">
+<meta property="article:modified_time" content="2024-05-28T09:02:49.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/essentials_os_tools/Software_Analysis.html"><div class="main" ff="title">Essentials OS & Tools</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/essentials_os_tools/" placeholder="在/wiki/essentials_os_tools/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">Software Analysis</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/essentials_os_tools/Software_Analysis.html#start"><span class="toc-text">Software Analysis</span></a></div></div><div class="widget-header cap dis-select"><span class="name">Coding</span></div><div class="widget-body fs14"><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/essentials_os_tools/Windows_via_CC++.html"><span class="toc-text">Windows via C/C++</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#wait-functions%E7%AD%89%E5%BE%85%E5%87%BD%E6%95%B0"><span class="toc-text"> wait functions等待函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E4%BA%92%E6%96%A5"><span class="toc-text"> 线程互斥</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E8%AF%9D%E6%A1%86"><span class="toc-text"> 对话框</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%90%E6%8E%A7%E4%BB%B6"><span class="toc-text"> 子控件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E7%BC%96%E8%BE%91%E6%A1%86%E4%B8%AD%E7%9A%84%E5%80%BC"><span class="toc-text"> 设置编辑框中的值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E7%BC%96%E8%BE%91%E6%A1%86%E4%B8%AD%E7%9A%84%E5%80%BC"><span class="toc-text"> 获取编辑框中的值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%BE%91%E6%A1%86"><span class="toc-text"> 编辑框</span></a></li></ol></li></ol></div></div><div class="widget-header cap dis-select"><span class="name">Tools</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/essentials_os_tools/Tools.html"><span class="toc-text">Tools</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/essentials_os_tools/PE_Tools.html"><span class="toc-text">PE Tools</span></a></div></div><div class="widget-header cap dis-select"><span class="name">Windows</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/essentials_os_tools/Windows.html"><span class="toc-text">Windows</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/essentials_os_tools/Visual_Studio.html"><span class="toc-text">Visual Studio</span></a></div></div><div class="widget-header cap dis-select"><span class="name">Linux</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/essentials_os_tools/Linux.html"><span class="toc-text">Linux</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/essentials_os_tools/Vim.html"><span class="toc-text">Vim</span></a></div></div></widget>
+
+
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/essentials_os_tools/Software_Analysis.html">Essentials OS & Tools</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-05-28T09:02:49.000Z">2024-05-28</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>Windows via C/C++</span></h1>
+<h2 id="wait-functions等待函数"><a class="markdownIt-Anchor" href="#wait-functions等待函数"></a> wait functions等待函数</h2>
+<figure class="highlight cpp"><figcaption><span>WaitForSingleObject</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HANDLE hThread1 = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="literal">NULL</span>, ThreadProc, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">WaitForSingleObject</span>(hThread, INFINITE);</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><figcaption><span>WaitForMultipleObjects</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建多个线程</span></span><br><span class="line">HANDLE threads[<span class="number">4</span>];</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++)</span><br><span class="line">&#123;</span><br><span class="line">    threads[i] = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="number">0</span>, ThreadProc, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等待所有线程结束</span></span><br><span class="line"><span class="built_in">WaitForMultipleObjects</span>(<span class="number">4</span>, threads, TRUE, INFINITE);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 关闭线程句柄</span></span><br><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">CloseHandle</span>(threads[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="线程互斥"><a class="markdownIt-Anchor" href="#线程互斥"></a> 线程互斥</h2>
+<div class="tag-plugin grid"  style="grid-template-columns: repeat(2, 1fr);"><div class="cell" style="">
+    <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">CRITICAL_SECTION g_cs;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;   <span class="comment">//初始化临界区资源</span></span><br><span class="line">    InitializeCriticalSection(&amp;g_cs);  </span><br><span class="line">    <span class="comment">//进入临界区</span></span><br><span class="line">    EnterCriticalSection(&amp;g_cs);       </span><br><span class="line"></span><br><span class="line">    <span class="comment">/***临界区***/</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">//离开临界区</span></span><br><span class="line">    LeaveCriticalSection(&amp;g_cs);       </span><br><span class="line">    <span class="comment">//删除临界区资源</span></span><br><span class="line">    DeleteCriticalSection(&amp;g_cs);      </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+    <div class="cell" style="">
+    <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建互斥体</span></span><br><span class="line">HANDLE hMutex = CreateMutex(<span class="literal">NULL</span>, FALSE, <span class="string">&quot;XYZ&quot;</span>);</span><br><span class="line"><span class="comment">// HANDLE hMutex = CreateMutex(NULL, FALSE, NULL);     //无名互斥体</span></span><br><span class="line"><span class="comment">// 获取令牌</span></span><br><span class="line">WaitForSingleObject(hMutex, INFINITE);</span><br><span class="line"></span><br><span class="line"><span class="comment">/***临界区***/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 释放令牌</span></span><br><span class="line">ReleaseMutex(hMutex);</span><br><span class="line"><span class="comment">// 关闭句柄</span></span><br><span class="line">CloseHandle(hMutex);</span><br></pre></td></tr></table></figure>
+    </div>
+    </div>
+<h2 id="对话框"><a class="markdownIt-Anchor" href="#对话框"></a> 对话框</h2>
+<figure class="highlight cpp"><figcaption><span>对话框模板</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;resource.h&quot;</span>	</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;commctrl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> comment(lib,<span class="string">&quot;comctl32.lib&quot;</span>)</span></span><br><span class="line"></span><br><span class="line"><span class="function">BOOL CALLBACK <span class="title">DialogProc</span><span class="params">(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)</span></span>;</span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">WorkerThreadProc</span><span class="params">(LPVOID lpParameter)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> APIENTRY <span class="title">WinMain</span><span class="params">(HINSTANCE hInstance,      <span class="comment">// 当前程序实例的句柄</span></span></span></span><br><span class="line"><span class="params"><span class="function">    HINSTANCE hPrevInstance,                   <span class="comment">// 前一个实例的句柄，不再使用</span></span></span></span><br><span class="line"><span class="params"><span class="function">    LPSTR lpCmdLine,                           <span class="comment">// 命令行参数</span></span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="type">int</span> nCmdShow                               <span class="comment">// 控制窗口显示方式的标志</span></span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">DialogBox</span>(hInstance,                    <span class="comment">//当前程序的实例句柄</span></span><br><span class="line">        <span class="built_in">MAKEINTRESOURCE</span>(IDD_DIALOG_MAIN),   <span class="comment">//对话框模板的名称或资源标识符</span></span><br><span class="line">        <span class="literal">NULL</span>,                               <span class="comment">//父窗口句柄，这里无，为NULL</span></span><br><span class="line">        DialogProc                          <span class="comment">//对话框消息处理函数</span></span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">BOOL CALLBACK <span class="title">DialogProc</span><span class="params">(HWND hwndDlg,  <span class="comment">// handle to dialog box			</span></span></span></span><br><span class="line"><span class="params"><span class="function">    UINT uMsg,     <span class="comment">// message			</span></span></span></span><br><span class="line"><span class="params"><span class="function">    WPARAM wParam, <span class="comment">// first message parameter			</span></span></span></span><br><span class="line"><span class="params"><span class="function">    LPARAM lParam  <span class="comment">// second message parameter			</span></span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (uMsg)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> WM_CLOSE:</span><br><span class="line">        <span class="built_in">EndDialog</span>(hwndDlg, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> TRUE;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">case</span> WM_INITDIALOG:          <span class="comment">//对话框初始化的消息</span></span><br><span class="line">        &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> TRUE;</span><br><span class="line">        &#125;</span><br><span class="line">	<span class="keyword">case</span> WM_NOTIFY:             <span class="comment">//控件消息类型</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// auto pNMHDR = (NMHDR*)lParam;</span></span><br><span class="line">		<span class="comment">// if (wParam == IDC_LIST_PROCESS &amp;&amp; pNMHDR-&gt;code == NM_CLICK)				//Process List控件   点击鼠标左键</span></span><br><span class="line">		<span class="comment">// &#123;</span></span><br><span class="line">		<span class="comment">// 	//MessageBox(0, 0, 0, 0);											//测一下</span></span><br><span class="line">		<span class="comment">// 	EnumModules(GetDlgItem(hwndDlg, IDC_LIST_PROCESS), wParam, lParam); //函数：枚举进程中模块并显示在模块列表中</span></span><br><span class="line">		<span class="comment">// &#125;</span></span><br><span class="line">		<span class="keyword">return</span> TRUE;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">case</span> WM_COMMAND:            <span class="comment">//子窗口消息</span></span><br><span class="line">        <span class="keyword">switch</span> (<span class="built_in">LOWORD</span>(wParam))</span><br><span class="line">        &#123;</span><br><span class="line">        <span class="keyword">case</span> IDC_BUTTON_EXIT:   <span class="comment">//IDC_BUTTON_EXIT按钮</span></span><br><span class="line">            <span class="built_in">EndDialog</span>(hwndDlg, <span class="number">0</span>);                                  <span class="comment">//关闭对话框</span></span><br><span class="line">            </span><br><span class="line">            <span class="keyword">return</span> TRUE;</span><br><span class="line">        <span class="keyword">case</span> IDC_BUTTON_START:  <span class="comment">//IDC_BUTTON_START按钮</span></span><br><span class="line">            HANDLE hWorkerThread = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="number">0</span>, WorkerThreadProc, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);<span class="comment">// 创建一个新线程作为工作线程，防止UI卡顿</span></span><br><span class="line">            <span class="built_in">CloseHandle</span>(hWorkerThread);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> TRUE;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//工作线程</span></span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">WorkerThreadProc</span><span class="params">(LPVOID lpParameter)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="子控件"><a class="markdownIt-Anchor" href="#子控件"></a> 子控件</h2>
+<h3 id="设置编辑框中的值"><a class="markdownIt-Anchor" href="#设置编辑框中的值"></a> 设置编辑框中的值</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">TCHAR szEditBuffer[<span class="number">0x80</span>];</span><br><span class="line"><span class="built_in">GetDlgItemText</span>(hwnd, (<span class="type">int</span>)IDC_EDIT_1, szEditBuffer, <span class="number">0x80</span>);  <span class="comment">//获取编辑框中内容</span></span><br><span class="line"><span class="built_in">SetWindowText</span>(hEdit, <span class="built_in">TEXT</span>(<span class="string">&quot;1000&quot;</span>));                         <span class="comment">//设置编辑框初始显示的值为1000</span></span><br></pre></td></tr></table></figure>
+<h3 id="获取编辑框中的值"><a class="markdownIt-Anchor" href="#获取编辑框中的值"></a> 获取编辑框中的值</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1、获取文本框句柄</span></span><br><span class="line">hEditUser = <span class="built_in">GetDlgItem</span>(hwndDlg, IDC_EDIT_USERNAME);</span><br><span class="line"><span class="comment">//2、通过句柄得到里面的内容</span></span><br><span class="line">TCHAR szUserBuff[<span class="number">0x50</span>];</span><br><span class="line"><span class="built_in">GetWindowText</span>(hEditUser, szUserBuff, <span class="number">0x50</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="编辑框"><a class="markdownIt-Anchor" href="#编辑框"></a> 编辑框</h3>
+<p>从编辑框取值再放回</p>
+<figure class="highlight cpp"><figcaption><span>方式一</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> buf[<span class="number">10</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line"><span class="type">int</span> count;</span><br><span class="line"></span><br><span class="line"><span class="built_in">GetWindowText</span>(hEdit, buf, <span class="number">10</span>); <span class="comment">// 从编辑框读值</span></span><br><span class="line">count = <span class="built_in">atoi</span>(buf);             <span class="comment">// 字符转数字</span></span><br><span class="line"><span class="comment">//...对数值count进行处理</span></span><br><span class="line"><span class="built_in">sprintf</span>(buf, <span class="string">&quot;%d&quot;</span>, --count);   <span class="comment">// 数字转字符</span></span><br><span class="line"><span class="built_in">SetWindowText</span>(hEdit, buf);     <span class="comment">// 设置编辑框的值</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><figcaption><span>方式二</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">GetDlgItem</span>(hDlg, IDC_EDIT_TIMER);	     <span class="comment">//获取子窗口句柄</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">GetWindowText</span>(句柄, 数据缓冲区, 长度);    <span class="comment">//从编辑框获取文本</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">sscanf</span>(szBuffer, <span class="string">&quot;%d&quot;</span>, &amp;dwTimer);		<span class="comment">//字符串转数字</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">sprintf</span>(数据缓冲区, <span class="string">&quot;%d&quot;</span>, 数字);	     <span class="comment">//数字转字符串</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">SetWindowText</span>(句柄, 数据缓存区);		 <span class="comment">//设置编辑框文本</span></span><br><span class="line"></span><br><span class="line">----</span><br><span class="line">例</span><br><span class="line"><span class="built_in">GetDlgItem</span>(hDlg, IDC_EDIT_TIMER);				   <span class="comment">//获取子窗口句柄</span></span><br><span class="line"></span><br><span class="line">TCHAR szBuffer[<span class="number">256</span>];  							   <span class="comment">// 假设足够大以存储编辑框内容</span></span><br><span class="line"><span class="built_in">GetWindowText</span>(hEdit, szBuffer, <span class="built_in">sizeof</span>(szBuffer));  <span class="comment">// 从编辑框获取文本</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> dwTimer;</span><br><span class="line"><span class="built_in">sscanf</span>(szBuffer, <span class="string">&quot;%d&quot;</span>, &amp;dwTimer);                  <span class="comment">// 将获取的字符串转换为整数</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">sprintf</span>(szBuffer, <span class="string">&quot;%d&quot;</span>, dwTimer);                  <span class="comment">// 将整数格式化回字符串</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">SetWindowText</span>(hEdit, szBuffer);                    <span class="comment">// 更新编辑框文本</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/essentials_os_tools/Software_Analysis.html">Software Analysis</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/essentials_os_tools/Tools.html">Tools</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

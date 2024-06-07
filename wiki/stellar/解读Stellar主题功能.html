@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Stellar：解读Stellar主题功能 - Misc010</title>
+
+  
+    <meta name="description" content="这篇文章对Stellar主题的特色功能进行解读，并指明本博客使用用途。  post，Wiki，专栏 post 大部分博客都是post，就是文章。 Wiki Stellar独创了其它Hexo主题所没有的Wiki文档系统（另一个博客主题Volantis也有wiki，同一个开发者移植的）。在wiki的项目中，可以生成一个目录树，还可以手动指定顺序、标题、分组，而非依赖文件路径、文件名来排序和显示。 老版">
+<meta property="og:type" content="website">
+<meta property="og:title" content="解读Stellar主题功能">
+<meta property="og:url" content="https://misc0101.github.io/wiki/stellar/%E8%A7%A3%E8%AF%BBStellar%E4%B8%BB%E9%A2%98%E5%8A%9F%E8%83%BD.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="这篇文章对Stellar主题的特色功能进行解读，并指明本博客使用用途。  post，Wiki，专栏 post 大部分博客都是post，就是文章。 Wiki Stellar独创了其它Hexo主题所没有的Wiki文档系统（另一个博客主题Volantis也有wiki，同一个开发者移植的）。在wiki的项目中，可以生成一个目录树，还可以手动指定顺序、标题、分组，而非依赖文件路径、文件名来排序和显示。 老版">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-02-22T03:02:12.000Z">
+<meta property="article:modified_time" content="2024-02-22T03:02:12.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/stellar/Stellar%E6%90%AD%E5%BB%BA%E5%92%8C%E9%83%A8%E7%BD%B2.html"><div class="main" ff="title">Stellar</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/stellar/" placeholder="在/wiki/stellar/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">记录</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/stellar/Stellar%E6%90%AD%E5%BB%BA%E5%92%8C%E9%83%A8%E7%BD%B2.html#start"><span class="toc-text">Stellar搭建和部署</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/stellar/%E5%A4%87%E4%BB%BD%E4%B8%8E%E5%8D%87%E7%BA%A7.html"><span class="toc-text">备份与升级</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/stellar/%E8%A7%A3%E8%AF%BBStellar%E4%B8%BB%E9%A2%98%E5%8A%9F%E8%83%BD.html"><span class="toc-text">解读Stellar主题功能</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#postwiki%E4%B8%93%E6%A0%8F"><span class="toc-text"> post，Wiki，专栏</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AA%E4%BA%BA%E4%BD%BF%E7%94%A8"><span class="toc-text"> 个人使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E7%AD%BE%E7%BB%84%E4%BB%B6%E8%AF%AD%E6%B3%95"><span class="toc-text"> 标签组件语法</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/stellar/%E9%85%8D%E7%BD%AE%E5%92%8C%E6%94%B9%E5%8A%A8%E8%AE%B0%E5%BD%95.html"><span class="toc-text">配置和改动记录</span></a></div></div><div class="widget-header cap dis-select"><span class="name">常用</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/stellar/%E6%97%A5%E5%B8%B8%E5%B7%A5%E4%BD%9C%E6%B5%81.html"><span class="toc-text">日常工作流</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/stellar/%E6%A0%87%E7%AD%BE%E7%BB%84%E4%BB%B6%E8%AF%AD%E6%B3%95.html"><span class="toc-text">标签组件语法</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：其他</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/cybersecurity_learning/%E5%89%8D%E8%A8%80_%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0%E5%BF%83%E5%BE%97.html"><span class="title">安全技术学习心得</span><span class="excerpt">安全技术学习心得，应该学什么，相关学习的资源有哪些，与君共勉。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/stellar/Stellar%E6%90%AD%E5%BB%BA%E5%92%8C%E9%83%A8%E7%BD%B2.html">Stellar</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-02-22T03:02:12.000Z">2024-02-22</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>解读Stellar主题功能</span></h1>
+<p>这篇文章对Stellar主题的特色功能进行解读，并指明本博客使用用途。</p>
+<h2 id="postwiki专栏"><a class="markdownIt-Anchor" href="#postwiki专栏"></a> post，Wiki，专栏</h2>
+<p><strong>post</strong><br />
+大部分博客都是post，就是文章。</p>
+<p><strong>Wiki</strong><br />
+Stellar独创了其它Hexo主题所没有的Wiki文档系统（另一个博客主题Volantis也有wiki，同一个开发者移植的）。在wiki的项目中，可以生成一个目录树，还可以手动指定顺序、标题、分组，而非依赖文件路径、文件名来排序和显示。</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>老版wiki和新版wiki对比</span></summary><div class="body"><p>分类</p><ul><li>老版wiki用Setions的数字作为分类区间，当wiki的一个project下文章较多时可能会出现重新对front-matter中order字段重新编号的情况</li><li>新版直接就是直接在project.yml里toc字段的-‘md文件名’，-的顺序就是文章排列顺序</li></ul><p>新版wiki需要在\source_data\wiki.yml中将项目「上架」，不上架在wiki页面就不显示（但实际上可以通过手动输URL访问到），相当于wiki多了草稿功能，不上架（wiki页面不显示），实际页面还是渲染了成html了</p><p>小结：个人觉得，1.20.0版以上的wiki会更方便些，建议使用1.20.0版以上的wiki</p></div></details></div>
+<p><strong>专栏</strong><br />
+Stellar<a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/releases/tag/1.25.0">1.25.0</a>版本后新增了专栏功能。开发者xaoxuu的建议是：<a target="_blank" rel="noopener" href="https://xaoxuu.com/blog/20240203/">「话题/专栏」作为「分类」和「标签」之外对分章检索的一个补充维度。</a></p>
+<h3 id="个人使用"><a class="markdownIt-Anchor" href="#个人使用"></a> 个人使用</h3>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>Post</th>
+<th>Wiki</th>
+<th>专栏</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>官方建议用途</td>
+<td>普通的文章</td>
+<td>wiki知识库/产品文档</td>
+<td>同一话题下的多篇文章</td>
+</tr>
+<tr>
+<td>md文章放置路径</td>
+<td>_post文件夹下</td>
+<td>wiki/project/下</td>
+<td>_post文件夹下</td>
+</tr>
+<tr>
+<td>手动排序</td>
+<td>❌，可以通过置顶顺序、发布时间来调整，但没那么方便</td>
+<td>✔️</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>toc-文章分组</td>
+<td>❌</td>
+<td>✔️</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>是否支持标签检索</td>
+<td>✔️</td>
+<td>✔️对项目的标签检索</td>
+<td>✔️</td>
+</tr>
+<tr>
+<td>本质</td>
+<td>普通的文章</td>
+<td>归属在同一project的文章</td>
+<td>也是post；对post文章检索的补充维度</td>
+</tr>
+<tr>
+<td>网页显示页面</td>
+<td>Blog页面</td>
+<td>wiki页面</td>
+<td>Blog页面的专栏tag</td>
+</tr>
+</tbody>
+</table>
+<p>根据post、wiki、专栏的特点，得出俺使用的用途</p>
+<p>post：</p>
+<ul>
+<li>零散文章</li>
+</ul>
+<p>wiki：</p>
+<ul>
+<li>知识库</li>
+<li>有先后顺序，强联系的文章集合</li>
+<li>能进行明显的分类</li>
+<li>展示价值弱的文章集合（因为专栏文章也会出现在post，如果post处高价值文章少显得整体质量差）</li>
+</ul>
+<p>专栏：</p>
+<ul>
+<li>隶属于同一话题，离散的无先后顺序的文章集合</li>
+<li>不便进行分类的文章集合</li>
+</ul>
+<blockquote>
+<p>文章结合弄成专栏还是Wiki，是综合考虑排序、展示价值、分类等因素，界面也没划得那么清晰，暂且这么分</p>
+</blockquote>
+<h2 id="标签组件语法"><a class="markdownIt-Anchor" href="#标签组件语法"></a> 标签组件语法</h2>
+<p>之前使用butterfly主题博客，迟迟没换主题的原因是标签组件语法实在太好用了，能为文章内容表达展示添色许多</p>
+<p><a target="_blank" rel="noopener" href="https://xaoxuu.com/wiki/stellar/tag-plugins/express/">表达类标签组件（19+个）</a></p>
+<p><a target="_blank" rel="noopener" href="https://xaoxuu.com/wiki/stellar/tag-plugins/container/">容器类标签组件（11个）</a></p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/stellar/%E5%A4%87%E4%BB%BD%E4%B8%8E%E5%8D%87%E7%BA%A7.html">备份与升级</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/stellar/%E9%85%8D%E7%BD%AE%E5%92%8C%E6%94%B9%E5%8A%A8%E8%AE%B0%E5%BD%95.html">配置和改动记录</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

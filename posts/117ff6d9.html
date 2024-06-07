@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>通过Native Wifi API获取Windows系统已保存的Wifi密码 - Misc010</title>
+
+  
+    <meta name="description" content="使用Native Wifi API获取Windows系统已保存的Wifi密码，C++">
+<meta property="og:type" content="article">
+<meta property="og:title" content="通过Native Wifi API获取Windows系统已保存的Wifi密码">
+<meta property="og:url" content="https://misc0101.github.io/posts/117ff6d9.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="使用Native Wifi API获取Windows系统已保存的Wifi密码，C++">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%80%9A%E8%BF%87Native_Wifi_API%E8%8E%B7%E5%8F%96Windows%E7%B3%BB%E7%BB%9F%E5%B7%B2%E4%BF%9D%E5%AD%98%E7%9A%84Wifi%E5%AF%86%E7%A0%81/6ab370c8-4d36-4147-96b8-dc44f9b3d660.jpg">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%80%9A%E8%BF%87Native_Wifi_API%E8%8E%B7%E5%8F%96Windows%E7%B3%BB%E7%BB%9F%E5%B7%B2%E4%BF%9D%E5%AD%98%E7%9A%84Wifi%E5%AF%86%E7%A0%81/d6c6c03a-bc4d-44ce-990d-caf5a43af820.jpg">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%80%9A%E8%BF%87Native_Wifi_API%E8%8E%B7%E5%8F%96Windows%E7%B3%BB%E7%BB%9F%E5%B7%B2%E4%BF%9D%E5%AD%98%E7%9A%84Wifi%E5%AF%86%E7%A0%81/9eb8a940-9fa0-4136-9e51-59390af8db13.jpg">
+<meta property="article:published_time" content="2024-04-01T13:13:07.000Z">
+<meta property="article:modified_time" content="2024-04-01T13:13:07.000Z">
+<meta property="article:author" content="Misc">
+<meta property="article:tag" content="信息收集">
+<meta property="article:tag" content="Wifi密码">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E9%80%9A%E8%BF%87Native_Wifi_API%E8%8E%B7%E5%8F%96Windows%E7%B3%BB%E7%BB%9F%E5%B7%B2%E4%BF%9D%E5%AD%98%E7%9A%84Wifi%E5%AF%86%E7%A0%81/6ab370c8-4d36-4147-96b8-dc44f9b3d660.jpg">
+  
+  
+  
+  <meta name="keywords" content="信息收集,Wifi密码">
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='post'>
+    
+
+  
+
+<header class="header"><div class="logo-wrap"><a class="title" href="/"><div class="main" ff="title">Misc010</div></a></div>
+
+<nav class="menu dis-select"><a class="nav-item active" href="/">文章</a><a class="nav-item" href="/wiki/">项目</a><a class="nav-item" href="/about/">关于</a></nav>
+</header>
+
+
+<div class="widgets">
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/blog/" placeholder="文章搜索"><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc single" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">本文目录</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text"> 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E7%BD%91%E7%BB%9C%E5%92%8Cinternet%E8%AE%BE%E7%BD%AE%E6%9F%A5%E7%9C%8B"><span class="toc-text"> 通过网络和Internet设置查看</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cmd%E6%96%B9%E5%BC%8F%E6%9F%A5%E7%9C%8B"><span class="toc-text"> cmd方式查看</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E6%94%B9%E9%80%A0"><span class="toc-text"> 工具改造</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#windows-api%E6%96%B9%E5%BC%8F"><span class="toc-text"> Windows API方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0"><span class="toc-text"> 原理概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E7%A8%8B%E5%AE%9E%E7%8E%B0"><span class="toc-text"> 编程实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-text"> 参考链接🔗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%B9%E8%BF%9B%E7%A0%94%E7%A9%B6"><span class="toc-text"> 改进&amp;研究</span></a></li></ol></div></div></widget>
+
+
+
+
+
+
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+
+      
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/">系统编程</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/Windows-API%E7%BC%96%E7%A8%8B/">Windows API编程</a></div><div id="post-meta"><span class="author">发布于</span>
+    <span class="created"><time datetime="2024-04-01T13:13:07.000Z">2024-04-01</time></span>
+    
+    <span class="updated">，更新于&nbsp;<time datetime="2024-04-01T13:13:07.000Z">2024-04-01</time></span>
+    </div></div></div>
+
+<article class='md-text content post'>
+<h1 class="article-title"><span>通过Native Wifi API获取Windows系统已保存的Wifi密码</span></h1>
+<span id="more"></span>
+<h2 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h2>
+<h2 id="通过网络和internet设置查看"><a class="markdownIt-Anchor" href="#通过网络和internet设置查看"></a> 通过网络和Internet设置查看</h2>
+<blockquote>
+<p>参考🔗：[<a target="_blank" rel="noopener" href="https://www.asus.com.cn/support/faq/1046400/">Windows 11/10] 如何查看电脑里的Wi-Fi密码 | 官方支持 | ASUS 中国</a></p>
+</blockquote>
+<ol>
+<li>打开网络适配器界面，选择网卡，点选**[查看此连接的状态]**<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%80%9A%E8%BF%87Native_Wifi_API%E8%8E%B7%E5%8F%96Windows%E7%B3%BB%E7%BB%9F%E5%B7%B2%E4%BF%9D%E5%AD%98%E7%9A%84Wifi%E5%AF%86%E7%A0%81/6ab370c8-4d36-4147-96b8-dc44f9b3d660.jpg" alt="img" /></li>
+<li>点击**[无线属性]**<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%80%9A%E8%BF%87Native_Wifi_API%E8%8E%B7%E5%8F%96Windows%E7%B3%BB%E7%BB%9F%E5%B7%B2%E4%BF%9D%E5%AD%98%E7%9A%84Wifi%E5%AF%86%E7%A0%81/d6c6c03a-bc4d-44ce-990d-caf5a43af820.jpg" alt="img" /></li>
+<li>在**[安全]<strong>选项卡下⑧，勾选</strong>[显示字符]<strong>⑨，即可在</strong>网络安全密钥**字段查看此Wi-Fi的密码<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%80%9A%E8%BF%87Native_Wifi_API%E8%8E%B7%E5%8F%96Windows%E7%B3%BB%E7%BB%9F%E5%B7%B2%E4%BF%9D%E5%AD%98%E7%9A%84Wifi%E5%AF%86%E7%A0%81/9eb8a940-9fa0-4136-9e51-59390af8db13.jpg" alt="img" /></li>
+</ol>
+<h2 id="cmd方式查看"><a class="markdownIt-Anchor" href="#cmd方式查看"></a> cmd方式查看</h2>
+<p>普通权限cmd</p>
+<p>列出了电脑连接过的所有Wi-Fi网络的配置文件。每个Wi-Fi网络都有一个配置文件，其中包含了网络的名称、安全设置等信息。</p>
+<figure class="highlight shell"><figcaption><span>显示此电脑连接过的所有WIFI记录配置信息</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh wlan show profile</span><br></pre></td></tr></table></figure>
+<p>将 <code>&quot;WiFi名称&quot;</code> 替换为实际的 Wi-Fi 网络名。<code>key=clear</code> 参数的作用是以明文形式显示网络安全密钥（即 Wi-Fi 密码）</p>
+<figure class="highlight shell"><figcaption><span>显示特定 Wi-Fi 网络的配置详情，包括该网络的密码</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh wlan show profiles name=&quot;WiFi名称&quot; key=clear</span><br></pre></td></tr></table></figure>
+<p>遍历并显示所有曾经连接过的 Wi-Fi 网络的密码</p>
+<figure class="highlight shell"><figcaption><span>显示电脑所有曾经连接过的Wi-Fi密码</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for /f &quot;skip=9 tokens=1,2 delims=:&quot; %i in (&#x27;netsh wlan show profiles&#x27;) do @echo %j | findstr -i -v echo | netsh wlan show profiles %j key=clear</span><br></pre></td></tr></table></figure>
+<p>先<code>netsh wlan show profiles</code>获取所有Wi-Fi网络配置文件，然后对每个网络配置文件执行<code>netsh wlan show profiles name=&quot;WiFi名称&quot; key=clear</code></p>
+<p>脚本拆解如下：</p>
+<ol>
+<li><code>for /f &quot;skip=9 tokens=1,2 delims=:&quot; %i in ('netsh wlan show profiles') do ...</code>：
+<ul>
+<li><code>for /f</code>：对文件或命令输出进行循环处理。</li>
+<li><code>&quot;skip=9&quot;</code>：跳过输出的前9行（这通常是命令输出的标题和一些无关信息）。</li>
+<li><code>tokens=1,2 delims=:&quot;</code>：指定分隔符为冒号，并获取每行的前两个元素（%i 和 %j）。</li>
+<li><code>'netsh wlan show profiles'</code>：此处运行第一个命令，即获取所有 Wi-Fi 配置文件。</li>
+</ul>
+</li>
+<li><code>@echo %j | findstr -i -v echo | ...</code>：
+<ul>
+<li><code>@echo %j</code>：显示每个 Wi-Fi 名称。</li>
+<li><code>| findstr -i -v echo</code>：使用 <code>findstr</code> 过滤输出，排除包含 “echo” 的行（即非 Wi-Fi 名称的行）。</li>
+</ul>
+</li>
+<li><code>netsh wlan show profiles %j key=clear</code>：
+<ul>
+<li>对于每个 Wi-Fi 名称（%j），运行第二个命令，显示其配置文件详情，包括明文密码。</li>
+</ul>
+</li>
+</ol>
+<h3 id="工具改造"><a class="markdownIt-Anchor" href="#工具改造"></a> 工具改造</h3>
+<p>代码中可以用<code>system(&quot;&quot;)</code>执行cmd命令，于是可以接收用户输入的wifi名称，然后用netsh命令来获取这个wifi的明文密码。做的就是一些字符串的事，这里不展开，可参考github上这个工具<a target="_blank" rel="noopener" href="https://github.com/FrozenAsh1337/WifiPasswords">WifiPasswords</a></p>
+<h2 id="windows-api方式"><a class="markdownIt-Anchor" href="#windows-api方式"></a> Windows API方式</h2>
+<p>上面讲了GUI界面方式，CLI方式（cmd方式），本质肯定都是调API。这一小节就用API来实现。</p>
+<h3 id="原理概述"><a class="markdownIt-Anchor" href="#原理概述"></a> 原理概述</h3>
+<p>Wi-Fi网络的配置文件以xml格式存储，路径在<code>C:\ProgramData\Microsoft\Wlansvc\Profiles\&#123;GUID&#125;\&#123;SSID&#125;.xml</code></p>
+<blockquote>
+<p>这个存储位置好像没法改？在系统上没找到修改的地方，也没看到过相关的资料，话说一般情况下也不会去改吧…</p>
+</blockquote>
+<p><strong>例</strong><br />
+<code>&lt;keyMaterial&gt;</code>之间的是wifi密码，直接打开xml文件查看它是加密形式。</p>
+<p>通过API方式也能得到这个xml文件内容，而且调用<code>WlanGetProfile</code>时传的参数是<code>WLAN_PROFILE_GET_PLAINTEXT_KEY</code>，<code>&lt;keyMaterial&gt;</code>之间就以明文方式显示。</p>
+<figure class="highlight xml"><figcaption><span>&#123;D6CAFE19-0195-4D3C-8D89-0ECFC6B92AE6&#125;.xml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">WLANProfile</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.microsoft.com/networking/WLAN/profile/v1&quot;</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>iPhone 20<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">SSIDConfig</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">SSID</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">hex</span>&gt;</span>6950686F6E65203230<span class="tag">&lt;/<span class="name">hex</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">name</span>&gt;</span>iPhone 20<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">SSID</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">SSIDConfig</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">connectionType</span>&gt;</span>ESS<span class="tag">&lt;/<span class="name">connectionType</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">connectionMode</span>&gt;</span>manual<span class="tag">&lt;/<span class="name">connectionMode</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">MSM</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">security</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">authEncryption</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">authentication</span>&gt;</span>WPA2PSK<span class="tag">&lt;/<span class="name">authentication</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">encryption</span>&gt;</span>AES<span class="tag">&lt;/<span class="name">encryption</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">useOneX</span>&gt;</span>false<span class="tag">&lt;/<span class="name">useOneX</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">authEncryption</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">sharedKey</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">keyType</span>&gt;</span>passPhrase<span class="tag">&lt;/<span class="name">keyType</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">protected</span>&gt;</span>true<span class="tag">&lt;/<span class="name">protected</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">keyMaterial</span>&gt;</span>01000000D08C9DDF0115D1118C7A00C04FC297EB010000001986A58E28FE8C4DA58449BC9AC4C94D0000000002000000000010660000000100002000000018EA764E465AF977F5A4DEA8AFFCB24CFCA571CC3696640AD352EEBE7982E131000000000E80000000020000200000005FE5EC3CEE7EFDC5A8A87315CDF65DDBD0031F9BFE65814277F2DDD5B1F73DF410000000415A19AA76634330361519F6B701C4CE400000003C0B4D75EF279F91750B61AF9212E9A7938D6785B8D7BE93990D4668217008D963041AE9B948B4BCB6534B1A16CE58972699D04D62253A987C6C46584023AC0F<span class="tag">&lt;/<span class="name">keyMaterial</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">sharedKey</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">security</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">MSM</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">MacRandomization</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.microsoft.com/networking/WLAN/profile/v3&quot;</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">enableRandomization</span>&gt;</span>true<span class="tag">&lt;/<span class="name">enableRandomization</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">randomizationSeed</span>&gt;</span>409283009<span class="tag">&lt;/<span class="name">randomizationSeed</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">MacRandomization</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">WLANProfile</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>也就是说，执行一系列相关API，以明文方式查看XML文件，就能得到wifi密码了</p>
+<ol>
+<li>
+<p>WlanOpenHandle打开WLAN客户端句柄</p>
+</li>
+<li>
+<p>WlanEnumInterfaces枚举系统中的所有WLAN接口，返回结果在WLAN_INTERFACE_INFO_LIST结构体中</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_WLAN_INTERFACE_INFO_LIST</span> &#123;</span><br><span class="line">  DWORD               dwNumberOfItems;                  <span class="comment">//the number of items in the InterfaceInfo member</span></span><br><span class="line">  DWORD               dwIndex;                          <span class="comment">//The index of the current item</span></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> ...</span></span><br><span class="line">  WLAN_INTERFACE_INFO *InterfaceInfo[];                 <span class="comment">//An array of WLAN_INTERFACE_INFO structures containing interface information</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">  WLAN_INTERFACE_INFO InterfaceInfo[<span class="number">1</span>];</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">&#125; WLAN_INTERFACE_INFO_LIST, *PWLAN_INTERFACE_INFO_LIST;</span><br></pre></td></tr></table></figure>
+<p>WLAN_INTERFACE_INFO_LIST结构中有每个网卡的WLAN_INTERFACE_INFO信息</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_WLAN_INTERFACE_INFO</span> &#123;</span><br><span class="line">  GUID                 InterfaceGuid;                                   <span class="comment">//GUID of the interface</span></span><br><span class="line">  WCHAR                strInterfaceDescription[WLAN_MAX_NAME_LENGTH];   <span class="comment">//description of the interface</span></span><br><span class="line">  WLAN_INTERFACE_STATE isState;                                         <span class="comment">//indicates the current state of the interface</span></span><br><span class="line">&#125; WLAN_INTERFACE_INFO, *PWLAN_INTERFACE_INFO;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>WlanGetProfileList根据网卡的GUID号获取<code>PROFILE_INFO_LIST</code>（out参数），</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_WLAN_PROFILE_INFO_LIST</span> &#123;</span><br><span class="line">  DWORD             dwNumberOfItems;                <span class="comment">//The number of wireless profile entries in the ProfileInfo member</span></span><br><span class="line">  DWORD             dwIndex;                        <span class="comment">//The index of the current item.</span></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> ...</span></span><br><span class="line">  WLAN_PROFILE_INFO *ProfileInfo[];                 <span class="comment">//An array of WLAN_PROFILE_INFO structures containing interface information.</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">  WLAN_PROFILE_INFO ProfileInfo[<span class="number">1</span>];</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">&#125; WLAN_PROFILE_INFO_LIST, *PWLAN_PROFILE_INFO_LIST;</span><br></pre></td></tr></table></figure>
+<p>PROFILE_INFO_LIST中有每个InterfaceGuid的WLAN_PROFILE_INFO信息</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_WLAN_PROFILE_INFO</span> &#123;</span><br><span class="line">  WCHAR strProfileName[WLAN_MAX_NAME_LENGTH];   <span class="comment">//The name of the profile</span></span><br><span class="line">  DWORD dwFlags;                                <span class="comment">//A set of flags specifying settings for wireless profile</span></span><br><span class="line">&#125; WLAN_PROFILE_INFO, *PWLAN_PROFILE_INFO;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>WlanGetProfile根据profile的名字（strProfileName）获取具体profile的XML文件内容pstrProfileXml（out参数）</p>
+</li>
+</ol>
+<p>相关的API：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">WlanOpenHandle		<span class="comment">//尝试打开WLAN客户端句柄</span></span><br><span class="line"></span><br><span class="line">WlanEnumInterfaces	<span class="comment">//枚举系统中的所有WLAN接口</span></span><br><span class="line"></span><br><span class="line">WlanGetProfileList	<span class="comment">// 为当前接口获取配置文件列表</span></span><br><span class="line">WlanGetProfile		<span class="comment">//获取配置文件详细信息，包括密码</span></span><br><span class="line"></span><br><span class="line">WlanFreeMemory		<span class="comment">//清理每个接口的配置文件列表</span></span><br><span class="line">WlanCloseHandle     <span class="comment">//关闭句柄</span></span><br></pre></td></tr></table></figure>
+<p>执行WlanEnumInterfaces后得到的WLAN_INTERFACE_INFO_LIST结构体里有什么：</p>
+<figure class="highlight cpp"><figcaption><span>WLAN_INTERFACE_INFO_LIST结构体定义</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_WLAN_INTERFACE_INFO_LIST</span> &#123;</span><br><span class="line">  DWORD               dwNumberOfItems;</span><br><span class="line">  DWORD               dwIndex;</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> ...</span></span><br><span class="line">  WLAN_INTERFACE_INFO *InterfaceInfo[];</span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">  WLAN_INTERFACE_INFO InterfaceInfo[<span class="number">1</span>];</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">&#125; WLAN_INTERFACE_INFO_LIST, *PWLAN_INTERFACE_INFO_LIST;</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><figcaption><span>输出显示</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Num Entries: 1</span><br><span class="line">Current Index: 0</span><br><span class="line">  Interface Index[0]:    0</span><br><span class="line">  InterfaceGUID[0]: &#123;234971FE-8E93-4CA8-969F-EB412061852D&#125;</span><br><span class="line">  Interface Description[0]: Intel(R) Wi-Fi 6 AX201 160MHz</span><br><span class="line">  Interface State[0]:    Connected</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>MSDN示例代码</span></summary><div class="body"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure></div></details></div>
+<p>执行WlanGetProfileList后，得到的WLAN_PROFILE_INFO_LIST结构体里有什么</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>MSDN示例代码</span></summary><div class="body"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure></div></details></div>
+<p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/nf-wlanapi-wlanopenhandle?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(MAIN%252FWlanOpenHandle)%3Bk(WlanOpenHandle)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">WlanOpenHandle function (wlanapi.h)</a></p>
+<p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/nf-wlanapi-wlanenuminterfaces?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(WLANAPI%252FWlanEnumInterfaces)%3Bk(WlanEnumInterfaces)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">WlanEnumInterfaces function (wlanapi.h)</a></p>
+<p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/nf-wlanapi-wlanclosehandle?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(WLANAPI%252FWlanCloseHandle)%3Bk(WlanCloseHandle)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">WlanCloseHandle function (wlanapi.h)</a><br />
+<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/nf-wlanapi-wlanfreememory?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(WLANAPI%252FWlanFreeMemory)%3Bk(WlanFreeMemory)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">WlanFreeMemory function (wlanapi.h)</a></p>
+<p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/ns-wlanapi-wlan_interface_info_list">WLAN_INTERFACE_INFO_LIST structure (wlanapi.h)</a><br />
+<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/ns-wlanapi-wlan_profile_info_list">WLAN_PROFILE_INFO_LIST structure (wlanapi.h)</a></p>
+<p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/nf-wlanapi-wlangetprofilelist?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(WLANAPI%252FWlanGetProfileList)%3Bk(WlanGetProfileList)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">WlanGetProfileList function (wlanapi.h)</a><br />
+<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/nf-wlanapi-wlangetprofile">WlanGetProfile function (wlanapi.h)</a></p>
+<p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/wlanapi/ns-wlanapi-wlan_interface_info?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(WLANAPI%252FPWLAN_INTERFACE_INFO)%3Bk(PWLAN_INTERFACE_INFO)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">WLAN_INTERFACE_INFO structure (wlanapi.h)</a></p>
+<p>WlanOpenHandle、WlanEnumInterfaces、WlanGetProfileList、WlanGetProfile函数执行成功，返回值是<code>ERROR_SUCCESS</code></p>
+<p>The <strong>WlanEnumInterfaces</strong> function allocates memory for the list of returned interfaces that is returned in the buffer pointed to by the <em>ppInterfaceList</em> parameter when the function succeeds. The memory used for the buffer pointed to by <em>ppInterfaceList</em> parameter should be released by calling the <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/desktop/api/wlanapi/nf-wlanapi-wlanfreememory">WlanFreeMemory</a> function after the buffer is no longer needed.</p>
+<p>The <strong>WlanGetProfileList</strong> function allocates memory for the list of profiles returned in the buffer pointed to by the <em>ppProfileList</em> parameter. The caller is responsible for freeing this memory using the <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/desktop/api/wlanapi/nf-wlanapi-wlanfreememory">WlanFreeMemory</a> function when this buffer is no longer needed.</p>
+<p>The caller is responsible for calling the <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/desktop/api/wlanapi/nf-wlanapi-wlanfreememory">WlanFreeMemory</a> function to free the memory allocated for the buffer pointer to by the <em>pstrProfileXml</em> parameter when the buffer is no longer needed.</p>
+<h3 id="编程实现"><a class="markdownIt-Anchor" href="#编程实现"></a> 编程实现</h3>
+<p><strong>一些注意的点</strong></p>
+<ol>
+<li>程序为了适应ANSI和Unicode环境，用了些自适应宏，<code>_tmain</code>，<code>_tprintf</code>，<code>_T</code></li>
+<li>使用RAII类智能指针+自定义删除器来负责资源的自动释放</li>
+</ol>
+<hr />
+<p><strong>编码实现</strong></p>
+<h2 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接🔗</h2>
+<h2 id="改进研究"><a class="markdownIt-Anchor" href="#改进研究"></a> 改进&amp;研究</h2>
+<ol>
+<li>研究这样还原Wifi密码的方式：导出WiFi profile文件，再通过Masterkey还原明文密码<br />
+参考链接🔗：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e7ad8540efe2">使用mimikatz本地还原WiFi密码明文</a></li>
+<li>123</li>
+</ol>
+
+
+
+<div class="article-footer reveal fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/posts/1897be85.html">C++ ScopeGuard</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/posts/177574ba.html">i++和++i执行效率分析</a></div></section></div>
+
+
+
+
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

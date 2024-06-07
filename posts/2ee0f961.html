@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>GMT UTC 时区 CST ISO 夏令时 时间戳 NTP - Misc010</title>
+
+  
+    <meta name="description" content="学习时遇到与时间相关的词。本篇文章就将这些词一并理清：GMT，UTC，时区，CST，ISO，夏令时，时间戳，NTP。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GMT UTC 时区 CST ISO 夏令时 时间戳 NTP">
+<meta property="og:url" content="https://misc0101.github.io/posts/2ee0f961.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="学习时遇到与时间相关的词。本篇文章就将这些词一并理清：GMT，UTC，时区，CST，ISO，夏令时，时间戳，NTP。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/GMT_UTC_%E6%97%B6%E5%8C%BA_CST_ISO_%E5%A4%8F%E4%BB%A4%E6%97%B6_%E6%97%B6%E9%97%B4%E6%88%B3_NTP/1460000039017622.gif">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/GMT_UTC_%E6%97%B6%E5%8C%BA_CST_ISO_%E5%A4%8F%E4%BB%A4%E6%97%B6_%E6%97%B6%E9%97%B4%E6%88%B3_NTP/1460000039017610.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/GMT_UTC_%E6%97%B6%E5%8C%BA_CST_ISO_%E5%A4%8F%E4%BB%A4%E6%97%B6_%E6%97%B6%E9%97%B4%E6%88%B3_NTP/1460000039017613.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/GMT_UTC_%E6%97%B6%E5%8C%BA_CST_ISO_%E5%A4%8F%E4%BB%A4%E6%97%B6_%E6%97%B6%E9%97%B4%E6%88%B3_NTP/1460000039017621.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/GMT_UTC_%E6%97%B6%E5%8C%BA_CST_ISO_%E5%A4%8F%E4%BB%A4%E6%97%B6_%E6%97%B6%E9%97%B4%E6%88%B3_NTP/1460000039017623.png">
+<meta property="article:published_time" content="2024-01-24T11:42:17.000Z">
+<meta property="article:modified_time" content="2024-01-24T11:42:17.000Z">
+<meta property="article:author" content="Misc">
+<meta property="article:tag" content="GMT">
+<meta property="article:tag" content="UTC">
+<meta property="article:tag" content="时区">
+<meta property="article:tag" content="ISO">
+<meta property="article:tag" content="夏令时">
+<meta property="article:tag" content="时间戳">
+<meta property="article:tag" content="NTP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/GMT_UTC_%E6%97%B6%E5%8C%BA_CST_ISO_%E5%A4%8F%E4%BB%A4%E6%97%B6_%E6%97%B6%E9%97%B4%E6%88%B3_NTP/1460000039017622.gif">
+  
+  
+  
+  <meta name="keywords" content="GMT,UTC,时区,ISO,夏令时,时间戳,NTP">
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='post'>
+    
+
+  
+
+<header class="header"><div class="logo-wrap"><a class="title" href="/"><div class="main" ff="title">Misc010</div></a></div>
+
+<nav class="menu dis-select"><a class="nav-item active" href="/">文章</a><a class="nav-item" href="/wiki/">项目</a><a class="nav-item" href="/about/">关于</a></nav>
+</header>
+
+
+<div class="widgets">
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/blog/" placeholder="文章搜索"><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc single" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">本文目录</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%B6%E5%8C%BA"><span class="toc-text"> 时区</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E5%9B%BD%E7%9A%84%E6%97%B6%E5%8C%BA"><span class="toc-text"> 中国的时区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BE%8E%E5%9B%BD%E7%9A%84%E6%97%B6%E5%8C%BA"><span class="toc-text"> 美国的时区</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gmt"><span class="toc-text"> GMT</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8E%E6%97%B6%E5%8C%BA%E7%9A%84%E6%8D%A2%E7%AE%97"><span class="toc-text"> 与时区的换算</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#utc"><span class="toc-text"> UTC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8E%E5%81%8F%E7%A7%BB%E9%87%8F"><span class="toc-text"> 与偏移量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gmt%E4%B8%8Eutc%E7%9A%84%E8%81%94%E7%B3%BB"><span class="toc-text"> GMT与UTC的联系</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A7%E6%A0%87%E5%87%86%E5%92%8C%E6%96%B0%E6%A0%87%E5%87%86"><span class="toc-text"> 旧标准和新标准</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E6%96%B9%E9%9D%A2"><span class="toc-text"> 其他方面</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E6%A6%82%E5%BF%B5"><span class="toc-text"> 其他概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cst"><span class="toc-text"> CST</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#iso"><span class="toc-text"> ISO</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%8F%E4%BB%A4%E6%97%B6"><span class="toc-text"> 夏令时</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E6%88%B3"><span class="toc-text"> 时间戳</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E6%97%B6%E9%97%B4%E5%8D%8F%E8%AE%AE"><span class="toc-text"> 网络时间协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-text"> 参考链接</span></a></li></ol></div></div></widget>
+
+
+
+
+
+
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+
+      
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9F%A5%E8%AF%86/">计算机知识</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9F%A5%E8%AF%86/%E5%B8%B8%E8%AF%86/">常识</a></div><div id="post-meta"><span class="author">发布于</span>
+    <span class="created"><time datetime="2024-01-24T11:42:17.000Z">2024-01-24</time></span>
+    
+    <span class="updated">，更新于&nbsp;<time datetime="2024-01-24T11:42:17.000Z">2024-01-24</time></span>
+    </div></div></div>
+
+<article class='md-text content post'>
+<h1 class="article-title"><span>GMT UTC 时区 CST ISO 夏令时 时间戳 NTP</span></h1>
+<p>学习时遇到与时间相关的词。本篇文章就将这些词一并理清：GMT，UTC，时区，CST，ISO，夏令时，时间戳，NTP。</p>
+<span id="more"></span>
+<h2 id="时区"><a class="markdownIt-Anchor" href="#时区"></a> 时区</h2>
+<p>因为地球🌏绕自转轴<strong>自西向东</strong>转动（太阳东起西落），所以东时区的人会比西时区的人<strong>早</strong>一些看到太阳，从而时间上会早一点。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/GMT_UTC_%E6%97%B6%E5%8C%BA_CST_ISO_%E5%A4%8F%E4%BB%A4%E6%97%B6_%E6%97%B6%E9%97%B4%E6%88%B3_NTP/1460000039017622.gif" alt="img" /></p>
+<p>以本初子午线为中心，按照地球自转方向，每隔经度15°划分一个时区，那么全球共分为24个时区（360°÷15°=24个）：东1区至东12区，西1区至西12区。东12区和西12区跨度都是7.5°，共同构成东西12区，也叫半时区。</p>
+<h3 id="中国的时区"><a class="markdownIt-Anchor" href="#中国的时区"></a> 中国的时区</h3>
+<p>中国东西横跨5个时区。但全国都统一使用东八区的北京时间，所以会出现现在是19点（北京时间），而新疆的朋友（位于东5/6区实际比东8区晚2-3个小时）还太阳当空照的情况。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/GMT_UTC_%E6%97%B6%E5%8C%BA_CST_ISO_%E5%A4%8F%E4%BB%A4%E6%97%B6_%E6%97%B6%E9%97%B4%E6%88%B3_NTP/1460000039017610.png" alt="img" /></p>
+<h3 id="美国的时区"><a class="markdownIt-Anchor" href="#美国的时区"></a> 美国的时区</h3>
+<p>共有四个时区，按照图中颜色划分开（并非严格划分，不然出现同一小区隔壁时间比你晚1小时就尴尬了），从右到左依次为：</p>
+<ol>
+<li><strong>东部时区（ET）</strong>：西5区，代表城市：华盛顿特区、纽约、迈阿密等，也称纽约时间。
+<ul>
+<li>北京时间 = ET + 13h</li>
+</ul>
+</li>
+<li><strong>中部时区（CT）</strong>：西6区，代表城市：芝加哥、休斯顿等。
+<ul>
+<li>北京时间 = CT + 14h</li>
+</ul>
+</li>
+<li><strong>山地时区（MT）</strong>：西7区，代表城市：丹佛、凤凰城等。
+<ul>
+<li>北京时间 = MT + 15h</li>
+</ul>
+</li>
+<li><strong>太平洋时区（PST）</strong>：西8区，代表城市：洛杉矶、拉斯维加斯、西雅图等。
+<ul>
+<li>北京时间 = PST + 16h</li>
+</ul>
+</li>
+</ol>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/GMT_UTC_%E6%97%B6%E5%8C%BA_CST_ISO_%E5%A4%8F%E4%BB%A4%E6%97%B6_%E6%97%B6%E9%97%B4%E6%88%B3_NTP/1460000039017613.png" alt="img" /></p>
+<h2 id="gmt"><a class="markdownIt-Anchor" href="#gmt"></a> GMT</h2>
+<p>格林威治（又称：格林尼治）时间，是指位于本初子午线上的地方时，是<strong>0时区</strong>的区时。它规定太阳每天经过位于英国伦敦郊区的皇家格林威治天文台的时间为中午12点。</p>
+<blockquote>
+<p>19世纪那个大航海时代，英国是日不落帝国，本初子午线定在了英国格林尼治天文台。</p>
+<p>纬度。0°纬度，又称本初子午线，经过英国伦敦格林威治天文台。</p>
+</blockquote>
+<h3 id="与时区的换算"><a class="markdownIt-Anchor" href="#与时区的换算"></a> 与时区的换算</h3>
+<p><u>本地时间=GMT时间+时区差N</u></p>
+<ul>
+<li>东x区  N为正数</li>
+<li>西x区  N为负数</li>
+</ul>
+<p>例：假设GMT（英国伦敦的格林威治）现在是上午11点</p>
+<ul>
+<li>北京时间是东8区时间，与<strong>0时区</strong>标准时间相差8小时。那中国北京时间现在就是 11 + 8 = 19点（下午7点）。</li>
+<li>美国纽约位于西五区，则时区差N=-5。那美国纽约时间现在就是 11 - 5 = 6点。</li>
+</ul>
+<h2 id="utc"><a class="markdownIt-Anchor" href="#utc"></a> UTC</h2>
+<p>世界协调时间（Coordinated Universal Time）。以<strong>原子时</strong>作为计量单位的时间，计算结果极其严谨和精密。它比GMT时间更来得精准，误差值必须保持在0.9秒以内，倘若大于0.9秒就会通过<strong>闰秒</strong>来“解决”。</p>
+<p>原子时：物质的原子内部发射的电磁振荡频率为基准的时间计量系统。美国的物理实验市在2014年造出了人类历史上最精确的原子钟，<strong>50亿年误差1s</strong>，可谓相当靠谱了。中国的铯原子钟也能确保2000万年误差不超过1s。</p>
+<h3 id="与偏移量"><a class="markdownIt-Anchor" href="#与偏移量"></a> 与偏移量</h3>
+<blockquote>
+<p>本地时间：在日常生活中所使用的时间我们通常称之为本地时间。这个时间等于我们所在（或者所使用）时区内的当地时间。</p>
+</blockquote>
+<p>在用GMT时，<strong>本地时间</strong>通过GMT和时区的关系计算。</p>
+<p>而使用UTC时，<strong>本地时间</strong>通过UTC和偏移量（Offset）来计算。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/GMT_UTC_%E6%97%B6%E5%8C%BA_CST_ISO_%E5%A4%8F%E4%BB%A4%E6%97%B6_%E6%97%B6%E9%97%B4%E6%88%B3_NTP/1460000039017621.png" alt="img" /></p>
+<p>这个偏移量可表示为：<code>UTC -</code>或<code>UTC +</code>，后面接<code>小时数,分钟数</code>。如：</p>
+<ul>
+<li>UTC +9:30表示澳大利亚中央标准时间</li>
+<li>UTC +8表示中国标准时间</li>
+</ul>
+<p>偏移量常见的表示形式有：<code>±[hh]:[mm]</code>、<code>±[hh][mm]</code>、<code>±[hh]</code>这三种方式</p>
+<blockquote>
+<p>在UTC的世界里并无时区的概念，而是偏移量（时间点跟上偏移量才是一个正规的UTC时间），它和时区并无直接关系</p>
+</blockquote>
+<p>可以看到偏移量可以精确到分钟级别控制，非常精细化。全球只有24个时区（只能精确到小时），但偏移量有“无数个”。当然喽为了方便沟通，时间日期联盟组织把世界主要国家/城市的偏移量汇总起来且都给取了个<code>Time zone name</code>名称用于沟通，共好几百个，部分截图如下：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/GMT_UTC_%E6%97%B6%E5%8C%BA_CST_ISO_%E5%A4%8F%E4%BB%A4%E6%97%B6_%E6%97%B6%E9%97%B4%E6%88%B3_NTP/1460000039017623.png" alt="img" /></p>
+<p><a target="_blank" rel="noopener" href="https://www.timeanddate.com/time/zones/">https://www.timeanddate.com/time/zones/</a></p>
+<h2 id="gmt与utc的联系"><a class="markdownIt-Anchor" href="#gmt与utc的联系"></a> GMT与UTC的联系</h2>
+<h3 id="旧标准和新标准"><a class="markdownIt-Anchor" href="#旧标准和新标准"></a> 旧标准和新标准</h3>
+<p>GMT曾被用作国际标准时间，现在UTC取代了GMT成为新的世界时间标准。</p>
+<p>GMT是根据地球的自转和公转来计算时间的，自转一圈是一天，公转一圈是一年。但是呢，地球公转的轨道是椭圆形的，而且后来人们发现地球自转时间也不是恒定的。这样会造成一天时间长一天时间短的情况。</p>
+<p>UTC以原子钟所定义的秒长为基础，UTC时间认为一个太阳日（一天）总是恒定的86400秒（24小时）。</p>
+<h3 id="其他方面"><a class="markdownIt-Anchor" href="#其他方面"></a> 其他方面</h3>
+<p>UTC是标准时间参照，像GMT（格林威治时间）、ET（美国东部时间）、PST（太平洋时间）、CST（北京时间）等等都是<strong>具体</strong>的时区时间。</p>
+<p>GMT能和UTC直接转换，仅仅是因为碰巧GMT是0时区时间，数值上刚好和UTC是相等的（不需要精确到秒的情况下，二者可以视为相等），看起来一样，但是概念含义上请务必区分开。如果需要精确到秒级甚至以下单位需要使用 <code>UTC</code></p>
+<h2 id="其他概念"><a class="markdownIt-Anchor" href="#其他概念"></a> 其他概念</h2>
+<h3 id="cst"><a class="markdownIt-Anchor" href="#cst"></a> CST</h3>
+<p>根据上下文语境推断：</p>
+<ul>
+<li>CST (China Standard Time) ：中国标准时间 UTC+8:00</li>
+<li>Central Standard Time (USA) UTC-6:00</li>
+<li>Central Standard Time (Australia) UTC+9:30</li>
+<li>Cuba Standard Time UTC-4:00</li>
+</ul>
+<h3 id="iso"><a class="markdownIt-Anchor" href="#iso"></a> ISO</h3>
+<p>一个指定和发布国际标准的组织。ISO发布了与时间相关的标准，例如ISO 8601，一种明确的、国际上都能理解的日历和时钟格式<code>YYYY-MM-DD</code>。在时间日期的有关文章中出现的ISO其实是ISO 8601标准的简写。</p>
+<h3 id="夏令时"><a class="markdownIt-Anchor" href="#夏令时"></a> 夏令时</h3>
+<p>DST（Daylight Saving Time），夏令时又称夏季时间（没有冬令时）。这是地方政府为了鼓励人们早睡早起，不要浪费电，尽量多用自然资源（因为夏天日照时间长）而<strong>人为规定</strong>地方时间的一种制度。</p>
+<p>每年的夏令时时间段还不一样（一般在3月的第2个周日开始），比如美国2020年夏令时时间是：2020年3月8日 - 2020年11月1日。具体做法是：在3.8号这天将时钟<u>往前拨1个小时</u>，11.1号这天还原回来。</p>
+<h3 id="时间戳"><a class="markdownIt-Anchor" href="#时间戳"></a> 时间戳</h3>
+<p>定义一个时间原点。从格林威治时间(GMT)1970年1月1日的午夜0点0分0秒开始过去的总秒数/毫秒数。<u>这个总秒数/毫秒数全世界都是一样的，也就是说时间戳和时区无关。</u></p>
+<p>时间戳一般指UNIX时间，或类UNIX系统（比如Linux、MacOS等）使用的时间表示方式。定义为：从UTC时间的<code>1970-1-1 0:0:0</code>起到现在的总秒数（秒是毫秒、微妙、纳秒的总称）。</p>
+<p>问题：由于闰秒的存在，那么当闰秒发生时，就极有可能出现同一个时间戳表示两个时刻的情况（类似时钟回拨），而且闰秒还没规律所以无法程序式的避免，怎么办？这个时候就需要一种专门的对时协议来保证了，它就是：网络时间协议。</p>
+<h3 id="网络时间协议"><a class="markdownIt-Anchor" href="#网络时间协议"></a> 网络时间协议</h3>
+<p>NTP（Network Time Protocol）是用来使计算机时间同步化的一种协议，它可以使计算机对其服务器或时钟源（如石英钟，GPS等等)做同步化，它可以提供<strong>高精准度</strong>的时间校正（LAN上与标准间差小于1毫秒，WAN上几十毫秒），且可介由加密确认的方式来防止恶毒的协议攻击。</p>
+<p>NTP的目的是在无序的Internet环境中提供精确和健壮的时间服务，各大操作系统（windows/Linux）对NTP都有实现。</p>
+<h2 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h2>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000039017603">GMT UTC CST ISO 夏令时 时间戳，都是些什么鬼？</a></p>
+
+
+
+<div class="article-footer reveal fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/posts/177574ba.html">i++和++i执行效率分析</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/posts/1288e771.html">Cobalt Strike-DNS Beacon使用解读</a></div></section></div>
+
+
+
+
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

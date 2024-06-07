@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>SIEM环境搭建：Arcisght - Misc010</title>
+
+  
+    <meta name="description" content="[toc] 本节介绍如何搭建Arcsight recon1.2环境，采用All-in-One installtion type with Database co-located with CDF node.It will install CDF,Arcsight Suite,NFS and Database on a single node.使用的是Using Arcsight Platform">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Arcisght">
+<meta property="og:url" content="https://misc0101.github.io/wiki/SIEM_env_building/Arcisght.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="[toc] 本节介绍如何搭建Arcsight recon1.2环境，采用All-in-One installtion type with Database co-located with CDF node.It will install CDF,Arcsight Suite,NFS and Database on a single node.使用的是Using Arcsight Platform">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230313155301106.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230313160014219.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230313160125655.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220720114321365.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721070356888.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230313160242558.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230313160250977.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230313160309648.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230308005856749.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230308020535645.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230308020818979.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721070931989.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721110918994.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111057170.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111130526.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111137902.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111156107.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111219772.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111238146.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111251886.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111312537.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111326441.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111357717.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111431596.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111447566.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721111501093.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721145726876.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721145752412.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230308024953750.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230308025011464.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721150014691.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721135729207.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721144257410.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721145057615.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230308031342014.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721145726876-167893647824531.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721145752412-167893648314634.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230308024953750-167893649389037.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230308025011464-167893649988540.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721150014691-167893650590743.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721135729207-167893651816546.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721144257410-167893654121452.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220721145057615-167893658633055.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220616190707935.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20221017201242972.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20221017201156745.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20220616191404133.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Arcisght/as_platform_overview.png">
+<meta property="article:published_time" content="2023-06-05T06:15:43.000Z">
+<meta property="article:modified_time" content="2023-06-05T06:15:43.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/Arcisght/image-20230313155301106.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/SIEM_env_building/Arcisght.html"><div class="main" ff="title">SIEM环境搭建</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/SIEM_env_building/" placeholder="在/wiki/SIEM_env_building/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-body fs14"><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/SIEM_env_building/Arcisght.html#start"><span class="toc-text">Arcisght</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E4%BD%93%E6%AD%A5%E9%AA%A4"><span class="toc-text"> 总体步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%B8%85%E5%8D%95"><span class="toc-text"> 文件清单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E6%96%87%E4%B8%AD%E6%8F%90%E5%88%B0%E7%9A%84%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%B8%85%E5%8D%95"><span class="toc-text"> 本文中提到的虚拟机清单</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dns%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-text"> DNS服务器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#chrony%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AEopt"><span class="toc-text"> chrony服务器配置（opt）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#arcsight-recon%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%90%AD%E5%BB%BA"><span class="toc-text"> Arcsight recon服务端搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%8F%8A%E7%A1%AC%E4%BB%B6%E8%A6%81%E6%B1%82"><span class="toc-text"> 虚拟机及硬件要求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E4%B8%80%E4%BA%9B%E5%8C%85%E5%8F%8A%E4%BE%9D%E8%B5%96"><span class="toc-text"> 安装一些包及依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0yum%E6%BA%90"><span class="toc-text"> 搭建本地yum源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%90%8D-%E5%85%B3%E9%97%ADipv6-%E8%AE%BE%E7%BD%AE%E9%9D%99%E6%80%81ip-dns"><span class="toc-text"> 主机名、关闭ipv6、设置静态ip、DNS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#chrony%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="toc-text"> chrony客户端配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E5%AE%89%E8%A3%85%E6%96%87%E4%BB%B6%E5%87%86%E5%A4%876%E4%B8%AA"><span class="toc-text"> 相关安装文件准备（6个）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E5%AE%89%E8%A3%85"><span class="toc-text"> 开始安装</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#arcishgt%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%BF%AB%E7%85%A7%E6%8B%8D%E6%91%84%E8%AF%B4%E6%98%8E"><span class="toc-text"> Arcishgt服务端快照拍摄说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#windows%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97"><span class="toc-text"> Windows客户端搭建指南</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%B8%85%E5%8D%95-2"><span class="toc-text"> 文件清单</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#linux%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97%E4%B8%8D%E6%88%90%E5%8A%9F"><span class="toc-text"> Linux客户端搭建指南（不成功）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#linux%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97%E6%9C%AC%E5%9C%B0csv%E7%89%88"><span class="toc-text"> Linux客户端搭建指南（本地csv版）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BC%80%E5%90%AF%E5%8F%8A%E5%90%8E%E5%8F%B0%E6%90%9C%E7%B4%A2"><span class="toc-text"> 客户端开启及后台搜索🔍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text"> 注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8B%93%E5%B1%95"><span class="toc-text"> 拓展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#syslog%E5%8C%BA%E5%88%AB"><span class="toc-text"> syslog区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="toc-text"> 相关资源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-text"> 参考文档</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/SIEM_env_building/Splunk.html"><span class="toc-text">Splunk</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：环境搭建</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/linux_env/chrony%E6%97%B6%E9%97%B4%E6%9C%8D%E5%8A%A1%E5%99%A8.html"><span class="title">Linux下的环境搭建</span><span class="excerpt">目前包含：chrony时间服务器。</span></a><a class="item wiki" href="/wiki/network_security_devices_env/Sophos_Firewall.html"><span class="title">安全设备类环境搭建</span><span class="excerpt">目前包含：Sophos Firewall，SonicWALL SMA设备，Juniper SRX设备，FortiGate VM，Cisco ACS，Cisco ISE。</span></a><a class="item wiki" href="/wiki/proxy_server_building/squid%E8%AE%A4%E8%AF%81%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA.html"><span class="title">代理服务器搭建</span><span class="excerpt">目前包含：squid透明/认证代理服务器，TMG代理服务器。</span></a><a class="item wiki" href="/wiki/sql_injection_env/SQLite.html"><span class="title">SQL注入靶场环境搭建</span><span class="excerpt">目前包含：Oracle、PostgreSQL、Microsoft Access、SQLite。</span></a><a class="item wiki" href="/wiki/windows_env/%E5%9F%9F%E7%8E%AF%E5%A2%83.html"><span class="title">Windows下的环境搭建</span><span class="excerpt">目前包含：域环境(powershell方式和手动方式)，Exchange邮箱服务器(2016，2019)，IIS。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/SIEM_env_building/Arcisght.html">SIEM环境搭建</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-06-05T06:15:43.000Z">2023-06-05</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>Arcisght</span></h1>
+<p>[toc]</p>
+<p>本节介绍如何搭建Arcsight recon1.2环境，采用All-in-One installtion type with Database co-located with CDF <a target="_blank" rel="noopener" href="http://node.It">node.It</a> will install CDF,Arcsight Suite,NFS and Database on a single node.使用的是Using Arcsight Platform Installer(P65页)编写配置yaml文件，然后用官方提供的脚本进行安装。</p>
+<h2 id="总体步骤"><a class="markdownIt-Anchor" href="#总体步骤"></a> 总体步骤</h2>
+<p>因安装需求不同，现场情况分为能联网或不能联网，能联网和不能联网安装时的步骤有些许出入，下面是两者安装步骤的checklist，请根据安装需求和实际情况选择相应的步骤进行安装。</p>
+<p>均需要：搭建DNS服务器</p>
+<p>按需选择：</p>
+<blockquote>
+<p>√：需要</p>
+<p>×：不需要</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>Task</th>
+<th>虚机能联网</th>
+<th>虚机不能联网</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>安装一些包及依赖</td>
+<td>×</td>
+<td>√</td>
+</tr>
+<tr>
+<td>2</td>
+<td>搭建本地yum源</td>
+<td>×</td>
+<td>√</td>
+</tr>
+<tr>
+<td>3</td>
+<td>主机名、关闭ipv6、设置静态ip、DNS</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>4</td>
+<td>chrony客户端配置</td>
+<td>√（配置chrony服务器可以是外网或内网）</td>
+<td>√（搭建内网chrony服务端+配置指向内网的chrony服务器作为时钟源）</td>
+</tr>
+<tr>
+<td>5</td>
+<td>相关安装文件准备（6个）</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>6</td>
+<td>开始安装</td>
+<td>√</td>
+<td>√</td>
+</tr>
+</tbody>
+</table>
+<h3 id="文件清单"><a class="markdownIt-Anchor" href="#文件清单"></a> 文件清单</h3>
+<p>服务端安装文件一共6个：<br />
+recon-single-node.yaml因为文件内容可能不一样，所以不给出MD5进行校验</p>
+<table>
+<thead>
+<tr>
+<th>文件名</th>
+<th>MD5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>arcsight-installer-metadata-21.1.0.9.tar</td>
+<td>e08fe2f12e1c1bf41b6ef8e39f9b8ace</td>
+</tr>
+<tr>
+<td>arcsight-platform-installer-21.1.0.9.zip</td>
+<td>e621e053545b6c1d766699bd077feb88</td>
+</tr>
+<tr>
+<td>fusion-1.3.0.9.tar</td>
+<td>c0820209f28eeaf7b72e6af197a4a617</td>
+</tr>
+<tr>
+<td>recon-1.2.0.9.tar</td>
+<td>99193eebf694ff864dfcccfd956e3d11</td>
+</tr>
+<tr>
+<td>transformationhub-3.5.0.9.tar</td>
+<td>4ab57e71194bc454bcf2e47fbb818449</td>
+</tr>
+</tbody>
+</table>
+<p>搭建本地yum源用的文件：CentOS-7-x86_64-DVD-2009.iso</p>
+<h3 id="本文中提到的虚拟机清单"><a class="markdownIt-Anchor" href="#本文中提到的虚拟机清单"></a> 本文中提到的虚拟机清单</h3>
+<blockquote>
+<p>截图和文章中的ip大部分能对应上，少部分对应不上。因为是在多次安装过程中写的文档，请自行区别。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>虚拟机名称</th>
+<th>静态IP</th>
+<th>域名</th>
+<th>备注</th>
+<th>账号密码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DNS-Windows Server 2012</td>
+<td>192.168.147.135</td>
+<td>无</td>
+<td>DNS服务器</td>
+<td>win10/无密</td>
+</tr>
+<tr>
+<td>CentOS 7 x64 NTP Server</td>
+<td>192.168.147.201</td>
+<td></td>
+<td>NTP服务器</td>
+<td>root/root,user/user</td>
+</tr>
+<tr>
+<td>Arcsight Server Single Node-CentOS 7 x64</td>
+<td>192.168.147.133</td>
+<td><a target="_blank" rel="noopener" href="http://cdf6.arcsight-test.com">cdf6.arcsight-test.com</a></td>
+<td>Arcsight服务端</td>
+<td>root/root,user/user</td>
+</tr>
+<tr>
+<td>Win Events Log-Windows 10 x64</td>
+<td>192.168.147.199</td>
+<td></td>
+<td>Arcsight采集器客户端</td>
+<td>win10/无密</td>
+</tr>
+<tr>
+<td>syslog-Windows 10 x64</td>
+<td>192.168.147.143</td>
+<td></td>
+<td>Arcsight采集器客户端（端口转发）</td>
+<td>win10/无密</td>
+</tr>
+<tr>
+<td>Client-Ubuntu x64 20.04</td>
+<td>无所谓</td>
+<td></td>
+<td>Arcisght采集器客户端（本地csv文件）</td>
+<td>root/root,user/user</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dns服务器"><a class="markdownIt-Anchor" href="#dns服务器"></a> DNS服务器</h2>
+<p>使用windows、linux、FreeBSD等当DNS服务器均可，设置Arcsight服务器域名与IP的正向解析。</p>
+<h2 id="chrony服务器配置opt"><a class="markdownIt-Anchor" href="#chrony服务器配置opt"></a> chrony服务器配置（opt）</h2>
+<p>CentOS 7 x64 NTP Server</p>
+<ol>
+<li>
+<p>关闭防火墙</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld</span><br><span class="line">systemctl disable firewalld</span><br></pre></td></tr></table></figure>
+<p>确定防火墙已关闭，状态显示dead</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status firewalld</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>关闭SELinux<br />
+临时关闭</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setenforce <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>永久关闭</p>
+<p>修改配置文件/etc/selinux/config,将其中SELINUX设置为disabled</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="deletion">- SELINUX=enforcing  </span></span><br><span class="line"><span class="addition">+ SELINUX=disabled </span></span><br></pre></td></tr></table></figure>
+<p>重启生效，使用sestatus查看SELinux状态</p>
+</li>
+<li>
+<p>配置NTP服务器</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/chrony.conf</span><br></pre></td></tr></table></figure>
+<p>注释掉外部时钟，因为内网环境，上不了网。增加自身ip作为时钟服务器。<br />
+allow命令指允许哪些ip通过访问到自己。<br />
+local stratum 10指当外部时钟访问不到时，允许自身作为时钟服务器来校准客户端</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"># These servers were defined in the installation:</span><br><span class="line"><span class="addition">+ #server 0.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ #server 1.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ #server 2.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ #server 3.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ server 192.168.147.201 iburst</span></span><br><span class="line"></span><br><span class="line"># Use public servers from the pool.ntp.org project.</span><br><span class="line"># Please consider joining the pool (http://www.pool.ntp.org/join.html).</span><br><span class="line"></span><br><span class="line"># Record the rate at which the system clock gains/losses time.</span><br><span class="line">driftfile /var/lib/chrony/drift</span><br><span class="line"></span><br><span class="line"># Allow the system clock to be stepped in the first three updates</span><br><span class="line"># if its offset is larger than 1 second.</span><br><span class="line">makestep 1.0 3</span><br><span class="line"></span><br><span class="line"># Enable kernel synchronization of the real-time clock (RTC).</span><br><span class="line">rtcsync</span><br><span class="line"></span><br><span class="line"># Enable hardware timestamping on all interfaces that support it.</span><br><span class="line">#hwtimestamp *</span><br><span class="line"></span><br><span class="line"># Increase the minimum number of selectable sources required to adjust</span><br><span class="line"># the system clock.</span><br><span class="line">#minsources 2</span><br><span class="line"></span><br><span class="line"># Allow NTP client access from local network.</span><br><span class="line">#allow 192.168.0.0/16</span><br><span class="line"><span class="addition">+ allow 192.168.147.0/24 </span></span><br><span class="line"></span><br><span class="line"># Serve time even if not synchronized to a time source.</span><br><span class="line"><span class="addition">+ local stratum 10</span></span><br><span class="line"></span><br><span class="line"># Specify file containing keys for NTP authentication.</span><br><span class="line">#keyfile /etc/chrony.keys</span><br><span class="line"></span><br><span class="line"># Specify directory for log files.</span><br><span class="line">logdir /var/log/chrony</span><br><span class="line"></span><br><span class="line"># Select which information is logged.</span><br><span class="line">#log measurements statistics tracking</span><br></pre></td></tr></table></figure>
+<p>重启chrony</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart chronyd.service</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="arcsight-recon服务端搭建"><a class="markdownIt-Anchor" href="#arcsight-recon服务端搭建"></a> Arcsight recon服务端搭建</h2>
+<h3 id="虚拟机及硬件要求"><a class="markdownIt-Anchor" href="#虚拟机及硬件要求"></a> 虚拟机及硬件要求</h3>
+<p>Required OS:CentOS~~/RHEL~~ 7.7，7.8 or 7.9</p>
+<blockquote>
+<p>我用的CentOS-7-x86_64-DVD-2009.iso，可供参考<br />
+RHEL别人尝试用过，没成功</p>
+</blockquote>
+<p>在VM新建虚拟机时，配置要求如下：</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single node (master and worker)</td>
+<td>1</td>
+</tr>
+<tr>
+<td>CPU cores (per node)</td>
+<td>8</td>
+</tr>
+<tr>
+<td>RAM (per node)</td>
+<td>32</td>
+</tr>
+<tr>
+<td>Disks (per node)</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Storage per day (1x)</td>
+<td>15GB</td>
+</tr>
+<tr>
+<td>Total disk space (1.5 billion events)</td>
+<td>500GB</td>
+</tr>
+</tbody>
+</table>
+<p>磁盘分区：<br />
+swap — 3GB<br />
+/boot — 1GB<br />
+/home — 30GB<br />
+/opt ---- 250GB以上<br />
+/ — 60GB以上</p>
+</br>
+<p>安装桌面版（GNOKE或Server GUI都行）</p>
+<h3 id="安装一些包及依赖"><a class="markdownIt-Anchor" href="#安装一些包及依赖"></a> 安装一些包及依赖</h3>
+<blockquote>
+<p>安装原因：</p>
+<p>在后续步骤使用<code>arcsight-install</code>命令的<code>preinstall</code>参数时，它会检查并尝试自动安装缺失的操作系统包依赖项。如果虚拟机能上网，它就能成功安装缺失的依赖项。如果虚拟机不能上网，它尝试连接逐个镜像源，但因为不能联网，都会失败，导致一些包没有被安装或更新，就会导致后续步骤无法继续进行。所以，我们要早早自行将这些包安装好。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install conntrack-tools container-selinux curl device-mapper-libs httpd-tools java-1.8.0-openjdk libgcrypt libseccomp libtool-libs libtool-ltdl lvm2 net-tools nfs-utils rpcbind socat systemd-libs unzip bind-utils tar</span><br></pre></td></tr></table></figure>
+<p>tips:我试了离线包安装的方式，没试好，如果你有时间可以尝试用离线包的方式进行安装。</p>
+<p>我是这样做的：在一台可上网的VM中安装centos，然后执行上述命令，关机，导出ovf，再导入到不能联网的VMware中使用。</p>
+<h3 id="搭建本地yum源"><a class="markdownIt-Anchor" href="#搭建本地yum源"></a> 搭建本地yum源</h3>
+<blockquote>
+<p>安装原因：</p>
+<p>在后续步骤使用<code>arcsight-install</code>命令的<code>precheck</code>参数时，它会检查虚拟机的一些配置，如果配置不对，则不通过。在断网环境中，precheck对yum配置检查这一项有概率不通过，会提示使用yum clean all和yum update，但此时虚拟机无法上网，无法完成yum clean all和yum update命令。所以我们通过搭建本地yum源的方式来解决不通过的这一项。</p>
+</blockquote>
+<ol>
+<li>
+<p>上传CentOS-7-x86_64-DVD-2009.iso文件到虚拟机中的/mnt/目录下</p>
+</li>
+<li>
+<p>挂载ISO镜像到/mnt/yum目录下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir yum</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount -t iso9660 /mnt/CentOS-7-x86_64-DVD-2009.iso /mnt/yum/</span><br></pre></td></tr></table></figure>
+<p>回显类似如下是挂载成功：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount: /dev/loop0 is write-protected, mounting read-only</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>备份本地repo文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir /opt/centos-yum.bak</span><br><span class="line">mv /etc/yum.repos.d/* /opt/centos-yum.bak/</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>创建自己的repo文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /etc/yum.repos.d/</span><br><span class="line">vi /etc/yum.repos.d/local.repo</span><br></pre></td></tr></table></figure>
+<p>文件local.repo内容为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[local]</span><br><span class="line">name=local</span><br><span class="line">baseurl=file:///mnt/yum/		#本地yum源目录位置</span><br><span class="line"># enabled=1			#enabled=0配置项，表示不生效</span><br><span class="line">gpgcheck=1			</span><br><span class="line">gepkey=file:///mnt/yum/RPM-GPG-KEY-CentOS-7	#本地yum源目录位置下GPG公钥</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>刷新yum缓存<br />
+清除缓存</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum clean all</span><br></pre></td></tr></table></figure>
+<p>把yum源缓存到本地</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum makecache</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="主机名-关闭ipv6-设置静态ip-dns"><a class="markdownIt-Anchor" href="#主机名-关闭ipv6-设置静态ip-dns"></a> 主机名、关闭ipv6、设置静态ip、DNS</h3>
+<p><strong>主机名</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/hostname</span><br></pre></td></tr></table></figure>
+<p>将文件内容修改为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cdf6.arcsight-test.com</span><br></pre></td></tr></table></figure>
+<p>执行如下命令生效：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl status</span><br></pre></td></tr></table></figure>
+<p><strong>关闭ipv6地址</strong></p>
+<p>vim /etc/sysctl.conf</p>
+<p>文件中加入一行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net.ipv6.conf.all.disable_ipv6 = 1</span><br></pre></td></tr></table></figure>
+<p>随后执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -p /etc/sysctl.conf</span><br></pre></td></tr></table></figure>
+<p>检验：ifconfig 查看ipv6已去掉</p>
+<p><strong>静态IP</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-ens33</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>网卡可能不同，则后面的ifcfg-xxxx就不同</p>
+</blockquote>
+<p>修改为：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">TYPE=&quot;Ethernet&quot;</span><br><span class="line">PROXY_METHOD=&quot;none&quot;</span><br><span class="line">BROWSER_ONLY=&quot;no&quot;</span><br><span class="line"><span class="addition">+BOOTPROTO=&quot;static&quot;</span></span><br><span class="line">DEFROUTE=&quot;yes&quot;</span><br><span class="line">IPV4_FAILURE_FATAL=&quot;no&quot;</span><br><span class="line">IPV6INIT=&quot;yes&quot;</span><br><span class="line">IPV6_AUTOCONF=&quot;yes&quot;</span><br><span class="line">IPV6_DEFROUTE=&quot;yes&quot;</span><br><span class="line">IPV6_FAILURE_FATAL=&quot;no&quot;</span><br><span class="line">IPV6_ADDR_GEN_MODE=&quot;stable-privacy&quot;</span><br><span class="line">NAME=&quot;ens33&quot;</span><br><span class="line">UUID=&quot;15ea7cf0-782d-44b1-ad10-630abf731345&quot;</span><br><span class="line">DEVICE=&quot;ens33&quot;</span><br><span class="line">ONBOOT=&quot;yes&quot;</span><br><span class="line"><span class="addition">+IPADDR=&quot;192.168.147.136&quot;</span></span><br><span class="line"><span class="addition">+NETMASK=&quot;255.255.255.0&quot;</span></span><br><span class="line"><span class="addition">+GATEWAY=&quot;192.168.147.2&quot;</span></span><br><span class="line"><span class="addition">+DNS1=&quot;192.168.147.135&quot;</span></span><br></pre></td></tr></table></figure>
+<p>随后重启网卡：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<p><strong>检验：</strong></p>
+<p>确保nslookup cdf6.arcsight-test.com解析出的是自己的ip地址</p>
+<p>确保dig cdf6.arcsight-test.com解析出的是自己的ip地址，DNS服务器是自己设置的</p>
+<h3 id="chrony客户端配置"><a class="markdownIt-Anchor" href="#chrony客户端配置"></a> chrony客户端配置</h3>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/chrony.conf</span><br></pre></td></tr></table></figure>
+<p>注释掉4个外部时钟，添加192.168.147.201作为时钟</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"># Use public servers from the pool.ntp.org project.</span><br><span class="line"># Please consider joining the pool (http://www.pool.ntp.org/join.html).</span><br><span class="line"><span class="addition">+ #server 0.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ #server 1.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ #server 2.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ #server 3.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ server 192.168.147.201 iburst</span></span><br><span class="line"></span><br><span class="line"># Record the rate at which the system clock gains/losses time.</span><br><span class="line">driftfile /var/lib/chrony/drift</span><br><span class="line"></span><br><span class="line"># Allow the system clock to be stepped in the first three updates</span><br><span class="line"># if its offset is larger than 1 second.</span><br><span class="line">makestep 1.0 3</span><br><span class="line"></span><br><span class="line"># Enable kernel synchronization of the real-time clock (RTC).</span><br><span class="line">rtcsync</span><br><span class="line"></span><br><span class="line"># Enable hardware timestamping on all interfaces that support it.</span><br><span class="line">#hwtimestamp *</span><br><span class="line"></span><br><span class="line"># Increase the minimum number of selectable sources required to adjust</span><br><span class="line"># the system clock.</span><br><span class="line">#minsources 2</span><br><span class="line"></span><br><span class="line"># Allow NTP client access from local network.</span><br><span class="line">#allow 192.168.0.0/16</span><br><span class="line"></span><br><span class="line"># Serve time even if not synchronized to a time source.</span><br><span class="line">#local stratum 10</span><br><span class="line"></span><br><span class="line"># Specify file containing keys for NTP authentication.</span><br><span class="line">#keyfile /etc/chrony.keys</span><br><span class="line"></span><br><span class="line"># Specify directory for log files.</span><br><span class="line">logdir /var/log/chrony</span><br><span class="line"></span><br><span class="line"># Select which information is logged.</span><br><span class="line">#log measurements statistics trackin</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果虚拟机能联网，可配置公网上的时钟。</p>
+</blockquote>
+<p>重启chrony</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart chronyd.service</span><br></pre></td></tr></table></figure>
+<p>使用以下命令查看同步状态，其中“^*” 代表时间已经正确同步</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chronyc sources -v</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230313155301106.png" alt="image-20230313155301106" /></p>
+<blockquote>
+<p>刚配置完重启后，有时chronyc sources -v看同步状态，没那么快变*号。可以等一会，如果过了比较长时间用chronyc sources -v还是没看到星号，可以回退快照重来。</p>
+</blockquote>
+<h3 id="相关安装文件准备6个"><a class="markdownIt-Anchor" href="#相关安装文件准备6个"></a> 相关安装文件准备（6个）</h3>
+<p>将以下6个文件放入/opt/arcsight文件夹中：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230313160014219.png" alt="image-20230313160014219" /></p>
+<h3 id="开始安装"><a class="markdownIt-Anchor" href="#开始安装"></a> 开始安装</h3>
+<p>在/opt/arcsight下解压</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@cdf6 arcsight ]#  unzip arcsight-platform-installer-21.1.0.9.zip</span><br></pre></td></tr></table></figure>
+<p>放相关文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdf6 arcsight ]#  mv arcsight-installer-metadata-21.1.0.9.tar arcsight-platform-installer-21.1.0.9/metadata/</span><br><span class="line">[root@cdf6 arcsight ]#  mv *.tar arcsight-platform-installer-21.1.0.9/images/</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="http://xn--yamlhostnamecdf6-t79y6gta348axwgvp1ax8t36slp3befqk3b5usk3abm789i7j6e.arcsight-test.com">修改yaml文件中所有hostname字段为本主机的域名cdf6.arcsight-test.com</a>，完整内容如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ArcSight Recon single node installation configuration</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># This example configures all components required by Recon to be installed on a single node including Fusion, Transformation Hub, and Database.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Before using this example, you must do the following:</span></span><br><span class="line"><span class="comment"># - Replace the hostname &quot;yourdomain-node.yourenterprise.net&quot; (same value in multiple locations) with the correct values for your environment.</span></span><br><span class="line"><span class="comment"># - Set the values of arcmc-generator-id-start and arcmc-generator-id-end to form a valid Generator ID Range</span></span><br><span class="line"><span class="comment">#     Generator ID Range: set a valid range within [1-16383]. </span></span><br><span class="line"><span class="comment">#     The difference between the values must be more than 100.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Key aspects of this configuration are:</span></span><br><span class="line"><span class="comment"># - Encryption: yes</span></span><br><span class="line"><span class="comment"># - Transformation Hub TLS Client Auth: yes</span></span><br><span class="line"><span class="comment"># - FIPS 140 mode: yes</span></span><br><span class="line"><span class="comment"># - High Availability: no, since it is deployed on a single node</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="attr">cluster:</span></span><br><span class="line">  <span class="attr">default-node-size:</span> <span class="string">small</span></span><br><span class="line">  <span class="attr">allow-worker-on-master:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">enable-fips:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">k8s-home:</span> <span class="string">/opt/arcsight/kubernetes</span></span><br><span class="line">  <span class="comment"># master-api-ssl-port: 7443</span></span><br><span class="line">  <span class="attr">master-nodes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">hostname:</span> <span class="string">cdf6.arcsight-test.com</span></span><br><span class="line">      <span class="attr">username:</span> <span class="string">root</span></span><br><span class="line">      <span class="attr">labels:</span> [<span class="string">zk</span>, <span class="string">kafka</span>, <span class="string">th-processing</span>, <span class="string">th-platform</span>, <span class="string">fusion</span>]</span><br><span class="line"></span><br><span class="line"><span class="attr">suite:</span></span><br><span class="line">  <span class="attr">products:</span> [<span class="string">transformationhub</span>, <span class="string">fusion</span>, <span class="string">recon</span>]</span><br><span class="line">  <span class="attr">config-params:</span></span><br><span class="line">    <span class="comment"># Transformation Hub, defaults are commented</span></span><br><span class="line">    <span class="attr">th-init-fips:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># th-init-noOfTopicPartitions: 6 # The ArcSight Platform Installer automatically sets th-arcsight-avro, mf-event-avro-enriched, and th-cef topic partition count to Number of Database Nodes * 24. Other topics use this parameter.</span></span><br><span class="line">    <span class="comment"># th-init-kafkaRetentionBytesForVertica: When the database is colocated with the Kubernetes cluster, the ArcSight Platform Installer automatically calculates this value. </span></span><br><span class="line">    <span class="comment"># th-init-kafkaRetentionBytes: When the database is colocated with the Kubernetes cluster, the ArcSight Platform Installer automatically calculates this value.  </span></span><br><span class="line">    <span class="attr">th-schema-registry-count:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">transform-processor-replicas:</span> <span class="number">2</span></span><br><span class="line">    <span class="comment"># enrichment-processor1-replicas: 2</span></span><br><span class="line">    <span class="comment"># th-enrichment-processor-integrity-enabled: false</span></span><br><span class="line">    <span class="attr">routing-processor1-replicas:</span> <span class="number">0</span></span><br><span class="line">    <span class="attr">th-kafka-count:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">th-zookeeper-count:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">th-init-kafkaOffsetsTopicReplicationFactor:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">th-init-topicReplicationFactor:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">th-kafka-allow-plaintext:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">th-init-client-auth:</span> <span class="literal">false</span></span><br><span class="line">    <span class="comment"># th-schema-registry-min-kafka-count: 1</span></span><br><span class="line">    <span class="comment"># Fusion</span></span><br><span class="line">    <span class="comment"># Generator ID parameters are mandatory parameters.</span></span><br><span class="line">    <span class="comment"># Ensure that you set arcmc-generator-id-enable to true.</span></span><br><span class="line">    <span class="attr">arcmc-generator-id-start:</span> <span class="number">1</span></span><br><span class="line">    <span class="attr">arcmc-generator-id-end:</span> <span class="number">101</span></span><br><span class="line">    <span class="attr">arcmc-generator-id-enable:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">nfs:</span></span><br><span class="line">  <span class="attr">node:</span></span><br><span class="line">    <span class="attr">hostname:</span> <span class="string">cdf6.arcsight-test.com</span></span><br><span class="line">    <span class="attr">username:</span> <span class="string">root</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">new</span></span><br><span class="line">  <span class="attr">root-folder:</span> <span class="string">/opt/arcsight-nfs</span></span><br><span class="line">  <span class="attr">uid:</span> <span class="number">1999</span></span><br><span class="line">  <span class="attr">gid:</span> <span class="number">1999</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="attr">database:</span></span><br><span class="line">  <span class="attr">db-installer-dir:</span> <span class="string">/opt/arcsight-db-tools</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">new</span></span><br><span class="line">  <span class="attr">ssl-enabled:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">ssl-client-auth-enabled:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">db-admin:</span> <span class="string">dbadmin</span></span><br><span class="line">  <span class="attr">app-admin:</span> <span class="string">appadmin</span></span><br><span class="line">  <span class="attr">search-user:</span> <span class="string">search</span></span><br><span class="line">  <span class="attr">shard-count:</span> <span class="number">3</span></span><br><span class="line">  <span class="attr">data-dir:</span> <span class="string">/opt/vertica/data</span></span><br><span class="line">  <span class="attr">depot-dir:</span> <span class="string">/opt/vertica/depot</span></span><br><span class="line">  <span class="attr">nodes:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">hostname:</span> <span class="string">cdf6.arcsight-test.com</span></span><br><span class="line">      <span class="attr">username:</span> <span class="string">root</span></span><br><span class="line">  <span class="attr">hardware:</span></span><br><span class="line">    <span class="attr">cpu:</span> <span class="number">4</span></span><br><span class="line">    <span class="attr">memory:</span> <span class="number">16</span></span><br><span class="line">    <span class="attr">disk:</span> <span class="number">50</span></span><br></pre></td></tr></table></figure>
+<p>cd /opt/arcsight/arcsight-platform-installer-21.1.0.9</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./arcsight-install --config /opt/arcsight/recon-single-node.yaml --cmd precheck</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Troubleshooting：</p>
+<p>不能联网的虚拟机，yum configuration那一项有概率报错。解决办法：安装本地yum源</p>
+<p><a target="_blank" rel="noopener" href="https://www.freebuf.com/sectool/271726.html">https://www.freebuf.com/sectool/271726.html</a></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./arcsight-install --config /opt/arcsight/recon-single-node.yaml --cmd preinstall</span><br></pre></td></tr></table></figure>
+<p>NFS那里会有5个Unable，不用理会</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230313160125655.png" alt="image-20230313160125655" /></p>
+<blockquote>
+<p>Troubleshooting：</p>
+<p>precheck这一步在会检查并尝试自动安装缺失的操作系统包依赖项，如果虚拟机不能上网，会安装失败。但还是黑色字体，不会那么显眼。如果继续下一步，会报关于依赖项的错。</p>
+<p>解决办法：自行提前把相关的包yum install了。（《as-admin-guide.pdf》-P80）</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./arcsight-install --config /opt/arcsight/recon-single-node.yaml --cmd install</span><br></pre></td></tr></table></figure>
+<p>接受条约，输入y；</p>
+<p>会让设置一堆关于数据库的密码、cdf的密码，可以统一设为Admin@123；</p>
+<p>随后会从Step 1一直自动安装到Step几？记不清了</p>
+<blockquote>
+<p>在有的Step中会问是否接受某某license，输入y；</p>
+</blockquote>
+<p>在Step11（？）中会问是否跳过这些warnings，输入y；</p>
+<blockquote>
+<p>Troubleshooting：</p>
+<p>经常会卡在Step11这一步，如果没询问是否跳过这些warnings，反而停止了。看输出，除了warnings还有FAILED项，根据它的输出看哪一些FAILED，然后回退到preinstall完成的快照，解决完FAILED，再重新install。</p>
+<p>因为install后数据库已经安装了，如果有了FAILED项，解决完重新执行install，会提示数据库已存在，要先卸载数据库。这样比较麻烦。所以，先记住哪些项FAILED了，然后回退快照，处理完，再install。</p>
+</blockquote>
+<p>等待安装完成，估计20min~2小时左右，看机器性能。如果卡住一个地方时间太长，可能是因为机器临时卡死。做法一：等待，等待，等待。做法二：回到preinstall的步骤接着走。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220720114321365.png" alt="image-20220720114321365" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721070356888.png" alt="image-20220721070356888" /></p>
+<p>访问<a target="_blank" rel="noopener" href="https://cdf6.arcsight-test.com:5443">https://cdf6.arcsight-test.com:5443</a> -&gt;deployment -&gt;reconfigure -&gt; 修改一处3为1(broker的最小运行数量)</p>
+<p>账号：admin<br />
+密码：Admin@123</p>
+<blockquote>
+<p>账号密码是在之前的步骤执行./arcsight-install --config /opt/arcsight/recon-single-node.yaml --cmd install这条命令时设置的cdf密码</p>
+</blockquote>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230313160242558.png" alt="image-20230313160242558" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230313160250977.png" alt="image-20230313160250977" /></p>
+<p>等待一会，使用kubectl get pods -A命令确保所有pods处于Completed或Running状态后进行postinstall</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods -A|grep -v &quot;Running&quot;</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./arcsight-install --config /opt/arcsight/recon-single-node.yaml --cmd postinstall</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230313160309648.png" alt="image-20230313160309648" /></p>
+<h2 id="arcishgt服务端快照拍摄说明"><a class="markdownIt-Anchor" href="#arcishgt服务端快照拍摄说明"></a> Arcishgt服务端快照拍摄说明</h2>
+<p>从上述安装Arcsight的总体流程来看，搭建步骤为：<br />
+搭建DNS服务器<br />
+搭建chrony服务器配置（opt）<br />
+Arcsight recon服务端搭建：</p>
+<p>联网虚机：主机名、关闭ipv6、设置静态ip、DNS；chrony客户端配置；相关安装文件准备；<br />
+断网虚机：主机名、关闭ipv6、设置静态ip、DNS；chrony客户端配置；相关安装文件准备；<br />
+随后执行4条命令precheck、preinstall、install、postinstall</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./arcsight-install --config /opt/arcsight/recon-single-node.yaml --cmd</span><br><span class="line">precheck</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./arcsight-install --config /opt/arcsight/recon-single-node.yaml --cmd</span><br><span class="line">preinstall</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./arcsight-install --config /opt/arcsight/recon-single-node.yaml --cmd install</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./arcsight-install --config /opt/arcsight/recon-single-node.yaml --cmd</span><br><span class="line">postinstall</span><br></pre></td></tr></table></figure>
+<p>percheck执行完后是可以拍快照，然后未来恢复到该快照；</p>
+<p>preinstall执行完后是可以拍快照，然后未来恢复到该快照；</p>
+<p>而如果已经执行了install，因为pods已提起来了，此时挂起或关机，再次打开环境会崩，只能对容器进行调试，或者重装。</p>
+<p>正确步骤：<br />
+只要pods已经运行起来了，就要在/opt/arcsight/kubernetes/bin下使用kube-stop.sh脚本进行暂停，暂停完成后可以拍快照or挂起虚拟机。</p>
+<blockquote>
+<p>挂起虚拟机拍快照，再恢复，也不行</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /opt/arcsight/kubernetes/bin</span><br><span class="line">./kube-stop.sh</span><br></pre></td></tr></table></figure>
+<p>上述sh，会自动暂停相关pods？（我说法可能不准确，因为我也不太懂）</p>
+<p><strong>恢复命令</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./kube-start.sh</span><br></pre></td></tr></table></figure>
+<p>需等待至使用kubectl get pods -A命令确保所有pods处于Completed或Running状态，<br />
+再执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./kube-status.sh</span><br></pre></td></tr></table></figure>
+<p>直至结尾显示“Full CDF is Running”，如下图所示</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230308005856749.png" alt="image-20230308005856749" /></p>
+<h2 id="windows客户端搭建指南"><a class="markdownIt-Anchor" href="#windows客户端搭建指南"></a> Windows客户端搭建指南</h2>
+<h3 id="文件清单-2"><a class="markdownIt-Anchor" href="#文件清单-2"></a> 文件清单</h3>
+<table>
+<thead>
+<tr>
+<th>文件名</th>
+<th>MD5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ArcSight-8.2.0.8451.0-TrialConnector-Win64.exe</td>
+<td>dde8f122de58583fdd96499f7d28e7e8</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>演示例子中的域名、IP与服务端安装中不同，因为笔记是在多次环境安装中做的；</p>
+<p>在实际安装过程中要对应好</p>
+</blockquote>
+<p>以Win 10为例，进行以下步骤：</p>
+<ol>
+<li>
+<p>配置DNS<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230308020535645.png" alt="image-20230308020535645" /></p>
+<p>确保能解析域名<strong><a target="_blank" rel="noopener" href="http://cdf6.arcsight-test.com">cdf6.arcsight-test.com</a></strong><br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230308020818979.png" alt="image-20230308020818979" /></p>
+</li>
+<li>
+<p>双击安装包开始安装<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721070931989.png" alt="image-20220721070931989" /></p>
+</li>
+<li>
+<p>默认点击OK；安装路径可保持默认或自选；在桌面创建图标<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721110918994.png" alt="image-20220721110918994" /></p>
+</li>
+<li>
+<p>输入数字（1~16383）作为唯一ID，其他栏不用填<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111057170.png" alt="image-20220721111057170" /></p>
+</li>
+<li>
+<p>选择安装的采集器类型，并允许防火墙允许该应用的部分功能<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111130526.png" alt="image-20220721111130526" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111137902.png" alt="image-20220721111137902" /></p>
+<hr />
+<p>被动采集器以安装Syslog NG Daemon为例，在此处选择Syslog NG Daemon<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111156107.png" alt="image-20220721111156107" /><br />
+开放UDP1999端口监听日志（端口和协议可更改)<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111219772.png" alt="image-20220721111219772" /></p>
+</li>
+<li>
+<p>选择要收集的日志信息，默认即可<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111238146.png" alt="image-20220721111238146" /></p>
+</li>
+<li>
+<p>将采集器收集的数据发送到&quot;Transformation hub&quot;<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111251886.png" alt="image-20220721111251886" /></p>
+<blockquote>
+<p>tips：如果是快速检验，可以选择不发送到服务端，选择CSV File选项生成csv文件保存在本地，指定保存的路径<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111312537.png" alt="image-20220721111312537" /></p>
+</blockquote>
+</li>
+<li>
+<p>目的参数填写如下图所示<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111326441.png" alt="image-20220721111326441" /><br />
+将Arcsight服务器下的<code>/opt/arcsight-db-tools/cert/issue_ca.crt</code>，和Arcsight客户端<code>/$安装目录$/ArcSightConnectors/current/jre/lib/security/cacerts</code>，复制到同一个文件夹中（自己创建的)，使用keytool工具将证书添加到密钥库中</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -import -alias connector -keystore &quot;E:\certstemp\cacerts&quot; -file issue_ca.crt</span><br></pre></td></tr></table></figure>
+<p>密钥库口令为<code>changeit</code><br />
+<code>是</code><br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111357717.png" alt="image-20220721111357717" /></p>
+<p>将信任后的<code>cacerts</code>证书替换Arcsight客户端的<code>/$安装目录$/ArcSightConnectors/current/jre/lib/security/cacerts</code>，并将证书目录输入到<code>SSL/TLS Truststore File Path</code>一栏<br />
+注意要使用<code>\</code><br />
+点击<code>Next</code>按钮，如果没有提示错误，即参数正确</p>
+</li>
+<li>
+<p>connector details，Name随便填一个即可，其他选填<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111431596.png" alt="image-20220721111431596" /></p>
+</li>
+<li>
+<p>选择以服务或者独立程序的形式进行安装，这里以独立的程序为例<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111447566.png" alt="image-20220721111447566" /></p>
+</li>
+<li>
+<p>这一步选择Exit退出即可<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721111501093.png" alt="image-20220721111501093" /></p>
+</li>
+<li>
+<p>至此，客户端安装完成。</p>
+</li>
+</ol>
+<h2 id="linux客户端搭建指南不成功"><a class="markdownIt-Anchor" href="#linux客户端搭建指南不成功"></a> <s>Linux客户端搭建指南（不成功）</s></h2>
+<p><s>以Ubuntu20.04为例，需要进行以下步骤：</s></p>
+<ol>
+<li><s>配置DNS</s></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install resolvconf</span><br><span class="line">sudo systemctl enable --now resolvconf.service</span><br></pre></td></tr></table></figure>
+<p><s>sudo vi /etc/resolvconf/resolv.conf.d/head</s></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nameserver 192.168.147.135</span><br><span class="line">nameserver 192.168.147.2</span><br></pre></td></tr></table></figure>
+<p><s>sudo resolvconf -u</s></p>
+<p><s><strong>检验：</strong></s></p>
+<p><s>确保nslookup cdf6.arcsight-test.com能正确解析出相应ip地址</s></p>
+<p><s>确保dig cdf6.arcsight-test.com能解析相应ip地址，DNS服务器地址正确</s></p>
+<ol start="2">
+<li>
+<p><s>以root用户安装</s></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./ArcSight-8.3.0.8658.0-TrialConnector-Linux64.bin</span><br></pre></td></tr></table></figure>
+<p><s><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721145726876.png" alt="image-20220721145726876" /></s></p>
+</li>
+</ol>
+<p><s><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721145752412.png" alt="image-20220721145752412" /></s></p>
+<p><s><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230308024953750.png" alt="image-20230308024953750" /></s></p>
+<p><s><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230308025011464.png" alt="image-20230308025011464" /></s></p>
+<p><s><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721150014691.png" alt="image-20220721150014691" /></s></p>
+<p><s><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721135729207.png" alt="image-20220721135729207" /></s></p>
+<p><s><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721144257410.png" alt="image-20220721144257410" /></s></p>
+<p><s>转发器类型选择：Apache HTTP Server Access Multiple FolderFile</s></p>
+<blockquote>
+<p><s>前提：已安装apache2</s></p>
+</blockquote>
+<p><s>sudo apt update</s></p>
+<p><s>sudo apt install apache2</s></p>
+<p><s>sudo systemctl status apache2确保Apache正在运行</s></p>
+<p><s><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721145057615.png" alt="image-20220721145057615" /></s></p>
+<p><s>后续和Windows安装转发器一致</s></p>
+<p><s><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230308031342014.png" alt="image-20230308031342014" /></s></p>
+<h2 id="linux客户端搭建指南本地csv版"><a class="markdownIt-Anchor" href="#linux客户端搭建指南本地csv版"></a> Linux客户端搭建指南（本地csv版）</h2>
+<blockquote>
+<p>挑选的以apache为事件作为例子。需要提前安装：apache2、curl</p>
+</blockquote>
+<p>sudo apt update</p>
+<p>sudo apt install apache2</p>
+<p>sudo systemctl status apache2确保Apache正在运行</p>
+<p>以root用户安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./ArcSight-8.3.0.8658.0-TrialConnector-Linux64.bin</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721145726876-167893647824531.png" alt="image-20220721145726876" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721145752412-167893648314634.png" alt="image-20220721145752412" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230308024953750-167893649389037.png" alt="image-20230308024953750" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20230308025011464-167893649988540.png" alt="image-20230308025011464" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721150014691-167893650590743.png" alt="image-20220721150014691" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721135729207-167893651816546.png" alt="image-20220721135729207" /></p>
+<p>转发器类型选择：Apache HTTP Server Access Multiple FolderFile</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721144257410-167893654121452.png" alt="image-20220721144257410" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220721145057615-167893658633055.png" alt="image-20220721145057615" /></p>
+<p>选择上次CSV文件，选择保存在桌面</p>
+<p>其余下一步，即可完成安装</p>
+<h2 id="客户端开启及后台搜索"><a class="markdownIt-Anchor" href="#客户端开启及后台搜索"></a> 客户端开启及后台搜索🔍</h2>
+<p><strong>window平台</strong></p>
+<ol>
+<li>
+<p>在<code>C:\Program Files\ArcsightSmartConnectors\current\bin</code>目录下以管理员权限打开cmd，执行命令</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arcsight.bat agents</span><br></pre></td></tr></table></figure>
+<p>启动ArcsightSmartConnectors</p>
+<p><strong>Linux平台</strong></p>
+<p>在安装目录bin目录下以root打开shell，执行命令</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./arcsight agents</span><br></pre></td></tr></table></figure>
+<p>Linux的监控事件Apache HTTP Server Access Multiple Folder File，且没有将数据转到Transformation Hub，而是生成桌面的CSV File。</p>
+<p>使用curl 127.0.0.1访问apache网页，Arcsight采集器会采集到此事件。</p>
+</li>
+<li>
+<p>使用chrome浏览器输入网址<code>https://cdf6.arcsight-test.com</code>，登录服务端管理页面</p>
+<p>第一次登录，进入注册界面，可以填虚假的邮箱，但后面没法找回密码了。可以注册前拍一个快照，然后去注册，然后忘了密码就回退快照重新注册一个。</p>
+</li>
+</ol>
+<p>​	记录一下我之前注册的：</p>
+<p>​	账号为：hello0308@gmail.com</p>
+<p>​	密码为：Admin@123</p>
+<ol start="3">
+<li>
+<p>在&quot;SEARCH&quot;页面即可开始搜索由客户端产生的日志信息<br />
+搜索语法：查询所有事件</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*</span><br></pre></td></tr></table></figure>
+<p>来源ip为192.168.147.134的事件：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Any. ip = <span class="number">192</span>.<span class="number">168</span>.<span class="number">147</span>.<span class="number">134</span></span><br></pre></td></tr></table></figure>
+<p>Win Event日志：<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220616190707935.png" alt="image-20220616190707935" /></p>
+<p>Syslog NG Daemon日志：<br />
+我配置的是UDP1999，使用syslog Sender往该端口发Message，可在server后台搜索到<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20221017201242972.png" alt="image-20221017201242972" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20221017201156745.png" alt="image-20221017201156745" /></p>
+</li>
+</ol>
+<h3 id="注意事项"><a class="markdownIt-Anchor" href="#注意事项"></a> 注意事项</h3>
+<p>客户端产生行为后，服务端管理页面由于数据库从TH抓取日志频率的问题，不会马上搜索到相应日志。</p>
+<p>解决方法：更改搜索条件（如搜索语法、时间等条件），多次进行搜索。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/image-20220616191404133.png" alt="image-20220616191404133" /></p>
+<p>一般情况下，至少延迟5min即可搜索到。如果还是没有，可能是数据库的时间和采集客户端时间不一致导致的。</p>
+<blockquote>
+<p>&quot;记录&quot;一些方便筛选日志字段：</p>
+<p>Agent Address</p>
+<p>Agent type</p>
+<p>Destination Username</p>
+<p>Database Receipt Time</p>
+<p>Normalized Event Time</p>
+<p>External ID</p>
+<p>Name</p>
+</blockquote>
+<h2 id="拓展"><a class="markdownIt-Anchor" href="#拓展"></a> 拓展</h2>
+<p>在线html说明手册：</p>
+<p><a target="_blank" rel="noopener" href="https://www.microfocus.com/documentation/arcsight/arcsight-platform-22.1/arcsight-admin-guide-22.1/#platform_intro/platform_about.htm?TocPath=Introducing%2520ArcSight%2520Platform%257C_____0">https://www.microfocus.com/documentation/arcsight/arcsight-platform-22.1/arcsight-admin-guide-22.1/#platform_intro/platform_about.htm?TocPath=Introducing%2520ArcSight%2520Platform%257C_____0</a></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Arcisght/as_platform_overview.png" alt="img" /></p>
+<h3 id="syslog区别"><a class="markdownIt-Anchor" href="#syslog区别"></a> syslog区别</h3>
+<p><a target="_blank" rel="noopener" href="https://community.microfocus.com/cyberres/arcsight/f/arcsight-discussions/366594/syslog-daemon-and-syslog-ng">https://community.microfocus.com/cyberres/arcsight/f/arcsight-discussions/366594/syslog-daemon-and-syslog-ng</a></p>
+<p><a target="_blank" rel="noopener" href="https://serverfault.com/questions/692309/what-is-the-difference-between-syslog-rsyslog-and-syslog-ng">https://serverfault.com/questions/692309/what-is-the-difference-between-syslog-rsyslog-and-syslog-ng</a></p>
+<h2 id="相关资源"><a class="markdownIt-Anchor" href="#相关资源"></a> 相关资源</h2>
+<p>arcsight官网<a target="_blank" rel="noopener" href="https://www.microfocus.com/en-us/cyberres/secops/arcsight-esm">https://www.microfocus.com/en-us/cyberres/secops/arcsight-esm</a></p>
+<h2 id="参考文档"><a class="markdownIt-Anchor" href="#参考文档"></a> 参考文档</h2>
+<p><a target="_blank" rel="noopener" href="https://www.microfocus.com/documentation/arcsight-archive/arcsight-recon-archived/arcsight-recon-1.2/">ArcSight Recon 1.2 Documentation</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.microfocus.com/documentation/arcsight-archive/arcsight-platform-archived/arcsight-platform-21.1/as_platform_admin_guide/">Administrator’s Guide to ArcSight Platform 21.1</a></p>
+<p>社区论坛<a target="_blank" rel="noopener" href="https://community.microfocus.com/cyberres/?_ga=2.33871585.1994462426.1684978627-1507916439.1684978627">https://community.microfocus.com/cyberres/?_ga=2.33871585.1994462426.1684978627-1507916439.1684978627</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.freebuf.com/sectool/271726.html">Linux从配置本地yum源到局域网内yum源共享</a></p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/SIEM_env_building/Splunk.html">Splunk</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

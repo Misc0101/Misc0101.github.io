@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Linux下的环境搭建：chrony时间服务器 - Misc010</title>
+
+  
+    <meta name="description" content="前言 有台linux需要做时间同步，但无法连外网，只能搭个内网NTP服务器，让它与内网NTP服务器做时间同步。 如果能连网，配置文件中本身有默认的时间源，也可以自己改。  文章环境 centos 1234[root@localhost squid]# cat &#x2F;etc&#x2F;redhat-releaseCentOS Linux release 7.9.2009 (Core)[root@localhos">
+<meta property="og:type" content="website">
+<meta property="og:title" content="chrony时间服务器">
+<meta property="og:url" content="https://misc0101.github.io/wiki/linux_env/chrony%E6%97%B6%E9%97%B4%E6%9C%8D%E5%8A%A1%E5%99%A8.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="前言 有台linux需要做时间同步，但无法连外网，只能搭个内网NTP服务器，让它与内网NTP服务器做时间同步。 如果能连网，配置文件中本身有默认的时间源，也可以自己改。  文章环境 centos 1234[root@localhost squid]# cat &#x2F;etc&#x2F;redhat-releaseCentOS Linux release 7.9.2009 (Core)[root@localhos">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/chrony%E6%97%B6%E9%97%B4%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20230325185514487.png">
+<meta property="article:published_time" content="2023-03-25T10:16:23.000Z">
+<meta property="article:modified_time" content="2023-03-25T10:16:23.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/chrony%E6%97%B6%E9%97%B4%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20230325185514487.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/linux_env/chrony%E6%97%B6%E9%97%B4%E6%9C%8D%E5%8A%A1%E5%99%A8.html"><div class="main" ff="title">Linux下的环境搭建</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/linux_env/" placeholder="在/wiki/linux_env/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc single" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">本文目录</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text"> 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E7%AB%A0%E7%8E%AF%E5%A2%83"><span class="toc-text"> 文章环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-text"> 介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#chrony%E5%AE%89%E8%A3%85"><span class="toc-text"> chrony安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%8F%8A%E8%A7%A3%E8%AF%BB"><span class="toc-text"> 默认配置文件及解读</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E4%BE%8B%E5%AD%90"><span class="toc-text"> 一个例子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BD%BF%E7%94%A8%E6%95%88%E6%9E%9C"><span class="toc-text"> 客户端使用效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text"> 参考</span></a></li></ol></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：环境搭建</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/SIEM_env_building/Arcisght.html"><span class="title">SIEM环境搭建</span><span class="excerpt">目前包含：Splunk、Arcisght Recon。</span></a><a class="item wiki" href="/wiki/network_security_devices_env/Sophos_Firewall.html"><span class="title">安全设备类环境搭建</span><span class="excerpt">目前包含：Sophos Firewall，SonicWALL SMA设备，Juniper SRX设备，FortiGate VM，Cisco ACS，Cisco ISE。</span></a><a class="item wiki" href="/wiki/proxy_server_building/squid%E8%AE%A4%E8%AF%81%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA.html"><span class="title">代理服务器搭建</span><span class="excerpt">目前包含：squid透明/认证代理服务器，TMG代理服务器。</span></a><a class="item wiki" href="/wiki/sql_injection_env/SQLite.html"><span class="title">SQL注入靶场环境搭建</span><span class="excerpt">目前包含：Oracle、PostgreSQL、Microsoft Access、SQLite。</span></a><a class="item wiki" href="/wiki/windows_env/%E5%9F%9F%E7%8E%AF%E5%A2%83.html"><span class="title">Windows下的环境搭建</span><span class="excerpt">目前包含：域环境(powershell方式和手动方式)，Exchange邮箱服务器(2016，2019)，IIS。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/linux_env/chrony%E6%97%B6%E9%97%B4%E6%9C%8D%E5%8A%A1%E5%99%A8.html">Linux下的环境搭建</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-03-25T10:16:23.000Z">2023-03-25</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>chrony时间服务器</span></h1>
+<h2 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h2>
+<p>有台linux需要做时间同步，但无法连外网，只能搭个内网NTP服务器，让它与内网NTP服务器做时间同步。</p>
+<p>如果能连网，配置文件中本身有默认的时间源，也可以自己改。</p>
+<h2 id="文章环境"><a class="markdownIt-Anchor" href="#文章环境"></a> 文章环境</h2>
+<p>centos</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost squid]# cat /etc/redhat-release</span><br><span class="line">CentOS Linux release 7.9.2009 (Core)</span><br><span class="line">[root@localhost user]# uname -a</span><br><span class="line">Linux localhost.localdomain 3.10.0-1160.el7.x86_64 #1 SMP Mon Oct 19 16:18:59 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux</span><br></pre></td></tr></table></figure>
+<h2 id="介绍"><a class="markdownIt-Anchor" href="#介绍"></a> 介绍</h2>
+<p>Chrony有两个核心组件，分别是：</p>
+<ul>
+<li>chronyd：是守护进程，主要用于调整内核中运行的系统时间和时间服务器同步。它确定计算机增减时间的比率，并对此进行调整补偿</li>
+<li>chronyc：提供一个用户界面，用于监控性能并进行多样化的配置。它可以在chronyd实例控制的计算机上工作，也可以在一台不同的远程计算机上工作。</li>
+</ul>
+<h2 id="chrony安装"><a class="markdownIt-Anchor" href="#chrony安装"></a> chrony安装</h2>
+<ol>
+<li>
+<p>系统已默认安装。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install chrony -y</span><br></pre></td></tr></table></figure>
+<p>启动并加入开机自启动。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl enable chronyd.service</span><br><span class="line">systemctl restart chronyd.service</span><br><span class="line">systemctl status chronyd.service</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>防火墙设置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --add-service=ntp --permanent</span><br><span class="line">firewall-cmd --reload</span><br></pre></td></tr></table></figure>
+<p>因NTP使用123/UDP端口协议，所以允许NTP服务即可。</p>
+</li>
+<li>
+<p>关闭SELinux<br />
+临时关闭</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setenforce 0</span><br></pre></td></tr></table></figure>
+<p>永久关闭<br />
+修改配置文件/etc/selinux/config,将其中SELINUX设置为disabled</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="deletion">- SELINUX=enforcing  </span></span><br><span class="line"><span class="addition">+ SELINUX=disabled </span></span><br></pre></td></tr></table></figure>
+<p>重启生效，使用sestatus查看SELinux状态</p>
+</li>
+</ol>
+<h2 id="默认配置文件及解读"><a class="markdownIt-Anchor" href="#默认配置文件及解读"></a> 默认配置文件及解读</h2>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/chrony.conf</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin tabs" align="center"id="tab_225"><div class="nav-tabs"><div class="tab active"><a href="#tab_225-1">原版</a></div><div class="tab"><a href="#tab_225-2">注释版</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_225-1"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"># These servers were defined in the installation:</span><br><span class="line">server 0.centos.pool.ntp.org iburst</span><br><span class="line">server 1.centos.pool.ntp.org iburst</span><br><span class="line">server 2.centos.pool.ntp.org iburst</span><br><span class="line">server 3.centos.pool.ntp.org iburst</span><br><span class="line"></span><br><span class="line"># Use public servers from the pool.ntp.org project.</span><br><span class="line"># Please consider joining the pool (http://www.pool.ntp.org/join.html).</span><br><span class="line"></span><br><span class="line"># Record the rate at which the system clock gains/losses time.</span><br><span class="line">driftfile /var/lib/chrony/drift</span><br><span class="line"></span><br><span class="line"># Allow the system clock to be stepped in the first three updates</span><br><span class="line"># if its offset is larger than 1 second.</span><br><span class="line">makestep 1.0 3</span><br><span class="line"></span><br><span class="line"># Enable kernel synchronization of the real-time clock (RTC).</span><br><span class="line">rtcsync</span><br><span class="line"></span><br><span class="line"># Enable hardware timestamping on all interfaces that support it.</span><br><span class="line">#hwtimestamp *</span><br><span class="line"></span><br><span class="line"># Increase the minimum number of selectable sources required to adjust</span><br><span class="line"># the system clock.</span><br><span class="line">#minsources 2</span><br><span class="line"></span><br><span class="line"># Allow NTP client access from local network.</span><br><span class="line">#allow 192.168.0.0/16</span><br><span class="line"></span><br><span class="line"># Serve time even if not synchronized to a time source.</span><br><span class="line"></span><br><span class="line"># Specify file containing keys for NTP authentication.</span><br><span class="line">#keyfile /etc/chrony.keys</span><br><span class="line"></span><br><span class="line"># Specify directory for log files.</span><br><span class="line">logdir /var/log/chrony</span><br><span class="line"></span><br><span class="line"># Select which information is logged.</span><br><span class="line">#log measurements statistics tracking</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_225-2"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"># 使用pool.ntp.org项目中的公共服务器。以server开头，理论上你想添加多少时间服务器都可以。</span><br><span class="line"># These servers were defined in the installation:</span><br><span class="line">server 0.centos.pool.ntp.org iburst</span><br><span class="line">server 1.centos.pool.ntp.org iburst</span><br><span class="line">server 2.centos.pool.ntp.org iburst</span><br><span class="line">server 3.centos.pool.ntp.org iburst</span><br><span class="line"></span><br><span class="line"># Use public servers from the pool.ntp.org project.</span><br><span class="line"># Please consider joining the pool (http://www.pool.ntp.org/join.html).</span><br><span class="line"></span><br><span class="line"># 根据实际时间计算出服务器增减时间的比率，然后记录到一个文件中，在系统重启后为系统做出最佳时间补偿调整。</span><br><span class="line"># Record the rate at which the system clock gains/losses time.</span><br><span class="line">driftfile /var/lib/chrony/drift</span><br><span class="line"></span><br><span class="line"># chronyd根据需求减慢或加速时间调整，</span><br><span class="line"># 在某些情况下系统时钟可能漂移过快，导致时间调整用时过长。</span><br><span class="line"># 该指令强制chronyd调整时期，大于某个阀值时步进调整系统时钟。</span><br><span class="line"># 只有在因chronyd启动时间超过指定的限制时（可使用负值来禁用限制）没有更多时钟更新时才生效。</span><br><span class="line"># Allow the system clock to be stepped in the first three updates</span><br><span class="line"># if its offset is larger than 1 second.</span><br><span class="line">makestep 1.0 3</span><br><span class="line"></span><br><span class="line"># 将启用一个内核模式，在该模式中，系统时间每11分钟会拷贝到实时时钟（RTC）。</span><br><span class="line"># Enable kernel synchronization of the real-time clock (RTC).</span><br><span class="line">rtcsync</span><br><span class="line"></span><br><span class="line"># 通过使用hwtimestamp指令启用硬件时间戳</span><br><span class="line"># Enable hardware timestamping on all interfaces that support it.</span><br><span class="line">#hwtimestamp *</span><br><span class="line"></span><br><span class="line"># Increase the minimum number of selectable sources required to adjust</span><br><span class="line"># the system clock.</span><br><span class="line">#minsources 2</span><br><span class="line"></span><br><span class="line"># 指定一台主机、子网，或者网络以允许或拒绝NTP连接到扮演时钟服务器的机器</span><br><span class="line"># Allow NTP client access from local network.</span><br><span class="line">#allow 192.168.0.0/16</span><br><span class="line"></span><br><span class="line"># Serve time even if not synchronized to a time source.</span><br><span class="line"></span><br><span class="line"># 指定包含NTP验证密钥的文件。</span><br><span class="line"># Specify file containing keys for NTP authentication.</span><br><span class="line">#keyfile /etc/chrony.keys</span><br><span class="line"></span><br><span class="line"># 指定日志文件的目录。</span><br><span class="line"># Specify directory for log files.</span><br><span class="line">logdir /var/log/chrony</span><br><span class="line"></span><br><span class="line"># Select which information is logged.</span><br><span class="line">#log measurements statistics tracking</span><br></pre></td></tr></table></figure></div></div></div>
+<h2 id="一个例子"><a class="markdownIt-Anchor" href="#一个例子"></a> 一个例子</h2>
+<ol>
+<li>
+<p>修改配置文件如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/chrony.conf</span><br></pre></td></tr></table></figure>
+<p>注释掉外部时钟，因为内网环境，上不了网。增加自身ip作为时钟服务器。<br />
+allow命令指允许哪些ip通过访问到自己。<br />
+local stratum 10指当外部时钟访问不到时，允许自身作为时钟服务器来校准客户端</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"># These servers were defined in the installation:</span><br><span class="line"><span class="addition">+ #server 0.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ #server 1.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ #server 2.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ #server 3.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ server 192.168.147.201 iburst</span></span><br><span class="line"></span><br><span class="line"># Use public servers from the pool.ntp.org project.</span><br><span class="line"># Please consider joining the pool (http://www.pool.ntp.org/join.html).</span><br><span class="line"></span><br><span class="line"># Record the rate at which the system clock gains/losses time.</span><br><span class="line">driftfile /var/lib/chrony/drift</span><br><span class="line"></span><br><span class="line"># Allow the system clock to be stepped in the first three updates</span><br><span class="line"># if its offset is larger than 1 second.</span><br><span class="line">makestep 1.0 3</span><br><span class="line"></span><br><span class="line"># Enable kernel synchronization of the real-time clock (RTC).</span><br><span class="line">rtcsync</span><br><span class="line"></span><br><span class="line"># Enable hardware timestamping on all interfaces that support it.</span><br><span class="line">#hwtimestamp *</span><br><span class="line"></span><br><span class="line"># Increase the minimum number of selectable sources required to adjust</span><br><span class="line"># the system clock.</span><br><span class="line">#minsources 2</span><br><span class="line"></span><br><span class="line"># Allow NTP client access from local network.</span><br><span class="line">#allow 192.168.0.0/16</span><br><span class="line"><span class="addition">+ allow 192.168.147.0/24 </span></span><br><span class="line"></span><br><span class="line"># Serve time even if not synchronized to a time source.</span><br><span class="line"><span class="addition">+ local stratum 10</span></span><br><span class="line"></span><br><span class="line"># Specify file containing keys for NTP authentication.</span><br><span class="line">#keyfile /etc/chrony.keys</span><br><span class="line"></span><br><span class="line"># Specify directory for log files.</span><br><span class="line">logdir /var/log/chrony</span><br><span class="line"></span><br><span class="line"># Select which information is logged.</span><br><span class="line">#log measurements statistics tracking</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>重启chrony</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart chronyd.service</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>外网的话，可以注释掉那四个server，然后加个阿里云的时间源server <a target="_blank" rel="noopener" href="http://ntp.aliyun.com">ntp.aliyun.com</a> iburst，其余步骤一样</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="客户端使用效果"><a class="markdownIt-Anchor" href="#客户端使用效果"></a> 客户端使用效果</h2>
+<ol>
+<li>
+<p>修改配置文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/chrony.conf</span><br></pre></td></tr></table></figure>
+<p>注释掉4个外部时钟，添加192.168.147.201作为时钟</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"># Use public servers from the pool.ntp.org project.</span><br><span class="line"># Please consider joining the pool (http://www.pool.ntp.org/join.html).</span><br><span class="line"><span class="addition">+ #server 0.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ #server 1.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ #server 2.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ #server 3.centos.pool.ntp.org iburst</span></span><br><span class="line"><span class="addition">+ server 192.168.147.201 iburst</span></span><br><span class="line"></span><br><span class="line"># Record the rate at which the system clock gains/losses time.</span><br><span class="line">driftfile /var/lib/chrony/drift</span><br><span class="line"></span><br><span class="line"># Allow the system clock to be stepped in the first three updates</span><br><span class="line"># if its offset is larger than 1 second.</span><br><span class="line">makestep 1.0 3</span><br><span class="line"></span><br><span class="line"># Enable kernel synchronization of the real-time clock (RTC).</span><br><span class="line">rtcsync</span><br><span class="line"></span><br><span class="line"># Enable hardware timestamping on all interfaces that support it.</span><br><span class="line">#hwtimestamp *</span><br><span class="line"></span><br><span class="line"># Increase the minimum number of selectable sources required to adjust</span><br><span class="line"># the system clock.</span><br><span class="line">#minsources 2</span><br><span class="line"></span><br><span class="line"># Allow NTP client access from local network.</span><br><span class="line">#allow 192.168.0.0/16</span><br><span class="line"></span><br><span class="line"># Serve time even if not synchronized to a time source.</span><br><span class="line">#local stratum 10</span><br><span class="line"></span><br><span class="line"># Specify file containing keys for NTP authentication.</span><br><span class="line">#keyfile /etc/chrony.keys</span><br><span class="line"></span><br><span class="line"># Specify directory for log files.</span><br><span class="line">logdir /var/log/chrony</span><br><span class="line"></span><br><span class="line"># Select which information is logged.</span><br><span class="line">#log measurements statistics trackin</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>重启chrony</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart chronyd.service</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>使用以下命令查看同步状态，其中“^*” 代表时间已经正确同步</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chronyc sources -v</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/chrony%E6%97%B6%E9%97%B4%E6%9C%8D%E5%8A%A1%E5%99%A8/image-20230325185514487.png" alt="image-20230325185514487" /></p>
+</li>
+</ol>
+<h2 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h2>
+<p><a target="_blank" rel="noopener" href="https://www.linuxprobe.com/centos7-chrony-time.html">详解：Linux Chrony 设置服务器集群同步时间</a></p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

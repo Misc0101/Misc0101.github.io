@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Stellar：标签组件语法 - Misc010</title>
+
+  
+    <meta name="description" content="这篇文章记录Stellar主题支持的各种标签语法，帮助自己更精准地使用标签来丰富内容展示。 搬运于:  表达类标签组件（19+个） 数据类标签组件（6个） 容器类标签组件（11个）   注意事项 有些标签要注意成对出现，否则hexo s会报错，大概率是标签的问题  之前出现过的问题： 问题修正123&#123;% quot 练习 el:h2 %&#125;1)段寄存器只能看见16位，如何证明有96">
+<meta property="og:type" content="website">
+<meta property="og:title" content="标签组件语法">
+<meta property="og:url" content="https://misc0101.github.io/wiki/stellar/%E6%A0%87%E7%AD%BE%E7%BB%84%E4%BB%B6%E8%AF%AD%E6%B3%95.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="这篇文章记录Stellar主题支持的各种标签语法，帮助自己更精准地使用标签来丰富内容展示。 搬运于:  表达类标签组件（19+个） 数据类标签组件（6个） 容器类标签组件（11个）   注意事项 有些标签要注意成对出现，否则hexo s会报错，大概率是标签的问题  之前出现过的问题： 问题修正123&#123;% quot 练习 el:h2 %&#125;1)段寄存器只能看见16位，如何证明有96">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%A0%87%E7%AD%BE%E7%BB%84%E4%BB%B6%E8%AF%AD%E6%B3%95/image-20230727101435894.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%A0%87%E7%AD%BE%E7%BB%84%E4%BB%B6%E8%AF%AD%E6%B3%95/image-20230727101457501.png">
+<meta property="og:image" content="https://bu.dusays.com/2022/10/24/63567d3e07da3.png">
+<meta property="og:image" content="https://bu.dusays.com/2022/10/24/63567d3e092ff.png">
+<meta property="og:image" content="https://bu.dusays.com/2022/10/24/63567d3e0ab55.png">
+<meta property="og:image" content="https://gcore.jsdelivr.net/gh/cdn-x/emoji/tieba/%E6%BB%91%E7%A8%BD.png">
+<meta property="og:image" content="https://misc0101.github.io/assets/wiki/stellar/icon.svg">
+<meta property="og:image" content="https://misc0101.github.io/assets/wiki/stellar/photos/hello@1x.png">
+<meta property="article:published_time" content="2023-03-15T06:27:26.000Z">
+<meta property="article:modified_time" content="2024-02-22T03:04:02.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E6%A0%87%E7%AD%BE%E7%BB%84%E4%BB%B6%E8%AF%AD%E6%B3%95/image-20230727101435894.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/stellar/Stellar%E6%90%AD%E5%BB%BA%E5%92%8C%E9%83%A8%E7%BD%B2.html"><div class="main" ff="title">Stellar</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/stellar/" placeholder="在/wiki/stellar/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">记录</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/stellar/Stellar%E6%90%AD%E5%BB%BA%E5%92%8C%E9%83%A8%E7%BD%B2.html#start"><span class="toc-text">Stellar搭建和部署</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/stellar/%E5%A4%87%E4%BB%BD%E4%B8%8E%E5%8D%87%E7%BA%A7.html"><span class="toc-text">备份与升级</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/stellar/%E8%A7%A3%E8%AF%BBStellar%E4%B8%BB%E9%A2%98%E5%8A%9F%E8%83%BD.html"><span class="toc-text">解读Stellar主题功能</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/stellar/%E9%85%8D%E7%BD%AE%E5%92%8C%E6%94%B9%E5%8A%A8%E8%AE%B0%E5%BD%95.html"><span class="toc-text">配置和改动记录</span></a></div></div><div class="widget-header cap dis-select"><span class="name">常用</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/stellar/%E6%97%A5%E5%B8%B8%E5%B7%A5%E4%BD%9C%E6%B5%81.html"><span class="toc-text">日常工作流</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/stellar/%E6%A0%87%E7%AD%BE%E7%BB%84%E4%BB%B6%E8%AF%AD%E6%B3%95.html"><span class="toc-text">标签组件语法</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text"> 注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E5%88%AB"><span class="toc-text"> 类别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8"><span class="toc-text"> 常用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#quot%E5%BC%95%E7%94%A8"><span class="toc-text"> quot引用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stellar%20%E6%98%AF%E6%9C%80%E5%A5%BD%E7%94%A8%E7%9A%84%E4%B8%BB%E9%A2%98"><span class="toc-text">Stellar 是最好用的主题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#folders%E5%A4%9A%E4%B8%AA%E6%8A%98%E5%8F%A0%E5%AE%B9%E5%99%A8%E8%81%9A%E5%90%88"><span class="toc-text"> folders多个折叠容器聚合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tabs%E5%88%86%E6%A0%8F%E5%AE%B9%E5%99%A8"><span class="toc-text"> tabs分栏容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#grid%E7%BD%91%E6%A0%BC%E5%88%86%E5%8C%BA%E5%BD%A9%E8%89%B2%E4%BB%A3%E7%A0%81%E5%9D%97"><span class="toc-text"> grid网格分区+彩色代码块</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%B6%E5%BD%95"><span class="toc-text"> 收录</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%A9%E8%89%B2%E5%A4%87%E6%B3%A8%E5%9D%97"><span class="toc-text"> 彩色备注块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#timeline-%E6%97%B6%E9%97%B4%E7%BA%BF"><span class="toc-text"> timeline 时间线</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sites%E7%BD%91%E7%AB%99%E5%8D%A1%E7%89%87"><span class="toc-text"> sites网站卡片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#okr-%E7%9B%AE%E6%A0%87%E7%AE%A1%E7%90%86"><span class="toc-text"> okr 目标管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tabs%E5%88%86%E6%A0%8F%E5%AE%B9%E5%99%A8-2"><span class="toc-text"> tabs分栏容器</span></a></li></ol></li></ol></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：其他</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/cybersecurity_learning/%E5%89%8D%E8%A8%80_%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0%E5%BF%83%E5%BE%97.html"><span class="title">安全技术学习心得</span><span class="excerpt">安全技术学习心得，应该学什么，相关学习的资源有哪些，与君共勉。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/stellar/Stellar%E6%90%AD%E5%BB%BA%E5%92%8C%E9%83%A8%E7%BD%B2.html">Stellar</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-02-22T03:04:02.000Z">2024-02-22</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>标签组件语法</span></h1>
+<p>这篇文章记录Stellar主题支持的各种标签语法，帮助自己更精准地使用标签来丰富内容展示。</p>
+<p>搬运于:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://xaoxuu.com/wiki/stellar/tag-plugins/express/">表达类标签组件（19+个）</a></li>
+<li><a target="_blank" rel="noopener" href="https://xaoxuu.com/wiki/stellar/tag-plugins/data/">数据类标签组件（6个）</a></li>
+<li><a target="_blank" rel="noopener" href="https://xaoxuu.com/wiki/stellar/tag-plugins/container/">容器类标签组件（11个）</a></li>
+</ul>
+<h2 id="注意事项"><a class="markdownIt-Anchor" href="#注意事项"></a> 注意事项</h2>
+<p>有些标签要注意成对出现，否则<code>hexo s</code>会报错，大概率是标签的问题</p>
+<hr />
+<p>之前出现过的问题：</p>
+<div class="tag-plugin tabs" align="center"id="tab_231"><div class="nav-tabs"><div class="tab active"><a href="#tab_231-1">问题</a></div><div class="tab"><a href="#tab_231-2">修正</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_231-1"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;% quot 练习 el:h2 %&#125;</span><br><span class="line"></span><br><span class="line">1)段寄存器只能看见16位，如何证明有96位?</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%A0%87%E7%AD%BE%E7%BB%84%E4%BB%B6%E8%AF%AD%E6%B3%95/image-20230727101435894.png" alt="image-20230727101435894" /></p></div><div class="tab-pane" id="tab_231-2"><p>把)去掉</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;% quot 练习 el:h2 %&#125;</span><br><span class="line"></span><br><span class="line">段寄存器只能看见16位，如何证明有96位?</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%A0%87%E7%AD%BE%E7%BB%84%E4%BB%B6%E8%AF%AD%E6%B3%95/image-20230727101457501.png" alt="image-20230727101457501" /></p></div></div></div>
+<h2 id="类别"><a class="markdownIt-Anchor" href="#类别"></a> 类别</h2>
+<p><a target="_blank" rel="noopener" href="https://xaoxuu.com/wiki/stellar/tag-plugins/express/">表达类标签组件（19+个）</a>：quot引用，彩色备注块，link链接卡片，okr 目标管理，navbar 导航栏</p>
+<p><a target="_blank" rel="noopener" href="https://xaoxuu.com/wiki/stellar/tag-plugins/data/">数据类标签组件（6个）</a>：timeline 时间线</p>
+<p><a target="_blank" rel="noopener" href="https://xaoxuu.com/wiki/stellar/tag-plugins/container/">容器类标签组件（11个）</a>：彩色代码块，grid网格分区</p>
+<h2 id="常用"><a class="markdownIt-Anchor" href="#常用"></a> 常用</h2>
+<h3 id="quot引用"><a class="markdownIt-Anchor" href="#quot引用"></a> quot引用</h3>
+<div class="tag-plugin tabs" align="center"id="tab_232"><div class="nav-tabs"><div class="tab active"><a href="#tab_232-1">效果</a></div><div class="tab"><a href="#tab_232-2">写法</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_232-1"><div class="tag-plugin quot"><p class="content" type="text">Stellar 是最好用的主题</p></div>
+<div class="tag-plugin quot"><h2 class="content" id="Stellar 是最好用的主题" type="text"><a href="#Stellar 是最好用的主题" class="headerlink" title="Stellar 是最好用的主题"></a>Stellar 是最好用的主题</h2></div>
+<div class="tag-plugin quot"><p class="content" type="icon"><img class="icon prefix lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://bu.dusays.com/2022/10/24/63567d3e07da3.png" />热门话题</p></div>
+<div class="tag-plugin quot"><p class="content" type="icon"><img class="icon prefix lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://bu.dusays.com/2022/10/24/63567d3e092ff.png" />热门话题<img class="icon suffix lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://bu.dusays.com/2022/10/24/63567d3e0ab55.png" /></p></div></div><div class="tab-pane" id="tab_232-2"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;% quot Stellar 是最好用的主题 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% quot Stellar 是最好用的主题 el:h2 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% quot 热门话题 icon:hashtag %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% quot 热门话题 icon:default %&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>此外，加上 <code>el:h2/h3/h4/h5/h6</code> 可以作为标题使用</p>
+</blockquote></div></div></div>
+<h3 id="folders多个折叠容器聚合"><a class="markdownIt-Anchor" href="#folders多个折叠容器聚合"></a> folders多个折叠容器聚合</h3>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>题目1</span></summary><div class="body"><p>…</p></div></details><details class="folder" index="1"><summary><span>题目2</span></summary><div class="body"><p>…</p></div></details></div>
+<hr />
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>过程</span></summary><div class="body"><p>…</p></div></details></div>
+<p>写法如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;% folders %&#125;</span><br><span class="line">&lt;!-- folder 题目1 --&gt;</span><br><span class="line">...</span><br><span class="line">&lt;!-- folder 题目2 --&gt;</span><br><span class="line">...</span><br><span class="line">&#123;% endfolders %&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;% folders %&#125;</span><br><span class="line">&lt;!-- folder 过程 --&gt;</span><br><span class="line">...</span><br><span class="line">&#123;% endfolders %&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="tabs分栏容器"><a class="markdownIt-Anchor" href="#tabs分栏容器"></a> tabs分栏容器</h3>
+<p>效果：</p>
+<div class="tag-plugin tabs" align="center"id="tab_233"><div class="nav-tabs"><div class="tab active"><a href="#tab_233-1">图片</a></div><div class="tab"><a href="#tab_233-2">代码块</a></div><div class="tab"><a href="#tab_233-3">表格</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_233-1"><p>假装这里有一张图</p></div><div class="tab-pane" id="tab_233-2"><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> x <span class="operator">=</span> <span class="number">123</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;hello world&quot;</span>)</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_233-3"><table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+<th>c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a1</td>
+<td>b1</td>
+<td>c1</td>
+</tr>
+<tr>
+<td>a2</td>
+<td>b2</td>
+<td>c2</td>
+</tr>
+</tbody>
+</table></div></div></div>
+<p>写法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;% tabs active:1 align:center %&#125;</span><br><span class="line">&lt;!-- tab 图片 --&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- tab 代码块 --&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- tab 表格 --&gt;</span><br><span class="line"></span><br><span class="line">&#123;% endtabs %&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="grid网格分区彩色代码块"><a class="markdownIt-Anchor" href="#grid网格分区彩色代码块"></a> grid网格分区+彩色代码块</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/releases/tag/1.21.0">1.21.0</a>版本后ablock 标签组件重命名为 box (批量替换即可）</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/releases/tag/1.24.0">1.24.0</a>版本后网格组件 grid 中的分隔符写法变更，现在仅支持 <code>&lt;!-- cell --&gt;</code> 固定写法</p>
+</blockquote>
+<div class="tag-plugin tabs" align="center"id="tab_234"><div class="nav-tabs"><div class="tab active"><a href="#tab_234-1">效果</a></div><div class="tab"><a href="#tab_234-2">写法</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_234-1"><div class="tag-plugin grid"  style="grid-template-columns: repeat(2, 1fr);"><div class="cell" style="">
+    <p><strong>推荐的写法</strong></p><div class="tag-plugin colorful note" color="green" child="codeblock"><div class="body"><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">test</span>() &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></div>
+    </div>
+    <div class="cell" style="">
+    <p><strong>不推荐的写法</strong></p><div class="tag-plugin colorful note" color="red" child="codeblock"><div class="body"><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">test</span>() -&gt; () &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></div>
+    </div>
+    </div></div><div class="tab-pane" id="tab_234-2"><p>c:2是固定为2列</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#123;% grid c:2 %&#125;</span><br><span class="line">&lt;!-- cell --&gt;</span><br><span class="line">**推荐的写法**</span><br><span class="line">&#123;% box child:codeblock color:green %&#125;</span><br><span class="line"></span><br><span class="line">```swift</span><br><span class="line">func test() &#123;</span><br><span class="line">    // ...</span><br><span class="line">&#125;</span><br><span class="line">```</span><br><span class="line"></span><br><span class="line">&#123;% endbox %&#125;</span><br><span class="line">&lt;!-- cell --&gt;</span><br><span class="line">**不推荐的写法**</span><br><span class="line">&#123;% box child:codeblock color:red %&#125;</span><br><span class="line"></span><br><span class="line">```swift</span><br><span class="line">func test() -&gt; () &#123;</span><br><span class="line">    // ...</span><br><span class="line">&#125;</span><br><span class="line">```</span><br><span class="line"></span><br><span class="line">&#123;% endbox %&#125;</span><br><span class="line">&#123;% endgrid %&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+<hr />
+<p>固定两列：</p>
+<div class="tag-plugin tabs" align="center"id="tab_235"><div class="nav-tabs"><div class="tab active"><a href="#tab_235-1">效果</a></div><div class="tab"><a href="#tab_235-2">写法</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_235-1"><div class="tag-plugin grid"  style="grid-template-columns: repeat(2, 1fr);"><div class="cell" style="">
+    <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">123</span><br></pre></td></tr></table></figure>
+    </div>
+    <div class="cell" style="">
+    <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">123</span></span><br></pre></td></tr></table></figure>
+    </div>
+    </div></div><div class="tab-pane" id="tab_235-2"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;% grid c:2 %&#125;</span><br><span class="line">&lt;!-- cell --&gt;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">&lt;!-- cell --&gt;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">&#123;% endgrid %&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+<h2 id="收录"><a class="markdownIt-Anchor" href="#收录"></a> 收录</h2>
+<h3 id="彩色备注块"><a class="markdownIt-Anchor" href="#彩色备注块"></a> 彩色备注块</h3>
+<div class="tag-plugin colorful note" color="blue"><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>全部颜色</span></summary><div class="body"><div class="tag-plugin tabs" align="center"id="tab_236"><div class="nav-tabs"><div class="tab active"><a href="#tab_236-1">效果</a></div><div class="tab"><a href="#tab_236-2">写法</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_236-1"><div class="tag-plugin colorful note" ><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div><div class="tag-plugin colorful note" color="red"><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div><div class="tag-plugin colorful note" color="orange"><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div><div class="tag-plugin colorful note" color="yellow"><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div><div class="tag-plugin colorful note" color="green"><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div><div class="tag-plugin colorful note" color="cyan"><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div><div class="tag-plugin colorful note" color="blue"><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div><div class="tag-plugin colorful note" color="purple"><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div><div class="tag-plugin colorful note" color="light"><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div><div class="tag-plugin colorful note" color="dark"><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div><div class="tag-plugin colorful note" color="warning"><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div><div class="tag-plugin colorful note" color="error"><div class="title">一共支持12种颜色，可以满足几乎所有的需求了。</div><div class="body"><p>color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。</p></div></div></div><div class="tab-pane" id="tab_236-2"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;% note 一共支持12种颜色，可以满足几乎所有的需求了。 color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% note color:red 一共支持12种颜色，可以满足几乎所有的需求了。 color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。 %&#125;</span><br><span class="line">&#123;% note color:orange 一共支持12种颜色，可以满足几乎所有的需求了。 color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% note color:yellow 一共支持12种颜色，可以满足几乎所有的需求了。 color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% note color:green 一共支持12种颜色，可以满足几乎所有的需求了。 color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% note color:cyan 一共支持12种颜色，可以满足几乎所有的需求了。 color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% note color:blue 一共支持12种颜色，可以满足几乎所有的需求了。 color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% note color:purple 一共支持12种颜色，可以满足几乎所有的需求了。 color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% note color:light 一共支持12种颜色，可以满足几乎所有的需求了。 color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% note color:dark 一共支持12种颜色，可以满足几乎所有的需求了。 color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% note color:warning 一共支持12种颜色，可以满足几乎所有的需求了。 color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% note color:error 一共支持12种颜色，可以满足几乎所有的需求了。 color 可设置 red、orange、yellow、green、cyan、blue、purple、light、dark、warning、error 几种取值。 %&#125;</span><br></pre></td></tr></table></figure></div></div></div></div></details></div>
+<h3 id="timeline-时间线"><a class="markdownIt-Anchor" href="#timeline-时间线"></a> timeline 时间线</h3>
+<p>静态数据是写死在 <code>md</code> 源文件中的，在 <code>deploy</code> 时就已经确定了。</p>
+<div class="tag-plugin tabs" align="center"id="tab_237"><div class="nav-tabs"><div class="tab active"><a href="#tab_237-1">效果</a></div><div class="tab"><a href="#tab_237-2">写法</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_237-1"><div class="tag-plugin timeline"><div class="timenode" index="0"><div class="header"><p>2021 年 2 月 16 日</p></div><div class="body fs14"><p>主要部分功能已经开发的差不多了。</p></div></div><div class="timenode" index="1"><div class="header"><p>2021 年 2 月 11 日</p></div><div class="body fs14"><p>今天除夕，也是生日，一个人在外地过年+过生日，熬夜开发新主题，尽量在假期结束前放出公测版。</p></div></div></div></div><div class="tab-pane" id="tab_237-2"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;% timeline %&#125;</span><br><span class="line">&lt;!-- node 2021 年 2 月 16 日 --&gt;</span><br><span class="line">主要部分功能已经开发的差不多了。</span><br><span class="line">&lt;!-- node 2021 年 2 月 11 日 --&gt;</span><br><span class="line">今天除夕，也是生日，一个人在外地过年+过生日，熬夜开发新主题，尽量在假期结束前放出公测版。</span><br><span class="line">&#123;% endtimeline %&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+<h3 id="sites网站卡片"><a class="markdownIt-Anchor" href="#sites网站卡片"></a> sites网站卡片</h3>
+<p><a target="_blank" rel="noopener" href="https://xaoxuu.com/wiki/stellar/tag-plugins/data/#sites-%E7%BD%91%E7%AB%99%E5%8D%A1%E7%89%87">https://xaoxuu.com/wiki/stellar/tag-plugins/data/#sites-网站卡片</a></p>
+<h3 id="okr-目标管理"><a class="markdownIt-Anchor" href="#okr-目标管理"></a> okr 目标管理</h3>
+<p>这个功能在 1.20.0 版本后开始支持</p>
+<div class="tag-plugin tabs" align="center"id="tab_239"><div class="nav-tabs"><div class="tab active"><a href="#tab_239-1">效果</a></div><div class="tab"><a href="#tab_239-2">写法</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_239-1"><div class="tag-plugin colorful okr" >
+  <div class="okr-item o">
+    <div class="okr-left">
+      <span class="title">O1</span>
+    </div>
+    <div class="okr-center">
+      <span class="title">2024年的小目标：完成 Volantis 6.0 并发布上线</span>
+      <div class="note"><p>来自2025年的复盘：已《基本》实现目标 <span class="tag-plugin emoji"><img no-lazy="" class="inline lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://gcore.jsdelivr.net/gh/cdn-x/emoji/tieba/滑稽.png"/></span></p></div>
+    </div>
+    <div class="okr-right colorful" color="blue">
+      <div class="labels">
+        <span class="status label">正常</span>
+        <span class="status percent">44%</span>
+      </div>
+      <div class="progress">
+        <div class="fill" style="width:44%;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="okr-item kr">
+    <div class="okr-left">
+      <span class="title">KR1</span>
+    </div>
+    <div class="okr-center">
+      <span class="title">重构 tag-plugins 和 wiki 系统</span>
+      <div class="note"><ul><li>当 <mark class="tag-plugin colorful mark" color="dark">KR</mark> 进度为 100% 时，标签默认显示为 <mark class="tag-plugin colorful mark" color="green">已完成</mark></li><li>当 <mark class="tag-plugin colorful mark" color="dark">KR</mark> 未设置进度时，默认为 <mark class="tag-plugin colorful mark" color="dark">0%</mark></li><li>当 <mark class="tag-plugin colorful mark" color="dark">O</mark> 未设置进度时，则显示所有 <mark class="tag-plugin colorful mark" color="dark">KR</mark> 进度平均值</li></ul></div>
+    </div>
+    <div class="okr-right colorful" color="green">
+      <div class="labels">
+        <span class="status label">已完成</span>
+        <span class="status percent">100%</span>
+      </div>
+      <div class="progress">
+        <div class="fill" style="width:100%;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="okr-item kr">
+    <div class="okr-left">
+      <span class="title">KR2</span>
+    </div>
+    <div class="okr-center">
+      <span class="title">完成主要页面设计稿</span>
+      <div class="note"><div class="tag-plugin tabs" align="left"id="tab_238"><div class="nav-tabs"><div class="tab active"><a href="#tab_238-1">小提示1</a></div><div class="tab"><a href="#tab_238-2">小提示2</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_238-1"><p>您可以在 _config.yml 文件中修改标签的颜色和文案</p></div><div class="tab-pane" id="tab_238-2"><p>您可以在 _config.yml 文件中增加任意的标签配置</p></div></div></div></div>
+    </div>
+    <div class="okr-right colorful" color="orange">
+      <div class="labels">
+        <span class="status label">延期</span>
+        <span class="status percent">90%</span>
+      </div>
+      <div class="progress">
+        <div class="fill" style="width:90%;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="okr-item kr">
+    <div class="okr-left">
+      <span class="title">KR3</span>
+    </div>
+    <div class="okr-center">
+      <span class="title"><p>完成前置准备工作（如果你知道答案，请在留言区帮帮我！🥹）</p></span>
+      <div class="note"><div class="tag-plugin colorful checkbox" ><input type="checkbox"/><span>在咸水和海滩之间找一亩地</span></div><div class="tag-plugin colorful checkbox" ><input type="checkbox"/><span>求出圆周率后15位</span></div><div class="tag-plugin colorful checkbox" ><input type="checkbox"/><span>找出宇宙的终极逻辑</span></div><div class="tag-plugin colorful checkbox" ><input type="checkbox"/><span>去地狱里走两步</span></div></div>
+    </div>
+    <div class="okr-right colorful" color="red">
+      <div class="labels">
+        <span class="status label">未完成</span>
+        <span class="status percent">-12%</span>
+      </div>
+      <div class="progress">
+        <div class="fill" style="width:-12%;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="okr-item kr">
+    <div class="okr-left">
+      <span class="title">KR-4</span>
+    </div>
+    <div class="okr-center">
+      <span class="title"><p>开发、测试和发布</p></span>
+      <div class="note"><div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/wiki/stellar/icon.svg" alt="支持嵌套插入图片等其它简单组件" style="height:64px;"/></div><div class="image-meta"><span class="image-caption center">支持嵌套插入图片等其它简单组件</span></div></div></div>
+    </div>
+    <div class="okr-right colorful" color="yellow">
+      <div class="labels">
+        <span class="status label">风险</span>
+        <span class="status percent">0%</span>
+      </div>
+      <div class="progress">
+        <div class="fill" style="width:0%;"></div>
+      </div>
+    </div>
+  </div>
+  </div></div><div class="tab-pane" id="tab_239-2"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&#123;% okr o1 %&#125;</span><br><span class="line"></span><br><span class="line">2024年的小目标：完成 Volantis 6.0 并发布上线</span><br><span class="line">来自2025年的复盘：已《基本》实现目标 &#123;% emoji tieba 滑稽 %&#125;</span><br><span class="line"></span><br><span class="line">&lt;!-- okr kr1 percent:1 --&gt;</span><br><span class="line">重构 tag-plugins 和 wiki 系统</span><br><span class="line"></span><br><span class="line">- 当 &#123;% mark KR %&#125; 进度为 100% 时，标签默认显示为 &#123;% mark color:green 已完成 %&#125;</span><br><span class="line">- 当 &#123;% mark KR %&#125; 未设置进度时，默认为 &#123;% mark 0% %&#125;</span><br><span class="line">- 当 &#123;% mark O %&#125; 未设置进度时，则显示所有 &#123;% mark KR %&#125; 进度平均值</span><br><span class="line"></span><br><span class="line">&lt;!-- okr kr2 percent:0.9 status:off_track --&gt;</span><br><span class="line">完成主要页面设计稿</span><br><span class="line">&#123;% tabs align:left %&#125;</span><br><span class="line">&lt;!-- tab 小提示1 --&gt;</span><br><span class="line">您可以在 _config.yml 文件中修改标签的颜色和文案</span><br><span class="line">&lt;!-- tab 小提示2 --&gt;</span><br><span class="line">您可以在 _config.yml 文件中增加任意的标签配置</span><br><span class="line">&#123;% endtabs %&#125;</span><br><span class="line"></span><br><span class="line">&lt;!-- okr kr3 percent:-0.12 status:unfinished --&gt;</span><br><span class="line">完成前置准备工作（如果你知道答案，请在留言区帮帮我！🥹）</span><br><span class="line">&#123;% checkbox 在咸水和海滩之间找一亩地 %&#125;</span><br><span class="line">&#123;% checkbox 求出圆周率后15位 %&#125;</span><br><span class="line">&#123;% checkbox 找出宇宙的终极逻辑 %&#125;</span><br><span class="line">&#123;% checkbox 去地狱里走两步 %&#125;</span><br><span class="line"></span><br><span class="line">&lt;!-- okr kr-4 status:at_risk --&gt;</span><br><span class="line">开发、测试和发布</span><br><span class="line">&#123;% image /assets/wiki/stellar/icon.svg height:64px 支持嵌套插入图片等其它简单组件 %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% endokr %&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+<h3 id="tabs分栏容器-2"><a class="markdownIt-Anchor" href="#tabs分栏容器-2"></a> tabs分栏容器</h3>
+<p>这个标签移植自 <a target="_blank" rel="noopener" href="https://theme-next.js.org/docs/tag-plugins/tabs.html">NexT</a> 主题，但做了以下修改：</p>
+<ul>
+<li>支持设置 <code>align:center</code> 来使内容居中</li>
+<li>设置默认激活的标签方式为 <code>active:1</code> 而非 <code>, 1</code>（使用默认格式降低学习成本，且显式声明可读性更强）</li>
+<li>不需要 <code>&lt;!-- endtab --&gt;</code> 来作为结束标识（因为 Stellar 会自动判断）</li>
+<li>不需要 <code>tabs id</code> 来保证唯一性（因为 Stellar 会设置唯一标识）</li>
+<li>不支持 <code>@icon</code> 方式设置图标（因为 Stellar 不再内置 <code>fontawesome</code> 图标库）</li>
+<li>轮廓样式简化，可以搭配其它容器类标签嵌套使用。</li>
+</ul>
+<div class="tag-plugin tabs" align="center"id="tab_241"><div class="nav-tabs"><div class="tab active"><a href="#tab_241-1">效果</a></div><div class="tab"><a href="#tab_241-2">写法</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_241-1"><div class="tag-plugin tabs" align="center"id="tab_240"><div class="nav-tabs"><div class="tab active"><a href="#tab_240-1">图片</a></div><div class="tab"><a href="#tab_240-2">代码块</a></div><div class="tab"><a href="#tab_240-3">表格</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_240-1"><div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/assets/wiki/stellar/photos/hello@1x.png" style="width:300px;"/></div></div></div><div class="tab-pane" id="tab_240-2"><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> x <span class="operator">=</span> <span class="number">123</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;hello world&quot;</span>)</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_240-3"><table>
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+<th>c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a1</td>
+<td>b1</td>
+<td>c1</td>
+</tr>
+<tr>
+<td>a2</td>
+<td>b2</td>
+<td>c2</td>
+</tr>
+</tbody>
+</table></div></div></div></div><div class="tab-pane" id="tab_241-2"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;% tabs active:1 align:center %&#125;</span><br><span class="line"></span><br><span class="line">&lt;!-- tab 图片 --&gt;</span><br><span class="line">&#123;% image /assets/wiki/stellar/photos/hello@1x.png width:300px %&#125;</span><br><span class="line"></span><br><span class="line">&lt;!-- tab 代码块 --&gt;</span><br><span class="line"></span><br><span class="line">```swift</span><br><span class="line">let x = 123</span><br><span class="line">print(&quot;hello world&quot;)</span><br><span class="line">```</span><br><span class="line"></span><br><span class="line">&lt;!-- tab 表格 --&gt;</span><br><span class="line"></span><br><span class="line">| a    | b    | c    |</span><br><span class="line">| ---- | ---- | ---- |</span><br><span class="line">| a1   | b1   | c1   |</span><br><span class="line">| a2   | b2   | c2   |</span><br><span class="line"></span><br><span class="line">&#123;% endtabs %&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/stellar/%E6%97%A5%E5%B8%B8%E5%B7%A5%E4%BD%9C%E6%B5%81.html">日常工作流</a></div><div class="item" id="next"></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

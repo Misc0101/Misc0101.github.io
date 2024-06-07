@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Protected_Mode：PDE、PTE属性 - Misc010</title>
+
+  
+    <meta name="description" content="PDE、PTE属性 物理页的属性由PDE和PTE共同决定，物理页的属性&#x3D;PDE属性&amp;PTE属性。 高20位，物理地址，12位，属性。  是物理地址，想想之前在windbg根据CR3+10*4，得到PDE后，还是用!dd指令查，!dd查的就是物理地址。  PDE PTE后12位（二进制位，3个16进制位）存储着属性，两者的属性字段和属性值很多都是一样的。重复的属性字段，要进行与操作，两者都为">
+<meta property="og:type" content="website">
+<meta property="og:title" content="PDE、PTE属性">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="PDE、PTE属性 物理页的属性由PDE和PTE共同决定，物理页的属性&#x3D;PDE属性&amp;PTE属性。 高20位，物理地址，12位，属性。  是物理地址，想想之前在windbg根据CR3+10*4，得到PDE后，还是用!dd指令查，!dd查的就是物理地址。  PDE PTE后12位（二进制位，3个16进制位）存储着属性，两者的属性字段和属性值很多都是一样的。重复的属性字段，要进行与操作，两者都为">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/867232_5AE5AYCUU3M5KMZ.jpg">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230818095157413.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230817175151769.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230817175438479.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230817175323621.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230817183340221.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230819152447234.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230819152519401.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230819152609433.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/867232_R5F5SSAGKV376CF.jpg">
+<meta property="article:published_time" content="2023-08-17T09:01:59.000Z">
+<meta property="article:modified_time" content="2023-08-17T09:01:59.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/867232_5AE5AYCUU3M5KMZ.jpg">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><div class="main" ff="title">Protected_Mode</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Protected_Mode/" placeholder="在/wiki/Protected_Mode/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">段</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html#start"><span class="toc-text">段寄存器</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90.html"><span class="toc-text">段描述符与段选择子</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E6%9D%83%E9%99%90%E6%A3%80%E6%9F%A5.html"><span class="toc-text">段权限检查</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E9%97%B4%E8%B7%B3%E8%BD%AC.html"><span class="toc-text">段间跳转</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%B7%A8%E6%AE%B5%E8%B7%B3%E8%BD%AC.html"><span class="toc-text">跨段跳转</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%B0%83%E7%94%A8%E9%97%A8.html"><span class="toc-text">调用门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%B8%AD%E6%96%AD%E9%97%A8.html"><span class="toc-text">中断门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%99%B7%E9%98%B1%E9%97%A8.html"><span class="toc-text">陷阱门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%BB%BB%E5%8A%A1%E6%AE%B5.html"><span class="toc-text">任务段</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%BB%BB%E5%8A%A1%E9%97%A8.html"><span class="toc-text">任务门</span></a></div></div><div class="widget-header cap dis-select"><span class="name">页</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/10-10-12%E5%88%86%E9%A1%B5.html"><span class="toc-text">10-10-12分页</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97.html"><span class="toc-text">PDE、PTE初步感受</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7.html"><span class="toc-text">PDE、PTE属性</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7"><span class="toc-text">PDE、PTE属性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#P%E4%BD%8D"><span class="toc-text">P位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#R/W%E4%BD%8D"><span class="toc-text">R&#x2F;W位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#U/S%E4%BD%8D"><span class="toc-text">U&#x2F;S位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PS%E4%BD%8D%EF%BC%88PageSize%EF%BC%89"><span class="toc-text">PS位（PageSize）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A%E4%BD%8D%EF%BC%88Access%EF%BC%89"><span class="toc-text">A位（Access）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#D%E4%BD%8D%EF%BC%88Dirty%EF%BC%89"><span class="toc-text">D位（Dirty）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9%E3%80%8110%E3%80%8111%E4%BD%8D"><span class="toc-text">9、10、11位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#G%E4%BD%8D"><span class="toc-text">G位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PWT%E4%BD%8D"><span class="toc-text">PWT位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PCD%E4%BD%8D"><span class="toc-text">PCD位</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%9D%E8%80%83%E9%A2%98"><span class="toc-text">思考题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%BE%E5%90%8E%E7%BB%83%E4%B9%A0"><span class="toc-text">课后练习</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%9F%BA%E5%9D%80.html"><span class="toc-text">页目录表基址</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%A1%B5%E8%A1%A8%E5%9F%BA%E5%9D%80.html"><span class="toc-text">页表基址</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/2-9-9-12%E5%88%86%E9%A1%B5.html"><span class="toc-text">2-9-9-12分页</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%8D%89%E7%A8%BF%E6%9C%AC.html"><span class="toc-text">草稿本</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/PE/Overview_PE.html"><span class="title">PE</span><span class="excerpt">滴水三期_PE文件笔记(To finish...)。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html">Protected_Mode</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-08-17T09:01:59.000Z">2023-08-17</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>PDE、PTE属性</span></h1>
+<div class="tag-plugin quot"><h2 class="content" id="PDE、PTE属性" type="text"><a href="#PDE、PTE属性" class="headerlink" title="PDE、PTE属性"></a>PDE、PTE属性</h2></div>
+<p>物理页的属性由PDE和PTE共同决定，物理页的属性=PDE属性&amp;PTE属性。</p>
+<p>高20位，物理地址，12位，属性。</p>
+<blockquote>
+<p>是物理地址，想想之前在windbg根据CR3+10*4，得到PDE后，还是用!dd指令查，!dd查的就是物理地址。</p>
+</blockquote>
+<p>PDE PTE后12位（二进制位，3个16进制位）存储着属性，两者的属性字段和属性值很多都是一样的。重复的属性字段，要进行与操作，两者都为1，对应物理页的该属性才为1。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/867232_5AE5AYCUU3M5KMZ.jpg" alt="image-20210413110743036" /></p>
+<blockquote>
+<p>为什么没有可执行属性的位？</p>
+<p>设计问题，在2-9-9-12分页补上了这个缺陷。</p>
+</blockquote>
+<div class="tag-plugin quot"><h3 class="content" id="P位" type="text"><a href="#P位" class="headerlink" title="P位"></a>P位</h3></div>
+<p>有效位，表示PDE或PTE是否有效。</p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>有效</td>
+</tr>
+<tr>
+<td>0</td>
+<td>无效</td>
+</tr>
+</tbody>
+</table>
+<p>为1，物理页就存在。为0，物理页不存在。</p>
+<div class="tag-plugin quot"><h3 class="content" id="R/W位" type="text"><a href="#R/W位" class="headerlink" title="R/W位"></a>R/W位</h3></div>
+<p>读写位。只有当PDE和PTE的R/W位都为1的时候，该物理页才是可读可写的。只要有一个为0代表只读不可写。</p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>可读可写</td>
+</tr>
+<tr>
+<td>0</td>
+<td>只读不可写</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>对于非VT而言，一块内存申请出来，它必然是可读的。</p>
+</blockquote>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>实验：定义一个只读类型的变量，用另一个线性地址指向相同的物理页，通过修改PDE/PTE属性，实现可写。</span></summary><div class="body"><div class="tag-plugin tabs" align="center"id="tab_150"><div class="nav-tabs"><div class="tab active"><a href="#tab_150-1">测试代码</a></div><div class="tab"><a href="#tab_150-2">正常执行</a></div><div class="tab"><a href="#tab_150-3">getchar时修改R/W位</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_150-1"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">char</span>* str = <span class="string">&quot;Hello World&quot;</span>;          <span class="comment">//常量区，只读不能写</span></span><br><span class="line">	DWORD dwVal = (DWORD)str;</span><br><span class="line">    </span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;线性地址:%x\n&quot;</span>,str);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//修改R/W位，改为可写</span></span><br><span class="line">	getchar();</span><br><span class="line"></span><br><span class="line">    <span class="comment">//str[1]=&#x27;M&#x27;;</span></span><br><span class="line">	*(<span class="type">char</span>*)dwVal = <span class="string">&#x27;M&#x27;</span>;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;修改后的字符串：%s\n&quot;</span>,str);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>str这个字符串存储在PE的常量区中，只读不可写。</p><p>直接执行会报错的，0xC0000005，Access Violation。</p><p>但是如果我们更改物理页对应的PDE和PTE的R/W属性后，就可以成功改写。</p></div><div class="tab-pane" id="tab_150-2"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230818095157413.png" alt="image-20230818095157413" /></p></div><div class="tab-pane" id="tab_150-3"><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">! process <span class="number">0</span> <span class="number">0</span></span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230817175151769.png" alt="image-20230817175151769" /></p><p>CR3是19b89000</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">线性地址<span class="number">423044</span>拆分</span><br><span class="line"><span class="number">0000</span> <span class="number">0000</span> <span class="number">01</span>		    <span class="comment">//10    ;1*4=4</span></span><br><span class="line"><span class="number">00</span> <span class="number">0010</span> <span class="number">0011</span>,<span class="number">23</span>         <span class="comment">//10    ;23*4=8C</span></span><br><span class="line"><span class="number">044</span>                     <span class="comment">//12</span></span><br></pre></td></tr></table></figure><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">!dd <span class="number">19</span>b89000+<span class="number">4</span></span><br><span class="line">!dd <span class="number">19</span>d5d000+<span class="number">8</span>C</span><br><span class="line">!ed <span class="number">19</span>d5d08c <span class="number">19</span>df4027</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230817175438479.png" alt="image-20230817175438479" /></p><p>回到虚拟机后，回车，修改成功</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230817175323621.png" alt="image-20230817175323621" /></p></div></div></div></div></details></div>
+<div class="tag-plugin quot"><h3 class="content" id="U/S位" type="text"><a href="#U/S位" class="headerlink" title="U/S位"></a>U/S位</h3></div>
+<p>user，system</p>
+<p>特权等级位。</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>几环</th>
+<th>可以访问</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>系统环</td>
+<td>0 1 2</td>
+<td>系统页和用户页</td>
+</tr>
+<tr>
+<td>用户环</td>
+<td>3</td>
+<td>用户页</td>
+</tr>
+</tbody>
+</table>
+<p>0环是特权级环，1、2环虽然不是特权级环，但是是系统环，所以可以访问系统页和用户页。</p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>普通用户即可访问，即3环权限</td>
+</tr>
+<tr>
+<td>0</td>
+<td>只允许特权用户（super user）访问，即非3环权限</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>在应用层写代码无法访问8开头内存地址（2G以上）的原因：</p>
+<p>U/S位设置问题，如果将内核的某个页设置为1就可以在R3访问了。</p>
+</br>
+<p>windows操作系统启动时一般这么设置：<br />
+0-7FFFFFFF  U/S=1（这个区域还有两段空白区，先简单这么理解）<br />
+80000000-FFFFFFFF U/S=0</p>
+<hr />
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>实验：修改一个高2G线性地址的PDE/PTE属性,实现Ring3可读。比如:0x8003F00C</span></summary><div class="body"><div class="tag-plugin tabs" align="center"id="tab_151"><div class="nav-tabs"><div class="tab active"><a href="#tab_151-1">代码</a></div><div class="tab"><a href="#tab_151-2">执行</a></div><div class="tab"><a href="#tab_151-3">修改U/S位后执行</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_151-1"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">	PDWORD p = (PDWORD)<span class="number">0x8003F00C</span>;</span><br><span class="line"></span><br><span class="line">	getchar();</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;读高2G地址0x8003F00C：%x\n&quot;</span>,*p);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_151-2"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230817183340221.png" alt="image-20230817183340221" /></p><p>直接执行报错，0xC0000005，Access Violation。</p></div><div class="tab-pane" id="tab_151-3"><p>运行，getchar停住后。windbg下断，改U/S位</p><p>1bf1e000</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">线性地址<span class="number">8003F</span>00C拆分</span><br><span class="line"><span class="number">1000000000</span>,<span class="number">200</span>         <span class="comment">//10    ;200*4=800</span></span><br><span class="line"><span class="number">0000111111</span>,<span class="number">3F</span>          <span class="comment">//10    ;3F*4=FC</span></span><br><span class="line"><span class="number">00</span>C                    <span class="comment">//12</span></span><br></pre></td></tr></table></figure><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">! process <span class="number">0</span> <span class="number">0</span></span><br><span class="line">!dd <span class="number">1</span>bf1e000+<span class="number">800</span></span><br><span class="line">!ed <span class="number">1</span>bf1e800 <span class="number">0003</span>b167</span><br><span class="line">!dd <span class="number">0003</span>b000+FC</span><br><span class="line">!ed <span class="number">3</span>b0fc <span class="number">0003</span>f167</span><br></pre></td></tr></table></figure></div></div></div></div></details></div>
+<div class="tag-plugin quot"><h3 class="content" id="PS位（PageSize）" type="text"><a href="#PS位（PageSize）" class="headerlink" title="PS位（PageSize）"></a>PS位（PageSize）</h3></div>
+<p>这个位只对PDE有意义。</p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>PDE直接指向物理页，不再指向PTE。线性地址低22位是页内偏移，它的大小为4MB，俗称“大页”。</td>
+</tr>
+<tr>
+<td>0</td>
+<td>4KB小页，</td>
+</tr>
+</tbody>
+</table>
+<p>PDE=1时，PDE前20位（二进制数，5位十六进制）就是物理页地址，线性地址低22位就是偏移。</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>实验：以0x8043f00c为例，分析PS=1的情况。</span></summary><div class="body"><p>随便开个进程，比如notepad，windbg下断，查CR3</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230819152447234.png" alt="image-20230819152447234" /></p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">线性地址<span class="number">8043f</span>00c拆分</span><br><span class="line"><span class="number">1000000001</span>,<span class="number">201</span>         <span class="comment">//10    ;201*4=804</span></span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230819152519401.png" alt="image-20230819152519401" /></p><p>查到的PDE是004001e3，PS位为1。所以线性地址低22位是物理页偏移</p><p>e3：1110 0011</p><table><thead><tr><th>PS</th><th>0</th><th>A</th><th>PCD</th><th>PWT</th><th>U/S</th><th>R/W</th><th>P</th></tr></thead><tbody><tr><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td></tr></tbody></table><p>PS=1，大页</p><p>A=1，被访问过</p><p>被写过？</p><p>全局？</p><p>U/S=0，仅系统用户可访问</p><p>R/W=1，可读可写</p><p>P=1，有效</p><blockquote><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wingsummer/p/15364648.html">保护模式篇——PAE分页-羽夏的博客-习题3</a></p></blockquote><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">000011111100</span>C,<span class="number">3F</span>00C    <span class="comment">//22    ;物理页偏移</span></span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/image-20230819152609433.png" alt="image-20230819152609433" /></p></div></details></div>
+<div class="tag-plugin quot"><h3 class="content" id="A位（Access）" type="text"><a href="#A位（Access）" class="headerlink" title="A位（Access）"></a>A位（Access）</h3></div>
+<p>是否被访问（读或者写）过，如果被访问过则置1。</p>
+<p>哪怕是1个字节的地方访问也会将对应PDE、PTE的A位置1</p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>访问过</td>
+</tr>
+<tr>
+<td>0</td>
+<td>未访问过</td>
+</tr>
+</tbody>
+</table>
+<div class="tag-plugin quot"><h3 class="content" id="D位（Dirty）" type="text"><a href="#D位（Dirty）" class="headerlink" title="D位（Dirty）"></a>D位（Dirty）</h3></div>
+<p>脏位，是否被写过。</p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>被写过</td>
+</tr>
+<tr>
+<td>0</td>
+<td>没有被写过</td>
+</tr>
+</tbody>
+</table>
+<div class="tag-plugin quot"><h3 class="content" id="9、10、11位" type="text"><a href="#9、10、11位" class="headerlink" title="9、10、11位"></a>9、10、11位</h3></div>
+<p>CPU未定义，留给操作系统用。操作系统用在什么地方了呢？内存管理缺页异常时用到。</p>
+<p>从CPU的角度看，只要访问PDE、PTE时，P位为0，就走IDT表的e号中断缺页异常。缺页异常的处理函数，具体处理细节，由操作系统决定，处理细节对CPU透明。</p>
+<p><u>在缺页异常的处理函数中，操作系统需要判断当前发现缺页后具体是什么情况，然后在做出不同的处理方式。</u>如下图所示，有4种情况。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7/867232_R5F5SSAGKV376CF.jpg" alt="image-20210414143359750" /></p>
+<p>a. 当前线性地址有效，只不过没有物理页，内容在文件中。</p>
+<p>**情景：**假设现有一个进程A，在线性地址00401234处存了个值10，这个进程在运行中。由于物理内存的紧张，操作系统会将使用频率低的页中的数据存到磁盘的文件中，然后将该物理页给那些现在急需物理页的进程使用。</p>
+<p>**具体过程：*<em>操作系统将10这个值，存到文件中，修改PTE的31:12页面文件偏移和4:1PFN</em>，这两个字段一起标记了从物理页换出写到硬盘文件中的文件索引。P位置0。（因为物理页拿给别的进程使用了，如果原来的PTE的P位还是1，当CPU再次访问线性地址00401234时，这时PTE指向的是别人进程的物理页了）。</p>
+<blockquote>
+<p>判断哪个页使用频率高，哪个页使用频率低，这方面是页面置换算法的内容。</p>
+</blockquote>
+<p>当CPU通过线性地址00401234，拆分，查到PTE的P位为0时，走e号缺页中断，在函数中操作系统看到此时的PTE字段符合（a）这种情况，就知道，当前线性地址有效，只不过没有物理页，内容在文件中。</p>
+<p>**处理方法：**接下来挂物理页，查系统文件，再将文件中的10写到物理页上。</p>
+<p>CPU没啥感觉，仍然把10给读出来了 。（所以说处理过程对CPU透明）</p>
+</br>
+<p>b. 线性地址有效，只不过还没分物理页</p>
+<p>当CPU通过线性地址00401234，拆分，查到PTE的P位为0时，走e号缺页中断，在函数中操作系统看到此时的PTE字段符合（b）这种情况，就知道，当前线性地址有效，只不过还没分配物理页。</p>
+<p>**处理方法：**接下来挂物理页。</p>
+</br>
+<p>c. 正在往文件中写</p>
+<p>当CPU通过线性地址00401234，拆分，查到PTE的P位为0时，走e号缺页中断，在函数中操作系统看到此时的PTE字段符合（c）这种情况，就知道，当前物理页的内容正在往文件中写。</p>
+</br>
+<p>d. 两种情况，需要再作判断</p>
+<p>当CPU通过线性地址00401234，拆分，查到PTE的P位为0时，走e号缺页中断，在函数中操作系统看到此时的PTE字段符合（d）这种情况（字段全是0），此时有两种可能：</p>
+<ul>
+<li>当前线性地址分配了物理页，但还没有挂</li>
+<li>访问的线性地址无效</li>
+</ul>
+<p>如果确定是两种情况中的哪种？查VAD结构体。VAD在EPROCESS结构体里，它以二叉树的形式记录了当前进程用户空间分配的所有线性地址占用情况，比如1000-2000，4000-5000已分配。</p>
+<p>**处理方法：**查VAD，如果发现访问的线性地址是无效的，报错0xC0000005。如果是还没挂物理页的情况，就挂物理页，然后正常访问。</p>
+<blockquote>
+<p>不需要再深入细扣每一位的作用。有兴趣，参考书籍：潘爱民的书《内核原理实现》、毛德操《内核情景分析》。</p>
+</blockquote>
+<blockquote>
+<p>问：老师PDE ps=1 P=0线性地址有效也是这样处理的吗</p>
+<p>答：高2G没有大页，系统里经常使用的才会用大页</p>
+<p>（没整明白，系统具体指啥？算了，就是大页不常用的意思吧）</p>
+</blockquote>
+<div class="tag-plugin quot"><h3 class="content" id="G位" type="text"><a href="#G位" class="headerlink" title="G位"></a>G位</h3></div>
+<p>学完控制寄存器与TLB才能讲此处略过。。。</p>
+<p>全局页，指的是页，PTE有G位。</p>
+<p>或者PDE的PS=1，此时PDE指向大页，此时PDE的G位才有意义。</p>
+<p>PDE，PS=0，此时G位没意义。</p>
+<div class="tag-plugin quot"><h3 class="content" id="PWT位" type="text"><a href="#PWT位" class="headerlink" title="PWT位"></a>PWT位</h3></div>
+<p>学完控制寄存器与TLB才能讲此处略过。。。</p>
+<div class="tag-plugin quot"><h3 class="content" id="PCD位" type="text"><a href="#PCD位" class="headerlink" title="PCD位"></a>PCD位</h3></div>
+<p>学完控制寄存器与TLB才能讲此处略过。。。</p>
+<div class="tag-plugin quot"><h2 class="content" id="思考题" type="text"><a href="#思考题" class="headerlink" title="思考题"></a>思考题</h2></div>
+<p>一个线性地址如果可以访问，一定要填上正确的PDE和PTE,但PDE与PTE是物理地址，如果我们想填充，那又必须要通过线性地址才能去访问,谁为访问PDE与PTE的线性地址填充争取的PDE与PTE呢?</p>
+<blockquote>
+<p>解释：</p>
+<p>我现在是操作系统，用VirtualAlloc函数申请内存地址12345000，为了使线性地址12345000能用，就要给这个线性地址挂上物理页，即填充有效的PDE和PTE。PDE在PDT上，PTE在PTT上，PDT和PTT都是物理地址。那么，怎么找到PDT，填上PDE？怎么找到PTT，填上PTE？</p>
+<p>有人肯定拿CR3说事，说CR3存了PDT的地址。但这存的是物理地址，CPU可以访问物理地址，但代码中出现的地址只能是线性地址。</p>
+</blockquote>
+<div class="tag-plugin quot"><h2 class="content" id="课后练习" type="text"><a href="#课后练习" class="headerlink" title="课后练习"></a>课后练习</h2></div>
+<p>创建2个进程,以页为单位拆分0-4G线性地址。</p>
+<p>题目设计意图：</p>
+<ul>
+<li>线性地址与物理地址之间的关系</li>
+<li>任何一个进程的线性地址，哪里是使用了的，哪里是没用了的，哪里和别的进程不一样、哪里一样</li>
+<li>（⭐）哪个线性地址刚好对应PDT和PTT</li>
+</ul>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>拆完的发现</span></summary><div class="body"><ol><li>低2G (0-7FFFFFFF）几乎不同</li><li>高2G (80000000 - FFFFFFFF)几乎相同，高两2G中有一些大页，即4MB页</li><li>一个进程低2G的内存空间0-7FFFFFFF的前64K和后64k都是没有映射的（线性地址0-00010000与7FFF0000-7FFFFFFF）</li></ol></div></details></div>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97.html">PDE、PTE初步感受</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/Protected_Mode/%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%9F%BA%E5%9D%80.html">页目录表基址</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

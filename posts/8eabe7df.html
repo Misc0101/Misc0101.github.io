@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>代理穿透与反向代理 - Misc010</title>
+
+  
+    <meta name="description" content="内网木马控守时代理穿透与反向代理上线方式对比。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="代理穿透与反向代理">
+<meta property="og:url" content="https://misc0101.github.io/posts/8eabe7df.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="内网木马控守时代理穿透与反向代理上线方式对比。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%A3%E7%90%86%E7%A9%BF%E9%80%8F%E5%92%8C%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/image-20221104095821891.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%A3%E7%90%86%E7%A9%BF%E9%80%8F%E5%92%8C%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/image-20221104101827867.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%A3%E7%90%86%E7%A9%BF%E9%80%8F%E5%92%8C%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/image-20221104105356378.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%BB%A3%E7%90%86%E7%A9%BF%E9%80%8F%E5%92%8C%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/image-20221028201309378.png">
+<meta property="article:published_time" content="2022-10-28T11:54:01.000Z">
+<meta property="article:modified_time" content="2022-10-28T11:54:01.000Z">
+<meta property="article:author" content="Misc">
+<meta property="article:tag" content="代理穿透">
+<meta property="article:tag" content="反向代理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E4%BB%A3%E7%90%86%E7%A9%BF%E9%80%8F%E5%92%8C%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/image-20221104095821891.png">
+  
+  
+  
+  <meta name="keywords" content="代理穿透,反向代理">
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='post'>
+    
+
+  
+
+<header class="header"><div class="logo-wrap"><a class="title" href="/"><div class="main" ff="title">Misc010</div></a></div>
+
+<nav class="menu dis-select"><a class="nav-item active" href="/">文章</a><a class="nav-item" href="/wiki/">项目</a><a class="nav-item" href="/about/">关于</a></nav>
+</header>
+
+
+<div class="widgets">
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/blog/" placeholder="文章搜索"><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc single" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">本文目录</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E6%8B%93%E6%89%91%E7%8E%AF%E5%A2%83%E5%9B%BE"><span class="toc-text"> 网络拓扑环境图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E7%A9%BF%E9%80%8F"><span class="toc-text"> 代理穿透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B7%E4%BE%8B"><span class="toc-text"> 样例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86"><span class="toc-text"> 反向代理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B7%E4%BE%8B-2"><span class="toc-text"> 样例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text"> 小结</span></a></li></ol></div></div></widget>
+
+
+
+
+
+
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+
+      
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/%E8%BF%9C%E6%8E%A7%E6%9C%A8%E9%A9%AC/">远控木马</a></div><div id="post-meta"><span class="author">发布于</span>
+    <span class="created"><time datetime="2022-10-28T11:54:01.000Z">2022-10-28</time></span>
+    
+    <span class="updated">，更新于&nbsp;<time datetime="2022-10-28T11:54:01.000Z">2022-10-28</time></span>
+    </div></div></div>
+
+<article class='md-text content post'>
+<h1 class="article-title"><span>代理穿透与反向代理</span></h1>
+<h2 id="网络拓扑环境图"><a class="markdownIt-Anchor" href="#网络拓扑环境图"></a> 网络拓扑环境图</h2>
+<p>网络拓扑图如下：内网主机A，内网主机B；攻击者主机C</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="../Typora_images/%E4%BB%A3%E7%90%86%E7%A9%BF%E9%80%8F%E5%92%8C%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/image-20221104095821891.png" alt="image-20221104095821891" /></p>
+<p>A不能上外网，B能上外网</p>
+<p>A与B互连，B与C互连，C访问不到A</p>
+<hr />
+<h2 id="代理穿透"><a class="markdownIt-Anchor" href="#代理穿透"></a> 代理穿透</h2>
+<p><strong>环境描述：</strong></p>
+<p>虚拟机B通过某些软件使其成为代理服务器，监听端口假设为7777，监听来自端口的请求。A设置代理服务器的ip地址和端口7777，便能上外网</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="../Typora_images/%E4%BB%A3%E7%90%86%E7%A9%BF%E9%80%8F%E5%92%8C%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/image-20221104101827867.png" alt="image-20221104101827867" /></p>
+<p><strong>上线描述：</strong></p>
+<p>目标端程序配置反连地址为攻击者主机C，192.168.147.147，端口6666</p>
+<p>在虚拟机A上运行，目标端程序能自动读取A上的代理配置，通过代理服务器B反连到攻击者主机上。</p>
+<p>上线列表中的ip地址为代理服务器B的ip地址。</p>
+<h3 id="样例"><a class="markdownIt-Anchor" href="#样例"></a> 样例</h3>
+<p>虚拟机B为Windows Server 2008，在其上面搭建TMG代理服务器，端口8080。</p>
+<p>虚拟机A在系统代理中设置代理为192.168.242.220:8080，便能上外网。</p>
+<p>目标端程序反连地址与端口配置为：192.168.147.147:6666，攻击者主机C开启监听端口6666。</p>
+<p>目标端程序在主机A上运行，进行代理穿透，实现上线。</p>
+<h2 id="反向代理"><a class="markdownIt-Anchor" href="#反向代理"></a> 反向代理</h2>
+<p><strong>环境描述：</strong></p>
+<p>攻击者主机C与靶机B之间已构建反向代理通道，攻击者主机为client，虚拟机B为server。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="../Typora_images/%E4%BB%A3%E7%90%86%E7%A9%BF%E9%80%8F%E5%92%8C%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/image-20221104105356378.png" alt="image-20221104105356378" /></p>
+<p><strong>上线描述：</strong></p>
+<p>目标端程序配置反连地址为虚拟机B，192.168.242.220，端口为反向代理server访问端口6000</p>
+<p>攻击者主机C监听端口与反向代理client端口相同，为6666.</p>
+<p>在虚拟机A上运行，目标端程序反连虚拟机B:6000，虚拟机B再将其送到反向代理客户端6666，实现上线</p>
+<p>上线列表中的ip地址为靶机主机A的ip地址。</p>
+<h3 id="样例-2"><a class="markdownIt-Anchor" href="#样例-2"></a> 样例</h3>
+<p>以反向代理工具frp为例，在B与C之间构建反向代理。</p>
+<p>frpc在攻击者主机C上运行，frps在虚拟机B上运行。</p>
+<p>frpc.ini配置文件内容为：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[common]</span></span><br><span class="line"><span class="attr">server_addr</span> = <span class="number">192.168</span>.<span class="number">147</span>,<span class="number">133</span>	<span class="comment">#服务端ip地址</span></span><br><span class="line"><span class="attr">server_port</span> = <span class="number">7000</span>		<span class="comment">#服务端端口</span></span><br><span class="line"></span><br><span class="line"><span class="section">[test]</span></span><br><span class="line"><span class="attr">type</span> = tcp			<span class="comment">#转发的协议类型</span></span><br><span class="line"><span class="attr">local_ip</span> = <span class="number">127.0</span>.<span class="number">0.1</span>		<span class="comment">#客户端ip地址</span></span><br><span class="line"><span class="attr">local_port</span> = <span class="number">6666</span>		<span class="comment">#客户端端口</span></span><br><span class="line"><span class="attr">remote_port</span> = <span class="number">6000</span>		<span class="comment">#服务端远程访问端口</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frpc.exe -c frpc.ini</span><br></pre></td></tr></table></figure>
+<p>frps.ini配置文件内容为：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[common]</span></span><br><span class="line"><span class="attr">bind_port</span> = <span class="number">7000</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frps.exe -c frps.ini</span><br></pre></td></tr></table></figure>
+<p>目标端程序反连地址与端口配置为：192.168.242.220:6000，攻击者主机C开启监听端口6666。</p>
+<p>目标端程序在主机A上运行，通过反向代理出网，实现上线。</p>
+<h2 id="小结"><a class="markdownIt-Anchor" href="#小结"></a> 小结</h2>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>代理穿透</th>
+<th>反向代理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>前置条件</td>
+<td>B通过某些软件搭建成为代理服务器，A通过设置B的ip和端口作为代理服务器进行上网</td>
+<td>攻击者主机C与靶机B之间已构建反向代理通道，攻击者主机为client，虚拟机B为server</td>
+</tr>
+<tr>
+<td>目标端程序配置</td>
+<td>1. 反弹马地址配置为：192.168.147.147（攻击者主机C），监听端口6666<br/>2. 程序放在内网主机A上执行</td>
+<td>1.反弹马地址配置为：192.168.242.220（内网主机B）,端口6000（反向代理远程访问端口）<br/>2. 程序放在内网主机A上执行</td>
+</tr>
+<tr>
+<td>执行后发生了什么</td>
+<td>木马能够自动读取代理类型，让内网主机A通过代理服务器出网，反弹上线</td>
+<td>内网主机A连接内网主机B:6000，因为反向代理，转发给攻击者主机C，实现上线</td>
+</tr>
+</tbody>
+</table>
+<p>差异：</p>
+<table>
+<thead>
+<tr>
+<th>差异</th>
+<th>代理穿透</th>
+<th>反向代理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目标端程序配置的反弹地址</td>
+<td>攻击者主机</td>
+<td>代理服务器</td>
+</tr>
+<tr>
+<td>上线ip地址</td>
+<td>代理服务器</td>
+<td>靶机本身</td>
+</tr>
+</tbody>
+</table>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="../Typora_images/%E4%BB%A3%E7%90%86%E7%A9%BF%E9%80%8F%E5%92%8C%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/image-20221028201309378.png" alt="image-20221028201309378" /></p>
+
+
+
+<div class="article-footer reveal fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/posts/1288e771.html">Cobalt Strike-DNS Beacon使用解读</a></div><div class="item" id="next"></div></section></div>
+
+
+
+
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

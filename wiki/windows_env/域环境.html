@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Windows下的环境搭建：域环境 - Misc010</title>
+
+  
+    <meta name="description" content="安装域 准备一台windows server，安装前要：  Administrator强密码 将当前机器设置为静态IP，DNS首选服务器设置为127.0.0.1  powershell方式安装手动方式安装   参考链接🔗 备注📕     最快的方式搭建域环境    Install Active Directory Domain Services (Level 100) github版，微软官">
+<meta property="og:type" content="website">
+<meta property="og:title" content="域环境">
+<meta property="og:url" content="https://misc0101.github.io/wiki/windows_env/%E5%9F%9F%E7%8E%AF%E5%A2%83.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="安装域 准备一台windows server，安装前要：  Administrator强密码 将当前机器设置为静态IP，DNS首选服务器设置为127.0.0.1  powershell方式安装手动方式安装   参考链接🔗 备注📕     最快的方式搭建域环境    Install Active Directory Domain Services (Level 100) github版，微软官">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131151135965.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzI4MjA1MTUz,size_16,color_FFFFFF,t_70.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20220916141349652.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131160302940.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131160334889.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131155153606.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131155212236.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131155337028.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131155419697.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131162336495.png">
+<meta property="article:published_time" content="2024-01-31T03:45:42.000Z">
+<meta property="article:modified_time" content="2024-01-31T03:45:42.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131151135965.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/windows_env/%E5%9F%9F%E7%8E%AF%E5%A2%83.html"><div class="main" ff="title">Windows下的环境搭建</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/windows_env/" placeholder="在/wiki/windows_env/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-body fs14"><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/windows_env/%E5%9F%9F%E7%8E%AF%E5%A2%83.html#start"><span class="toc-text">域环境</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%9F%9F"><span class="toc-text"> 安装域</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE"><span class="toc-text"> 相关配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E5%AF%86%E7%A0%81%E5%BC%BA%E5%BA%A6%E9%85%8D%E7%BD%AE"><span class="toc-text"> 域密码强度配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%9F%9F%E6%88%90%E5%91%98%E8%B4%A6%E5%8F%B7"><span class="toc-text"> 创建域成员账号</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%90%E5%91%98%E5%85%A5%E5%9F%9F"><span class="toc-text"> 成员入域</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/windows_env/Exchange%E9%82%AE%E7%AE%B1%E6%9C%8D%E5%8A%A1%E5%99%A8.html"><span class="toc-text">Exchange邮箱服务器</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/windows_env/IIS.html"><span class="toc-text">IIS</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：环境搭建</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/SIEM_env_building/Arcisght.html"><span class="title">SIEM环境搭建</span><span class="excerpt">目前包含：Splunk、Arcisght Recon。</span></a><a class="item wiki" href="/wiki/linux_env/chrony%E6%97%B6%E9%97%B4%E6%9C%8D%E5%8A%A1%E5%99%A8.html"><span class="title">Linux下的环境搭建</span><span class="excerpt">目前包含：chrony时间服务器。</span></a><a class="item wiki" href="/wiki/network_security_devices_env/Sophos_Firewall.html"><span class="title">安全设备类环境搭建</span><span class="excerpt">目前包含：Sophos Firewall，SonicWALL SMA设备，Juniper SRX设备，FortiGate VM，Cisco ACS，Cisco ISE。</span></a><a class="item wiki" href="/wiki/proxy_server_building/squid%E8%AE%A4%E8%AF%81%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA.html"><span class="title">代理服务器搭建</span><span class="excerpt">目前包含：squid透明/认证代理服务器，TMG代理服务器。</span></a><a class="item wiki" href="/wiki/sql_injection_env/SQLite.html"><span class="title">SQL注入靶场环境搭建</span><span class="excerpt">目前包含：Oracle、PostgreSQL、Microsoft Access、SQLite。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/windows_env/%E5%9F%9F%E7%8E%AF%E5%A2%83.html">Windows下的环境搭建</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-01-31T03:45:42.000Z">2024-01-31</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>域环境</span></h1>
+<h2 id="安装域"><a class="markdownIt-Anchor" href="#安装域"></a> 安装域</h2>
+<p>准备一台windows server，安装前要：</p>
+<ul>
+<li>Administrator强密码</li>
+<li>将当前机器设置为静态IP，DNS首选服务器设置为<code>127.0.0.1</code></li>
+</ul>
+<div class="tag-plugin tabs" align="center"id="tab_247"><div class="nav-tabs"><div class="tab active"><a href="#tab_247-1">powershell方式安装</a></div><div class="tab"><a href="#tab_247-2">手动方式安装</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_247-1"><table>
+<thead>
+<tr>
+<th>参考链接🔗</th>
+<th>备注📕</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://payloads.online/archivers/2019/04/13/c5a00e72-804f-4289-8149-1bc5c1851146">最快的方式搭建域环境</a></td>
+<td></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/MicrosoftDocs/windowsserverdocs/blob/master/WindowsServerDocs/identity/ad-ds/deploy/Install-Active-Directory-Domain-Services--Level-100-.md">Install Active Directory Domain Services (Level 100)</a></td>
+<td>github版，微软官方手册，如何用pw方式安装</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/install-active-directory-domain-services--level-100-">Install Active Directory Domain Services (Level 100)</a></td>
+<td>msdn版，微软官方手册，如何用pw方式安装</td>
+</tr>
+</tbody>
+</table>
+<p>管理员权限powershell</p>
+<ol>
+<li>
+<p>安装活动目录域服务角色Active Directory Domain Services (AD DS)</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Install-WindowsFeature</span> <span class="literal">-name</span> AD<span class="literal">-Domain-Services</span> <span class="literal">-IncludeManagementTools</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>IncludeManagementTools参数：是在安装AD DS角色时，用来指定同时安装管理工具的。这个参数会安装包括Active Directory用户和计算机、组策略管理编辑器等在内的图形界面管理工具和命令行工具<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131151135965.png" alt="image-20240131151135965" /></li>
+</ul>
+</li>
+<li>
+<p>导入<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/powershell/module/addsdeployment/?redirectedfrom=MSDN&amp;view=windowsserver2019-ps">AD DS部署模块</a></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Import-Module</span> ADDSDeployment</span><br></pre></td></tr></table></figure>
+<p>在执行安装或配置Active Directory之前，需要导入AD DS部署模块。</p>
+</li>
+<li>
+<p>调用<a target="_blank" rel="noopener" href="https://github.com/MicrosoftDocs/windowsserverdocs/blob/master/WindowsServerDocs/identity/ad-ds/deploy/Install-Active-Directory-Domain-Services--Level-100-.md">Install-ADDSForest</a>设置域的信息执行安装</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Install-ADDSForest</span> `</span><br><span class="line"><span class="literal">-CreateDnsDelegation</span>:<span class="variable">$false</span> `</span><br><span class="line"><span class="literal">-DomainMode</span> <span class="string">&quot;WinThreshold&quot;</span> `</span><br><span class="line"><span class="literal">-DomainName</span> <span class="string">&quot;mytest.local&quot;</span> `</span><br><span class="line"><span class="literal">-DomainNetbiosName</span> <span class="string">&quot;MYTEST&quot;</span> `</span><br><span class="line"><span class="literal">-ForestMode</span> <span class="string">&quot;WinThreshold&quot;</span> `</span><br><span class="line"><span class="literal">-DatabasePath</span> <span class="string">&quot;C:\Windows\NTDS&quot;</span> `</span><br><span class="line"><span class="literal">-LogPath</span> <span class="string">&quot;C:\Windows\NTDS&quot;</span> `</span><br><span class="line"><span class="literal">-SysvolPath</span> <span class="string">&quot;C:\Windows\SYSVOL&quot;</span> `</span><br><span class="line"><span class="literal">-InstallDns</span>:<span class="variable">$true</span> `</span><br><span class="line"><span class="literal">-NoRebootOnCompletion</span>:<span class="variable">$false</span> `</span><br><span class="line"><span class="literal">-Force</span>:<span class="variable">$true</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>
+<p>CreateDnsDelegation：是否创建引用与域控制器一起安装的新DNS服务器的DNS委派。 仅对 Active Directory“集成 DNS 有效。默认值是根据环境自动计算的。</p>
+</li>
+<li>
+<p>DomainMode：指定创建新林时第一个域的域功能级别。（<strong>域控系统版本必须≥域功能级别的系统版本</strong>）</p>
+<ul>
+<li>Windows Server 2003: 2 or Win2003</li>
+<li>Windows Server 2008: 3 or Win2008</li>
+<li>Windows Server 2008 R2: 4 or Win2008R2</li>
+<li>Windows Server 2012: 5 or Win2012</li>
+<li>Windows Server 2012 R2: 6 or Win2012R2</li>
+<li>Windows Server 2016: 7 or WinThreshold</li>
+</ul>
+</li>
+<li>
+<p>DomainName：域名</p>
+</li>
+<li>
+<p>DomainNetbiosName：域的Netbios名称</p>
+</li>
+<li>
+<p>ForestMode与DomainMode等同，该选项主要用于尽可能的自动化</p>
+</li>
+<li>
+<p>指定AD DS数据库、日志文件和SYSVOL的路径</p>
+<ul>
+<li>DatabasePath</li>
+<li>LogPath</li>
+<li>SysvolPath</li>
+</ul>
+</li>
+<li>
+<p>InstallDns：是否安装DNS服务</p>
+</li>
+<li>
+<p>NoRebootOnCompletion：不重启完成安装</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>命令方式安装与手动安装对应的地方</span></summary><div class="body"><p>日志路径对应手动安装的这里<br /><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzI4MjA1MTUz,size_16,color_FFFFFF,t_70.png" alt="在这里插入图片描述" /><br />参考：<a target="_blank" rel="noopener" href="https://www.virtualgyanis.com/post/step-by-step-how-to-install-and-configure-domain-controller-on-windows-server-2019">Step-By-Step : How to install and configure Domain Controller on Windows Server 2019</a></p></div></details><details class="folder" index="1"><summary><span>执行报错：因为本地管理员没密码或密码强度不够</span></summary><div class="body"><p>给本地管理员设密码，at least 8-14 characters long and include a combination of uppercase and lowercase letters, digits, and symbols.</p><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">net</span> user Administrator &lt;password&gt;</span><br></pre></td></tr></table></figure></div></details></div>
+<p>运行后弹窗要输入SafeModeAdministratorPassword，这是指定Active Directory域控制器安全模式管理员密码的参数。在安装或配置域控制器时，系统会创建一个特殊的安全模式环境，称为“目录服务还原模式”（Directory Services Restore Mode, DSRM），用于进行维护、恢复或解决 AD DS 相关问题。在 DSRM 下登录需要一个特定的账户，即“安全模式管理员”，其权限允许对 AD 数据库进行更改和修复。<br />
+回车</p>
+<p>pw回显有warning，不用理会</p>
+</li>
+</ul>
+</li>
+</ol></div><div class="tab-pane" id="tab_247-2"><table>
+<thead>
+<tr>
+<th>参考链接🔗</th>
+<th>备注📕</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_28205153/article/details/113827476">搭建一个简单的Windows域环境</a></td>
+<td></td>
+</tr>
+</tbody>
+</table></div></div></div>
+<hr />
+<h2 id="相关配置"><a class="markdownIt-Anchor" href="#相关配置"></a> 相关配置</h2>
+<h3 id="域密码强度配置"><a class="markdownIt-Anchor" href="#域密码强度配置"></a> 域密码强度配置</h3>
+<p>安装DC重启后，是mytest/test用户登进的，想用域管就切换用mytest/administrator登录，密码是之前设的密码。</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>修改域管密码</span></summary><div class="body"><p>Win-Windows Administrative Tools-Active Directory Users and Computers<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20220916141349652.png" alt="image-20220916141349652" /></p></div></details></div>
+<p>去掉密码强度策略，可以设置简单密码【全域策略生效】（要域管账号登进）</p>
+<table>
+<thead>
+<tr>
+<th>参考链接🔗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://blog.51cto.com/lexsaints/2805977">Windows域控去掉密码强度策略 可以设置简单密码【全域策略生效】_51CTO博客_域用户密码策略更改</a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_13691843/2113196">1.设置Windows Server2008 r2的域安全策略。_6号特工的技术博客_51CTO博客</a></td>
+</tr>
+</tbody>
+</table>
+<p>Tools-Group Policy Management<br />
+选择Group Policy Objects-Default Domain Controllers Policy，选择Default Domain Policy，右键，编辑</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131160302940.png" alt="image-20240131160302940" /></p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>改成如这张图的未定义，更新后不会生效，还是改成上面那张图的样子吧</span></summary><div class="body"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131160334889.png" alt="image-20240131160334889" /></p></div></details></div>
+<p>管理员cmd，用如下命令立即更新用户及组策略，不用重启生效</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gpupdate /force</span><br></pre></td></tr></table></figure>
+<h3 id="创建域成员账号"><a class="markdownIt-Anchor" href="#创建域成员账号"></a> 创建域成员账号</h3>
+<p>创建用于登录域的账号</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131155153606.png" alt="image-20240131155153606" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131155212236.png" alt="image-20240131155212236" /></p>
+<p>主要写登录名</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131155337028.png" alt="image-20240131155337028" /></p>
+<p>为了方便，永不过期</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131155419697.png" alt="image-20240131155419697" /></p>
+<h2 id="成员入域"><a class="markdownIt-Anchor" href="#成员入域"></a> 成员入域</h2>
+<ol>
+<li>设置首选DNS服务器为DC的ip地址</li>
+<li>加入域。会弹窗，输入域管账号和密码，重启后用域账户登进。<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%9F%9F%E7%8E%AF%E5%A2%83/image-20240131162336495.png" alt="image-20240131162336495" /><br />
+注意是**\**，mytest\test01</li>
+</ol>
+<p>DC上可以看到加到域的电脑💻</p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/windows_env/Exchange%E9%82%AE%E7%AE%B1%E6%9C%8D%E5%8A%A1%E5%99%A8.html">Exchange邮箱服务器</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

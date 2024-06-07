@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>安全设备类环境搭建：Cisco ACS - Misc010</title>
+
+  
+    <meta name="description" content="VM下载和lic申请 产品网址：Cisco Secure Access Control System - Cisco。现官方已不提供支持，最新版本5.8.1.4。官方的下载页面：   ACS 5.8.1 Application Upgrade Package：这是一个应用升级包，用于将您现有的Cisco ACS软件升级到5.8.1版本。 ACS 5.8.1 USB Installation to">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cisco ACS">
+<meta property="og:url" content="https://misc0101.github.io/wiki/network_security_devices_env/Cisco_ACS.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="VM下载和lic申请 产品网址：Cisco Secure Access Control System - Cisco。现官方已不提供支持，最新版本5.8.1.4。官方的下载页面：   ACS 5.8.1 Application Upgrade Package：这是一个应用升级包，用于将您现有的Cisco ACS软件升级到5.8.1版本。 ACS 5.8.1 USB Installation to">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010103850516.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010105244955.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010103407951.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010151651872.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010152852946.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010153001396.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010153028760.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010153345730.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010153619460.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010111116551.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010111149850.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010111211475.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010111439571.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010111532717.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010113743378.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010114218712.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010114722833.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010115312584.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010122038009.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010115837337.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010144458151.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010145721560.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010145815758.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010150127457.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010165528109.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010155620643.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010155842783.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010155919437.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010160141198.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010162844421.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010162820781.png">
+<meta property="article:published_time" content="2023-10-10T02:26:26.000Z">
+<meta property="article:modified_time" content="2023-10-10T02:26:26.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/Cisco_ACS/image-20231010103850516.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/network_security_devices_env/Sophos_Firewall.html"><div class="main" ff="title">安全设备类环境搭建</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/network_security_devices_env/" placeholder="在/wiki/network_security_devices_env/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/network_security_devices_env/Sophos_Firewall.html#start"><span class="toc-text">Sophos Firewall</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/network_security_devices_env/SonicWALL_SMA%E8%AE%BE%E5%A4%87.html"><span class="toc-text">SonicWALL SMA设备</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/network_security_devices_env/Juniper_SRX%E8%AE%BE%E5%A4%87.html"><span class="toc-text">Juniper SRX设备</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/network_security_devices_env/FortiGate_VM.html"><span class="toc-text">FortiGate VM</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/network_security_devices_env/Cisco_ACS.html"><span class="toc-text">Cisco ACS</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#vm%E4%B8%8B%E8%BD%BD%E5%92%8Clic%E7%94%B3%E8%AF%B7"><span class="toc-text"> VM下载和lic申请</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%B3%E8%AF%B7lic"><span class="toc-text"> 申请lic</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-text"> 安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#setup"><span class="toc-text"> setup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E9%AB%98%E7%89%88%E6%9C%AC%E6%B5%8F%E8%A7%88%E5%99%A8%E6%97%A0%E6%B3%95%E8%AE%BF%E9%97%AEweb%E7%95%8C%E9%9D%A2%E6%9C%AA%E6%88%90%E5%8A%9F"><span class="toc-text"> 解决高版本浏览器无法访问web界面（未成功）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%87%E9%80%89%E6%96%B9%E6%A1%88"><span class="toc-text"> 备选方案</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%93%BE%E6%8E%A5%E8%AE%B0%E5%BD%95"><span class="toc-text"> 链接记录</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/network_security_devices_env/Cisco_ISE.html"><span class="toc-text">Cisco ISE</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：环境搭建</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/SIEM_env_building/Arcisght.html"><span class="title">SIEM环境搭建</span><span class="excerpt">目前包含：Splunk、Arcisght Recon。</span></a><a class="item wiki" href="/wiki/linux_env/chrony%E6%97%B6%E9%97%B4%E6%9C%8D%E5%8A%A1%E5%99%A8.html"><span class="title">Linux下的环境搭建</span><span class="excerpt">目前包含：chrony时间服务器。</span></a><a class="item wiki" href="/wiki/proxy_server_building/squid%E8%AE%A4%E8%AF%81%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA.html"><span class="title">代理服务器搭建</span><span class="excerpt">目前包含：squid透明/认证代理服务器，TMG代理服务器。</span></a><a class="item wiki" href="/wiki/sql_injection_env/SQLite.html"><span class="title">SQL注入靶场环境搭建</span><span class="excerpt">目前包含：Oracle、PostgreSQL、Microsoft Access、SQLite。</span></a><a class="item wiki" href="/wiki/windows_env/%E5%9F%9F%E7%8E%AF%E5%A2%83.html"><span class="title">Windows下的环境搭建</span><span class="excerpt">目前包含：域环境(powershell方式和手动方式)，Exchange邮箱服务器(2016，2019)，IIS。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/network_security_devices_env/Sophos_Firewall.html">安全设备类环境搭建</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-10-10T02:26:26.000Z">2023-10-10</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>Cisco ACS</span></h1>
+<h2 id="vm下载和lic申请"><a class="markdownIt-Anchor" href="#vm下载和lic申请"></a> VM下载和lic申请</h2>
+<p>产品网址：<a target="_blank" rel="noopener" href="https://www.cisco.com/c/en/us/support/security/secure-access-control-system/series.html">Cisco Secure Access Control System - Cisco</a>。现官方已不提供支持，最新版本5.8.1.4。官方的下载页面：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010103850516.png" alt="image-20231010103850516" /></p>
+<ol>
+<li>ACS 5.8.1 Application Upgrade Package：这是一个应用升级包，用于将您现有的Cisco ACS软件升级到5.8.1版本。</li>
+<li>ACS 5.8.1 USB Installation tool for UCS-3415/3495 and UCS-3515/3595：这是一个USB安装工具，专为UCS-3415/3495和UCS-3515/3595设备设计，用于在这些设备上安装ACS 5.8.1。</li>
+<li>ACS 5.8.1 FCS Official Version：这是ACS 5.8.1的正式版本，FCS代表“首次客户出货”，意味着这是向客户提供的正式发布版本。</li>
+</ol>
+<p>点击第三个进行下载，填完公司信息后还是不能下</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010105244955.png" alt="image-20231010105244955" /></p>
+<p>找个<a target="_blank" rel="noopener" href="https://networkhunt.com/download/download-acs-5-8-1-4-for-vmware/">第三方</a>下载，解压后得到一个iso文件，一个lic文件</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010103407951.png" alt="image-20231010103407951" /></p>
+<p>第三方下载网址的评论区可以看到这个lic已经过期了，需要自己申请。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010151651872.png" alt="image-20231010151651872" /></p>
+<h3 id="申请lic"><a class="markdownIt-Anchor" href="#申请lic"></a> 申请lic</h3>
+<blockquote>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.cisco.com/c/en/us/support/docs/licensing/cloud-systems-management/smart-care-service/lic217143-how-to-generate-a-demo-or-evaluation-lic.html">How to Generate a Demo or Evaluation License for Identity Services Engine (ISE)</a></p>
+<p><a target="_blank" rel="noopener" href="https://youtu.be/LkXQh9xhgrw?feature=shared">How to get Cisco ACS trial license</a></p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cisco.com/go/license">https://www.cisco.com/go/license</a></p>
+<p>登录账号</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010152852946.png" alt="image-20231010152852946" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010153001396.png" alt="image-20231010153001396" /></p>
+<p>搜access c，选</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010153028760.png" alt="image-20231010153028760" /></p>
+<p>点下载，邮箱中也会收到</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010153345730.png" alt="image-20231010153345730" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010153619460.png" alt="image-20231010153619460" /></p>
+<h2 id="安装"><a class="markdownIt-Anchor" href="#安装"></a> 安装</h2>
+<blockquote>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://www.cisco.com/c/en/us/td/docs/net_mgmt/cisco_secure_access_control_system/5-8-1/installation/guide/csacs_book/csacs_vmware.html">Installation and Upgrade Guide for Cisco Secure Access Control System 5.8.1</a></p>
+<p><a target="_blank" rel="noopener" href="https://youtu.be/yq7zFStMVeA?feature=shared">How to Install Cisco ACS In VMware Workstation- Part 1</a></p>
+<p><a target="_blank" rel="noopener" href="https://youtu.be/nJDMjznj6gk?feature=shared">Initial Configuration Of ACS 5.8 In Vmware Workstation Part 2</a></p>
+</blockquote>
+<p>用VM创建自定义虚拟机，</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010111116551.png" alt="image-20231010111116551" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010111149850.png" alt="image-20231010111149850" /></p>
+<p>或CentOS 7 x64，也可以</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010111211475.png" alt="image-20231010111211475" /></p>
+<p>处理器这里我选的数量1，内核数量2</p>
+<p>RAM，文档说最少4GB</p>
+<p>其余默认，点下一步</p>
+<p>磁盘文档说最少60GB，最大可以到750G，我这里选的60GB.</p>
+<p>快完成前CD/DVD，选择iso文件。<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010111439571.png" alt="image-20231010111439571" /></p>
+<p>随后开机。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010111532717.png" alt="image-20231010111532717" /></p>
+<p>选项1是为使用键盘和显示器的安装设计的,如果您正在使用键盘和显示器进行安装，那么选择选项1;</p>
+<p>选项2是为使用串行控制台的安装设计的。串行控制台通常用于远程管理或者没有直接物理接入的情况,如果您正在使用串行控制台进行安装，那么选择选项2。</p>
+<p>选择选项1</p>
+<h2 id="setup"><a class="markdownIt-Anchor" href="#setup"></a> setup</h2>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010113743378.png" alt="image-20231010113743378" /></p>
+<p>输入setup，[Enter]，进入配置界面</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010114218712.png" alt="image-20231010114218712" /></p>
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>内容</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>ACS</td>
+<td></td>
+</tr>
+<tr>
+<td>IP address</td>
+<td>192.168.147.191</td>
+<td></td>
+</tr>
+<tr>
+<td>netmask</td>
+<td>255.255.255.0</td>
+<td></td>
+</tr>
+<tr>
+<td>gateway</td>
+<td>192.168.147.2</td>
+<td></td>
+</tr>
+<tr>
+<td>DNS domain</td>
+<td><a target="_blank" rel="noopener" href="http://cisco.com">cisco.com</a></td>
+<td>不能是ip地址</td>
+</tr>
+<tr>
+<td>primary nameserver</td>
+<td>8.8.8.8</td>
+<td></td>
+</tr>
+<tr>
+<td>secondary nameserver</td>
+<td>192.168.147.2</td>
+<td></td>
+</tr>
+<tr>
+<td>NTP</td>
+<td>Enter</td>
+<td>就是默认的</td>
+</tr>
+<tr>
+<td>system timezone</td>
+<td>Enter</td>
+<td></td>
+</tr>
+<tr>
+<td>SSH</td>
+<td>Y</td>
+<td></td>
+</tr>
+<tr>
+<td>username</td>
+<td>admin</td>
+<td></td>
+</tr>
+<tr>
+<td>password</td>
+<td>P@ssw0rd</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>随后会初始化网络接口，尝试连通上面配的ip/域名</p>
+<blockquote>
+<p>如果它显示连接不到NTP服务器，而你没有同步时间的需求，选择N忽略。</p>
+</blockquote>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010114722833.png" alt="image-20231010114722833" /></p>
+<p>随后重启，使用前面配置的账号和密码登录</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010115312584.png" alt="image-20231010115312584" /></p>
+<p>显示网络接口的命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show interface</span><br></pre></td></tr></table></figure>
+<p>以下是一些常用的命令：</p>
+<ol>
+<li>
+<p>show application status acs：这个命令用于显示ACS应用的状态。它会提供关于ACS服务是否正在运行，以及它们的运行状态的信息。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010122038009.png" alt="image-20231010122038009" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010115837337.png" alt="image-20231010115837337" /></p>
+</li>
+<li>
+<p>acs start 和 acs stop：这两个命令分别用于启动和停止ACS应用。</p>
+</li>
+<li>
+<p>acs reset-config：这个命令用于重置ACS配置到出厂默认设置。</p>
+</li>
+<li>
+<p>show running-config：这个命令用于显示当前的运行配置。</p>
+</li>
+<li>
+<p>backup 和 restore：这两个命令分别用于备份和恢复ACS配置和数据。</p>
+</li>
+</ol>
+<h2 id="解决高版本浏览器无法访问web界面未成功"><a class="markdownIt-Anchor" href="#解决高版本浏览器无法访问web界面未成功"></a> 解决高版本浏览器无法访问web界面（未成功）</h2>
+<blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://community.cisco.com/t5/security-knowledge-base/unable-to-access-csacs-5-3-web-interface/ta-p/3143582">Unable to Access CSACS 5.3 Web Interface…</a></p>
+<p><a target="_blank" rel="noopener" href="https://jingyan.baidu.com/article/14bd256e253109bb6d261230.html">VMware如何安装Cisco ACS5.3并激活</a></p>
+</blockquote>
+<p>使用<code>show application status acs</code>命令观察到所有相关进程已处于running状态后，使用浏览器访问http://&lt;acs的ip地址&gt;却无法访问，像这样：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010144458151.png" alt="image-20231010144458151" /></p>
+<p>原因：</p>
+<p>After additional troubleshooting, it was discovered that the MS Internet Explorer patch associated with MS Security Advisory <a target="_blank" rel="noopener" href="http://technet.microsoft.com/en-us/security/advisory/2661254">2661254</a> just so happened to be the culprit. This restricts the use of certificates with RSA keys less than 1024 bits in length. The default management certificate just so happens to be 512 bits in length.</p>
+<p>解决办法：</p>
+<p>Using FireFox, I navigated to System Administration &gt; Configuration &gt; Local Server Certificates &gt; Local Certificates. I then proceeded to add a certificate in the following steps:</p>
+<ol>
+<li>Select Generate Self Signed Certificate &amp; click next</li>
+<li>Populate the Certifcate Subject field with the appropriate DN information of the ACS server.</li>
+<li>Change the key length to 1024 or above.</li>
+<li>Check &quot;Management Interface: Used to authenticate the web server (GUI).</li>
+<li>Check “Replace Certificate”.</li>
+<li>Click Finish.</li>
+</ol>
+<p>The ACS server should then generate the new certifcate, replace the existing management certificate, and restart the ACS processes. After everything is back up, you shouldn’t have any issues in accessing the web interface.</p>
+<p>找了一台同在NAT模式下的win7  x86的ie进行访问</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010145721560.png" alt="image-20231010145721560" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010145815758.png" alt="image-20231010145815758" /></p>
+<p>默认账号：acsadmin，默认密码：default，第一次进去会被要求重置密码，按提示进行即可。改为了：P@ssw0rd。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010150127457.png" alt="image-20231010150127457" /></p>
+<blockquote>
+<p>Cisco Secure ACS License Registration链接就是之前写的<a target="_blank" rel="noopener" href="https://www.cisco.com/go/license">https://www.cisco.com/go/license</a></p>
+</blockquote>
+<p>上传先前申请的的lic文件</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010165528109.png" alt="image-20231010165528109" /></p>
+<p>配置一个能用强度高点的的证书</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010155620643.png" alt="image-20231010155620643" /></p>
+<p>CN=后面随便写一个，比如CN=US。</p>
+<p>长度要大于1024</p>
+<p>打两个√</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010155842783.png" alt="image-20231010155842783" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010155919437.png" alt="image-20231010155919437" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010160141198.png" alt="image-20231010160141198" /></p>
+<p>目前情况：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010162844421.png" alt="image-20231010162844421" /></p>
+<p>但用高版本浏览器还是访问不了。先这样，后续有需求再看</p>
+<h3 id="备选方案"><a class="markdownIt-Anchor" href="#备选方案"></a> 备选方案</h3>
+<p>试了在访问web页面的电脑，管理员cmd执行</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">certutil -setreg chain\minRSAPubKeyBitLength <span class="number">512</span></span><br></pre></td></tr></table></figure>
+<p>重启后再次访问，还是</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Cisco_ACS/image-20231010162820781.png" alt="image-20231010162820781" /></p>
+<h2 id="链接记录"><a class="markdownIt-Anchor" href="#链接记录"></a> 链接记录</h2>
+<p><a target="_blank" rel="noopener" href="https://www.cisco.com/c/en/us/td/docs/net_mgmt/cisco_secure_access_control_system/5-8-1/user/guide/acsuserguide.html">User Guide for Cisco secure Access Control System 5.8.1</a></p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/network_security_devices_env/FortiGate_VM.html">FortiGate VM</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/network_security_devices_env/Cisco_ISE.html">Cisco ISE</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

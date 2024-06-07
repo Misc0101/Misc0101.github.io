@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Windows API编程：文件系统 - Misc010</title>
+
+  
+    <meta name="description" content="文件系统 硬盘是存储介质，文件系统是操作系统用于组织和管理存储介质上数据的方法和数据结构，简单点说就是在磁盘上如何组织文件的方法。文件系统是软件层面上的概念。 Windows从诞生到现在，其文件系统已经经历几次重大的升级。从最开始的FAT16到FAT32文件系统到目前在Windows 2000和 Windows XP以及Windows Vista均采用的NTFS文件系统。 NTFS和FAT32的">
+<meta property="og:type" content="website">
+<meta property="og:title" content="文件系统">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Windows_API/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="文件系统 硬盘是存储介质，文件系统是操作系统用于组织和管理存储介质上数据的方法和数据结构，简单点说就是在磁盘上如何组织文件的方法。文件系统是软件层面上的概念。 Windows从诞生到现在，其文件系统已经经历几次重大的升级。从最开始的FAT16到FAT32文件系统到目前在Windows 2000和 Windows XP以及Windows Vista均采用的NTFS文件系统。 NTFS和FAT32的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325102947340.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325110307194.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325110512134.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325143611370.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325143655603.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325113902023.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325115618757.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325120143171.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325142801145.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325145326411.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325150325056.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325162014746.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325170031430.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325172652136.png">
+<meta property="article:published_time" content="2024-03-24T15:12:13.000Z">
+<meta property="article:modified_time" content="2024-03-24T15:12:13.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325102947340.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><div class="main" ff="title">Windows API编程</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Windows_API/" placeholder="在/wiki/Windows_API/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">字符</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html#start"><span class="toc-text">字符编码</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/C%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84%E5%AE%BD%E5%AD%97%E7%AC%A6.html"><span class="toc-text">C语言中的宽字符</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/Win32_API%E4%B8%AD%E7%9A%84%E5%AE%BD%E5%AD%97%E7%AC%A6.html"><span class="toc-text">Win32 API中的宽字符</span></a></div></div><div class="widget-header cap dis-select"><span class="name">进程</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%88%9B%E5%BB%BA%E8%BF%9B%E7%A8%8B.html"><span class="toc-text">创建进程</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%8F%A5%E6%9F%84%E8%A1%A8.html"><span class="toc-text">句柄表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E8%BF%9B%E7%A8%8B%E7%9B%B8%E5%85%B3API.html"><span class="toc-text">进程相关API</span></a></div></div><div class="widget-header cap dis-select"><span class="name">线程</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B.html"><span class="toc-text">创建线程</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B.html"><span class="toc-text">控制线程</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E4%B8%B4%E7%95%8C%E5%8C%BA.html"><span class="toc-text">临界区（Critical Section）</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E4%BA%92%E6%96%A5%E4%BD%93.html"><span class="toc-text">互斥体（Mutex）</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E4%BA%8B%E4%BB%B6.html"><span class="toc-text">事件（Event）</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E4%BF%A1%E5%8F%B7%E9%87%8F.html"><span class="toc-text">信号量（Semaphore）</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E7%BA%BF%E7%A8%8B%E4%BA%92%E6%96%A5%E4%B8%8E%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98.html"><span class="toc-text">线程互斥与线程同步问题</span></a></div></div><div class="widget-header cap dis-select"><span class="name">窗口程序编写及逆向分析</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E7%AA%97%E5%8F%A3%E7%9A%84%E6%9C%AC%E8%B4%A8.html"><span class="toc-text">窗口的本质</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97.html"><span class="toc-text">消息队列</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E7%AC%AC%E4%B8%80%E4%B8%AA%E7%AA%97%E5%8F%A3%E7%A8%8B%E5%BA%8F.html"><span class="toc-text">第一个窗口程序</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E6%B6%88%E6%81%AF%E7%B1%BB%E5%9E%8B.html"><span class="toc-text">消息类型</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E7%AA%97%E5%8F%A3%E7%A8%8B%E5%BA%8F%E9%80%86%E5%90%91%E5%88%86%E6%9E%90.html"><span class="toc-text">窗口程序逆向分析</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%AD%90%E7%AA%97%E5%8F%A3.html"><span class="toc-text">子窗口</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%AD%90%E7%AA%97%E5%8F%A3%E6%B6%88%E6%81%AF%E5%A4%84%E7%90%86%E9%80%BB%E8%BE%91%E5%8F%8A%E9%80%86%E5%90%91%E5%88%86%E6%9E%90.html"><span class="toc-text">子窗口消息处理逻辑及逆向分析</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%AF%B9%E8%AF%9D%E6%A1%86%E5%8F%8A%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E5%AE%9A%E4%BD%8D.html"><span class="toc-text">对话框及回调函数定位</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E4%BD%BF%E7%94%A8%E5%9B%BE%E6%A0%87.html"><span class="toc-text">使用图标</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E9%80%9A%E7%94%A8%E6%8E%A7%E4%BB%B6.html"><span class="toc-text">通用控件</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E6%9E%9A%E4%B8%BE%E7%AA%97%E5%8F%A3%E4%B8%8E%E6%A8%A1%E6%8B%9F%E9%BC%A0%E6%A0%87%E5%92%8C%E6%A8%A1%E6%8B%9F%E9%94%AE%E7%9B%98.html"><span class="toc-text">枚举窗口与模拟鼠标和模拟键盘</span></a></div></div><div class="widget-header cap dis-select"><span class="name">内存管理</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E4%B8%8E%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98.html"><span class="toc-text">虚拟内存与物理内存</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E7%A7%81%E6%9C%89%E5%86%85%E5%AD%98%E7%9A%84%E7%94%B3%E8%AF%B7%E5%92%8C%E9%87%8A%E6%94%BE.html"><span class="toc-text">私有内存的申请和释放</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98%E7%9A%84%E7%94%B3%E8%AF%B7%E5%92%8C%E9%87%8A%E6%94%BE.html"><span class="toc-text">共享内存的申请和释放</span></a></div></div><div class="widget-header cap dis-select"><span class="name">文件系统</span></div><div class="widget-body fs14"><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Windows_API/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F.html"><span class="toc-text">文件系统</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-text"> 文件系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%B7%E7%9B%B8%E5%85%B3api"><span class="toc-text"> 卷相关API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%8D%B7getlogicaldrives"><span class="toc-text"> 获取卷GetLogicalDrives()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E4%B8%80%E4%B8%AA%E5%8D%B7%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2getlogicaldrivestrings"><span class="toc-text"> 获取一个卷的字符串GetLogicalDriveStrings()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%8D%B7%E7%9A%84%E7%B1%BB%E5%9E%8Bgetdrivetype"><span class="toc-text"> 获取卷的类型GetDriveType()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%8D%B7%E7%9A%84%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AFgetvolumeinformation"><span class="toc-text"> 获取卷的详细信息GetVolumeInformation()</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E7%9B%B8%E5%85%B3api"><span class="toc-text"> 目录相关API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E7%9B%AE%E5%BD%95createdirectory"><span class="toc-text"> 创建目录CreateDirectory()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A0%E9%99%A4%E7%9B%AE%E5%BD%95removedirectory"><span class="toc-text"> 删除目录RemoveDirectory()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E7%9B%AE%E5%BD%95%E5%90%8D%E7%A7%B0movefile"><span class="toc-text"> 修改目录名称MoveFile()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E8%BF%9B%E7%A8%8B%E7%9A%84%E7%9B%AE%E5%BD%95getcurrentdirectory"><span class="toc-text"> 获取当前进程的目录GetCurrentDirectory()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E5%BD%93%E5%89%8D%E8%BF%9B%E7%A8%8B%E7%9A%84%E7%9B%AE%E5%BD%95setcurrentdirectory"><span class="toc-text"> 设置当前进程的目录SetCurrentDirectory()</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%9B%B8%E5%85%B3api"><span class="toc-text"> 文件相关API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6createfile"><span class="toc-text"> 创建文件CreateFile()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%97%AD%E6%96%87%E4%BB%B6closehandle"><span class="toc-text"> 关闭文件CloseHandle()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%96%87%E4%BB%B6%E9%95%BF%E5%BA%A6getfilesize"><span class="toc-text"> 获取文件长度GetFileSize()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%96%87%E4%BB%B6%E5%B1%9E%E6%80%A7%E5%92%8C%E4%BF%A1%E6%81%AFgetfileattributesgetfileattributesex"><span class="toc-text"> 获取文件属性和信息GetFileAttributes()&#x2F;GetFileAttributesEx()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%86%99%E6%8B%B7%E8%B4%9D%E5%88%A0%E9%99%A4%E6%96%87%E4%BB%B6readfilewritefilecopyfiledeletefile"><span class="toc-text"> 读&#x2F;写&#x2F;拷贝&#x2F;删除文件ReadFile()&#x2F;WriteFile()&#x2F;CopyFile()&#x2F;DeleteFile()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E6%89%BE%E6%96%87%E4%BB%B6findfirstfilefindnextfile"><span class="toc-text"> 查找文件FindFirstFile()&#x2F;FindNextFile()</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text"> 小结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%B7%E7%9B%B8%E5%85%B3api-2"><span class="toc-text"> 卷相关API</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E7%9B%B8%E5%85%B3api-2"><span class="toc-text"> 目录相关API</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%9B%B8%E5%85%B3api-2"><span class="toc-text"> 文件相关API</span></a></li></ol></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Windows_API/%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84%E6%96%87%E4%BB%B6.html"><span class="toc-text">内存映射文件</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><span class="title">汇编语言</span><span class="excerpt">x86汇编笔记：以滴水三期_汇编语言课程为框架，《汇编语言4th-王爽》和《汇编语言-基于x86处理器-第七版》为补充。</span></a><a class="item wiki" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><span class="title">C++</span><span class="excerpt">滴水三期_C++语言笔记，C++能做的C都能做，只不过如果使用C++，可以节省很多时间，因为编译器帮编程人员做了很多工作，让编程人员省事。学习的目标：相对于C，编译器替我们做了哪些工作。</span></a><a class="item wiki" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><span class="title">C</span><span class="excerpt">滴水三期_C语言笔记，以逆向角度看待和学习C语言，精彩点：堆栈图与指针。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="title">科学上网技术</span><span class="excerpt">从正常网络通信数据包通信过程出发，逐步推导到使用代理协议进行科学上网，随后依次介绍各代理协议ss、trojan、vmess、vless原理与节点搭建，还有相关的工具、技术、概念介绍。</span></a><a class="item wiki" href="/wiki/Thinking_in_C++/Pointers.html"><span class="title">Thinking in C++</span><span class="excerpt">《Thinking in C++ vol 1》笔记，知识内化后的输出，少部分是摘抄，少用的细节不做记录用时在查，参考视频：《面向对象程序设计_C++_翁恺老师》。</span></a><a class="item wiki" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><span class="title">数据的运算与表示</span><span class="excerpt">滴水三期_进制笔记，学习与理解进制、数据宽度、数的表示、位运算等概念。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html">Windows API编程</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-03-24T15:12:13.000Z">2024-03-24</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>文件系统</span></h1>
+<h2 id="文件系统"><a class="markdownIt-Anchor" href="#文件系统"></a> 文件系统</h2>
+<p>硬盘是存储介质，文件系统是操作系统用于组织和管理存储介质上数据的方法和数据结构，简单点说就是在磁盘上如何组织文件的方法。文件系统是软件层面上的概念。</p>
+<p>Windows从诞生到现在，其文件系统已经经历几次重大的升级。从最开始的FAT16到FAT32文件系统到目前在Windows 2000和 Windows XP以及Windows Vista均采用的NTFS文件系统。<br />
+NTFS和FAT32的部分区别如下表：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>NTFS</th>
+<th>FAT32</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>磁盘分区容量</td>
+<td>2T(2048G)</td>
+<td>32G</td>
+</tr>
+<tr>
+<td>单个文件容量</td>
+<td>4G以上</td>
+<td>最大4G</td>
+</tr>
+<tr>
+<td>EFS加密</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>磁盘配额</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>磁盘分区容量<br />
+NTFS文件系统的磁盘分区容量能达到2T(2048G)；FAT32文件系统的磁盘分区容量能达到32G</li>
+<li>单个文件容量<br />
+NTFS文件系统中的文件能达到4G以上，而FAT32文件系统中的文件最大只能4G。</li>
+<li>EFS加密</li>
+<li>磁盘配额</li>
+</ol>
+<p>查看某个盘所使用的文件系统：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325102947340.png" alt="image-20240325102947340" /></p>
+<div class="tag-plugin tabs" align="center"id="tab_213"><div class="nav-tabs"><div class="tab active"><a href="#tab_213-1">EFS加密</a></div><div class="tab"><a href="#tab_213-2">磁盘配额</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_213-1"><p>打勾后，注销当前用户，切换到别的用户，别的用户访问该文件会拒绝访问</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325110307194.png" alt="image-20240325110307194" /></p></div><div class="tab-pane" id="tab_213-2"><p>配置某个用户使用该磁盘的额度，比如限制test用户使用C盘只能使用1GB的额度</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325110512134.png" alt="image-20240325110512134" /></p></div></div></div>
+<p>FAT32，NTFS文件系统的实现细节并未公开，但无论系统用的是哪种文件系统，微软提供的API都屏蔽了这些底层的实现细节，对用户来说是透明的，开发人员无论在哪种文件系统，调用的API都是同一套。</p>
+<p>文件系统中最上层的组织结构是卷，然后下一层是目录（目录中之下可以还是目录，或者是文件），最底层是文件。</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>物理硬盘，磁盘分区，卷，卷标等概念</span></summary><div class="body"><p>物理硬盘：物理上的硬盘设备，比如在主机中装了一块512G的固态<br />磁盘分区 (Disk Partition)：逻辑分区，比如对上面512的固态进行分区，分成200G，312G两个分区来使用</p><p>卷 (Volume)：也称逻辑驱动器，是文件系统组织结构的最高层。一个磁盘分区至少含有一个卷，卷也可以存在于多个磁盘分区上，仅存在于一个磁盘分区上的卷称为“简单卷”，仅存在于多个磁盘分区上的卷称为“多分区卷”或“跨区卷”。在最常见的情况下，一个分区只包含一个卷,一个卷也只存在于一个分区上，所以两者容易混淆。卷存在卷标，程序可以通过卷标访问卷。<br />卷标 (Volume Label)：卷的名称。</p><div class="tag-plugin tabs" align="center"id="tab_214"><div class="nav-tabs"><div class="tab active"><a href="#tab_214-1">默认情况</a></div><div class="tab"><a href="#tab_214-2">重命名了磁盘</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_214-1"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325143611370.png" alt="image-20240325143611370" /></p></div><div class="tab-pane" id="tab_214-2"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325143655603.png" alt="image-20240325143655603" /></p></div></div></div></div></details></div>
+<p>本小节要讲的就是文件系统中组织结构层级：卷，目录，文件相关的API。</p>
+<h2 id="卷相关api"><a class="markdownIt-Anchor" href="#卷相关api"></a> 卷相关API</h2>
+<h3 id="获取卷getlogicaldrives"><a class="markdownIt-Anchor" href="#获取卷getlogicaldrives"></a> 获取卷<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlogicaldrives?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%252FGetLogicalDrives)%3Bk(GetLogicalDrives)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetLogicalDrives()</a></h3>
+<p>获取主机中所有的卷（逻辑驱动器），以BitMap形式返回</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DWORD <span class="title function_">GetLogicalDrives</span><span class="params">()</span>;</span><br></pre></td></tr></table></figure>
+<p>返回值DWORD类型，在这个DWORD中，其中每个比特（bit）表示一个驱动器：第0位代表A盘，第1位代表B盘，以此类推。如果某位是1，则表示相应的驱动器存在；如果是0，则表示不存在。</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    DWORD dwLogicalDrives = GetLogicalDrives();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%x\n&quot;</span>, dwLogicalDrives);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><figure class="highlight shell"><figcaption><span>输出</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">c</span><br><span class="line"></span><br></pre></td></tr></table></figure><p>将c拆开，1100，第2位为1，表示存在C盘驱动器，第3位为1，表示存在D盘驱动器，</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325113902023.png" alt="image-20240325113902023" /></p></div></details></div>
+<h3 id="获取一个卷的字符串getlogicaldrivestrings"><a class="markdownIt-Anchor" href="#获取一个卷的字符串getlogicaldrivestrings"></a> 获取一个卷的字符串<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlogicaldrivestringsw?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(GetLogicalDriveStringsW)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetLogicalDriveStrings()</a></h3>
+<p>获取主机中所有的卷（逻辑驱动器），以驱动器根路径形式字符串返回</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DWORD <span class="title function_">GetLogicalDriveStringsW</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in]  DWORD  nBufferLength,       <span class="comment">//指定lpBuffer缓冲区的size</span></span></span><br><span class="line"><span class="params">  [out] LPWSTR lpBuffer             <span class="comment">//out参数，接收结果的缓冲区</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<p><strong>返回值</strong>：</p>
+<ul>
+<li>成功
+<ul>
+<li>缓冲区中就是返回结果的总长度</li>
+<li>返回值大于nBufferLength，说明缓冲区长度不够，装不下，那么按nBufferLength的长度返回</li>
+</ul>
+</li>
+<li>失败
+<ul>
+<li>返回值为0</li>
+</ul>
+</li>
+</ul>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325115618757.png" alt="image-20240325115618757" /></p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    DWORD dwMaxLength = <span class="number">100</span>;</span><br><span class="line">    <span class="type">char</span> szBuffer[<span class="number">100</span>];</span><br><span class="line">    GetLogicalDriveStrings(dwMaxLength, szBuffer);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 首先打印所有字符的十六进制形式</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Hex:   &quot;</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; szBuffer[i] != <span class="string">&#x27;\0&#x27;</span> || szBuffer[i<span class="number">-1</span>] != <span class="string">&#x27;\0&#x27;</span>; i++) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%02X &quot;</span>, (<span class="type">unsigned</span> <span class="type">char</span>)szBuffer[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 然后打印所有字符的ASCII形式</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;ASCII: &quot;</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> j = <span class="number">0</span>; szBuffer[j] != <span class="string">&#x27;\0&#x27;</span> || szBuffer[j<span class="number">-1</span>] != <span class="string">&#x27;\0&#x27;</span>; j++) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">char</span> c = szBuffer[j];</span><br><span class="line">        <span class="keyword">if</span> (c &gt;= <span class="number">32</span> &amp;&amp; c &lt;= <span class="number">126</span>) </span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 可打印字符</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%-3c&quot;</span>, c);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 不可打印字符（如空字符）用点（.）表示</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%-3c&quot;</span>, <span class="string">&#x27;.&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 遍历szBuffer以打印所有驱动器名称</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">char</span> *pDrive = szBuffer; *pDrive != <span class="string">&#x27;\0&#x27;</span>; pDrive += <span class="built_in">strlen</span>(pDrive) + <span class="number">1</span>) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, pDrive);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><blockquote><p>继续遍历szBuffer字符数组的情况：当前字符不为空  或  上一个字符不为空</p><p>当连续两个字符都为空，就是到结尾了</p></blockquote><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325120143171.png" alt="image-20240325120143171" /></p></div></details></div>
+<h3 id="获取卷的类型getdrivetype"><a class="markdownIt-Anchor" href="#获取卷的类型getdrivetype"></a> 获取卷的类型<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdrivetypea?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%252FGetDriveType)%3Bk(GetDriveType)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetDriveType()</a></h3>
+<p>获取驱动器类型</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">UINT <span class="title function_">GetDriveTypeA</span><span class="params">(</span></span><br><span class="line"><span class="params">[in, optional] LPCSTR lpRootPathName        <span class="comment">// 驱动器根路径，如&quot;C:\&quot;</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<p>The return value specifies the type of drive, which can be one of the following values.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Return code/value</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">DRIVE_UNKNOWN</br>0</td>
+<td style="text-align:left">The drive type cannot be determined.</td>
+</tr>
+<tr>
+<td style="text-align:left">DRIVE_NO_ROOT_DIR</br>1</td>
+<td style="text-align:left">The root path is invalid; for example, there is no volume mounted at the specified path.</td>
+</tr>
+<tr>
+<td style="text-align:left">DRIVE_REMOVABLE</br>2</td>
+<td style="text-align:left">The drive has removable media; for example, a floppy drive, thumb drive, or flash card reader.</td>
+</tr>
+<tr>
+<td style="text-align:left">DRIVE_FIXED</br>3</td>
+<td style="text-align:left">The drive has fixed media; for example, a hard disk drive or flash drive.</td>
+</tr>
+<tr>
+<td style="text-align:left">DRIVE_REMOTE</br>4</td>
+<td style="text-align:left">The drive is a remote (network) drive.</td>
+</tr>
+<tr>
+<td style="text-align:left">DRIVE_CDROM</br>5</td>
+<td style="text-align:left">The drive is a CD-ROM drive.</td>
+</tr>
+<tr>
+<td style="text-align:left">DRIVE_RAMDISK</br>6</td>
+<td style="text-align:left">The drive is a RAM disk.</td>
+</tr>
+</tbody>
+</table>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 检索系统中所有逻辑驱动器的字符串</span></span><br><span class="line">    DWORD dwSize = <span class="number">100</span>;</span><br><span class="line">    <span class="type">char</span> szDriveStrings[<span class="number">100</span>];</span><br><span class="line">    GetLogicalDriveStrings(dwSize, szDriveStrings);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 遍历每个驱动器</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">char</span>* pDrive = szDriveStrings; *pDrive != <span class="string">&#x27;\0&#x27;</span>; pDrive += <span class="built_in">strlen</span>(pDrive) + <span class="number">1</span>) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Drive %s - &quot;</span>, pDrive);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取驱动器类型</span></span><br><span class="line">        UINT driveType = GetDriveType(pDrive);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 匹配不同的驱动器类型</span></span><br><span class="line">        <span class="keyword">switch</span> (driveType) &#123;</span><br><span class="line">            <span class="keyword">case</span> DRIVE_UNKNOWN:    <span class="comment">// 驱动器类型未知</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;Type Unknown\n&quot;</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> DRIVE_NO_ROOT_DIR: <span class="comment">// 驱动器没有根目录</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;No Root Directory\n&quot;</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> DRIVE_REMOVABLE:   <span class="comment">// 可移动驱动器（例如USB闪存驱动器或软盘）</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;Removable Drive\n&quot;</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> DRIVE_FIXED:       <span class="comment">// 固定驱动器（例如硬盘）</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;Fixed Drive\n&quot;</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> DRIVE_REMOTE:      <span class="comment">// 网络驱动器</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;Network Drive\n&quot;</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> DRIVE_CDROM:       <span class="comment">// CD-ROM驱动器</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;CD-ROM Drive\n&quot;</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> DRIVE_RAMDISK:     <span class="comment">// RAM盘</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;RAM Disk\n&quot;</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:                <span class="comment">// 未识别的类型</span></span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;Type Not Recognized\n&quot;</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325142801145.png" alt="image-20240325142801145" /></p></div></details></div>
+<h3 id="获取卷的详细信息getvolumeinformation"><a class="markdownIt-Anchor" href="#获取卷的详细信息getvolumeinformation"></a> 获取卷的详细信息<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getvolumeinformationa?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%252FGetVolumeInformation)%3Bk(GetVolumeInformation)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetVolumeInformation()</a></h3>
+<p>获取卷（逻辑驱动器）的详细信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">BOOL <span class="title function_">GetVolumeInformationA</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in, optional]  LPCSTR  lpRootPathName,           <span class="comment">//所要获取属性的驱动器的根路径字符串，如&quot;C:\\&quot;&quot;</span></span></span><br><span class="line"><span class="params">  [out, optional] LPSTR   lpVolumeNameBuffer,       <span class="comment">//返回卷标（驱动器名）</span></span></span><br><span class="line"><span class="params">  [in]            DWORD   nVolumeNameSize,          <span class="comment">//lpVolumeNameBuffer缓冲区的大小</span></span></span><br><span class="line"><span class="params">  [out, optional] LPDWORD lpVolumeSerialNumber,     <span class="comment">//卷（驱动器）序列号</span></span></span><br><span class="line"><span class="params">  [out, optional] LPDWORD lpMaximumComponentLength, <span class="comment">//文件系统允许的最大文件名长度</span></span></span><br><span class="line"><span class="params">  [out, optional] LPDWORD lpFileSystemFlags,        <span class="comment">//驱动器属性值</span></span></span><br><span class="line"><span class="params">  [out, optional] LPSTR   lpFileSystemNameBuffer,   <span class="comment">//文件系统类型，如“NTFS”，“CDFS”等</span></span></span><br><span class="line"><span class="params">  [in]            DWORD   nFileSystemNameSize       <span class="comment">//lpFileSystemNameBuffer缓冲区的大小</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<p><strong>nVolumeNameSize</strong>：lpVolumeNameBuffer缓冲区的大小。假设是10，但是要查询的卷的卷标名太长假设为20，那就只返回卷标名的前10个</p>
+<p><strong>lpVolumeSerialNumber</strong>：卷（驱动器）序列号。</p>
+<ul>
+<li>
+<p>这一项不是硬盘序列号。硬盘序列号是硬盘出厂时生产厂家为区分产品而设置的，无法更改。一些授权软件为了鉴别使用用户的环境，可能会通过硬盘序列号来做限制，当用户换了环境软件就不能用了。一些声称能修改硬盘序列号的工具并不是真正修改了硬盘序列号，而是hook获取的函数，返回另外一个硬盘序列号。</p>
+<blockquote>
+<p>To programmatically obtain the hard disk’s serial number that the manufacturer assigns, use the Windows Management Instrumentation (WMI) <a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/previous-versions/windows/desktop/cimwin32a/win32-physicalmedia">Win32_PhysicalMedia</a> property <strong>SerialNumber</strong>.</p>
+</blockquote>
+</li>
+<li>
+<p>一个物理硬盘可能被分成四个卷，那每个卷就有一个卷（驱动器）序列号。如果重装系统，格式化硬盘，这个卷序列号会发生改变。</p>
+</li>
+</ul>
+<p><strong>lpMaximumComponentLength</strong>：文件系统允许的最大文件名长度。文件夹，文件名最大的长度是多少</p>
+<p><strong>lpFileSystemFlags</strong>：驱动器属性值。</p>
+<blockquote>
+<p>A pointer to a variable that receives flags associated with the specified file system.</p>
+<p>This parameter can be one or more of the following flags. However, <strong>FILE_FILE_COMPRESSION</strong> and <strong>FILE_VOL_IS_COMPRESSED</strong> are mutually exclusive.</p>
+</blockquote>
+<ul>
+<li>FILE_VOLUME_QUOTAS表示支持磁盘配额</li>
+<li>FILE_SUPPORTS_ENCRYPTION表示文件系统是否支持EFS加密等。</li>
+<li><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325145326411.png" alt="image-20240325145326411" /></li>
+</ul>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 定义变量以存储卷信息</span></span><br><span class="line">    TCHAR volumeName[MAX_PATH + <span class="number">1</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">    DWORD volumeSerialNumber = <span class="number">0</span>;</span><br><span class="line">    DWORD maximumComponentLength = <span class="number">0</span>;</span><br><span class="line">    DWORD fileSystemFlags = <span class="number">0</span>;</span><br><span class="line">    TCHAR fileSystemName[MAX_PATH + <span class="number">1</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取C盘的卷信息</span></span><br><span class="line">    BOOL success = GetVolumeInformation(</span><br><span class="line">        <span class="string">&quot;C:\\&quot;</span>,            <span class="comment">// 驱动器根路径</span></span><br><span class="line">        volumeName,              <span class="comment">// 卷标</span></span><br><span class="line">        MAX_PATH,                <span class="comment">// 卷标缓冲区的大小</span></span><br><span class="line">        &amp;volumeSerialNumber,     <span class="comment">// 卷序列号</span></span><br><span class="line">        &amp;maximumComponentLength, <span class="comment">// 最大文件名长度</span></span><br><span class="line">        &amp;fileSystemFlags,        <span class="comment">// 文件系统标志</span></span><br><span class="line">        fileSystemName,          <span class="comment">// 文件系统名称</span></span><br><span class="line">        MAX_PATH                 <span class="comment">// 文件系统名称缓冲区的大小</span></span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (success) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Volume Name: %s\n&quot;</span>, volumeName);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Volume Serial Number: %lu\n&quot;</span>, volumeSerialNumber);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Maximum Component Length: %lu\n&quot;</span>, maximumComponentLength);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;File System Flags: %lu\n&quot;</span>, fileSystemFlags);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;File System Name: %s\n&quot;</span>, fileSystemName);</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="keyword">else</span> </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Error retrieving volume information\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325150325056.png" alt="image-20240325150325056" /></p></div></details></div>
+<h2 id="目录相关api"><a class="markdownIt-Anchor" href="#目录相关api"></a> 目录相关API</h2>
+<h3 id="创建目录createdirectory"><a class="markdownIt-Anchor" href="#创建目录createdirectory"></a> 创建目录<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createdirectorya?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%252FCreateDirectory)%3Bk(CreateDirectory)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">CreateDirectory()</a></h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">BOOL <span class="title function_">CreateDirectory</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in]           LPCSTR                lpPathName,          <span class="comment">//创建的目录的名字</span></span></span><br><span class="line"><span class="params">  [in, optional] LPSECURITY_ATTRIBUTES lpSecurityAttributes <span class="comment">//SD 安全描述符</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<p>Directory也是一个内核对象，有LPSECURITY_ATTRIBUTES类型的参数</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    CreateDirectory(<span class="string">&quot;C:\\A&quot;</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>运行后在C盘下创建名为A的目录</p></div></details></div>
+<h3 id="删除目录removedirectory"><a class="markdownIt-Anchor" href="#删除目录removedirectory"></a> 删除目录<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-removedirectorya?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%252FRemoveDirectory)%3Bk(RemoveDirectory)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">RemoveDirectory()</a></h3>
+<p>Deletes an existing empty directory.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">BOOL <span class="title function_">RemoveDirectoryA</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in] LPCSTR lpPathName        <span class="comment">//要删除的目录的名字</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    RemoveDirectory(<span class="string">&quot;C:\\A&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>运行后在C盘下名为A的目录被删除</p></div></details></div>
+<h3 id="修改目录名称movefile"><a class="markdownIt-Anchor" href="#修改目录名称movefile"></a> 修改目录名称<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefile?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(WINBASE%252FMoveFile)%3Bk(MoveFile)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">MoveFile()</a></h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">BOOL <span class="title function_">MoveFile</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in] LPCTSTR lpExistingFileName,      <span class="comment">//当前目录/文件的名字</span></span></span><br><span class="line"><span class="params">  [in] LPCTSTR lpNewFileName            <span class="comment">//要修改成的新名字</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    MoveFile(<span class="string">&quot;C:\\B&quot;</span>, <span class="string">&quot;C:\\C&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>运行后在C盘下名为B的目录被改名为C</p></div></details></div>
+<h3 id="获取当前进程的目录getcurrentdirectory"><a class="markdownIt-Anchor" href="#获取当前进程的目录getcurrentdirectory"></a> 获取当前进程的目录<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getcurrentdirectory">GetCurrentDirectory()</a></h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DWORD <span class="title function_">GetCurrentDirectory</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in]  DWORD  nBufferLength,   <span class="comment">//lpBuffer字符串缓冲区的大小</span></span></span><br><span class="line"><span class="params">  [out] LPTSTR lpBuffer         <span class="comment">//存获取的字符串</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<p><code>GetCurrentDirectory</code> 函数获取程序的当前工作目录，即程序运行时的活动目录。这个目录可以与模块所在的目录不同，取决于CreateProcess时lpCurrentDirectory参数的设置</p>
+<p>用途，比如CreateDirectory或CreateFile时，未使用绝对路径，寻找的路径就是进程的当前工作目录</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CreateDirectory(<span class="string">&quot;C:\\A&quot;</span>, <span class="literal">NULL</span>);   <span class="comment">//绝对路径</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CreateDirectory(<span class="string">&quot;A&quot;</span>, <span class="literal">NULL</span>);      <span class="comment">//在进程的当前工作目录下创建A文件夹</span></span><br></pre></td></tr></table></figure>
+<h3 id="设置当前进程的目录setcurrentdirectory"><a class="markdownIt-Anchor" href="#设置当前进程的目录setcurrentdirectory"></a> 设置当前进程的目录<a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/dotnet/api/system.io.directory.setcurrentdirectory?view=net-8.0&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(PROCESSENV%252FSetCurrentDirectory)%3Bk(SetCurrentDirectory)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">SetCurrentDirectory()</a></h3>
+<p>Sets the application’s current working directory to the specified directory.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">BOOL <span class="title function_">SetCurrentDirectory</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in] LPCTSTR lpPathName</span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"><p>这个程序首先调用 <code>GetCurrentDirectory</code> 来获取并打印当前进程的工作目录。接着，它调用 <code>CreateDirectory</code> 在当前目录下创建一个新文件夹“A”。然后，程序使用 <code>SetCurrentDirectory</code> 将工作目录更改为 C:\，并再次尝试在那里创建一个名为“A”的文件夹。</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> currentDirectory[MAX_PATH];</span><br><span class="line">    BOOL result;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取当前进程的工作目录</span></span><br><span class="line">    <span class="keyword">if</span> (!GetCurrentDirectory(MAX_PATH, currentDirectory)) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Error getting current directory\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Current Directory: %s\n&quot;</span>, currentDirectory);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在当前目录下创建新文件夹 &quot;A&quot;</span></span><br><span class="line">    result = CreateDirectory(<span class="string">&quot;A&quot;</span>, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (result) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Directory &#x27;A&#x27; created in current directory\n&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Error creating directory &#x27;A&#x27; in current directory\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 更改当前工作目录到 C:\ </span></span><br><span class="line">    result = SetCurrentDirectory(<span class="string">&quot;C:\\&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!result) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Error setting current directory to C:\\\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Current Directory changed to C:\\\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在C:\\创建新文件夹 &quot;A&quot;</span></span><br><span class="line">    result = CreateDirectory(<span class="string">&quot;C:\\A&quot;</span>, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (result) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Directory &#x27;A&#x27; created in C:\\\n&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Error creating directory &#x27;A&#x27; in C:\\\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><figure class="highlight shell"><figcaption><span>输出</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Current Directory: C:\Program Files\Microsoft Visual Studio\MyProjects\Demo</span><br><span class="line">Directory &#x27;A&#x27; created in current directory</span><br><span class="line">Current Directory changed to C:\</span><br><span class="line">Directory &#x27;A&#x27; created in C:\</span><br></pre></td></tr></table></figure></div></details></div>
+<h2 id="文件相关api"><a class="markdownIt-Anchor" href="#文件相关api"></a> 文件相关API</h2>
+<p>在文件操作中，文件句柄惟一标识了一个文件，ReadFile、WriteFile、GetFileSize等函数都需要文件句柄作为参数。在对文件进行操作之前，都必须要使用CreateFile获取文件句柄</p>
+<h3 id="创建文件createfile"><a class="markdownIt-Anchor" href="#创建文件createfile"></a> 创建文件<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%252FCreateFile)%3Bk(CreateFile)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">CreateFile()</a></h3>
+<p>创建或打开一个现有的文件，得到这个文件的文件句柄</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HANDLE <span class="title function_">CreateFileA</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in]           LPCSTR                lpFileName,            <span class="comment">//文件名</span></span></span><br><span class="line"><span class="params">  [in]           DWORD                 dwDesiredAccess,       <span class="comment">//访问模式</span></span></span><br><span class="line"><span class="params">  [in]           DWORD                 dwShareMode,           <span class="comment">//共享模式</span></span></span><br><span class="line"><span class="params">  [in, optional] LPSECURITY_ATTRIBUTES lpSecurityAttributes,  <span class="comment">//SD 安全描述符</span></span></span><br><span class="line"><span class="params">  [in]           DWORD                 dwCreationDisposition, <span class="comment">//创建方式</span></span></span><br><span class="line"><span class="params">  [in]           DWORD                 dwFlagsAndAttributes,  <span class="comment">//文件属性和文件标志</span></span></span><br><span class="line"><span class="params">  [in, optional] HANDLE                hTemplateFile          <span class="comment">//模板文件 不用管，填空</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<p><strong>dwDesiredAccess</strong>：只读权限打开？可写权限打开？还是所有权限？The most commonly used values are <strong>GENERIC_READ</strong>, <strong>GENERIC_WRITE</strong>, or both (<code>GENERIC_READ | GENERIC_WRITE</code>).</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Constant</th>
+<th style="text-align:left">Generic meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>GENERIC_ALL</strong> <code>0x10000000</code></td>
+<td style="text-align:left">All possible access rights</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>GENERIC_EXECUTE</strong> <code>0x20000000</code></td>
+<td style="text-align:left">Execute access</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>GENERIC_WRITE</strong> <code>0x40000000</code></td>
+<td style="text-align:left">Write access</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>GENERIC_READ</strong> <code>0x80000000</code></td>
+<td style="text-align:left">Read access</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/secauthz/generic-access-rights">Generic Access Rights</a></p>
+</blockquote>
+<p><strong>dwShareMode</strong>：共享模式，通常没什么用。</p>
+<ul>
+<li>
+<p>指明与其他进程是否共享该文件，可以是共享读(FILE_SHARE_READ)、共享写(FILE_SHARE_WRITE）、共享删除(FILE_SHARE_DELETE)。如果要指明多个属性，使用“位与”“|”运算。如果指明上述参数，其他进程就可以对文件进行相关操作。</p>
+</li>
+<li>
+<p>如果本进程需要独占本文件，则将本参数设置为0。</p>
+<blockquote>
+<p>If this parameter is zero and <strong>CreateFile</strong> succeeds, the file or device cannot be shared and cannot be opened again until the handle to the file or device is closed. For more information, see the Remarks section.</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>dwCreationDisposition</strong>：操作模式</p>
+<table>
+<thead>
+<tr>
+<th>操作模式</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CREATE_ALWAYS</td>
+<td>如果指向的文件存在，则overwrite该文件，清除文件内容，清除文件属性;如果文件不存在，则新建一个文件</td>
+</tr>
+<tr>
+<td>CREATE_NEW</td>
+<td>新建文件，如果文件已经存在，则返回失败</td>
+</tr>
+<tr>
+<td>OPEN_ALWAYS</td>
+<td>如果文件存在，则打开文件;如果文件不存在，则等同于CREATE_NEW</td>
+</tr>
+<tr>
+<td>OPEN_EXISTING</td>
+<td>打开存在的文件，如果文件不存在，则删除文件</td>
+</tr>
+<tr>
+<td>TRUNCATE_EXISTING</td>
+<td>打开已经存在的文件，并把内容清空，文件大小变为零</td>
+</tr>
+</tbody>
+</table>
+<p><strong>dwFlagsAndAttributes</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>文件属性</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FILE_ATTRIBUTE_ARCHIVE</td>
+<td>存档文件</td>
+</tr>
+<tr>
+<td>FILE_ATTRIBUTE_ENCRYPTED</td>
+<td>加密文件</td>
+</tr>
+<tr>
+<td>FILE_ATTRIBUTE_HIDDEN</td>
+<td>隐藏文件</td>
+</tr>
+<tr>
+<td>FILE_ATTRIBUTE_NORMAL</td>
+<td>不含有其他文件属性，只能单独使用</td>
+</tr>
+<tr>
+<td>FILE_ATTRIBUTE_NOT_CONTENT_INDEXED</td>
+<td>没有使用内容索引服务</td>
+</tr>
+<tr>
+<td>FILE_ATTRIBUTE_OFFLINE</td>
+<td>离线存储文件</td>
+</tr>
+<tr>
+<td>FILE_ATTRIBUTE_READONLY</td>
+<td>只读文件</td>
+</tr>
+<tr>
+<td>FILE_ATTRIBUTE_SYSTEM</td>
+<td>系统文件</td>
+</tr>
+<tr>
+<td>FILE_ATTRIBUTE_TEMPORARY</td>
+<td>临时文件</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>操作标志</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FILE_FLAG_BACKUP_SEMANTICS</td>
+<td>打开和创建文件是为了进行备份和恢复操作</td>
+</tr>
+<tr>
+<td>FILE_FLAG_DELETE_ON_CLOSE</td>
+<td>如果文件句柄全部关闭，则删除文件</td>
+</tr>
+<tr>
+<td>FILE_FLAG_NO_BUFFERING</td>
+<td>不使用系统缓存(caching，不同于硬件缓存)</td>
+</tr>
+<tr>
+<td>FILE_FLAG_OPEN_NO_RECALL</td>
+<td>远程存储</td>
+</tr>
+<tr>
+<td>FILE_FLAG_OPEN_REPARSE_POINT</td>
+<td>系统将禁止NTFS文件系统的“再解析”行为</td>
+</tr>
+<tr>
+<td>FILE_FLAG_OVERLAPPED</td>
+<td>以异步IO方式创建可打开文件</td>
+</tr>
+<tr>
+<td>FILE_FLAG_POSIX_SEMANTICS</td>
+<td>按照POSIX规则存取</td>
+</tr>
+<tr>
+<td>FILE_FLAG_RANDOM_ACCESS</td>
+<td>随机存取</td>
+</tr>
+<tr>
+<td>FILE_FLAG_SEQUENTIAL_SCAN</td>
+<td>文件从头到尾是连续的(sequentially)</td>
+</tr>
+<tr>
+<td>FILE_FLAG_WRITE_THROUGH</td>
+<td>存取文件时，对磁盘进行直接的操作，不经过缓存</td>
+</tr>
+</tbody>
+</table>
+<p>一般情况下文件属性较常用，而操作标志不常用，可以使用“|”运算符指定多个属性和标志。</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 创建文件</span></span><br><span class="line">    CreateFile(</span><br><span class="line">        TEXT(<span class="string">&quot;C:\\A.txt&quot;</span>),            <span class="comment">// 文件名: 指定要创建或打开的文件的名称。</span></span><br><span class="line">        GENERIC_READ | GENERIC_WRITE, <span class="comment">// 访问模式: 指定对文件的读写权限。</span></span><br><span class="line">        <span class="number">0</span>,                            <span class="comment">// 共享模式: 指定其他进程是否可以共享此文件，0表示不共享。</span></span><br><span class="line">        <span class="literal">NULL</span>,                         <span class="comment">// 安全属性: 指定安全描述符，NULL表示默认安全级别。</span></span><br><span class="line">        CREATE_ALWAYS,                <span class="comment">// 创建方式: 指定如何创建或打开文件，这里为总是创建。</span></span><br><span class="line">        FILE_ATTRIBUTE_HIDDEN,        <span class="comment">// 文件属性: 设置文件的属性，这里为隐藏文件。</span></span><br><span class="line">        <span class="literal">NULL</span>                          <span class="comment">// 模板文件: 用于指定文件的属性和扩展属性的文件的句柄，NULL表示不使用模板。</span></span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>运行后C盘下多出一个A.txt文件，该文件为隐藏文件</p></div></details></div>
+<h3 id="关闭文件closehandle"><a class="markdownIt-Anchor" href="#关闭文件closehandle"></a> 关闭文件CloseHandle()</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"></div></details></div>
+<h3 id="获取文件长度getfilesize"><a class="markdownIt-Anchor" href="#获取文件长度getfilesize"></a> 获取文件长度<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfilesize">GetFileSize()</a></h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DWORD <span class="title function_">GetFileSize</span><span class="params">(                          <span class="comment">//返回值是返回文件大小结果的低32位</span></span></span><br><span class="line"><span class="params">  [in]            HANDLE  hFile,            <span class="comment">//文件句柄</span></span></span><br><span class="line"><span class="params">  [out, optional] LPDWORD lpFileSizeHigh    <span class="comment">//返回文件大小结果的高32位，填NULL表示不需要高32位</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<p>GetFileSize的返回值是文件大小结果的低32位，lpFileSizeHigh是文件大小结果的高32位</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 打开文件</span></span><br><span class="line">    HANDLE hFile = CreateFile(</span><br><span class="line">        TEXT(<span class="string">&quot;C:\\Windows\\System32\\notepad.exe&quot;</span>), <span class="comment">// 文件名</span></span><br><span class="line">        GENERIC_READ, <span class="comment">// 访问模式: 只读</span></span><br><span class="line">        FILE_SHARE_READ, <span class="comment">// 共享模式: 允许其他进程读取文件</span></span><br><span class="line">        <span class="literal">NULL</span>, <span class="comment">// 安全属性: 默认</span></span><br><span class="line">        OPEN_EXISTING, <span class="comment">// 打开现有文件</span></span><br><span class="line">        FILE_ATTRIBUTE_NORMAL, <span class="comment">// 文件属性: 普通文件</span></span><br><span class="line">        <span class="literal">NULL</span> <span class="comment">// 没有模板文件</span></span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">if</span> (hFile == INVALID_HANDLE_VALUE) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Failed to open file\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取文件大小</span></span><br><span class="line">    DWORD fileSize = GetFileSize(hFile, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (fileSize == INVALID_FILE_SIZE) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Failed to get file size\n&quot;</span>);</span><br><span class="line">        CloseHandle(hFile);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;File size: %lu bytes\n&quot;</span>, fileSize);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 关闭文件句柄</span></span><br><span class="line">    CloseHandle(hFile);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325162014746.png" alt="image-20240325162014746" /></p></div></details></div>
+<h3 id="获取文件属性和信息getfileattributesgetfileattributesex"><a class="markdownIt-Anchor" href="#获取文件属性和信息getfileattributesgetfileattributesex"></a> 获取文件属性和信息<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfileattributesa?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%252FGetFileAttributes)%3Bk(GetFileAttributes)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetFileAttributes()</a>/<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfileattributesexa?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%252FGetFileAttributesEx)%3Bk(GetFileAttributesEx)%3Bk(DevLang-C%252B%252B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetFileAttributesEx()</a></h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DWORD <span class="title function_">GetFileAttributesA</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in] LPCSTR lpFileName</span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<p>获取文件或目录的属性、时间、大小，以WIN32_FILE_ATTRIBUTE_DATA结构的形式返回结果，函数原型如下:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">BOOL <span class="title function_">GetFileAttributesExA</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in]  LPCSTR                 lpFileName,</span></span><br><span class="line"><span class="params">  [in]  GET_FILEEX_INFO_LEVELS fInfoLevelId,</span></span><br><span class="line"><span class="params">  [out] LPVOID                 lpFileInformation</span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<p><strong>lpFileName</strong>：输入参数，为需要获取属性的文件或目录。</p>
+<p><strong>fInfoLevelld</strong>：输入参数，是获取文件属性信息的类别,会影响到lpFileInformation参数具体采用什么形式输出结果。但是本参数一般只能指定为GetFileExInfoStandard。<br />
+<strong>lpFileInformation</strong>：输入参数，用于返回结果。如果flnfoLevelld参数指定为GetFileExInfoStandard，则为LPWIN32_FILE_ATTRIBUTE_DATA类型。<br />
+<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/ns-fileapi-win32_file_attribute_data">WIN32_FILE_ATTRIBUTE_DATA structure</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">WIN32_FILE_ATTRIBUTE_DATA</span> &#123;</span></span><br><span class="line">  DWORD    dwFileAttributes;                                <span class="comment">//文件属性</span></span><br><span class="line">  FILETIME ftCreationTime;                                  <span class="comment">//文件创建时间</span></span><br><span class="line">  FILETIME ftLastAccessTime;                                <span class="comment">//文件最后访问时间</span></span><br><span class="line">  FILETIME ftLastWriteTime;                                 <span class="comment">//文件最后写入时间</span></span><br><span class="line">  DWORD    nFileSizeHigh;                                   <span class="comment">//文件大小，高32位</span></span><br><span class="line">  DWORD    nFileSizeLow;                                    <span class="comment">//文件大小，低32位</span></span><br><span class="line">&#125; WIN32_FILE_ATTRIBUTE_DATA, *LPWIN32_FILE_ATTRIBUTE_DATA;</span><br></pre></td></tr></table></figure>
+<p>dwFileAttributes：位掩码。详细查<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants">File Attribute Constants</a></p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>FILETIME和SYSTEMTIME结构体</span></summary><div class="body"><ol><li><p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime">FILETIME结构体</a><br />此结构用最小的数据量表示的时间，但是不便于用户查看和显示。通过API 获取的系统时间都是这种格式的。如果要使用显示，可以使用<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/timezoneapi/nf-timezoneapi-filetimetosystemtime">FileTimeToSystemTime</a>转换为便于显示的SYSTEMTIME结构。</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">FILETIME</span> &#123;</span></span><br><span class="line">  DWORD dwLowDateTime;</span><br><span class="line">  DWORD dwHighDateTime;</span><br><span class="line">&#125; FILETIME, *PFILETIME, *LPFILETIME;</span><br></pre></td></tr></table></figure></li><li><p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime">SYSTEMTIME结构体</a><br />此结构使用了较为直观的方式表示时间</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">SYSTEMTIME</span> &#123;</span></span><br><span class="line">  WORD wYear;</span><br><span class="line">  WORD wMonth;</span><br><span class="line">  WORD wDayOfWeek;</span><br><span class="line">  WORD wDay;</span><br><span class="line">  WORD wHour;</span><br><span class="line">  WORD wMinute;</span><br><span class="line">  WORD wSecond;</span><br><span class="line">  WORD wMilliseconds;</span><br><span class="line">&#125; SYSTEMTIME, *PSYSTEMTIME, *LPSYSTEMTIME;</span><br></pre></td></tr></table></figure></li></ol></div></details></div>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 声明WIN32_FILE_ATTRIBUTE_DATA结构体并初始化</span></span><br><span class="line">    WIN32_FILE_ATTRIBUTE_DATA data = &#123; <span class="number">0</span> &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取notepad.exe的文件属性</span></span><br><span class="line">    BOOL success = GetFileAttributesEx(</span><br><span class="line">        <span class="string">&quot;C:\\Windows\\System32\\notepad.exe&quot;</span>, <span class="comment">// 指定文件路径</span></span><br><span class="line">        GetFileExInfoStandard,                 <span class="comment">// 要检索的信息级别</span></span><br><span class="line">        &amp;data                                  <span class="comment">// 接收文件属性数据的缓冲区</span></span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!success) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;获取文件属性失败。\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印文件属性</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;属性：%d\n&quot;</span>, data.dwFileAttributes); <span class="comment">// 文件属性的位掩码</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印文件大小的高位DWORD</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;大小高位：%lu\n&quot;</span>, data.nFileSizeHigh);     <span class="comment">// 文件大小的高位部分</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印文件大小的低位DWORD</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;大小低位：%lu\n&quot;</span>, data.nFileSizeLow);       <span class="comment">// 文件大小的低位部分</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印文件创建时间</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;创建时间：%llx\n&quot;</span>, data.ftCreationTime); <span class="comment">// 文件创建时间</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印文件最后访问时间</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;最后访问时间：%llx\n&quot;</span>, data.ftLastAccessTime); <span class="comment">// 文件最后访问时间</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打印文件最后写入时间</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;最后写入时间：%llx\n&quot;</span>, data.ftLastWriteTime);   <span class="comment">// 文件最后写入时间</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325170031430.png" alt="image-20240325170031430" /></p></div></details></div>
+<h3 id="读写拷贝删除文件readfilewritefilecopyfiledeletefile"><a class="markdownIt-Anchor" href="#读写拷贝删除文件readfilewritefilecopyfiledeletefile"></a> 读/写/拷贝/删除文件<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile">ReadFile()</a>/<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-writefile">WriteFile()</a>/<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-copyfile">CopyFile()</a>/<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-deletefile">DeleteFile()</a></h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">BOOL <span class="title function_">ReadFile</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in]                HANDLE       hFile,                   <span class="comment">//文件句柄</span></span></span><br><span class="line"><span class="params">  [out]               LPVOID       lpBuffer,                <span class="comment">//指向读取文件数据存储的内存缓冲区</span></span></span><br><span class="line"><span class="params">  [in]                DWORD        nNumberOfBytesToRead,    <span class="comment">//从文件中要读多少。不能大于lpBuffer内存块的大小，要不会溢出</span></span></span><br><span class="line"><span class="params">  [out, optional]     LPDWORD      lpNumberOfBytesRead,     <span class="comment">//实际读了多少数据</span></span></span><br><span class="line"><span class="params">  [in, out, optional] LPOVERLAPPED lpOverlapped             <span class="comment">//overlapped buffer 学习到网络编程异步模型时再关注这个参数</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>lpOverlapped：输入参数，指向OVERLAPPED结构体的指针，如果调用CreateFile时设置了FILE_FLAG_OVERLAPPED标志，则需要使用该参数。可以为NULL。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">BOOL <span class="title function_">WriteFile</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in]                HANDLE       hFile,                   <span class="comment">//文件句柄</span></span></span><br><span class="line"><span class="params">  [in]                LPCVOID      lpBuffer,                <span class="comment">//data buffer 要写入的数据在哪</span></span></span><br><span class="line"><span class="params">  [in]                DWORD        nNumberOfBytesToWrite,   <span class="comment">//number of bytes to write 要写多少字节</span></span></span><br><span class="line"><span class="params">  [out, optional]     LPDWORD      lpNumberOfBytesWritten,  <span class="comment">//number of bytes written 实际写多少字节</span></span></span><br><span class="line"><span class="params">  [in, out, optional] LPOVERLAPPED lpOverlapped             <span class="comment">//overlapped buffer</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">BOOL <span class="title function_">CopyFile</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in] LPCTSTR lpExistingFileName,      <span class="comment">//已经存在的所需复制文件的源路径</span></span></span><br><span class="line"><span class="params">  [in] LPCTSTR lpNewFileName,           <span class="comment">//新文件路径，复制文件的目的路径</span></span></span><br><span class="line"><span class="params">  [in] BOOL    bFailIfExists            <span class="comment">//目的路径的文件已存在时是否覆盖</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>bFailIfExists
+<ul>
+<li>TRUE：lpNewFileName名字的文件已存在，不覆盖，函数执行失败</li>
+<li>FALSE：即使lpNewFileName名字的文件已存在，会覆写文件，函数执行成功</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">BOOL <span class="title function_">DeleteFile</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in] LPCTSTR lpFileName</span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"></div></details></div>
+<h3 id="查找文件findfirstfilefindnextfile"><a class="markdownIt-Anchor" href="#查找文件findfirstfilefindnextfile"></a> 查找文件FindFirstFile()/FindNextFile()</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HANDLE <span class="title function_">FindFirstFileA</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in]  LPCSTR             lpFileName,</span></span><br><span class="line"><span class="params">  [out] LPWIN32_FIND_DATAA lpFindFileData</span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">BOOL <span class="title function_">FindNextFileA</span><span class="params">(</span></span><br><span class="line"><span class="params">  [in]  HANDLE             hFindFile,</span></span><br><span class="line"><span class="params">  [out] LPWIN32_FIND_DATAA lpFindFileData</span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>示例</span></summary><div class="body"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 创建或打开文件</span></span><br><span class="line">    HANDLE hFile = CreateFile(</span><br><span class="line">        <span class="string">&quot;C:\\A.txt&quot;</span>,              <span class="comment">// 文件名：要打开的文件路径</span></span><br><span class="line">        GENERIC_READ,             <span class="comment">// 访问模式：打开文件以进行读取</span></span><br><span class="line">        <span class="number">0</span>,                        <span class="comment">// 共享模式：不与其他进程共享文件</span></span><br><span class="line">        <span class="literal">NULL</span>,                     <span class="comment">// 安全属性：默认安全设置</span></span><br><span class="line">        OPEN_EXISTING,            <span class="comment">// 创建方式：只打开现有文件</span></span><br><span class="line">        FILE_ATTRIBUTE_NORMAL,    <span class="comment">// 文件属性：普通文件属性</span></span><br><span class="line">        <span class="literal">NULL</span>                      <span class="comment">// 模板文件：不使用模板</span></span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (hFile == INVALID_HANDLE_VALUE) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;无法打开文件。\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只读取文件的前10个字节</span></span><br><span class="line">    DWORD bytesToRead = <span class="number">10</span>;</span><br><span class="line">    LPSTR pszBuffer = (LPSTR)<span class="built_in">malloc</span>(bytesToRead + <span class="number">1</span>); <span class="comment">// 分配11个字节，多出的一个字节用于存储字符串结束符&#x27;\0&#x27;</span></span><br><span class="line">    ZeroMemory(pszBuffer, bytesToRead + <span class="number">1</span>); <span class="comment">// 初始化内存区域</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置文件指针到文件开头</span></span><br><span class="line">    SetFilePointer(hFile, <span class="number">0</span>, <span class="literal">NULL</span>, FILE_BEGIN);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 读取文件内容</span></span><br><span class="line">    DWORD dwReadLength; <span class="comment">// 实际读取的字节数</span></span><br><span class="line">    BOOL readSuccess = ReadFile(</span><br><span class="line">        hFile,           <span class="comment">// 文件句柄：操作的文件</span></span><br><span class="line">        pszBuffer,       <span class="comment">// 缓冲区：存储读取数据的缓冲区</span></span><br><span class="line">        bytesToRead,     <span class="comment">// 读取字节数：要读取的字节数</span></span><br><span class="line">        &amp;dwReadLength,   <span class="comment">// 实际读取的字节数</span></span><br><span class="line">        <span class="literal">NULL</span>             <span class="comment">// 重叠结构：这里不使用重叠结构</span></span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">if</span> (!readSuccess) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;读取文件时发生错误。\n&quot;</span>);</span><br><span class="line">        CloseHandle(hFile);</span><br><span class="line">        <span class="built_in">free</span>(pszBuffer);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 输出缓冲区内容</span></span><br><span class="line">    pszBuffer[dwReadLength] = <span class="string">&#x27;\0&#x27;</span>; <span class="comment">// 确保有字符串结束符</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;读取的内容：%s\n&quot;</span>, pszBuffer);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放内存</span></span><br><span class="line">    <span class="built_in">free</span>(pszBuffer);</span><br><span class="line">    <span class="comment">// 关闭文件句柄</span></span><br><span class="line">    CloseHandle(hFile);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20240325172652136.png" alt="image-20240325172652136" /></p></div></details></div>
+<h2 id="小结"><a class="markdownIt-Anchor" href="#小结"></a> 小结</h2>
+<p>在Windows系统下无论是哪个文件系统，文件系统组织结构都是：最上层是卷，然后下一层是目录（目录中之下可以还是目录，或者是文件），最底层是文件。</p>
+<h3 id="卷相关api-2"><a class="markdownIt-Anchor" href="#卷相关api-2"></a> 卷相关API</h3>
+<ol>
+<li>获取卷<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlogicaldrives?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%2FGetLogicalDrives)%3Bk(GetLogicalDrives)%3Bk(DevLang-C%2B%2B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetLogicalDrives()</a></li>
+<li>获取一个卷的字符串<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlogicaldrivestringsw?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(GetLogicalDriveStringsW)%3Bk(DevLang-C%2B%2B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetLogicalDriveStrings()</a></li>
+<li>获取卷的类型<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdrivetypea?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%2FGetDriveType)%3Bk(GetDriveType)%3Bk(DevLang-C%2B%2B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetDriveType()</a></li>
+<li>获取卷的详细信息<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getvolumeinformationa?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%2FGetVolumeInformation)%3Bk(GetVolumeInformation)%3Bk(DevLang-C%2B%2B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetVolumeInformation()</a></li>
+</ol>
+<h3 id="目录相关api-2"><a class="markdownIt-Anchor" href="#目录相关api-2"></a> 目录相关API</h3>
+<ol>
+<li>创建目录<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createdirectorya?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%2FCreateDirectory)%3Bk(CreateDirectory)%3Bk(DevLang-C%2B%2B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">CreateDirectory()</a></li>
+<li>删除目录<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-removedirectorya?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%2FRemoveDirectory)%3Bk(RemoveDirectory)%3Bk(DevLang-C%2B%2B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">RemoveDirectory()</a></li>
+<li>修改目录名称<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefile?devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(WINBASE%2FMoveFile)%3Bk(MoveFile)%3Bk(DevLang-C%2B%2B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">MoveFile()</a></li>
+<li>获取当前进程的目录<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getcurrentdirectory">GetCurrentDirectory()</a></li>
+<li>设置当前进程的目录<a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-cn/dotnet/api/system.io.directory.setcurrentdirectory?view=net-8.0&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(PROCESSENV%2FSetCurrentDirectory)%3Bk(SetCurrentDirectory)%3Bk(DevLang-C%2B%2B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">SetCurrentDirectory()</a></li>
+</ol>
+<h3 id="文件相关api-2"><a class="markdownIt-Anchor" href="#文件相关api-2"></a> 文件相关API</h3>
+<ol>
+<li>创建文件<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%2FCreateFile)%3Bk(CreateFile)%3Bk(DevLang-C%2B%2B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">CreateFile()</a></li>
+<li>获取文件长度<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfilesize">GetFileSize()</a></li>
+<li>获取文件属性和信息<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfileattributesa?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%2FGetFileAttributes)%3Bk(GetFileAttributes)%3Bk(DevLang-C%2B%2B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetFileAttributes()</a>/<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfileattributesexa?redirectedfrom=MSDN&amp;devlangs=cpp&amp;f1url=%3FappId%3DDev16IDEF1%26l%3DZH-CN%26k%3Dk(FILEAPI%2FGetFileAttributesEx)%3Bk(GetFileAttributesEx)%3Bk(DevLang-C%2B%2B)%3Bk(TargetOS-Windows)%26rd%3Dtrue">GetFileAttributesEx()</a></li>
+</ol>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Windows_API/%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98%E7%9A%84%E7%94%B3%E8%AF%B7%E5%92%8C%E9%87%8A%E6%94%BE.html">共享内存的申请和释放</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/Windows_API/%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84%E6%96%87%E4%BB%B6.html">内存映射文件</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

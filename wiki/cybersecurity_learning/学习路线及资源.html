@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>安全技术学习心得：学习路线及资源 - Misc010</title>
+
+  
+    <meta name="description" content="注意 每个人的学习路线是不一样的，知识是网状的，学习路线成长路线是不同的。但如果你想学习某方面的知识，本文是一些相应可供参考的学习资源，如视频，书籍等。不在本文里的资源不代表不好，只是俺没使用过  基础  C语言 如果未来想在计算机领域有长足的发展，C语言是一门必须掌握好的语言，更何况做逆向研究。基础数据类型，分支循环结构体这些语法其实是很简单的，有些编程思维就能很快掌握。指针才是重点和灵魂，指">
+<meta property="og:type" content="website">
+<meta property="og:title" content="学习路线及资源">
+<meta property="og:url" content="https://misc0101.github.io/wiki/cybersecurity_learning/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF%E5%8F%8A%E8%B5%84%E6%BA%90.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="注意 每个人的学习路线是不一样的，知识是网状的，学习路线成长路线是不同的。但如果你想学习某方面的知识，本文是一些相应可供参考的学习资源，如视频，书籍等。不在本文里的资源不代表不好，只是俺没使用过  基础  C语言 如果未来想在计算机领域有长足的发展，C语言是一门必须掌握好的语言，更何况做逆向研究。基础数据类型，分支循环结构体这些语法其实是很简单的，有些编程思维就能很快掌握。指针才是重点和灵魂，指">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-07T02:04:49.000Z">
+<meta property="article:modified_time" content="2024-03-07T02:04:49.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/cybersecurity_learning/%E5%89%8D%E8%A8%80_%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0%E5%BF%83%E5%BE%97.html"><div class="main" ff="title">安全技术学习心得</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/C++_disassembly/" placeholder="在/wiki/cybersecurity_learning/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/cybersecurity_learning/%E5%89%8D%E8%A8%80_%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0%E5%BF%83%E5%BE%97.html#start"><span class="toc-text">前言</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/cybersecurity_learning/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF%E5%8F%8A%E8%B5%84%E6%BA%90.html"><span class="toc-text">学习路线及资源</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F"><span class="toc-text"> 注意</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80"><span class="toc-text"> 基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#c%E8%AF%AD%E8%A8%80"><span class="toc-text"> C语言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#c"><span class="toc-text"> C++</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80"><span class="toc-text"> 汇编语言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pe"><span class="toc-text"> PE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#windows-api%E7%BC%96%E7%A8%8B"><span class="toc-text"> windows api编程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A1%AC%E7%BC%96%E7%A0%81"><span class="toc-text"> 硬编码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%AD%E7%BA%A7"><span class="toc-text"> 中级</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="toc-text"> 保护模式</span></a></li></ol></li></ol></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：其他</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/stellar/Stellar%E6%90%AD%E5%BB%BA%E5%92%8C%E9%83%A8%E7%BD%B2.html"><span class="title">Stellar - 建站记录</span><span class="excerpt">Stellar主题博客建站记录，包括：搭建、配置、部署、备份、升级，特色功能个人理解，还有日常工作流，标签组件语法记录。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/cybersecurity_learning/%E5%89%8D%E8%A8%80_%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0%E5%BF%83%E5%BE%97.html">安全技术学习心得</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-03-07T02:04:49.000Z">2024-03-07</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>学习路线及资源</span></h1>
+<h2 id="注意"><a class="markdownIt-Anchor" href="#注意"></a> 注意</h2>
+<p>每个人的学习路线是不一样的，知识是网状的，学习路线成长路线是不同的。但如果你想学习某方面的知识，本文是一些相应可供参考的学习资源，如视频，书籍等。不在本文里的资源不代表不好，只是俺没使用过</p>
+<h2 id="基础"><a class="markdownIt-Anchor" href="#基础"></a> 基础</h2>
+<h3 id="c语言"><a class="markdownIt-Anchor" href="#c语言"></a> C语言</h3>
+<p>如果未来想在计算机领域有长足的发展，C语言是一门必须掌握好的语言，更何况做逆向研究。基础数据类型，分支循环结构体这些语法其实是很简单的，有些编程思维就能很快掌握。指针才是重点和灵魂，指针可以参考滴水三期视频讲解指针的部分进行学习。</p>
+<p>视频：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1w54y1y7Di/?spm_id_from=333.337.search-card.all.click&amp;vd_source=1385ccb1a8b19390600f25492a18739e">滴水三期</a></p>
+<p>书籍📕：</p>
+<table>
+<thead>
+<tr>
+<th>书名</th>
+<th>作者是国内/国外</th>
+<th>出版年</th>
+<th>原版or中文</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://book.douban.com/subject/34987112/">C Primer Plus 第6版 中文版</a></td>
+<td>国外</td>
+<td>2020年</td>
+<td>中文版就可以了，不必追求原版。</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="c"><a class="markdownIt-Anchor" href="#c"></a> C++</h3>
+<p>有了C语言，其实就可以做很多事，但学了C++，写代码会更省力方便快捷。C++提供了很多帮助开发者快速开发的语法：继承、多态、模板、STL等。</p>
+<p>注：记得学习目的，学C++很容易陷进去，无论多少时间都会被耗进去，以实用为准，冷门的知识点用时再查。</p>
+<p>视频：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1w54y1y7Di/?spm_id_from=333.337.search-card.all.click&amp;vd_source=1385ccb1a8b19390600f25492a18739e">滴水三期</a></p>
+<p>书籍📕：</p>
+<table>
+<thead>
+<tr>
+<th>书名</th>
+<th>作者是国内/国外</th>
+<th>出版年</th>
+<th>原版or中文</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://book.douban.com/subject/34987112/">Thinking in C++</a></td>
+<td>国外</td>
+<td>2000年</td>
+<td>推荐原版，中文有些地方翻译不咋地，但是看原文其实很清晰</td>
+<td>适合掌握一定C++语法后看，会讲语法背后的设计、原理。<a target="_blank" rel="noopener" href="https://study.163.com/course/introduction/271005.htm">浙大翁恺老师在网易云课堂的面向对象程序设计-C++</a>视频可供参考，但相比于书知识点少很多。</td>
+</tr>
+</tbody>
+</table>
+<p>编程规范：<a target="_blank" rel="noopener" href="http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines">C++ Core Guidelines</a></p>
+<p>源码展开：<a target="_blank" rel="noopener" href="https://cppinsights.io/">https://cppinsights.io/</a><br />
+看反汇编，看中间文件：<a target="_blank" rel="noopener" href="https://godbolt.org/">https://godbolt.org/</a></p>
+<h3 id="汇编语言"><a class="markdownIt-Anchor" href="#汇编语言"></a> 汇编语言</h3>
+<p>俺之前学习过程是先看了王爽老师的《汇编语言》，然后是黑皮书汇编语言7th，将课后习题几乎都做了，对汇编语言掌握得很清晰。导致后面看的滴水三期汇编的部分几乎没什么新的体会。</p>
+<p>视频：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1w54y1y7Di/?spm_id_from=333.337.search-card.all.click&amp;vd_source=1385ccb1a8b19390600f25492a18739e">滴水三期</a></p>
+<p>书籍📕：</p>
+<table>
+<thead>
+<tr>
+<th>书名</th>
+<th>作者是国内/国外</th>
+<th>出版年</th>
+<th>原版or中文</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://book.douban.com/subject/35038473/">汇编语言（第4版）</a></td>
+<td>国内</td>
+<td>2020年</td>
+<td>-</td>
+<td>经典教材，讲得浅显易懂</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://book.douban.com/subject/26769528/">汇编语言：基于x86处理器（原书第7版）</a></td>
+<td>国外</td>
+<td>2016年</td>
+<td>中文即可</td>
+<td>现在中文有第八版了</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pe"><a class="markdownIt-Anchor" href="#pe"></a> PE</h3>
+<p>可执行文件存放的数据格式和约定。</p>
+<p>视频：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1w54y1y7Di/?spm_id_from=333.337.search-card.all.click&amp;vd_source=1385ccb1a8b19390600f25492a18739e">滴水三期</a></p>
+<p>书籍📕：</p>
+<table>
+<thead>
+<tr>
+<th>书名</th>
+<th>作者是国内/国外</th>
+<th>出版年</th>
+<th>原版or中文</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>《加密与解密》3th，PE章节</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>PE权威指南</td>
+<td></td>
+<td></td>
+<td></td>
+<td>代码是win32汇编写的，但对PE各种讲解很全</td>
+</tr>
+<tr>
+<td>C++黑客编程解密，PE章节</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="windows-api编程"><a class="markdownIt-Anchor" href="#windows-api编程"></a> windows api编程</h3>
+<p>想在windows平台下开发程序的，win32必学。对于想研究windows内核，想走逆向研究的，更是要精通win32。看知乎说过时了没人用了，更称MFC是“没饭吃”，画界面只是win32的一部分功能。win32包括以下知识：</p>
+<ul>
+<li>字符</li>
+<li>多线程，线程同步</li>
+<li>窗口，windows消息机制，子窗口的使用</li>
+<li>进程</li>
+<li>内存管理</li>
+<li>文件系统</li>
+<li>内存映射</li>
+<li>DLL</li>
+<li>远程注入</li>
+<li>模块隐藏</li>
+<li>进程通信</li>
+<li>HOOK（各种类型HOOK/绕过全代码校验等）</li>
+</ul>
+<p>像进程，内存这些更是研究操作系统的基础。</p>
+<p>学习Windows API窗口编程的主要目的是掌握消息机制。这包括了解消息是如何生成和处理的。一旦理解了这一点，剩下的主要就是查询文档。虽然原生的Windows窗口编程在实际开发中可能不够美观，也不常用，但它对于理解消息机制仍然很重要。这种理解对于学习更高级的框架MFC，是非常有帮助的。</p>
+<p>视频：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1w54y1y7Di/?spm_id_from=333.337.search-card.all.click&amp;vd_source=1385ccb1a8b19390600f25492a18739e">滴水三期</a></p>
+<p>书籍📕（开发时查阅使用）：</p>
+<table>
+<thead>
+<tr>
+<th>书名</th>
+<th>作者是国内/国外</th>
+<th>出版年</th>
+<th>原版or中文</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://book.douban.com/subject/35903410/">深入浅出Windows API程序设计 编程基础篇</a></td>
+<td>国内</td>
+<td>2022年?</td>
+<td>-</td>
+<td>讲GUI界面的</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://book.douban.com/subject/36007061/">深入浅出Windows API程序设计：核心编程篇</a></td>
+<td>国内</td>
+<td>2022年</td>
+<td>-</td>
+<td>kernel32里的那些api</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://book.douban.com/subject/6012297/">Windows API开发详解</a></td>
+<td>国内</td>
+<td>2011年</td>
+<td>-</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>文档📚：MSDN</p>
+<h3 id="硬编码"><a class="markdownIt-Anchor" href="#硬编码"></a> 硬编码</h3>
+<p>视频：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1w54y1y7Di/?spm_id_from=333.337.search-card.all.click&amp;vd_source=1385ccb1a8b19390600f25492a18739e">滴水三期</a></p>
+<p>工具书：</p>
+<table>
+<thead>
+<tr>
+<th>书名</th>
+<th>俗称</th>
+<th>如何下载</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume 2 (2A, 2B, 2C, &amp; 2D): Instruction Set Reference, A-Z</td>
+<td>intel白皮书二卷</td>
+<td>google搜，官网有下载链接</td>
+<td>汇编指令和硬编码查阅工具书</td>
+</tr>
+</tbody>
+</table>
+<h2 id="中级"><a class="markdownIt-Anchor" href="#中级"></a> 中级</h2>
+<h3 id="保护模式"><a class="markdownIt-Anchor" href="#保护模式"></a> 保护模式</h3>
+<p>视频：滴水海哥中级版（网上找，网盘资源）</p>
+<p>参考书籍📕：</p>
+<table>
+<thead>
+<tr>
+<th>书名</th>
+<th>作者是国内/国外</th>
+<th>出版年</th>
+<th>原版or中文</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://book.douban.com/subject/35038473/">x86汇编语言（第2版）</a></td>
+<td>国内</td>
+<td>2023年</td>
+<td>-</td>
+<td>上半章实模式看过王爽老师的汇编语言的话，可以很快翻过去；下半章可以看是白皮书的翻译+见解。这本书俺只翻过，具体如何没法评价，不过确实是国内保护模式少数能参考的书籍了。</td>
+</tr>
+</tbody>
+</table>
+<p>工具书：</p>
+<table>
+<thead>
+<tr>
+<th>书名</th>
+<th>俗称</th>
+<th>如何下载</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intel® 64 and IA-32 ArchitecturesSoftware Developer’s ManualVolume 3 (3A, 3B, 3C, &amp; 3D):System Programming Guide</td>
+<td>intel白皮书三卷</td>
+<td>google搜，官网有下载链接</td>
+<td>段页机制</td>
+</tr>
+</tbody>
+</table>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/cybersecurity_learning/%E5%89%8D%E8%A8%80_%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0%E5%BF%83%E5%BE%97.html">前言</a></div><div class="item" id="next"></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

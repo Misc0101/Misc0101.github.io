@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Protected_Mode：段描述符与段选择子 - Misc010</title>
+
+  
+    <meta name="description" content="段选择子 段选择子的RPL一定要&lt;&#x3D;对应段描述符的DPL，否则试图使用该选择子加载对应段描述符的行为将由于权限不足而失败。  GDT和LDT 当执行类似如下指令时，CPU查表，来填充寄存器不可见的80位。 1mov ds,ax GDT表（全局描述符表），是一块内存，是CPU设计中要求操作系统提供的一块内存。该内存是操作系统在启动时填充的。使用windbg的命令可以查看gdt表的地址。 LDT">
+<meta property="og:type" content="website">
+<meta property="og:title" content="段描述符与段选择子">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Protected_Mode/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="段选择子 段选择子的RPL一定要&lt;&#x3D;对应段描述符的DPL，否则试图使用该选择子加载对应段描述符的行为将由于权限不足而失败。  GDT和LDT 当执行类似如下指令时，CPU查表，来填充寄存器不可见的80位。 1mov ds,ax GDT表（全局描述符表），是一块内存，是CPU设计中要求操作系统提供的一块内存。该内存是操作系统在启动时填充的。使用windbg的命令可以查看gdt表的地址。 LDT">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/867232_3YMNKJECFZMU6EA.jpg">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230612165513173.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230612153503441.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzE4MTIwMzYx,size_16,color_FFFFFF,t_70.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230614105206906.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230615153143452.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230614175328240.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/867232_RFXHGRQ7A4TBNDV.jpg">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/o_2109200412524-7.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230616153702491.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230616153738402.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230614105206906.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230614105612948.png">
+<meta property="article:published_time" content="2023-06-12T07:28:05.000Z">
+<meta property="article:modified_time" content="2023-06-12T07:28:05.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/867232_3YMNKJECFZMU6EA.jpg">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><div class="main" ff="title">Protected_Mode</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Protected_Mode/" placeholder="在/wiki/Protected_Mode/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">段</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html#start"><span class="toc-text">段寄存器</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Protected_Mode/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90.html"><span class="toc-text">段描述符与段选择子</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90"><span class="toc-text">段选择子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GDT%E5%92%8CLDT"><span class="toc-text">GDT和LDT</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#gdt%E8%A1%A8%E5%9C%A8%E5%93%AA%E9%87%8C"><span class="toc-text"> GDT表在哪里？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6"><span class="toc-text">段描述符</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E8%87%B3%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-text"> 加载段描述符至段寄存器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%A6%E4%B9%A0%E9%A1%BA%E5%BA%8F"><span class="toc-text"> 学习顺序</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E5%90%84flags%20and%20fields%E4%BB%8B%E7%BB%8D"><span class="toc-text">段描述符各flags and fields介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#p-segment-present-flag"><span class="toc-text"> P (segment-present) flag</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#segment-limit-field"><span class="toc-text"> Segment limit field</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#g-granularity-flag"><span class="toc-text"> G (granularity) flag</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#s-descriptor-type-flag"><span class="toc-text"> S (descriptor type) flag</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#type-field"><span class="toc-text"> Type field</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#s1"><span class="toc-text"> S&#x3D;1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#s0"><span class="toc-text"> S&#x3D;0</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#db-default-operation-sizedefault-stack-pointer-size-andor-upper-bound-flag"><span class="toc-text"> D&#x2F;B (default operation size&#x2F;default stack pointer size and&#x2F;or upper bound) flag</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#avlavailable-and-reserved-bits"><span class="toc-text"> AVL（Available and reserved bits）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%83%E4%B9%A0"><span class="toc-text">练习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E8%87%B3%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8%E7%BB%83%E4%B9%A0"><span class="toc-text"> 加载段描述符至段寄存器练习</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8B%86%E5%88%86%E7%BB%83%E4%B9%A0"><span class="toc-text"> 拆分练习</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E5%B1%9E%E6%80%A7p%E4%BD%8Dg%E4%BD%8D%E8%AF%BE%E5%A0%82%E7%BB%83%E4%B9%A0"><span class="toc-text"> 段描述符属性P位G位课堂练习</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E5%B1%9E%E6%80%A7s%E4%BD%8Dtype%E5%9F%9F"><span class="toc-text"> 段描述符属性S位TYPE域</span></a></li></ol></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E6%9D%83%E9%99%90%E6%A3%80%E6%9F%A5.html"><span class="toc-text">段权限检查</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E9%97%B4%E8%B7%B3%E8%BD%AC.html"><span class="toc-text">段间跳转</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%B7%A8%E6%AE%B5%E8%B7%B3%E8%BD%AC.html"><span class="toc-text">跨段跳转</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%B0%83%E7%94%A8%E9%97%A8.html"><span class="toc-text">调用门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%B8%AD%E6%96%AD%E9%97%A8.html"><span class="toc-text">中断门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%99%B7%E9%98%B1%E9%97%A8.html"><span class="toc-text">陷阱门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%BB%BB%E5%8A%A1%E6%AE%B5.html"><span class="toc-text">任务段</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%BB%BB%E5%8A%A1%E9%97%A8.html"><span class="toc-text">任务门</span></a></div></div><div class="widget-header cap dis-select"><span class="name">页</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/10-10-12%E5%88%86%E9%A1%B5.html"><span class="toc-text">10-10-12分页</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97.html"><span class="toc-text">PDE、PTE初步感受</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7.html"><span class="toc-text">PDE、PTE属性</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%9F%BA%E5%9D%80.html"><span class="toc-text">页目录表基址</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%A1%B5%E8%A1%A8%E5%9F%BA%E5%9D%80.html"><span class="toc-text">页表基址</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/2-9-9-12%E5%88%86%E9%A1%B5.html"><span class="toc-text">2-9-9-12分页</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%8D%89%E7%A8%BF%E6%9C%AC.html"><span class="toc-text">草稿本</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/PE/Overview_PE.html"><span class="title">PE</span><span class="excerpt">滴水三期_PE文件笔记(To finish...)。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html">Protected_Mode</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-06-12T07:28:05.000Z">2023-06-12</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>段描述符与段选择子</span></h1>
+<div class="tag-plugin quot"><h2 class="content" id="段选择子" type="text"><a href="#段选择子" class="headerlink" title="段选择子"></a>段选择子</h2></div>
+<p>段选择子的RPL一定要&lt;=对应段描述符的DPL，否则试图使用该选择子加载对应段描述符的行为将由于权限不足而失败。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/867232_3YMNKJECFZMU6EA.jpg" alt="image-20210402173447380" /></p>
+<div class="tag-plugin quot"><h2 class="content" id="GDT和LDT" type="text"><a href="#GDT和LDT" class="headerlink" title="GDT和LDT"></a>GDT和LDT</h2></div>
+<p>当执行类似如下指令时，CPU查表，来填充寄存器不可见的80位。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov ds,ax</span><br></pre></td></tr></table></figure>
+<p>GDT表（全局描述符表），是一块内存，是CPU设计中要求操作系统提供的一块内存。该内存是操作系统在启动时填充的。使用windbg的命令可以查看gdt表的地址。</p>
+<p>LDT（局部描述符表）。但是在windows中很少（也可能是没有）使用LDT。</p>
+<h3 id="gdt表在哪里"><a class="markdownIt-Anchor" href="#gdt表在哪里"></a> GDT表在哪里？</h3>
+<p>gdtr寄存器（windbg伪寄存器，是windbg通过sgdt lgdt指令获取的.为了方便用户，才模拟了一个寄存器叫gdtr，实际是没有这个寄存器的）。<br />
+gdtr里存了两个值，GDT表的起始地址和长度。一共48位，32位表示GDT表存储在哪里，16位存储大小。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">r gdtr </span><br></pre></td></tr></table></figure>
+<p>查看gdtr寄存器的前32位也就是位置。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">r gdtl</span><br></pre></td></tr></table></figure>
+<p>查看gdtr寄存器的后16位也就是大小。</p>
+<p>都是查gdtr。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230612165513173.png" alt="image-20230612165513173" /></p>
+<hr />
+<div class="tag-plugin tabs" align="center"id="tab_169"><div class="nav-tabs"><div class="tab active"><a href="#tab_169-1">4字节形式显示内存数据</a></div><div class="tab"><a href="#tab_169-2">8字节形式显示内存数据</a></div><div class="tab"><a href="#tab_169-3">查看固定数量</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_169-1"><p>以dword，4字节4字节地显示内存数据。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dd xxxx</span><br></pre></td></tr></table></figure>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dd <span class="number">8003</span>f000</span><br><span class="line"><span class="number">8003</span>f000  <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">0000</span>ffff <span class="number">00</span>cf9b00</span><br><span class="line"><span class="number">8003</span>f010  <span class="number">0000</span>ffff <span class="number">00</span>cf9300 <span class="number">0000</span>ffff <span class="number">00</span>cffb00</span><br><span class="line"><span class="number">8003</span>f020  <span class="number">0000</span>ffff <span class="number">00</span>cff300 <span class="number">200020</span>ab <span class="number">80008</span>b04</span><br><span class="line"><span class="number">8003</span>f030  f0000001 ffc093df <span class="number">00000</span>fff <span class="number">0040</span>f300</span><br><span class="line"><span class="number">8003</span>f040  <span class="number">0400</span>ffff <span class="number">0000</span>f200 <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f050  af000068 <span class="number">80008954</span> af680068 <span class="number">80008954</span></span><br><span class="line"><span class="number">8003</span>f060  <span class="number">2</span>f40ffff <span class="number">00009302</span> <span class="number">80003</span>fff <span class="number">0000920</span>b</span><br><span class="line"><span class="number">8003</span>f070  <span class="number">700003</span>ff ff0092ff <span class="number">0000</span>ffff <span class="number">80009</span>a40</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_169-2"><p>以qword，8字节8字节地显示内存数据。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dq XXXX</span><br></pre></td></tr></table></figure>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dq <span class="number">8003</span>f000</span><br><span class="line"><span class="number">8003</span>f000  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00</span>cf9b00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f010  <span class="number">00</span>cf9300`<span class="number">0000</span>ffff <span class="number">00</span>cffb00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f020  <span class="number">00</span>cff300`<span class="number">0000</span>ffff <span class="number">80008</span>b04`<span class="number">200020</span>ab</span><br><span class="line"><span class="number">8003</span>f030  ffc093df`f0000001 <span class="number">0040</span>f300`<span class="number">00000</span>fff</span><br><span class="line"><span class="number">8003</span>f040  <span class="number">0000</span>f200`<span class="number">0400</span>ffff <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f050  <span class="number">80008954</span>`af000068 <span class="number">80008954</span>`af680068</span><br><span class="line"><span class="number">8003</span>f060  <span class="number">00009302</span>`<span class="number">2</span>f40ffff <span class="number">0000920</span>b`<span class="number">80003</span>fff</span><br><span class="line"><span class="number">8003</span>f070  ff0092ff`<span class="number">700003</span>ff <span class="number">80009</span>a40`<span class="number">0000</span>ffff</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_169-3"><p>查看固定数量元素的内存。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dq xxxx Lnum</span><br></pre></td></tr></table></figure>
+<p>40是十六进制数，显示40H=64D个</p>
+<p>一行两个，所以00~f0行</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dq <span class="number">8003</span>f000 L40</span><br><span class="line"><span class="number">8003</span>f000  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00</span>cf9b00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f010  <span class="number">00</span>cf9300`<span class="number">0000</span>ffff <span class="number">00</span>cffb00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f020  <span class="number">00</span>cff300`<span class="number">0000</span>ffff <span class="number">80008</span>b04`<span class="number">200020</span>ab</span><br><span class="line"><span class="number">8003</span>f030  ffc093df`f0000001 <span class="number">0040</span>f300`<span class="number">00000</span>fff</span><br><span class="line"><span class="number">8003</span>f040  <span class="number">0000</span>f200`<span class="number">0400</span>ffff <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f050  <span class="number">80008954</span>`af000068 <span class="number">80008954</span>`af680068</span><br><span class="line"><span class="number">8003</span>f060  <span class="number">00009302</span>`<span class="number">2</span>f40ffff <span class="number">0000920</span>b`<span class="number">80003</span>fff</span><br><span class="line"><span class="number">8003</span>f070  ff0092ff`<span class="number">700003</span>ff <span class="number">80009</span>a40`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f080  <span class="number">80009240</span>`<span class="number">0000</span>ffff <span class="number">00009200</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f090  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f0a0  <span class="number">8200891</span>b`<span class="number">23500068</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f0b0  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f0c0  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f0d0  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f0e0  f8009f71`a000ffff <span class="number">00009200</span>`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f0f0  <span class="number">8000984</span>f`b68803b7 <span class="number">00009200</span>`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f100  f8409339`<span class="number">7400</span>ffff f8409339`<span class="number">7400</span>ffff</span><br><span class="line"><span class="number">8003</span>f110  f8409339`<span class="number">7400</span>ffff <span class="number">00000000</span>`<span class="number">8003</span>f120</span><br><span class="line"><span class="number">8003</span>f120  <span class="number">00000000</span>`<span class="number">8003</span>f128 <span class="number">00000000</span>`<span class="number">8003</span>f130</span><br><span class="line"><span class="number">8003</span>f130  <span class="number">00000000</span>`<span class="number">8003</span>f138 <span class="number">00000000</span>`<span class="number">8003</span>f140</span><br><span class="line"><span class="number">8003</span>f140  <span class="number">00000000</span>`<span class="number">8003</span>f148 <span class="number">00000000</span>`<span class="number">8003</span>f150</span><br><span class="line"><span class="number">8003</span>f150  <span class="number">00000000</span>`<span class="number">8003</span>f158 <span class="number">00000000</span>`<span class="number">8003</span>f160</span><br><span class="line"><span class="number">8003</span>f160  <span class="number">00000000</span>`<span class="number">8003</span>f168 <span class="number">00000000</span>`<span class="number">8003</span>f170</span><br><span class="line"><span class="number">8003</span>f170  <span class="number">00000000</span>`<span class="number">8003</span>f178 <span class="number">00000000</span>`<span class="number">8003</span>f180</span><br><span class="line"><span class="number">8003</span>f180  <span class="number">00000000</span>`<span class="number">8003</span>f188 <span class="number">00000000</span>`<span class="number">8003</span>f190</span><br><span class="line"><span class="number">8003</span>f190  <span class="number">00000000</span>`<span class="number">8003</span>f198 <span class="number">00000000</span>`<span class="number">8003</span>f1a0</span><br><span class="line"><span class="number">8003</span>f1a0  <span class="number">00000000</span>`<span class="number">8003</span>f1a8 <span class="number">00000000</span>`<span class="number">8003</span>f1b0</span><br><span class="line"><span class="number">8003</span>f1b0  <span class="number">00000000</span>`<span class="number">8003</span>f1b8 <span class="number">00000000</span>`<span class="number">8003</span>f1c0</span><br><span class="line"><span class="number">8003</span>f1c0  <span class="number">00000000</span>`<span class="number">8003</span>f1c8 <span class="number">00000000</span>`<span class="number">8003</span>f1d0</span><br><span class="line"><span class="number">8003</span>f1d0  <span class="number">00000000</span>`<span class="number">8003</span>f1d8 <span class="number">00000000</span>`<span class="number">8003</span>f1e0</span><br><span class="line"><span class="number">8003</span>f1e0  <span class="number">00000000</span>`<span class="number">8003</span>f1e8 <span class="number">00000000</span>`<span class="number">8003</span>f1f0</span><br><span class="line"><span class="number">8003</span>f1f0  <span class="number">00000000</span>`<span class="number">8003</span>f1f8 <span class="number">00000000</span>`<span class="number">8003</span>f200</span><br></pre></td></tr></table></figure></div></div></div>
+<div class="tag-plugin quot"><h2 class="content" id="段描述符" type="text"><a href="#段描述符" class="headerlink" title="段描述符"></a>段描述符</h2></div>
+<p>GDT表中存储着段描述符，每一个段描述符<code>8</code>个字节。下图上面的32位是高字节，下面32位是低字节。</p>
+<p>当执行<code>mov ds,ax</code>指令时，除了给可见部分赋值。此时ax充当段选择子，根据段选择子中字段，去查GDT或LDT表，来填充不可见的80位。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SegMent</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="comment">//可见</span></span><br><span class="line">    WORD Selector;<span class="comment">//16位Selector。就是段选择子的值。</span></span><br><span class="line">    <span class="comment">//不可见</span></span><br><span class="line">    WORD Attributes;<span class="comment">//16位Attributes。从段描述符的G位到Type位。</span></span><br><span class="line">    DWORD Base;<span class="comment">//32位Base。段描述符的3个Base拼接而成，高字节31:24拼接7:0拼接低字节31:16。</span></span><br><span class="line">    DWORD Limit;<span class="comment">//32位Limit。段描述符的2个SegLimit拼接而成，高字节19:16拼接低字节16:0，当G位为0时，单位为字节，高位补3个0。G位为1时，低位补FFF。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230612153503441.png" alt="image-20230612153503441" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzE4MTIwMzYx,size_16,color_FFFFFF,t_70.png" alt="img" /></p>
+<blockquote>
+<p>图片来源：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_18120361/article/details/114702866">【2021.03.12】段描述符属性：P位、G位</a></p>
+</blockquote>
+<h3 id="加载段描述符至段寄存器"><a class="markdownIt-Anchor" href="#加载段描述符至段寄存器"></a> 加载段描述符至段寄存器</h3>
+<p>加载段描述符至段寄存器的指令共有三种：</p>
+<ol>
+<li>
+<p>使用mov指令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov ss,ax</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>使用LES、LSS、LDS、LFS、LGS指令修改对应的寄存器</p>
+</li>
+<li>
+<p>CS不能通过上述指令进行修改。CS为代码段，CS的改变会导致EIP的改变，要改CS，必须要保证CS与EIP同时改，后文会讲解如何修改CS并在需要时提升权限。</p>
+</li>
+</ol>
+<h3 id="学习顺序"><a class="markdownIt-Anchor" href="#学习顺序"></a> 学习顺序</h3>
+<p>Base，Limit</p>
+<hr />
+<p>P位、G位</p>
+<p>P位如果为1，则有效，看S位，分代码段或数据段，还是系统段</p>
+<p>在学TYPE域，分段属性</p>
+<hr />
+<p>学DB位</p>
+<p>学DPL</p>
+<div class="tag-plugin quot"><h2 class="content" id="段描述符各flags and fields介绍" type="text"><a href="#段描述符各flags and fields介绍" class="headerlink" title="段描述符各flags and fields介绍"></a>段描述符各flags and fields介绍</h2></div>
+<h3 id="p-segment-present-flag"><a class="markdownIt-Anchor" href="#p-segment-present-flag"></a> P (segment-present) flag</h3>
+<p>为1时，表示该段描述符有效。</p>
+<p>为0时，表示该段描述符无效。</p>
+<p>当描述符无效时，任何尝试加载该描述符、访问该描述符对应的段间地址都会报错。</p>
+<h3 id="segment-limit-field"><a class="markdownIt-Anchor" href="#segment-limit-field"></a> Segment limit field</h3>
+<p>Specifies the size of the segment. The processor puts together the two segment limit fields to form a 20-bit value. The processor interprets the segment limit in one of two ways, depending on the setting of the G (granularity) flag:</p>
+<p>• If the granularity flag is clear, the segment size can range from 1 byte to 1 MByte, in byte increments.G=0，高位补000</p>
+<p>• If the granularity flag is set, the segment size can range from 4 KBytes to 4 GBytes, in 4-KByte increments.G=1，低位补FFF</p>
+<h3 id="g-granularity-flag"><a class="markdownIt-Anchor" href="#g-granularity-flag"></a> G (granularity) flag</h3>
+<p>段对齐粒度。 也就是决定了Limit大小的一个位。</p>
+<p>在上文填充段寄存器隐藏部分（C语言结构体）时，Limit在段描述符中只有5个16进制位，而结构体中Limit是32位，剩下的3个16进制位由看G位决定。</p>
+<p>当G为0时，整个段将以字节对齐，Limit大小单位为字节，所以精确到1。Limit直接就是段长。段寄存器中的Limit高位补0。</p>
+<p>当G为1时，整个段将以4KB对齐，Limit大小单位为4KB。4KB=4096D，（4096个，地址计算要减1），就是4095D=FFF，所以段的末尾处一定是以FFF结尾。段寄存器中的Limit低位补FFF。？</p>
+<p>如果<code>G = 0</code>，说明段描述符中的Limit的单位是字节，段长度<code>Limit</code>范围可从1B～1MB，即在20位的前面补3个0即可；如果<code>G = 1</code>，说明段描述符中的Limit的单位是字节为4KB，即段长度Limit范围可从4KB～4GB，在20位的后面补充<code>FFF</code>即可。</p>
+<p>举个例子，如果Limit拼接后的为<code>FFFFF</code>，如果G为0则为<code>000FFFFF</code>，如果G为1则为<code>FFFFFFF</code>。</p>
+<p>当G=0时，Limit的范围是0x00000000-0x000FFFFF，其中，段描述符的20位在低位，高位补0.<br />
+当G=1时，Limit的范围是0x00000FFF-0xFFFFFFFF，其中，段描述符的20位在高位，低位补F。</p>
+<blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Kwansy/article/details/108767103">（4）段描述符P,G位</a></p>
+</blockquote>
+<h3 id="s-descriptor-type-flag"><a class="markdownIt-Anchor" href="#s-descriptor-type-flag"></a> S (descriptor type) flag</h3>
+<p><code>S = 1</code>，代码段或者数据段描述符，</p>
+<p><code>S = 0</code>，系统段描述符。</p>
+<p><u>快速判断一个段描述符是否是代码段或数据段：看高字节的15~12位，第4个十六进制数。</u></p>
+<p>DPL只有两种可能：全为0，或全为1。</p>
+<p>P必须=1，表示这个段描述符有效。</p>
+<p>S=1，表示是代码段或数据段。</p>
+<p>所以可能的情况只有：1001,1111。9和f</p>
+<p>看GDT表时，看高字节的第4个十六进制数，是9或f，就是代码段或数据段。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230614105206906.png" alt="image-20230614105206906" /></p>
+<h3 id="type-field"><a class="markdownIt-Anchor" href="#type-field"></a> Type field</h3>
+<h4 id="s1"><a class="markdownIt-Anchor" href="#s1"></a> S=1</h4>
+<p>当S=1时。表示该段是代码段或数据段。</p>
+<p>接着看TYPE域的第11位，第11位为1，表示代码段。第11位为0，表示数据段。</p>
+<p>十六进制＜8，数据段。十六进制≥8，代码段。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230615153143452.png" alt="image-20230615153143452" /></p>
+<p>举个例子：</p>
+<p>00cf9300`0000ffff，从左往右第5个数字是9，所以是代码段或数据段。从左往右第6个数字是3，小于8，所以是数据段。</p>
+<p>00cf9b00`0000ffff，从左往右第5个数字是9，所以是代码段或数据段。从左往右第6个数字是b，≥8，所以是代码段。</p>
+<hr />
+<p>当S位=1，TYPE域11位为0，数据段：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>含义</th>
+<th>为1</th>
+<th>为0</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>访问位。数据段是否被访问过。</td>
+<td>访问过，accessed</td>
+<td>未访问过</td>
+<td>操作系统刚启动，段描述符是没有被加载过的，所以A位一定是0</td>
+</tr>
+<tr>
+<td>W</td>
+<td>可写位。数据段是否可写。</td>
+<td>可写</td>
+<td>不可写</td>
+<td></td>
+</tr>
+<tr>
+<td>E</td>
+<td>向下拓展位。</td>
+<td>expand-down</td>
+<td>expand-up</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>fs.base表示段的起始地址，Limit是段长。</p>
+<p>向上拓展（左），表示有效区域是fs.base到fs.base+Limit之间的区域，其余区域无效。</p>
+<p>向下拓展（右），表示无效区域是fs.base到fs.base+Limit之间的区域，其余区域有效。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230614175328240.png" alt="image-20230614175328240" /></p>
+<hr />
+<p>当S位=1，TYPE域控11位为1，代码段：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>含义</th>
+<th>为1</th>
+<th>为0</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>访问位。数据段是否被访问过。</td>
+<td>访问过，accessed</td>
+<td>未访问过</td>
+<td>操作系统刚启动，段描述符是没有被加载过的，所以A位一定是0</td>
+</tr>
+<tr>
+<td>R</td>
+<td>可读位</td>
+<td>可读</td>
+<td>不可读</td>
+<td></td>
+</tr>
+<tr>
+<td>C</td>
+<td>一致位</td>
+<td>一致代码段</td>
+<td>非一致代码段</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>代码段都是可以执行的，Execute</p>
+<p>The accessed bit indicates whether the segment has been accessed since the last time the operating-system or executive cleared the bit. The processor sets this bit whenever it loads a segment selector for the segment into a segment register, assuming that the type of memory that contains the segment descriptor supports processor writes. The bit remains set until explicitly cleared. This bit can be used both for virtual memory management and for debugging</p>
+<p>访问位（Accessed bit）表示自操作系统或执行体上次清除此位以来，段是否已被访问。只要将段选择器加载到段寄存器中，处理器就会设置此位，前提是包含段描述符的内存类型支持处理器写入。此位保持设置状态，直到被明确清除。该位既可以用于虚拟内存管理，也可以用于调试。</p>
+<hr />
+<h4 id="s0"><a class="markdownIt-Anchor" href="#s0"></a> S=0</h4>
+<p>当S=0时。该段为系统描述符。系统描述符分为如下类型：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/867232_RFXHGRQ7A4TBNDV.jpg" alt="image-20210406104706585" /></p>
+<h3 id="db-default-operation-sizedefault-stack-pointer-size-andor-upper-bound-flag"><a class="markdownIt-Anchor" href="#db-default-operation-sizedefault-stack-pointer-size-andor-upper-bound-flag"></a> D/B (default operation size/default stack pointer size and/or upper bound) flag</h3>
+<p>段描述符加载到不同的段寄存器，DB位对不同段的影响是不同的，情况如下：</p>
+<ol>
+<li>
+<p>对CS段的影响（Executable code segment）</p>
+<table>
+<thead>
+<tr>
+<th>D的值</th>
+<th>情况</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>采用32位寻址方式</td>
+</tr>
+<tr>
+<td>0</td>
+<td>采用16位寻址方式</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>对SS段的影响（Stack segment (data segment pointed to by the SS register)）</p>
+<table>
+<thead>
+<tr>
+<th>D的值</th>
+<th>情况</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>隐式堆栈访问指令（如：PUSH POP CALL）使用32位堆栈指针寄存器<code>ESP</code></td>
+</tr>
+<tr>
+<td>0</td>
+<td>隐式堆栈访问指令（如：PUSH POP CALL）使用16位堆栈指针寄存器<code>SP</code></td>
+</tr>
+</tbody>
+</table>
+<p>隐式堆栈访问指令：这些指令使用时都要改变堆栈的值</p>
+</li>
+<li>
+<p>向下拓展的数据段（Expand-down data segment.）</p>
+<table>
+<thead>
+<tr>
+<th>D的值</th>
+<th>情况</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>段上限为<code>4GB</code></td>
+</tr>
+<tr>
+<td>0</td>
+<td>段上限为<code>64KB</code></td>
+</tr>
+</tbody>
+</table>
+<p>The flag is called the B flag and it specifies the upper bound of the segment. If the flag is set, the upper bound is FFFFFFFFH (4 GBytes); if the flag is clear, the upper bound is FFFFH (64 KBytes)</p>
+</li>
+</ol>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/o_2109200412524-7.png" alt="img" /></p>
+<p>红色表示向下拓展能寻址的范围。可以看出，如果<code>D = 0</code>，最大寻址范围变成了<code>64KB</code>。</p>
+<h3 id="avlavailable-and-reserved-bits"><a class="markdownIt-Anchor" href="#avlavailable-and-reserved-bits"></a> AVL（Available and reserved bits）</h3>
+<p>AVL指示是否可供系统软件使用，由操作系统来使用，CPU并不使用它。</p>
+<blockquote>
+<p>Bit 20 of the second doubleword of the segment descriptor is available for use by system software.</p>
+</blockquote>
+<div class="tag-plugin quot"><h2 class="content" id="练习" type="text"><a href="#练习" class="headerlink" title="练习"></a>练习</h2></div>
+<h3 id="加载段描述符至段寄存器练习"><a class="markdownIt-Anchor" href="#加载段描述符至段寄存器练习"></a> 加载段描述符至段寄存器练习</h3>
+<p>自行选一个段描述符，自己构造一个段选择子，并用如下代码模板使用les、lss、lds、lfs、lgs修改对应的段寄存器。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> buffer[<span class="number">6</span>];</span><br><span class="line"><span class="comment">//自己构造一个段选择子</span></span><br><span class="line"><span class="comment">//自己自行赋值，你构造的的段描述符位置不一样，段选择子就不一样</span></span><br><span class="line"></span><br><span class="line">_asm</span><br><span class="line">&#123;</span><br><span class="line">    les ecx,fword ptr ds:[buffer] <span class="comment">//高2个字节给es，低四个字节给ecx</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意：RPL&lt;=DPL（在数值上）</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><blockquote><p>因为写的C语言程序在3环，CPL是3，只能找DPL为3的，要不CPL和DPL的检查过不去。</p><p>我本来找索引为4的段描述符，构造完的段选择子是0x23，但调试时DS、ES、SS本来就是0x23，看不到变化，就又换了一个段描述符。</p><p>另外，3环FS本来就是0x3B。</p></blockquote><p>我选的索引为7的段描述符：</p><table><thead><tr><th>序号</th><th>地址</th><th>段描述符</th><th>数据段or代码段</th><th>DPL</th></tr></thead><tbody><tr><td>7</td><td>8003f038</td><td>0040f300`00000fff</td><td>数据段</td><td>11</td></tr></tbody></table><p>构造段选择子：</p><p>索引为7，RPL为11，查GDT表</p><p>0000 0000 0011 1 0 11</p><p>0000 0000 0011 1011</p><p>Selector：0x3b</p><blockquote><p>注意小端存储。buffer数组里的顺序</p></blockquote><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;   <span class="comment">//段选择子：0000 0000 0011 1011</span></span><br><span class="line">    <span class="type">char</span> buffer[<span class="number">6</span>]=&#123;<span class="number">0xff</span>,<span class="number">0xff</span>,<span class="number">0xff</span>,<span class="number">0xff</span>,<span class="number">0x3b</span>,<span class="number">0x00</span>&#125;;<span class="comment">//注意小端序，前面4个字节随便写的</span></span><br><span class="line">    _asm</span><br><span class="line">    &#123;</span><br><span class="line">        les ecx,fword ptr ds:[buffer] <span class="comment">//高2个字节给es，低四个字节给ecx</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><div class="tag-plugin tabs" align="center"id="tab_170"><div class="nav-tabs"><div class="tab active"><a href="#tab_170-1">执行les指令前</a></div><div class="tab"><a href="#tab_170-2">执行les指令后</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_170-1"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230616153702491.png" alt="image-20230616153702491" /></p></div><div class="tab-pane" id="tab_170-2"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230616153738402.png" alt="image-20230616153738402" /></p></div></div></div><p>lss、lds、lgs同理，把les换一下</p><p>lfs的buffer用下面这个，段选择子换成0x23，因为它本来是0x3b</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> buffer[<span class="number">6</span>]=&#123;<span class="number">0xff</span>,<span class="number">0xff</span>,<span class="number">0xff</span>,<span class="number">0xff</span>,<span class="number">0x23</span>,<span class="number">0x00</span>&#125;;</span><br></pre></td></tr></table></figure></div></details></div>
+<h3 id="拆分练习"><a class="markdownIt-Anchor" href="#拆分练习"></a> 拆分练习</h3>
+<ol>
+<li>段描述符拆分练习</li>
+</ol>
+<p>以00cf9b00`0000ffff为例，进行拆分。</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p>高字节：</p><p>Base 31:24 ：00</p><hr /><p>G：1</p><p>D/B：1</p><p>L：0</p><p>AVL：0</p><hr /><p>Seg. Limit 19:16：f</p><hr /><p>P：1</p><p>DPL：00</p><p>S：1</p><hr /><p>Type：b</p><hr /><p>Base 23:16：00</p><p>低字节：</p><p>Base Address 15:00 ：0000</p><p>Segment Limit 15:00：ffff</p></div></details></div>
+<ol start="2">
+<li>段选择子拆分练习</li>
+</ol>
+<p>0023，002B，0030，003B</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p>0023</p><p>0000 0000 0010 0011</p><p>Index：0000 0000 0010 0.索引是4，查GDT表中的第5个</p><p>TI：0</p><p>RPL：11</p><hr /><p>002B</p><p>0000 0000 0010 1011</p><p>Index：0000 0000 0010 1</p><p>TI：0</p><p>RPL：11</p><hr /><p>0030</p><p>0000 0000 0011 0000</p><p>Index：0000 0000 0011 0</p><p>TI：0</p><p>RPL：00</p><hr /><p>003B</p><p>0000 0000 0011 1011</p><p>Index：0000 0000 0011 1</p><p>TI：0</p><p>RPL：11</p><hr /><p>0053</p><p>0000 0000 0101 0011</p><p>Index：0000 0000 0101 0</p><p>TI：0</p><p>RPL：11</p></div></details></div>
+<h3 id="段描述符属性p位g位课堂练习"><a class="markdownIt-Anchor" href="#段描述符属性p位g位课堂练习"></a> 段描述符属性P位G位课堂练习</h3>
+<blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/zpchcbd/p/15862010.html">段描述符属性P位和G位</a></p>
+</blockquote>
+<ol>
+<li><u>查GDT表，如何快速确定哪个描述符的P位为0或者为1</u></li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p><u>看高字节的第15位。</u>高字节第4个十六进制数是否≥8，≥8，P位为1，小于8，P位为0</p><p>比如下图左边一组高位第4个十六进制数是：0，9，f，9，f，8，9，9，9，0，8，0，0，0，9</p><p>P位就是：0，1，1，1，1，1，1，1，1，0，1，0，0，0，1</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230614105206906.png" alt="image-20230614105206906" /></p></div></details></div>
+<ol start="2">
+<li><u>查GDT表如何快速确定哪个描述符的G位为0或者为1</u></li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p><u>看高字节的第23位</u></p><p>比如下图左边一组高位第6个十六进制数是：0，c，c，c，0，0，0，0，0，0，0，0，0，0，0</p><p>G位就是：0，1，1，1，0，0，0，0，0，0，0，0，0，0，0</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90/image-20230614105612948.png" alt="image-20230614105612948" /></p></div></details></div>
+<ol start="3">
+<li><u>将段描述符填写到段寄存器结构体中(每人填一个)</u></li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>例子1</span></summary><div class="body"><p>例：0x2B作为段选择子。</p><p>0000 0000 0010 1011</p><p>所以</p><p>Index：0000 0000 0010 1，十进制5</p><p>TI：0，查GDT表</p><p>RPL：11，请求特权级别为3，最小</p><hr /><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dq <span class="number">8003</span>f000 L6</span><br><span class="line"><span class="number">8003</span>f000  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00</span>cf9b00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f010  <span class="number">00</span>cf9300`<span class="number">0000</span>ffff <span class="number">00</span>cffb00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f020  <span class="number">00</span>cff300`<span class="number">0000</span>ffff <span class="number">80008</span>b04`<span class="number">200020</span>ab</span><br></pre></td></tr></table></figure><p>索引为5，0，1，2，3，4，5</p><p>所以对应的段描述符是80008b04`200020ab</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SegMent</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="comment">//可见</span></span><br><span class="line">    WORD Selector;<span class="comment">//16位Selector。就是段选择子的值。</span></span><br><span class="line">    <span class="comment">//不可见</span></span><br><span class="line">    WORD Attributes;<span class="comment">//16位Attributes。从段描述符的G位到Type位。</span></span><br><span class="line">    DWORD Base;<span class="comment">//32位Base。段描述符的3个Base拼接而成，高字节31:24拼接7:0拼接低字节31:16。</span></span><br><span class="line">    DWORD Limit;<span class="comment">//32位Limit。段描述符的2个SegLimit拼接而成。当G位为0时，单位为字节，高位补3个0。G位为1时，低位补FFF。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>Selector=2B</p><p>Attributes=008b</p><p>Base=80042000</p><p>Limit=000020ab</p><p>G=0</p></div></details><details class="folder" index="1"><summary><span>例子2</span></summary><div class="body"><p>例：0x23作为段选择子。</p><p>0000 0000 0010 0011</p><p>所以</p><p>Index：0000 0000 0010 0，十进制4</p><p>TI：0，查GDT表</p><p>RPL：11，请求特权级别为3，最小</p><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dq <span class="number">8003</span>f000 L6</span><br><span class="line"><span class="number">8003</span>f000  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00</span>cf9b00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f010  <span class="number">00</span>cf9300`<span class="number">0000</span>ffff <span class="number">00</span>cffb00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f020  <span class="number">00</span>cff300`<span class="number">0000</span>ffff <span class="number">80008</span>b04`<span class="number">200020</span>ab</span><br></pre></td></tr></table></figure><p>索引为4，0，1，2，3，4</p><p>所以对应的段描述符是00cff300`0000ffff</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SegMent</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="comment">//可见</span></span><br><span class="line">    WORD Selector;<span class="comment">//16位Selector。就是段选择子的值。</span></span><br><span class="line">    <span class="comment">//不可见</span></span><br><span class="line">    WORD Attributes;<span class="comment">//16位Attributes。从段描述符的G位到Type位。</span></span><br><span class="line">    DWORD Base;<span class="comment">//32位Base。段描述符的3个Base拼接而成，高字节31:24拼接7:0拼接低字节31:16。</span></span><br><span class="line">    DWORD Limit;<span class="comment">//32位Limit。段描述符的2个SegLimit拼接而成。当G位为0时，单位为字节，高位补3个0。G位为1时，低位补FFF。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>Selector=23</p><p>Attributes=cff3</p><p>Base=00000000</p><p>Limit=ffffffff</p></div></details><details class="folder" index="2"><summary><span>例子3</span></summary><div class="body"><p>例：0x53作为段选择子。</p><p>0000 0000 0101 0011</p><p>所以</p><p>Index：0000 0000 0101 0，十进制10</p><p>TI：0，查GDT表</p><p>RPL：11，请求特权级别为3，最小</p><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dq <span class="number">8003</span>f000 LB</span><br><span class="line"><span class="number">8003</span>f000  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00</span>cf9b00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f010  <span class="number">00</span>cf9300`<span class="number">0000</span>ffff <span class="number">00</span>cffa00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f020  <span class="number">00</span>cff300`<span class="number">0000</span>ffff <span class="number">80008</span>b04`<span class="number">200020</span>ab</span><br><span class="line"><span class="number">8003</span>f030  ffc093df`f0000001 <span class="number">0040</span>f300`<span class="number">00000</span>fff</span><br><span class="line"><span class="number">8003</span>f040  <span class="number">0000</span>f200`<span class="number">0400</span>ffff <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f050  <span class="number">80008954</span>`af000068</span><br></pre></td></tr></table></figure><p>索引为10，第11个</p><p>所以对应的段描述符是80008954`af000068</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SegMent</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="comment">//可见</span></span><br><span class="line">    WORD Selector;<span class="comment">//16位Selector。就是段选择子的值。</span></span><br><span class="line">    <span class="comment">//不可见</span></span><br><span class="line">    WORD Attributes;<span class="comment">//16位Attributes。从段描述符的G位到Type位。</span></span><br><span class="line">    DWORD Base;<span class="comment">//32位Base。段描述符的3个Base拼接而成，高字节31:24拼接7:0拼接低字节31:16。</span></span><br><span class="line">    DWORD Limit;<span class="comment">//32位Limit。段描述符的2个SegLimit拼接而成。当G位为0时，单位为字节，高位补3个0。G位为1时，低位补FFF。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>Selector=53</p><p>Attributes=0089</p><p>Base=8054af00</p><p>Limit=00000068</p><p>G=0</p></div></details></div>
+<h3 id="段描述符属性s位type域"><a class="markdownIt-Anchor" href="#段描述符属性s位type域"></a> 段描述符属性S位TYPE域</h3>
+<ol>
+<li><u>找出所有数据段，并分析该段属性:只读、已访问、可读可写、拓展方向</u></li>
+<li><u>找出所有代码段，并分析该段属性:只执行、可读可执行、已访问、一致代码</u></li>
+<li><u>找出所有系统段,并分析属性.</u></li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; r gdtr</span><br><span class="line">gdtr=<span class="number">8003</span>f000</span><br><span class="line">kd&gt; r gdtl</span><br><span class="line">gdtl=<span class="number">000003</span>ff</span><br></pre></td></tr></table></figure><p>大小是000003ff，1023字节。每个段描述符8字节</p><p>总长度/每个的长度=个数</p><p>1024/8=128个，80H</p><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dq <span class="number">8003</span>f000 L80</span><br><span class="line"><span class="number">8003</span>f000  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00</span>cf9b00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f010  <span class="number">00</span>cf9300`<span class="number">0000</span>ffff <span class="number">00</span>cffa00`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f020  <span class="number">00</span>cff300`<span class="number">0000</span>ffff <span class="number">80008</span>b04`<span class="number">200020</span>ab</span><br><span class="line"><span class="number">8003</span>f030  ffc093df`f0000001 <span class="number">0040</span>f300`<span class="number">00000</span>fff</span><br><span class="line"><span class="number">8003</span>f040  <span class="number">0000</span>f200`<span class="number">0400</span>ffff <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f050  <span class="number">80008954</span>`af000068 <span class="number">80008954</span>`af680068</span><br><span class="line"><span class="number">8003</span>f060  <span class="number">00009302</span>`<span class="number">2</span>f40ffff <span class="number">0000920</span>b`<span class="number">80003</span>fff</span><br><span class="line"><span class="number">8003</span>f070  ff0092ff`<span class="number">700003</span>ff <span class="number">80009</span>a40`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f080  <span class="number">80009240</span>`<span class="number">0000</span>ffff <span class="number">00009200</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f090  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f0a0  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f0b0  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f0c0  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f0d0  <span class="number">00000000</span>`<span class="number">00000000</span> <span class="number">00000000</span>`<span class="number">00000000</span></span><br><span class="line"><span class="number">8003</span>f0e0  <span class="number">00000000</span>`<span class="number">8003</span>f100 <span class="number">00009200</span>`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f0f0  <span class="number">8000984</span>f`b68803b7 <span class="number">00009200</span>`<span class="number">0000</span>ffff</span><br><span class="line"><span class="number">8003</span>f100  <span class="number">00000000</span>`<span class="number">8003</span>f108 <span class="number">00000000</span>`<span class="number">8003</span>f110</span><br><span class="line"><span class="number">8003</span>f110  <span class="number">00000000</span>`<span class="number">8003</span>f118 <span class="number">00000000</span>`<span class="number">8003</span>f120</span><br><span class="line"><span class="number">8003</span>f120  <span class="number">00000000</span>`<span class="number">8003</span>f128 <span class="number">00000000</span>`<span class="number">8003</span>f130</span><br><span class="line"><span class="number">8003</span>f130  <span class="number">00000000</span>`<span class="number">8003</span>f138 <span class="number">00000000</span>`<span class="number">8003</span>f140</span><br><span class="line"><span class="number">8003</span>f140  <span class="number">00000000</span>`<span class="number">8003</span>f148 <span class="number">00000000</span>`<span class="number">8003</span>f150</span><br><span class="line"><span class="number">8003</span>f150  <span class="number">00000000</span>`<span class="number">8003</span>f158 <span class="number">00000000</span>`<span class="number">8003</span>f160</span><br><span class="line"><span class="number">8003</span>f160  <span class="number">00000000</span>`<span class="number">8003</span>f168 <span class="number">00000000</span>`<span class="number">8003</span>f170</span><br><span class="line"><span class="number">8003</span>f170  <span class="number">00000000</span>`<span class="number">8003</span>f178 <span class="number">00000000</span>`<span class="number">8003</span>f180</span><br><span class="line"><span class="number">8003</span>f180  <span class="number">00000000</span>`<span class="number">8003</span>f188 <span class="number">00000000</span>`<span class="number">8003</span>f190</span><br><span class="line"><span class="number">8003</span>f190  <span class="number">00000000</span>`<span class="number">8003</span>f198 <span class="number">00000000</span>`<span class="number">8003</span>f1a0</span><br><span class="line"><span class="number">8003</span>f1a0  <span class="number">00000000</span>`<span class="number">8003</span>f1a8 <span class="number">00000000</span>`<span class="number">8003</span>f1b0</span><br><span class="line"><span class="number">8003</span>f1b0  <span class="number">00000000</span>`<span class="number">8003</span>f1b8 <span class="number">00000000</span>`<span class="number">8003</span>f1c0</span><br><span class="line"><span class="number">8003</span>f1c0  <span class="number">00000000</span>`<span class="number">8003</span>f1c8 <span class="number">00000000</span>`<span class="number">8003</span>f1d0</span><br><span class="line"><span class="number">8003</span>f1d0  <span class="number">00000000</span>`<span class="number">8003</span>f1d8 <span class="number">00000000</span>`<span class="number">8003</span>f1e0</span><br><span class="line"><span class="number">8003</span>f1e0  <span class="number">00000000</span>`<span class="number">8003</span>f1e8 <span class="number">00000000</span>`<span class="number">8003</span>f1f0</span><br><span class="line"><span class="number">8003</span>f1f0  <span class="number">00000000</span>`<span class="number">8003</span>f1f8 <span class="number">00000000</span>`<span class="number">8003</span>f200</span><br><span class="line"><span class="number">8003</span>f200  <span class="number">00000000</span>`<span class="number">8003</span>f208 <span class="number">00000000</span>`<span class="number">8003</span>f210</span><br><span class="line"><span class="number">8003</span>f210  <span class="number">00000000</span>`<span class="number">8003</span>f218 <span class="number">00000000</span>`<span class="number">8003</span>f220</span><br><span class="line"><span class="number">8003</span>f220  <span class="number">00000000</span>`<span class="number">8003</span>f228 <span class="number">00000000</span>`<span class="number">8003</span>f230</span><br><span class="line"><span class="number">8003</span>f230  <span class="number">00000000</span>`<span class="number">8003</span>f238 <span class="number">00000000</span>`<span class="number">8003</span>f240</span><br><span class="line"><span class="number">8003</span>f240  <span class="number">00000000</span>`<span class="number">8003</span>f248 <span class="number">00000000</span>`<span class="number">8003</span>f250</span><br><span class="line"><span class="number">8003</span>f250  <span class="number">00000000</span>`<span class="number">8003</span>f258 <span class="number">00000000</span>`<span class="number">8003</span>f260</span><br><span class="line"><span class="number">8003</span>f260  <span class="number">00000000</span>`<span class="number">8003</span>f268 <span class="number">00000000</span>`<span class="number">8003</span>f270</span><br><span class="line"><span class="number">8003</span>f270  <span class="number">00000000</span>`<span class="number">8003</span>f278 <span class="number">00000000</span>`<span class="number">8003</span>f280</span><br><span class="line"><span class="number">8003</span>f280  <span class="number">00000000</span>`<span class="number">8003</span>f288 <span class="number">00000000</span>`<span class="number">8003</span>f290</span><br><span class="line"><span class="number">8003</span>f290  <span class="number">00000000</span>`<span class="number">8003</span>f298 <span class="number">00000000</span>`<span class="number">8003</span>f2a0</span><br><span class="line"><span class="number">8003</span>f2a0  <span class="number">00000000</span>`<span class="number">8003</span>f2a8 <span class="number">00000000</span>`<span class="number">8003</span>f2b0</span><br><span class="line"><span class="number">8003</span>f2b0  <span class="number">00000000</span>`<span class="number">8003</span>f2b8 <span class="number">00000000</span>`<span class="number">8003</span>f2c0</span><br><span class="line"><span class="number">8003</span>f2c0  <span class="number">00000000</span>`<span class="number">8003</span>f2c8 <span class="number">00000000</span>`<span class="number">8003</span>f2d0</span><br><span class="line"><span class="number">8003</span>f2d0  <span class="number">00000000</span>`<span class="number">8003</span>f2d8 <span class="number">00000000</span>`<span class="number">8003</span>f2e0</span><br><span class="line"><span class="number">8003</span>f2e0  <span class="number">00000000</span>`<span class="number">8003</span>f2e8 <span class="number">00000000</span>`<span class="number">8003</span>f2f0</span><br><span class="line"><span class="number">8003</span>f2f0  <span class="number">00000000</span>`<span class="number">8003</span>f2f8 <span class="number">00000000</span>`<span class="number">8003</span>f300</span><br><span class="line"><span class="number">8003</span>f300  <span class="number">00000000</span>`<span class="number">8003</span>f308 <span class="number">00000000</span>`<span class="number">8003</span>f310</span><br><span class="line"><span class="number">8003</span>f310  <span class="number">00000000</span>`<span class="number">8003</span>f318 <span class="number">00000000</span>`<span class="number">8003</span>f320</span><br><span class="line"><span class="number">8003</span>f320  <span class="number">00000000</span>`<span class="number">8003</span>f328 <span class="number">00000000</span>`<span class="number">8003</span>f330</span><br><span class="line"><span class="number">8003</span>f330  <span class="number">00000000</span>`<span class="number">8003</span>f338 <span class="number">00000000</span>`<span class="number">8003</span>f340</span><br><span class="line"><span class="number">8003</span>f340  <span class="number">00000000</span>`<span class="number">8003</span>f348 <span class="number">00000000</span>`<span class="number">8003</span>f350</span><br><span class="line"><span class="number">8003</span>f350  <span class="number">00000000</span>`<span class="number">8003</span>f358 <span class="number">00000000</span>`<span class="number">8003</span>f360</span><br><span class="line"><span class="number">8003</span>f360  <span class="number">00000000</span>`<span class="number">8003</span>f368 <span class="number">00000000</span>`<span class="number">8003</span>f370</span><br><span class="line"><span class="number">8003</span>f370  <span class="number">00000000</span>`<span class="number">8003</span>f378 <span class="number">00000000</span>`<span class="number">8003</span>f380</span><br><span class="line"><span class="number">8003</span>f380  <span class="number">00000000</span>`<span class="number">8003</span>f388 <span class="number">00000000</span>`<span class="number">8003</span>f390</span><br><span class="line"><span class="number">8003</span>f390  <span class="number">00000000</span>`<span class="number">8003</span>f398 <span class="number">00000000</span>`<span class="number">8003</span>f3a0</span><br><span class="line"><span class="number">8003</span>f3a0  <span class="number">00000000</span>`<span class="number">8003</span>f3a8 <span class="number">00000000</span>`<span class="number">8003</span>f3b0</span><br><span class="line"><span class="number">8003</span>f3b0  <span class="number">00000000</span>`<span class="number">8003</span>f3b8 <span class="number">00000000</span>`<span class="number">8003</span>f3c0</span><br><span class="line"><span class="number">8003</span>f3c0  <span class="number">00000000</span>`<span class="number">8003</span>f3c8 <span class="number">00000000</span>`<span class="number">8003</span>f3d0</span><br><span class="line"><span class="number">8003</span>f3d0  <span class="number">00000000</span>`<span class="number">8003</span>f3d8 <span class="number">00000000</span>`<span class="number">8003</span>f3e0</span><br><span class="line"><span class="number">8003</span>f3e0  <span class="number">00000000</span>`<span class="number">8003</span>f3e8 <span class="number">00000000</span>`<span class="number">8003</span>f3f0</span><br><span class="line"><span class="number">8003</span>f3f0  <span class="number">00000000</span>`<span class="number">8003</span>f3f8 <span class="number">00000000</span>`<span class="number">00000000</span></span><br></pre></td></tr></table></figure><table><thead><tr><th>序号</th><th>地址</th><th>段描述符</th><th>P位</th><th>有效or无效</th><th>S位</th><th>TYPE域（第三个十六进制数）</th><th>数据段or代码段</th><th>E/C</th><th>W/R</th><th>A</th><th>属性</th><th>系统段</th><th>属性</th></tr></thead><tbody><tr><td>0</td><td>8003f000</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1</td><td>8003f008</td><td>00cf9b00`0000ffff</td><td>1</td><td>有效</td><td>1</td><td>≥8，1011</td><td>代码段</td><td>0</td><td>1</td><td>1</td><td>可执行，非一致代码段，可读，访问过</td><td></td><td></td></tr><tr><td>2</td><td>8003f010</td><td>00cf9300`0000ffff</td><td>1</td><td>有效</td><td>1</td><td>＜8，0011</td><td>数据段</td><td>0</td><td>1</td><td>1</td><td>expand-up，可写，访问过</td><td></td><td></td></tr><tr><td>3</td><td>8003f018</td><td>00cffa00`0000ffff</td><td>1</td><td>有效</td><td>1</td><td>≥8，1010</td><td>代码段</td><td>0</td><td>1</td><td>0</td><td>可执行，非一致代码段，可读，未访问过</td><td></td><td></td></tr><tr><td>4</td><td>8003f020</td><td>00cff300`0000ffff</td><td>1</td><td>有效</td><td>1</td><td>＜8，0011</td><td>数据段</td><td>0</td><td>1</td><td>1</td><td>expand-up，可写，访问过</td><td></td><td></td></tr><tr><td>5</td><td>8003f028</td><td>80008b04`200020ab</td><td>1</td><td>有效</td><td>0</td><td>1011</td><td></td><td></td><td></td><td></td><td></td><td>系统段</td><td>32-Bit TSS(Busy)</td></tr><tr><td>6</td><td>8003f030</td><td>ffc093df`f0000001</td><td>1</td><td>有效</td><td>1</td><td>＜8，0011</td><td>数据段</td><td>0</td><td>1</td><td>1</td><td>expand-up，可写，访问过</td><td></td><td></td></tr><tr><td>7</td><td>8003f038</td><td>0040f300`00000fff</td><td>1</td><td>有效</td><td>1</td><td>＜8，0011</td><td>数据段</td><td>0</td><td>1</td><td>1</td><td>expand-up，可写，访问过</td><td></td><td></td></tr><tr><td>8</td><td>8003f040</td><td>0000f200`0400ffff</td><td>1</td><td>有效</td><td>1</td><td>＜8，0010</td><td>数据段</td><td>0</td><td>1</td><td>0</td><td>expand-up，可写，未访问过</td><td></td><td></td></tr><tr><td>9</td><td>8003f048</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>10</td><td>8003f050</td><td>80008954`af000068</td><td>1</td><td>有效</td><td>0</td><td>1001</td><td></td><td></td><td></td><td></td><td></td><td>系统段</td><td>32-Bit TSS(Avaliable)</td></tr><tr><td>11</td><td>8003f058</td><td>80008954`af680068</td><td>1</td><td>有效</td><td>0</td><td>1001</td><td></td><td></td><td></td><td></td><td></td><td>系统段</td><td>32-Bit TSS(Avaliable)</td></tr><tr><td>12</td><td>8003f060</td><td>00009302`2f40ffff</td><td>1</td><td>有效</td><td>1</td><td>＜8，0011</td><td>数据段</td><td>0</td><td>1</td><td>1</td><td>expand-up，可写，访问过</td><td></td><td></td></tr><tr><td>13</td><td>8003f068</td><td>0000920b`80003fff</td><td>1</td><td>有效</td><td>1</td><td>＜8，0010</td><td>数据段</td><td>0</td><td>1</td><td>0</td><td>expand-up，可写，未访问过</td><td></td><td></td></tr><tr><td>14</td><td>8003f070</td><td>ff0092ff`700003ff</td><td>1</td><td>有效</td><td>1</td><td>＜8，0010</td><td>数据段</td><td>0</td><td>1</td><td>0</td><td>expand-up，可写，未访问过</td><td></td><td></td></tr><tr><td>15</td><td>8003f078</td><td>80009a40`0000ffff</td><td>1</td><td>有效</td><td>1</td><td>≥8，1010</td><td>代码段</td><td>0</td><td>1</td><td>0</td><td>可执行，非一致代码段，可读，未访问过</td><td></td><td></td></tr><tr><td>16</td><td>8003f080</td><td>80009240`0000ffff</td><td>1</td><td>有效</td><td>1</td><td>＜8，0010</td><td>数据段</td><td>0</td><td>1</td><td>0</td><td>expand-up，可写，未访问过</td><td></td><td></td></tr><tr><td>17</td><td>8003f088</td><td>00009200`00000000</td><td>1</td><td>有效</td><td>1</td><td>＜8，0010</td><td>数据段</td><td>0</td><td>1</td><td>0</td><td>expand-up，可写，未访问过</td><td></td><td></td></tr><tr><td>18</td><td>8003f090</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>19</td><td>8003f098</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>20</td><td>8003f0a0</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>21</td><td>8003f0a8</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>22</td><td>8003f0b0</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>23</td><td>8003f0b8</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>24</td><td>8003f0c0</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>25</td><td>8003f0c8</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>26</td><td>8003f0d0</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>27</td><td>8003f0d8</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>28</td><td>8003f0e0</td><td>00000000`8003f100</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>29</td><td>8003f0e8</td><td>00009200`0000ffff</td><td>1</td><td>有效</td><td>1</td><td>＜8，0010</td><td>数据段</td><td>0</td><td>1</td><td>0</td><td>expand-up，可写，未访问过</td><td></td><td></td></tr><tr><td>30</td><td>8003f0f0</td><td>8000984f`b68803b7</td><td>1</td><td>有效</td><td>1</td><td>≥8，1000</td><td>代码段</td><td>0</td><td>0</td><td>0</td><td>可执行，，非一致代码段，不可读，未访问过</td><td></td><td></td></tr><tr><td>31</td><td>8003f0f8</td><td>00009200`0000ffff</td><td>1</td><td>有效</td><td>1</td><td>＜8，0010</td><td>数据段</td><td>0</td><td>1</td><td>0</td><td>expand-up，可写，未访问过</td><td></td><td></td></tr><tr><td>32</td><td>8003f100</td><td>00000000`8003f108</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>33</td><td>8003f108</td><td>00000000`8003f110</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>34</td><td>8003f110</td><td>00000000`8003f118</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>35</td><td>8003f118</td><td>00000000`8003f120</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>36</td><td>8003f120</td><td>00000000`8003f128</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>37</td><td>8003f128</td><td>00000000`8003f130</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>38</td><td>8003f130</td><td>00000000`8003f138</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>39</td><td>8003f138</td><td>00000000`8003f140</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>40</td><td>8003f140</td><td>00000000`8003f148</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>41</td><td>8003f148</td><td>00000000`8003f150</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>42</td><td>8003f150</td><td>00000000`8003f158</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>43</td><td>8003f158</td><td>00000000`8003f160</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>44</td><td>8003f160</td><td>00000000`8003f168</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>45</td><td>8003f168</td><td>00000000`8003f170</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>46</td><td>8003f170</td><td>00000000`8003f178</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>47</td><td>8003f178</td><td>00000000`8003f180</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>48</td><td>8003f180</td><td>00000000`8003f188</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>49</td><td>8003f188</td><td>00000000`8003f190</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>50</td><td>8003f190</td><td>00000000`8003f198</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>51</td><td>8003f198</td><td>00000000`8003f1a0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>52</td><td>8003f1a0</td><td>00000000`8003f1a8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>53</td><td>8003f1a8</td><td>00000000`8003f1b0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>54</td><td>8003f1b0</td><td>00000000`8003f1b8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>55</td><td>8003f1b8</td><td>00000000`8003f1c0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>56</td><td>8003f1c0</td><td>00000000`8003f1c8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>57</td><td>8003f1c8</td><td>00000000`8003f1d0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>58</td><td>8003f1d0</td><td>00000000`8003f1d8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>59</td><td>8003f1d8</td><td>00000000`8003f1e0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>60</td><td>8003f1e0</td><td>00000000`8003f1e8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>61</td><td>8003f1e8</td><td>00000000`8003f1f0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>62</td><td>8003f1f0</td><td>00000000`8003f1f8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>63</td><td>8003f1f8</td><td>00000000`8003f200</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>64</td><td>8003f200</td><td>00000000`8003f208</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>65</td><td>8003f208</td><td>00000000`8003f210</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>66</td><td>8003f210</td><td>00000000`8003f218</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>67</td><td>8003f218</td><td>00000000`8003f220</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>68</td><td>8003f220</td><td>00000000`8003f228</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>69</td><td>8003f228</td><td>00000000`8003f230</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>70</td><td>8003f230</td><td>00000000`8003f238</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>71</td><td>8003f238</td><td>00000000`8003f240</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>72</td><td>8003f240</td><td>00000000`8003f248</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>73</td><td>8003f248</td><td>00000000`8003f250</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>74</td><td>8003f250</td><td>00000000`8003f258</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>75</td><td>8003f258</td><td>00000000`8003f260</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>76</td><td>8003f260</td><td>00000000`8003f268</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>77</td><td>8003f268</td><td>00000000`8003f270</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>78</td><td>8003f270</td><td>00000000`8003f278</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>79</td><td>8003f278</td><td>00000000`8003f280</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>80</td><td>8003f280</td><td>00000000`8003f288</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>81</td><td>8003f288</td><td>00000000`8003f290</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>82</td><td>8003f290</td><td>00000000`8003f298</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>83</td><td>8003f298</td><td>00000000`8003f2a0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>84</td><td>8003f2a0</td><td>00000000`8003f2a8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>85</td><td>8003f2a8</td><td>00000000`8003f2b0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>86</td><td>8003f2b0</td><td>00000000`8003f2b8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>87</td><td>8003f2b8</td><td>00000000`8003f2c0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>88</td><td>8003f2c0</td><td>00000000`8003f2c8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>89</td><td>8003f2c8</td><td>00000000`8003f2d0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>90</td><td>8003f2d0</td><td>00000000`8003f2d8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>91</td><td>8003f2d8</td><td>00000000`8003f2e0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>92</td><td>8003f2e0</td><td>00000000`8003f2e8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>93</td><td>8003f2e8</td><td>00000000`8003f2f0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>94</td><td>8003f2f0</td><td>00000000`8003f2f8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>95</td><td>8003f2f8</td><td>0000000`8003f300</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>96</td><td>8003f300</td><td>00000000`8003f308</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>97</td><td>8003f308</td><td>00000000`8003f310</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>98</td><td>8003f310</td><td>00000000`8003f318</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>99</td><td>8003f318</td><td>00000000`8003f320</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>100</td><td>8003f320</td><td>00000000`8003f328</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>101</td><td>8003f328</td><td>00000000`8003f330</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>102</td><td>8003f330</td><td>00000000`8003f338</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>103</td><td>8003f338</td><td>00000000`8003f340</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>104</td><td>8003f340</td><td>00000000`8003f348</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>105</td><td>8003f348</td><td>00000000`8003f350</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>106</td><td>8003f350</td><td>00000000`8003f358</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>107</td><td>8003f358</td><td>00000000`8003f360</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>108</td><td>8003f360</td><td>00000000`8003f368</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>109</td><td>8003f368</td><td>00000000`8003f370</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>110</td><td>8003f370</td><td>00000000`8003f378</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>111</td><td>8003f378</td><td>00000000`8003f380</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>112</td><td>8003f380</td><td>00000000`8003f388</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>113</td><td>8003f388</td><td>00000000`8003f390</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>114</td><td>8003f390</td><td>00000000`8003f398</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>115</td><td>8003f398</td><td>00000000`8003f3a0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>116</td><td>8003f3a0</td><td>00000000`8003f3a8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>117</td><td>8003f3a8</td><td>00000000`8003f3b0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>118</td><td>8003f3b0</td><td>00000000`8003f3b8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>119</td><td>8003f3b8</td><td>00000000`8003f3c0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>120</td><td>8003f3c0</td><td>00000000`8003f3c8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>121</td><td>8003f3c8</td><td>00000000`8003f3d0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>122</td><td>8003f3d0</td><td>00000000`8003f3d8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>123</td><td>8003f3d8</td><td>00000000`8003f3e0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>124</td><td>8003f3e0</td><td>00000000`8003f3e8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>125</td><td>8003f3e8</td><td>00000000`8003f3f0</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>126</td><td>8003f3f0</td><td>00000000`8003f3f8</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>127</td><td>8003f3f8</td><td>00000000`00000000</td><td>0</td><td>无效</td><td>0</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table><p>没见到有向下拓展的数据段。实际上，windows系统就没使用向下拓展的数据段</p></div></details></div>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html">段寄存器</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/Protected_Mode/%E6%AE%B5%E6%9D%83%E9%99%90%E6%A3%80%E6%9F%A5.html">段权限检查</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

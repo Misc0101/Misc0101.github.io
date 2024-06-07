@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>PE：资源表 - Misc010</title>
+
+  
+    <meta name="description" content="前言 在写界面程序时，比如在win32那里我们用资源文件的方式来创建图标，那么一个程序中各种界面上的资源在exe中的哪里？资源表就是用于描述exe中这些资源信息的一张表。  草稿：比如“菜单”资源类型下，可能有“IDM_OPEN”（ID号为2001），“IDM_EXIT”（ID号为2002）等菜单项。   资源结构 资源结构类似于磁盘文件系统，文件夹下有文件夹，文件夹下还有文件夹，文件夹下的文件">
+<meta property="og:type" content="website">
+<meta property="og:title" content="资源表">
+<meta property="og:url" content="https://misc0101.github.io/wiki/PE/%E8%B5%84%E6%BA%90%E8%A1%A8.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="前言 在写界面程序时，比如在win32那里我们用资源文件的方式来创建图标，那么一个程序中各种界面上的资源在exe中的哪里？资源表就是用于描述exe中这些资源信息的一张表。  草稿：比如“菜单”资源类型下，可能有“IDM_OPEN”（ID号为2001），“IDM_EXIT”（ID号为2002）等菜单项。   资源结构 资源结构类似于磁盘文件系统，文件夹下有文件夹，文件夹下还有文件夹，文件夹下的文件">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%B5%84%E6%BA%90%E8%A1%A8/%E8%B5%84%E6%BA%90%E8%A1%A8%E7%BB%93%E6%9E%84%E7%AE%80%E5%9B%BE.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%B5%84%E6%BA%90%E8%A1%A8/%E8%B5%84%E6%BA%90%E8%A1%A8%E7%BB%93%E6%9E%84%E5%9B%BE.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%B5%84%E6%BA%90%E8%A1%A8/image-20240514152248577.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%B5%84%E6%BA%90%E8%A1%A8/image-20240521100547293.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%B5%84%E6%BA%90%E8%A1%A8/image-20240516215337529.png">
+<meta property="article:published_time" content="2024-05-13T08:03:14.000Z">
+<meta property="article:modified_time" content="2024-05-13T08:03:14.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E8%B5%84%E6%BA%90%E8%A1%A8/%E8%B5%84%E6%BA%90%E8%A1%A8%E7%BB%93%E6%9E%84%E7%AE%80%E5%9B%BE.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/PE/Overview_PE.html"><div class="main" ff="title">PE</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/PE/" placeholder="在/wiki/PE/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">基本概念</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/Overview_PE.html#start"><span class="toc-text">Overview</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5_PE.html"><span class="toc-text">一些概念</span></a></div></div><div class="widget-header cap dis-select"><span class="name">字段解读</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/DOS%E9%83%A8%E5%88%86.html"><span class="toc-text">DOS部分</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/PE%E5%A4%B4.html"><span class="toc-text">PE头</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E8%8A%82%E8%A1%A8.html"><span class="toc-text">节表</span></a></div></div><div class="widget-header cap dis-select"><span class="name">练习和项目</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BB%83%E4%B9%A0_PE.html"><span class="toc-text">练习</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BC%96%E7%A8%8B%E7%BB%83%E4%B9%A0_PE.html"><span class="toc-text">编程练习</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/PE%E8%A7%A3%E6%9E%90%E5%99%A8.html"><span class="toc-text">PE解析器</span></a></div></div><div class="widget-header cap dis-select"><span class="name">节操作</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%A9%BA%E7%99%BD%E5%8C%BA%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81.html"><span class="toc-text">空白区添加代码</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E6%89%A9%E5%A4%A7%E8%8A%82.html"><span class="toc-text">扩大节</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E6%96%B0%E5%A2%9E%E8%8A%82.html"><span class="toc-text">新增节</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%90%88%E5%B9%B6%E8%8A%82.html"><span class="toc-text">合并节</span></a></div></div><div class="widget-header cap dis-select"><span class="name">数据目录表</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E5%92%8C%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93.html"><span class="toc-text">静态链接库和动态链接库</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%AF%BC%E5%87%BA%E8%A1%A8.html"><span class="toc-text">导出表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8.html"><span class="toc-text">重定位表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%AF%BC%E5%85%A5%E8%A1%A8.html"><span class="toc-text">导入表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BB%91%E5%AE%9A%E5%AF%BC%E5%85%A5%E8%A1%A8.html"><span class="toc-text">绑定导入表</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/PE/%E8%B5%84%E6%BA%90%E8%A1%A8.html"><span class="toc-text">资源表</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text"> 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B5%84%E6%BA%90%E7%BB%93%E6%9E%84"><span class="toc-text"> 资源结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E5%90%8C%E5%B1%82%E7%BA%A7%E4%B8%8B%E8%B5%84%E6%BA%90%E7%9B%AE%E5%BD%95%E9%A1%B9%E5%AD%97%E6%AE%B5%E7%9A%84%E4%B8%8D%E5%90%8C%E5%90%AB%E4%B9%89"><span class="toc-text"> 不同层级下资源目录项字段的不同含义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%93%E5%8D%B0%E8%B5%84%E6%BA%90%E8%A1%A8"><span class="toc-text"> 打印资源表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AA%E6%9D%A5%E5%8F%AF%E5%AE%8C%E5%96%84%E7%9A%84%E5%B7%A5%E4%BD%9C"><span class="toc-text"> 未来可完善的工作</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%A7%BB%E5%8A%A8%E5%90%84%E7%A7%8D%E8%A1%A8.html"><span class="toc-text">移动各种表</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/To_Learn_List.html"><span class="toc-text">To Learn List</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><span class="title">Protected_Mode</span><span class="excerpt">滴水三期_保护模式笔记。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/PE/Overview_PE.html">PE</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-05-13T08:03:14.000Z">2024-05-13</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>资源表</span></h1>
+<h2 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h2>
+<p>在写界面程序时，比如在win32那里我们用资源文件的方式来创建图标，那么一个程序中各种界面上的资源在exe中的哪里？资源表就是用于描述exe中这些资源信息的一张表。</p>
+<blockquote>
+<p>草稿：比如“菜单”资源类型下，可能有“IDM_OPEN”（ID号为2001），“IDM_EXIT”（ID号为2002）等菜单项。</p>
+</blockquote>
+<h2 id="资源结构"><a class="markdownIt-Anchor" href="#资源结构"></a> 资源结构</h2>
+<p>资源结构类似于磁盘文件系统，文件夹下有文件夹，文件夹下还有文件夹，文件夹下的文件就是真正的资源数据。</p>
+<p>资源结构由一层一层的资源目录块/节点/资源目录结构单元组成。每个目录块/节点由<strong>资源目录头</strong>和紧随其后的<strong>资源目录项</strong>组成（它有几项是不确定的，所以需要用一个目录来描述）。资源结构从设计上来说，理论上支持n多层。但一般情况下，是三层，第一层表示资源的类型，第二层按资源的ID分类，第三层按资源的代码页分类，第三层后是“文件”，这里的“文件”是指通过OffsetToData指过来后的地方，对所有资源数据块的解析和访问就从这里开始。每一层的节点都是<strong>资源目录块</strong>这个数据结构，而在不同层级，这个<strong>资源目录块</strong>中字段的含义是不一样的。（后面会讲）</p>
+<div class="tag-plugin tabs" align="center"id="tab_134"><div class="nav-tabs"><div class="tab active"><a href="#tab_134-1">资源表图示（整体结构）</a></div><div class="tab"><a href="#tab_134-2">资源表图示（详细版）</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_134-1"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%B5%84%E6%BA%90%E8%A1%A8/%E8%B5%84%E6%BA%90%E8%A1%A8%E7%BB%93%E6%9E%84%E7%AE%80%E5%9B%BE.png" alt="资源表结构简图" /></p></div><div class="tab-pane" id="tab_134-2"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%B5%84%E6%BA%90%E8%A1%A8/%E8%B5%84%E6%BA%90%E8%A1%A8%E7%BB%93%E6%9E%84%E5%9B%BE.png" alt="资源表结构图" /></p></div></div></div>
+<p>从拓展PE头.数据目录表数据的第3个成员得到资源表的起始地址（这个值是RVA）和大小。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_DATA_DIRECTORY</span> &#123;</span><br><span class="line">    DWORD   VirtualAddress;</span><br><span class="line">    DWORD   Size;</span><br><span class="line">&#125; IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;</span><br></pre></td></tr></table></figure>
+<p>将RVA转为FOA后，找过去的是第一级的资源目录块。</p>
+<figure class="highlight cpp"><figcaption><span>资源目录头</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_RESOURCE_DIRECTORY</span> &#123;</span><br><span class="line">    DWORD   Characteristics;                        <span class="comment">// 资源属性 保留 为0</span></span><br><span class="line">    DWORD   TimeDateStamp;                          <span class="comment">// 创建该资源的时间</span></span><br><span class="line">    WORD    MajorVersion;                           <span class="comment">// 资源版本号。未使用，为0</span></span><br><span class="line">    WORD    MinorVersion;                           <span class="comment">// 资源版本号。未使用，为0</span></span><br><span class="line">    WORD    NumberOfNamedEntries;                   <span class="comment">// 以名称命名的资源个数</span></span><br><span class="line">    WORD    NumberOfIdEntries;                      <span class="comment">// 以ID命名的资源个数</span></span><br><span class="line"><span class="comment">//  IMAGE_RESOURCE_DIRECTORY_ENTRY DirectoryEntries[];</span></span><br><span class="line">&#125; IMAGE_RESOURCE_DIRECTORY, *PIMAGE_RESOURCE_DIRECTORY;</span><br></pre></td></tr></table></figure>
+<p><strong>资源目录头IMAGE_RESOURCE_DIRECTORY</strong>中最重要的字段是<strong>NumberOfNamedEntries</strong>和<strong>NumberOfIdEntries</strong>，它俩之和的数量，就是紧随其后资源目录项的数量。</p>
+<blockquote>
+<p>在.rc中定义资源时，既可以用字符串名称来标识一个资源，也可以用ID号来标识一个资源。<br />
+在代码中使用资源时，既可以用字符串名称来使用一个资源，也可以用ID号来使用一个资源。</p>
+<p>那么在资源目录头这里的字段，就对应上了，NumberOfNamedEntries用于表示以名称命名的资源个数，NumberOfIdEntries用于表示以ID命名的资源个数。</p>
+</blockquote>
+<p>资源目录项跟在资源目录头后面首先按照字母升序(不分大小写）排列名称资源目录项，然后再按ID升序排列ID资源目录项。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%B5%84%E6%BA%90%E8%A1%A8/image-20240514152248577.png" alt="image-20240514152248577" /></p>
+<p>每个资源目录项是一个IMAGE_RESOURCE_DIRECTORY_ENTRY结构。</p>
+<figure class="highlight cpp"><figcaption><span>资源目录项</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_RESOURCE_DIRECTORY_ENTRY</span> &#123;</span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        <span class="keyword">struct</span> &#123;</span><br><span class="line">            DWORD NameOffset:<span class="number">31</span>;</span><br><span class="line">            DWORD NameIsString:<span class="number">1</span>;</span><br><span class="line">        &#125; DUMMYSTRUCTNAME;</span><br><span class="line">        DWORD   Name;</span><br><span class="line">        WORD    Id;</span><br><span class="line">    &#125; DUMMYUNIONNAME;</span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        DWORD   OffsetToData;</span><br><span class="line">        <span class="keyword">struct</span> &#123;</span><br><span class="line">            DWORD   OffsetToDirectory:<span class="number">31</span>;</span><br><span class="line">            DWORD   DataIsDirectory:<span class="number">1</span>;</span><br><span class="line">        &#125; DUMMYSTRUCTNAME2;</span><br><span class="line">    &#125; DUMMYUNIONNAME2;</span><br><span class="line">&#125; IMAGE_RESOURCE_DIRECTORY_ENTRY, *PIMAGE_RESOURCE_DIRECTORY_ENTRY;</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>union+位域</span></summary><div class="body"><p>之前在学习导入表时，对于INT表或IAT表表项（还没替换为函数地址），每个表项可以是一个序号或一个指向HintName的RVA指针，这取决于表项的最高位是1还是0。</p><ul><li>当这个DWORD值最高位为1，表示函数以序号方式导入。此时低31位表示一个函数序号。</li><li>当这个DWORD值最高位为0，表示函数以函数名方式导入。此时这个DWORD值是一个指向<strong>IMAGE_IMPORT_BY_NAME</strong>结构的RVA地址。</li></ul><p>编程时用位运算取最高位进行区分的代码逻辑大致如下：</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//假设这个是INT表表项的结构</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_THUNK_DATA32</span> &#123;</span><br><span class="line">	DWORD Item;</span><br><span class="line">&#125; IMAGE_THUNK_DATA32;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (*pINTTable &amp; <span class="number">0x80000000</span>)               <span class="comment">//最高位为1</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>为了方便这种区分，可以用位域（bit-fields）+union结构。具体做法是，加一个位域（bit-fields）结构体，里面分别用两个字段表示这个DWORD的最高位和低31位，外面再用union包起来（这样没有改变原结构体的大小），那么在代码中就不需要自己用位运算，直接判断IsOrdinal的值即可，代码示意如下：</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_THUNK_DATA32</span> &#123;</span><br><span class="line">	<span class="keyword">union</span> &#123;</span><br><span class="line">		<span class="keyword">struct</span> &#123;</span><br><span class="line">			DWORD pHintNameItem : <span class="number">31</span>;   <span class="comment">// IsOrdinal为1时，pHintNameItem指向提示名表；IsOrdinal为0时，pHintNameItem是个序号</span></span><br><span class="line">			DWORD IsOrdinal : <span class="number">1</span>;        <span class="comment">// 最高位，标识是否为序号导入</span></span><br><span class="line">		&#125; u1;</span><br><span class="line">		DWORD Item;                   <span class="comment">// 完整的DWORD表项</span></span><br><span class="line">	&#125; u0;</span><br><span class="line">&#125; IMAGE_THUNK_DATA32;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">IMAGE_THUNK_DATA32* pINTTable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (pINTTable-&gt;u0.u1.IsOrdinal)  <span class="comment">// 最高位为1，表示序号导入</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>用上了位域，看反汇编代码的话其实就是位运算，编译器帮我们写的，就不用我们自己写了</p></div></details></div>
+<p>IMAGE_RESOURCE_DIRECTORY_ENTRY结构体由两个Union结构组成，共8字节大小。</p>
+<p><strong>第一个union结构</strong></p>
+<ul>
+<li>当NameIsString（最高位）为0，使用Id字段，表示是一个编号</li>
+<li>当NameIsString（最高位）为1，使用NameOffset字段，NameOffset（即低31位）是一个指向IMAGE_RESOURCE_DIR_STRING_U结构体的指针，这个偏移值是相对于资源表的起始位置（即数据目录表中描述资源表.VirtualSize字段）</li>
+</ul>
+<p>在资源中，对字符串的定义使用的是Unicode编码，IMAGE_RESOURCE_DIR_STRING_U结构描述这个Unicode字符串。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_RESOURCE_DIR_STRING_U</span> &#123;</span><br><span class="line">    WORD    Length;             <span class="comment">// 描述字符串长度</span></span><br><span class="line">    WCHAR   NameString[ <span class="number">1</span> ];</span><br><span class="line">&#125; IMAGE_RESOURCE_DIR_STRING_U, *PIMAGE_RESOURCE_DIR_STRING_U;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>对于Unicode字符串，以0作为一个字符串结尾的方式不科学。所以这里用Length记录这个字符串的长度</p>
+</blockquote>
+<p><strong>第二个union结构</strong></p>
+<ul>
+<li>
+<p>当DataIsDirectory（最高位）为0，使用OffsetToData字段，OffsetToData指向资源数据项IMAGE_RESOURCE_DATA_ENTRY，资源数据项用于描述资源数据的位置和大小。OffsetToData字段的偏移是相对于资源表的起始位置（即数据目录表中描述资源表.VirtualSize字段）</p>
+<blockquote>
+<p>DataIsDirector=0，通常出现在第三级目录</p>
+</blockquote>
+</li>
+<li>
+<p>当DataIsDirectory（最高位）为1，使用OffsetToDirectory字段，OffsetToDirectory（即低31位）指向下一个资源目录的起始地址</p>
+</li>
+</ul>
+<p><strong>注：NameOffset和OffsetToData字段的偏移都是相对于资源表的起始位置（即数据目录表中描述资源表.VirtualSize字段）</strong></p>
+<figure class="highlight cpp"><figcaption><span>资源数据项</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_RESOURCE_DATA_ENTRY</span> &#123;</span><br><span class="line">    DWORD   OffsetToData;           <span class="comment">// 资源数据的RVA地址</span></span><br><span class="line">    DWORD   Size;                   <span class="comment">// 资源数据的长度</span></span><br><span class="line">    DWORD   CodePage;               <span class="comment">// 代码页，一般为0</span></span><br><span class="line">    DWORD   Reserved;               <span class="comment">// 保留字段</span></span><br><span class="line">&#125; IMAGE_RESOURCE_DATA_ENTRY, *PIMAGE_RESOURCE_DATA_ENTRY;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>OffsetToData：指向的还不是赤裸裸资源信息的二进制数据，而是附加了一些数据结构的资源快。如果想将资源中的ico图扣出来，通过OffsetToData指过去后，继续查图标组资源解析的资料得知怎么继续解析；如果想将对话框扣出来，继续查对话框资源解析的资料得知怎么继续解析。这里不做介绍</li>
+</ul>
+<h2 id="不同层级下资源目录项字段的不同含义"><a class="markdownIt-Anchor" href="#不同层级下资源目录项字段的不同含义"></a> 不同层级下资源目录项字段的不同含义</h2>
+<p>三层层级中每个节点的资源目录项都是用IMAGE_RESOURCE_DIRECTORY_ENTRY结构体表示，但它们在不同层级时，资源目录项中字段的含义是不一样的。</p>
+<p><strong>IMAGE_RESOURCE_DATA_ENTRY中第一个Union字段</strong></p>
+<p>在第一层中，资源目录块表示资源类型。资源目录项中的Name字段表示这是标准的资源类型还是非标准的。id数值在1-16之间就是系统预定义的标准资源类型。</p>
+<ul>
+<li>
+<p>最高位为1，使用NameOffset字段，NameOffset指向IMAGE_RESOURCE_DIR_STRING_U结构。字符串为非标准的类型的名字。</p>
+</li>
+<li>
+<p>最高位为0，使用Id字段。</p>
+<table>
+<thead>
+<tr>
+<th>常量符号</th>
+<th>数值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RT_CURSOR</td>
+<td>1</td>
+<td>光标（Cusor）</td>
+</tr>
+<tr>
+<td>RT_BITMAP</td>
+<td>2</td>
+<td>位图（Bitmap）</td>
+</tr>
+<tr>
+<td>RT_ICON</td>
+<td>3</td>
+<td>图标（Icon）</td>
+</tr>
+<tr>
+<td>RT_MENU</td>
+<td>4</td>
+<td>菜单（Menu）</td>
+</tr>
+<tr>
+<td>RT_DIALOG</td>
+<td>5</td>
+<td>对话框（Dialog）</td>
+</tr>
+<tr>
+<td>RT_STRING</td>
+<td>6</td>
+<td>字符串（String）</td>
+</tr>
+<tr>
+<td>RT_FONTDIR</td>
+<td>7</td>
+<td>字体目录（Font Directory）</td>
+</tr>
+<tr>
+<td>RT_FONT</td>
+<td>8</td>
+<td>字体（Font）</td>
+</tr>
+<tr>
+<td>RT_ACCELERATOR</td>
+<td>9</td>
+<td>加速键（Accelerators）</td>
+</tr>
+<tr>
+<td>RT_RCDATA</td>
+<td>10</td>
+<td>未格式化资源（Unformatted）</td>
+</tr>
+<tr>
+<td>RT_MESSAGETABLE</td>
+<td>11</td>
+<td>消息表（MessageTable）</td>
+</tr>
+<tr>
+<td>RT_GROUP_CURSOR</td>
+<td>12</td>
+<td>光标组（Group Cursor）</td>
+</tr>
+<tr>
+<td>RT_GROUP_ICON</td>
+<td>14</td>
+<td>图标组（Group Icon）</td>
+</tr>
+<tr>
+<td>RT_VERSION</td>
+<td>16</td>
+<td>版本信息（Version Information）</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<blockquote>
+<p>加速键（Accelerators）指的是快捷键<br />
+图标组是对图标信息的描述</p>
+<ul>
+<li>只在程序中加了一个图标，但用ResHacker看会有好几个图标。这是编译器为了适应不同分辨率情况，加的图标</li>
+</ul>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%B5%84%E6%BA%90%E8%A1%A8/image-20240521100547293.png" alt="image-20240521100547293" /></p>
+</blockquote>
+<p>在第二层中，资源目录块表示资源的ID。在第二层时，资源目录项中的Name字段表示这是标准命名还是非标准命名。</p>
+<p>在第三层中，资源目录块表示资源的代码页。在第三层时，资源目录项中的Name字段表示这是一个标准还是非标准的语言。</p>
+<blockquote>
+<p>详细细节具体看《WindowsPE权威指南》P207-208</p>
+</blockquote>
+<p><strong>IMAGE_RESOURCE_DATA_ENTRY中第二个Union字段</strong></p>
+<p>理论上来说资源结构可以是n层，但一般是三层结构。第一第二层这个值最高位为1，用OffsetToDirectory字段，指向下一层资源目录块。在第三层时，用OffsetToData字段，指向真实的资源数据块。</p>
+<h2 id="打印资源表"><a class="markdownIt-Anchor" href="#打印资源表"></a> 打印资源表</h2>
+<p>资源这种结构设计，理论上支持n级。但一般是三层，也就是说层数是知道的，所以可以写个循环来打印。但为了以后代码的更新维护，这里用递归的方式实现资源表打印。</p>
+<p>对于每一个节点：</p>
+<ol>
+<li>打印它的资源目录头部分</li>
+<li>打印它的资源目录项部分<br />
+在不同层级，目录项里字段代表的含义不同。在递归函数用一个参数表示层级
+<ul>
+<li>对于第一个Union联合结构
+<ul>
+<li>在第一层，表示这个资源是标准还是非标准类型</li>
+<li>在第二层，表示这个资源是标准命名还是非标准命名</li>
+<li>在第三层，表示这个资源是标准语言代码还是非标准语言代码</li>
+</ul>
+</li>
+<li>对于第二个Union联合结构
+<ul>
+<li>在第一层，指向下一级资源目录块</li>
+<li>在第二层，指向下一级资源目录块</li>
+<li>在第三层，指向下一级资源数据项</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight cpp"><figcaption><span>函数大致框架</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//pResourceDirectory：指向资源目录块/节点</span></span><br><span class="line"><span class="comment">//level：层级</span></span><br><span class="line"><span class="function">VOID <span class="title">PrintResourceDirectory</span><span class="params">(PIMAGE_RESOURCE_DIRECTORY pResourceDirectory, <span class="type">int</span> level)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//1、打印资源目录头</span></span><br><span class="line">    <span class="comment">//......</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//2、打印资源目录项</span></span><br><span class="line">    <span class="keyword">auto</span> pResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((DWORD)pResourceDirectory + <span class="built_in">sizeof</span>(IMAGE_RESOURCE_DIRECTORY));</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; pResourceDirectory-&gt;NumberOfNamedEntries + pResourceDirectory-&gt;NumberOfIdEntries; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 处理第一个Union结构</span></span><br><span class="line">        <span class="keyword">if</span> (level == <span class="number">1</span>)         <span class="comment">// 第一层，表示资源的类型</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (pResourceDirectoryEntry-&gt;NameIsString) <span class="comment">// 最高位为1，指向Unicode字符串结构。非标准类型资源</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">//...</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>                                       <span class="comment">// 最高位为0，Id字段。标准资源类型</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">//...</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (level == <span class="number">2</span>)    <span class="comment">// 第二层，表示资源的ID</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (pResourceDirectoryEntry-&gt;NameIsString) <span class="comment">// 最高位为1，指向Unicode字符串结构。非标准ID</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">//...</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>                                       <span class="comment">// 最高位为0，Id字段。标准资源ID</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">//...</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (level == <span class="number">3</span>)    <span class="comment">// 第三层，表示资源的代码页</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (pResourceDirectoryEntry-&gt;NameIsString) <span class="comment">// 最高位为1，指向Unicode字符串结构。非标准语言</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">//...</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>                                       <span class="comment">// 最高位为0，Id字段。标准语言</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">//...</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 处理第二个Union结构</span></span><br><span class="line">        <span class="keyword">if</span> (pResourceDirectoryEntry-&gt;DataIsDirectory)  <span class="comment">// 最高位为1，指向下一级目录</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">//递归调用</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span>                                           <span class="comment">// 最高位为0，指向数据</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//...</span></span><br><span class="line">        &#125;</span><br><span class="line">        pResourceDirectoryEntry++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin tabs" align="center"id="tab_135"><div class="nav-tabs"><div class="tab active"><a href="#tab_135-1">打印资源表</a></div><div class="tab"><a href="#tab_135-2">递归函数</a></div><div class="tab"><a href="#tab_135-3">记录标准资源类型数值和文字的映射</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_135-1"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">VOID <span class="title">PEManipulator::PrintResourceTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> pResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY)<span class="built_in">GetDataDirectoryPointer</span>(IMAGE_DIRECTORY_ENTRY_RESOURCE);</span><br><span class="line">    <span class="keyword">if</span> (!pResourceDirectory)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">PrintResourceDirectory</span>(pResourceDirectory, <span class="number">1</span>); <span class="comment">// 开始打印一级资源目录</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_135-2"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">VOID <span class="title">PEManipulator::PrintResourceDirectory</span><span class="params">(PIMAGE_RESOURCE_DIRECTORY pResourceDirectory, <span class="type">int</span> level)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!pResourceDirectory)                <span class="comment">//参数检查</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 资源表起始位置，已转为FOA</span></span><br><span class="line">    <span class="keyword">auto</span> pBaseResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY)<span class="built_in">GetDataDirectoryPointer</span>(IMAGE_DIRECTORY_ENTRY_RESOURCE);</span><br><span class="line">    <span class="keyword">if</span> (!pBaseResourceDirectory)        </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据层级生成缩进字符串，每层缩进25个空格</span></span><br><span class="line">    <span class="type">char</span> Indent[<span class="number">70</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; (level - <span class="number">1</span>) * <span class="number">25</span> &amp;&amp; i &lt; <span class="built_in">sizeof</span>(Indent) - <span class="number">1</span>; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        Indent[i] = <span class="string">&#x27; &#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//1、打印资源目录头</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s[%d级资源目录头]\n&quot;</span>, Indent, level);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%sCharacteristics:      0x%08X\n&quot;</span>, Indent, pResourceDirectory-&gt;Characteristics);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%sTimeDateStamp:        0x%08X\n&quot;</span>, Indent, pResourceDirectory-&gt;TimeDateStamp);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%sMajorVersion:         0x%04X\n&quot;</span>, Indent, pResourceDirectory-&gt;MajorVersion);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%sMinorVersion:         0x%04X\n&quot;</span>, Indent, pResourceDirectory-&gt;MinorVersion);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%sNumberOfNamedEntries: 0x%04X\n&quot;</span>, Indent, pResourceDirectory-&gt;NumberOfNamedEntries);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%sNumberOfIdEntries:    0x%04X\n&quot;</span>, Indent, pResourceDirectory-&gt;NumberOfIdEntries);</span><br><span class="line">    <span class="comment">//2、打印资源目录项</span></span><br><span class="line">    <span class="keyword">auto</span> pResourceDirectoryEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((DWORD)pResourceDirectory + <span class="built_in">sizeof</span>(IMAGE_RESOURCE_DIRECTORY));</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; pResourceDirectory-&gt;NumberOfNamedEntries + pResourceDirectory-&gt;NumberOfIdEntries; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s[%d级资源目录项]\n&quot;</span>, Indent, level);</span><br><span class="line">        <span class="comment">// 处理第一个Union结构</span></span><br><span class="line">        <span class="keyword">if</span> (level == <span class="number">1</span>)         <span class="comment">// 第一层，表示资源的类型</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (pResourceDirectoryEntry-&gt;NameIsString)  <span class="comment">// 最高位为1，指向Unicode字符串结构。非标准类型资源</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> pResourceString = (PIMAGE_RESOURCE_DIR_STRING_U)((DWORD)pBaseResourceDirectory + pResourceDirectoryEntry-&gt;NameOffset);</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%sName:                 &quot;</span>, Indent);</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; pResourceString-&gt;Length; ++j)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="built_in">printf</span>(<span class="string">&quot;%c&quot;</span>, pResourceString-&gt;NameString[j]);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>                                       <span class="comment">// 最高位为0，Id字段。标准资源类型</span></span><br><span class="line">            &#123;</span><br><span class="line">                WORD ResourceId = pResourceDirectoryEntry-&gt;Id;</span><br><span class="line">                <span class="type">const</span> <span class="type">char</span>* ResourceType = <span class="built_in">GetResourceTypeString</span>(ResourceId);</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%sId:                   0x%04X  (%s)\n&quot;</span>, Indent, ResourceId, ResourceType);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (level == <span class="number">2</span>)    <span class="comment">// 第二层，表示资源的ID</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (pResourceDirectoryEntry-&gt;NameIsString) <span class="comment">// 最高位为1，指向Unicode字符串结构。非标准ID</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> pResourceString = (PIMAGE_RESOURCE_DIR_STRING_U)((DWORD)pBaseResourceDirectory + pResourceDirectoryEntry-&gt;NameOffset);</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%sName:                 &quot;</span>, Indent);</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; pResourceString-&gt;Length; ++j)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="built_in">printf</span>(<span class="string">&quot;%c&quot;</span>, pResourceString-&gt;NameString[j]);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>                                       <span class="comment">// 最高位为0，Id字段。标准资源ID</span></span><br><span class="line">            &#123;</span><br><span class="line">                WORD ResourceId = pResourceDirectoryEntry-&gt;Id;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%sId:                   0x%04X\n&quot;</span>, Indent, ResourceId);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (level == <span class="number">3</span>)    <span class="comment">// 第三层，表示资源的代码页</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (pResourceDirectoryEntry-&gt;NameIsString) <span class="comment">// 最高位为1，指向Unicode字符串结构。非标准语言</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">auto</span> pResourceString = (PIMAGE_RESOURCE_DIR_STRING_U)((DWORD)pBaseResourceDirectory + pResourceDirectoryEntry-&gt;NameOffset);</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%sLanguage:              &quot;</span>, Indent);</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; pResourceString-&gt;Length; ++j)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="built_in">printf</span>(<span class="string">&quot;%c&quot;</span>, pResourceString-&gt;NameString[j]);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>                                      <span class="comment">// 最高位为0，Id字段。标准语言</span></span><br><span class="line">            &#123;</span><br><span class="line">                WORD ResourceId = pResourceDirectoryEntry-&gt;Id;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%sLanguageId:           0x%04X\n&quot;</span>, Indent, ResourceId);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 处理第二个Union结构</span></span><br><span class="line">        <span class="keyword">if</span> (pResourceDirectoryEntry-&gt;DataIsDirectory) <span class="comment">// 最高位为1，指向下一级目录</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%sOffsetToDirectory:    0x%08X  （指向下一级目录）\n&quot;</span>, Indent, pResourceDirectoryEntry-&gt;OffsetToData);      <span class="comment">//按OffsetToData打，把最高位也打印了</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">auto</span> pSubResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY)((DWORD)pBaseResourceDirectory + pResourceDirectoryEntry-&gt;OffsetToDirectory);</span><br><span class="line">            <span class="built_in">PrintResourceDirectory</span>(pSubResourceDirectory, level + <span class="number">1</span>); <span class="comment">// 递归调用</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span>                                          <span class="comment">// 最高位为0，指向数据</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%sOffsetToData:         0x%08X  （指向数据）\n&quot;</span>, Indent, pResourceDirectoryEntry-&gt;OffsetToData);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">auto</span> pResourceDataEntry = (PIMAGE_RESOURCE_DATA_ENTRY)((DWORD)pBaseResourceDirectory + pResourceDirectoryEntry-&gt;OffsetToData);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;    %s[资源表的数据信息]\n&quot;</span>, Indent);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;    %sOffsetToData:          0x%08X\n&quot;</span>, Indent, pResourceDataEntry-&gt;OffsetToData);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;    %sSize:                  0x%08X\n&quot;</span>, Indent, pResourceDataEntry-&gt;Size);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;    %sCodePage:              0x%08X\n&quot;</span>, Indent, pResourceDataEntry-&gt;CodePage);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;    %sReserved:              0x%08X\n&quot;</span>, Indent, pResourceDataEntry-&gt;Reserved);</span><br><span class="line">        &#125;</span><br><span class="line">        pResourceDirectoryEntry++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_135-3"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">const</span> <span class="type">char</span>* <span class="title">PEManipulator::GetResourceTypeString</span><span class="params">(WORD resourceId)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">const</span> std::unordered_map&lt;WORD, std::string&gt; resourceTypeMap = </span><br><span class="line">    &#123;</span><br><span class="line">        &#123;<span class="number">1</span>,  <span class="string">&quot;Cursor 光标&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">2</span>,  <span class="string">&quot;Bitmap 位图&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">3</span>,  <span class="string">&quot;Icon 图标&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">4</span>,  <span class="string">&quot;Menu 菜单&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">5</span>,  <span class="string">&quot;Dialog 对话框&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">6</span>,  <span class="string">&quot;String 字符串&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">7</span>,  <span class="string">&quot;Font Directory 字体目录&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">8</span>,  <span class="string">&quot;Font 字体 &quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">9</span>,  <span class="string">&quot;Accelerators 加速键&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">10</span>, <span class="string">&quot;Unformatted 未格式化资源 &quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">11</span>, <span class="string">&quot;MessageTable 消息表&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">12</span>, <span class="string">&quot;Group Cursor 光标组&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">14</span>, <span class="string">&quot;Group Icon 图标组&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">16</span>, <span class="string">&quot;Version Information 版本信息&quot;</span>&#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> it = resourceTypeMap.<span class="built_in">find</span>(resourceId);     <span class="comment">// 在map中查找指定的键</span></span><br><span class="line">    <span class="keyword">if</span> (it != resourceTypeMap.<span class="built_in">end</span>())                <span class="comment">// 如果找到</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> it-&gt;second.<span class="built_in">c_str</span>();                  <span class="comment">// 返回对应的字符串</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Unknown（未知）&quot;</span>;                       <span class="comment">// 如果没找到，返回&quot;Unknown（未知）&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+<p>上面的代码有几处细节提一下：</p>
+<ol>
+<li>
+<p>为了更清晰地表示层级关系，会根据level层级控制打印时前面的缩进<br />
+Indent全为0，将前面i个字符设置为“ ”空字符，打印时打印Indent（即输出空字符），到0结束打印</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 根据层级生成缩进字符串，每层缩进32个空格</span></span><br><span class="line"><span class="type">char</span> Indent[<span class="number">70</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; (level - <span class="number">1</span>) * <span class="number">25</span> &amp;&amp; i &lt; <span class="built_in">sizeof</span>(Indent) - <span class="number">1</span>; ++i)</span><br><span class="line">&#123;</span><br><span class="line">    Indent[i] = <span class="string">&#x27; &#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>资源目录项中两个Union结构的偏移都是相对于资源表的起始位置</strong>，即数据目录表中描述资源表的VirtualSize字段。因为笔者是在FileBuffer（未拉伸状态）上解析打印资源表，所以相关字段的定位=(DWORD)FileBuffer+资源表FOA+偏移。每个递归函数中可能要用到资源表起始位置，于是在函数前边用变量记录了资源表的起始位置</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 资源表起始位置，已转为FOA</span></span><br><span class="line"><span class="keyword">auto</span> pBaseResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY)<span class="built_in">GetDataDirectoryPointer</span>(IMAGE_DIRECTORY_ENTRY_RESOURCE);</span><br><span class="line"><span class="keyword">if</span> (!pBaseResourceDirectory)        </span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>打印Unicode字符串<br />
+指向字符串后，挨个打印每个字符。Unicode占2字节，遇到&quot;00&quot;就相当于没打印东西</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> pResourceString = (PIMAGE_RESOURCE_DIR_STRING_U)((DWORD)pBaseResourceDirectory + pResourceDirectoryEntry-&gt;NameOffset);</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%sName:                 &quot;</span>, Indent);</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; pResourceString-&gt;Length; ++j)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%c&quot;</span>, pResourceString-&gt;NameString[j]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>第一层时Id字段表示预定义的资源类型，用一个map存数值与资源类型文字的映射。GetResourceTypeString接收一个id，返回出相应字符串</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">const</span> <span class="type">char</span>* <span class="title">PEManipulator::GetResourceTypeString</span><span class="params">(WORD resourceId)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">const</span> std::unordered_map&lt;WORD, std::string&gt; resourceTypeMap = </span><br><span class="line">    &#123;</span><br><span class="line">        &#123;<span class="number">1</span>,  <span class="string">&quot;Cursor 光标&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">2</span>,  <span class="string">&quot;Bitmap 位图&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">3</span>,  <span class="string">&quot;Icon 图标&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">4</span>,  <span class="string">&quot;Menu 菜单&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">5</span>,  <span class="string">&quot;Dialog 对话框&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">6</span>,  <span class="string">&quot;String 字符串&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">7</span>,  <span class="string">&quot;Font Directory 字体目录&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">8</span>,  <span class="string">&quot;Font 字体 &quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">9</span>,  <span class="string">&quot;Accelerators 加速键&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">10</span>, <span class="string">&quot;Unformatted 未格式化资源 &quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">11</span>, <span class="string">&quot;MessageTable 消息表&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">12</span>, <span class="string">&quot;Group Cursor 光标组&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">14</span>, <span class="string">&quot;Group Icon 图标组&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="number">16</span>, <span class="string">&quot;Version Information 版本信息&quot;</span>&#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> it = resourceTypeMap.<span class="built_in">find</span>(resourceId);     <span class="comment">// 在map中查找指定的键</span></span><br><span class="line">    <span class="keyword">if</span> (it != resourceTypeMap.<span class="built_in">end</span>())                <span class="comment">// 如果找到</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> it-&gt;second.<span class="built_in">c_str</span>();                  <span class="comment">// 返回对应的字符串</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Unknown（未知）&quot;</span>;                       <span class="comment">// 如果没找到，返回&quot;Unknown（未知）&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>处理第二个Union结构时，如果指向下一级目录，指向下一级资源目录后，调用PrintResourceDirectory（递归）打印该节点</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 处理第二个Union结构</span></span><br><span class="line"><span class="keyword">if</span> (pResourceDirectoryEntry-&gt;DataIsDirectory) <span class="comment">// 最高位为1，指向下一级目录</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%sOffsetToDirectory:    0x%08X  （指向下一级目录）\n&quot;</span>, Indent, pResourceDirectoryEntry-&gt;OffsetToData);      <span class="comment">//按OffsetToData打，把最高位也打印了</span></span><br><span class="line">   </span><br><span class="line">    <span class="keyword">auto</span> pSubResourceDirectory = (PIMAGE_RESOURCE_DIRECTORY)((DWORD)pBaseResourceDirectory + pResourceDirectoryEntry-&gt;OffsetToDirectory);</span><br><span class="line">    <span class="built_in">PrintResourceDirectory</span>(pSubResourceDirectory, level + <span class="number">1</span>); <span class="comment">// 递归调用</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>                                          <span class="comment">// 最高位为0，指向数据</span></span><br><span class="line">&#123;</span><br><span class="line"> <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>如果指向的是资源数据，指过去后，直接打印资源表的数据信息</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 处理第二个Union结构</span></span><br><span class="line"><span class="keyword">if</span> (pResourceDirectoryEntry-&gt;DataIsDirectory) <span class="comment">// 最高位为1，指向下一级目录</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//递归调用</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>                                          <span class="comment">// 最高位为0，指向数据</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">   </span><br><span class="line">    <span class="keyword">auto</span> pResourceDataEntry = (PIMAGE_RESOURCE_DATA_ENTRY)((DWORD)pBaseResourceDirectory + pResourceDirectoryEntry-&gt;OffsetToData);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;    %s[资源表的数据信息]\n&quot;</span>, Indent);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;    %sOffsetToData:          0x%08X\n&quot;</span>, Indent, pResourceDataEntry-&gt;OffsetToData);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;    %sSize:                  0x%08X\n&quot;</span>, Indent, pResourceDataEntry-&gt;Size);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;    %sCodePage:              0x%08X\n&quot;</span>, Indent, pResourceDataEntry-&gt;CodePage);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;    %sReserved:              0x%08X\n&quot;</span>, Indent, pResourceDataEntry-&gt;Reserved);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<figure class="highlight cpp"><figcaption><span>测试函数</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">TestPrintResourceTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//PEManipulator PEFile(&quot;E:\\temp\\ResourceTable\\fg.exe&quot;);                //文件对齐=内存对齐，资源较多</span></span><br><span class="line">    <span class="function">PEManipulator <span class="title">PEFile</span><span class="params">(<span class="string">&quot;E:\\temp\\ResourceTable\\MyFirstDialog.exe&quot;</span>)</span></span>;   <span class="comment">//资源较少</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">MapPEFile</span>() || !PEFile.<span class="built_in">ValidateAndExtractPEPointers</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    PEFile.<span class="built_in">PrintResourceTable</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>运行结果</strong></p>
+<p>程序打印结果和用Lord PE工具打印的进行比对，各字段一致算程序正常</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%B5%84%E6%BA%90%E8%A1%A8/image-20240516215337529.png" alt="image-20240516215337529" /></p>
+<h2 id="未来可完善的工作"><a class="markdownIt-Anchor" href="#未来可完善的工作"></a> 未来可完善的工作</h2>
+<ol>
+<li>编写程序，提供程序图标资源</li>
+<li>编写程序，修改对话框标题</li>
+</ol>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/PE/%E7%BB%91%E5%AE%9A%E5%AF%BC%E5%85%A5%E8%A1%A8.html">绑定导入表</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/PE/%E7%A7%BB%E5%8A%A8%E5%90%84%E7%A7%8D%E8%A1%A8.html">移动各种表</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

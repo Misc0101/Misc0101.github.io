@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>PE：重定位表 - Misc010</title>
+
+  
+    <meta name="description" content="前言 一个可执行文件（EXE）的进程空间中包含多个模块，如其他EXE文件和动态链接库（DLL）。当系统加载器将每个模块载入进程空间时，每个模块都有一个预定的加载基地址（ImageBase）。对于EXE文件，它通常能够在其指定的ImageBase地址加载，因此不需要重定位信息。然而，DLL加载时不能保证每次加载都能从它预定的加载基址加载。 假设有两个DLL文件，A.dll和B.dll，默认的加载基">
+<meta property="og:type" content="website">
+<meta property="og:title" content="重定位表">
+<meta property="og:url" content="https://misc0101.github.io/wiki/PE/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="前言 一个可执行文件（EXE）的进程空间中包含多个模块，如其他EXE文件和动态链接库（DLL）。当系统加载器将每个模块载入进程空间时，每个模块都有一个预定的加载基地址（ImageBase）。对于EXE文件，它通常能够在其指定的ImageBase地址加载，因此不需要重定位信息。然而，DLL加载时不能保证每次加载都能从它预定的加载基址加载。 假设有两个DLL文件，A.dll和B.dll，默认的加载基">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240308163454804.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240429144333538.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240429183620715.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240429175001373.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163020581.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163027321.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163047182.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163104990.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163207708.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163406192.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163611812.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501172102930.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501171858768.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501172006387.png">
+<meta property="article:published_time" content="2024-04-26T13:11:39.000Z">
+<meta property="article:modified_time" content="2024-04-26T13:11:39.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240308163454804.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/PE/Overview_PE.html"><div class="main" ff="title">PE</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/PE/" placeholder="在/wiki/PE/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">基本概念</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/Overview_PE.html#start"><span class="toc-text">Overview</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5_PE.html"><span class="toc-text">一些概念</span></a></div></div><div class="widget-header cap dis-select"><span class="name">字段解读</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/DOS%E9%83%A8%E5%88%86.html"><span class="toc-text">DOS部分</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/PE%E5%A4%B4.html"><span class="toc-text">PE头</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E8%8A%82%E8%A1%A8.html"><span class="toc-text">节表</span></a></div></div><div class="widget-header cap dis-select"><span class="name">练习和项目</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BB%83%E4%B9%A0_PE.html"><span class="toc-text">练习</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BC%96%E7%A8%8B%E7%BB%83%E4%B9%A0_PE.html"><span class="toc-text">编程练习</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/PE%E8%A7%A3%E6%9E%90%E5%99%A8.html"><span class="toc-text">PE解析器</span></a></div></div><div class="widget-header cap dis-select"><span class="name">节操作</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%A9%BA%E7%99%BD%E5%8C%BA%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81.html"><span class="toc-text">空白区添加代码</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E6%89%A9%E5%A4%A7%E8%8A%82.html"><span class="toc-text">扩大节</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E6%96%B0%E5%A2%9E%E8%8A%82.html"><span class="toc-text">新增节</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%90%88%E5%B9%B6%E8%8A%82.html"><span class="toc-text">合并节</span></a></div></div><div class="widget-header cap dis-select"><span class="name">数据目录表</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E5%92%8C%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93.html"><span class="toc-text">静态链接库和动态链接库</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%AF%BC%E5%87%BA%E8%A1%A8.html"><span class="toc-text">导出表</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/PE/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8.html"><span class="toc-text">重定位表</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text"> 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8%E7%BB%93%E6%9E%84"><span class="toc-text"> 重定位表结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%93%E5%8D%B0%E9%87%8D%E5%AE%9A%E4%BD%8D%E5%9D%97"><span class="toc-text"> 打印重定位块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E5%A4%8D%E9%87%8D%E5%AE%9A%E4%BD%8D%E6%95%B0%E6%8D%AE"><span class="toc-text"> 修复重定位数据</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%AF%BC%E5%85%A5%E8%A1%A8.html"><span class="toc-text">导入表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BB%91%E5%AE%9A%E5%AF%BC%E5%85%A5%E8%A1%A8.html"><span class="toc-text">绑定导入表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E8%B5%84%E6%BA%90%E8%A1%A8.html"><span class="toc-text">资源表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%A7%BB%E5%8A%A8%E5%90%84%E7%A7%8D%E8%A1%A8.html"><span class="toc-text">移动各种表</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/To_Learn_List.html"><span class="toc-text">To Learn List</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><span class="title">Protected_Mode</span><span class="excerpt">滴水三期_保护模式笔记。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/PE/Overview_PE.html">PE</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-04-26T13:11:39.000Z">2024-04-26</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>重定位表</span></h1>
+<h2 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h2>
+<p>一个可执行文件（EXE）的进程空间中包含多个模块，如其他EXE文件和动态链接库（DLL）。当系统加载器将每个模块载入进程空间时，每个模块都有一个预定的加载基地址（ImageBase）。对于EXE文件，它通常能够在其指定的ImageBase地址加载，因此不需要重定位信息。然而，DLL加载时不能保证每次加载都能从它预定的加载基址加载。</p>
+<p>假设有两个DLL文件，A.dll和B.dll，默认的加载基址都是0x10000000。如果A.dll首先加载并占据了0x10000000，随后当系统尝试加载B.dll时，由于该地址已被占用，系统只能将B.dll加载到另外一个不同的基地址。</p>
+<p>加载基地址的改变不影响使用相对虚拟地址（RVA）的数据，因为RVA本身就是一个相对于ImageBase的偏移量，设计之初就是为了适应这种动态装配。然而，对于文件中硬编码的地址（即直接写入的实际内存地址），则需要进行地址修正。假设下面这段代码是一个exe或dll里的，有对数据区变量的引用。当编译器编译，其实就是把汇编指令的二进制数写到PE文件中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">0x11</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d \n&quot;</span>,x);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">7:        printf(&quot;%d \n&quot;,x);</span><br><span class="line">0040D408 A1 DC 4A 42 00       mov         eax,[x (00424adc)]</span><br><span class="line">0040D40D 50                   push        eax</span><br><span class="line">0040D40E 68 80 2E 42 00       push        offset string &quot;%d \n&quot; (00422e80)</span><br><span class="line">0040D413 E8 78 02 00 00       call        printf (0040d690)</span><br><span class="line">0040D418 83 C4 08             add         esp,8</span><br></pre></td></tr></table></figure>
+<p>像<code>DC 4A 42 00</code>（变量x）和<code>80 2E 42 00</code>（字符串&quot;%d \n&quot;）这个地址就是编译器编译时算的“写死”的地址（绝对地址），然后这个“写死”的地址（绝对地址）被写到PE文件里。</p>
+<p>当这个PE文件在加载时，如果按照预设的ImageBase载入，上面对变量x和字符串的引用是没有问题的。如果这个PE文件加载时，没有按预设的ImageBase载入，而是从另外一个基址载入，程序执行时仍然按<code>DC 4A 42 00</code>和<code>80 2E 42 00</code>来使用这个值，这会导致程序出错。像这种“写死”的地址，就是需要修正的地方。</p>
+<p>重定位表就是这样一张表：表中记录了当前PE文件中所有“写死”的需要修正的这些位置的地址。当这个PE文件未能从默认的加载基址载入，系统就可以通过重定位表中的信息，找到这些需要修正的地址进行修正，来确保模块的正确执行。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240308163454804.png" alt="image-20240308163454804" /></p>
+<h2 id="重定位表结构"><a class="markdownIt-Anchor" href="#重定位表结构"></a> 重定位表结构</h2>
+<p>从拓展PE头.数据目录表数据的第6个成员得到重定位数据的起始地址（这个值是RVA）和大小。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_DATA_DIRECTORY</span> &#123;</span><br><span class="line">    DWORD   VirtualAddress;</span><br><span class="line">    DWORD   Size;</span><br><span class="line">&#125; IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;</span><br></pre></td></tr></table></figure>
+<p>将RVA转为FOA后，找过去的就是<strong>重定位数据</strong>的起始地址。重定位数据是由一块一块的<strong>重定位块</strong>组成的。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240429144333538.png" alt="image-20240429144333538" /></p>
+<p>每个重定位块都是以<code>PIMAGE_BASE_RELOCATION</code>结构体开头，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_BASE_RELOCATION</span> &#123;</span><br><span class="line">    DWORD   VirtualAddress;</span><br><span class="line">    DWORD   SizeOfBlock;</span><br><span class="line"><span class="comment">//  WORD    TypeOffset[1];</span></span><br><span class="line">&#125; IMAGE_BASE_RELOCATION;</span><br><span class="line"><span class="keyword">typedef</span> IMAGE_BASE_RELOCATION UNALIGNED * PIMAGE_BASE_RELOCATION;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>VirtualAddress：大小4字节。</li>
+<li>SizeOfBlock：大小4字节。</li>
+<li>TypeOffset：2字节大小的数组。</li>
+</ol>
+<p>每个<strong>重定位块</strong>是不定长的，当前重定位块的大小由SizeOfBlock（单位：字节）指出。SizeOfBlock减去8字节（VirtualAddress和SizeOfBlock共占8字节空间）再/2就是TypeOffset数组的个数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(RelocationDirectory-&gt;SizeOfBlock - <span class="number">8</span>) / <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>怎么判断什么时候到<strong>重定位块</strong>的末尾？以全0的IMAGE_BASE_RELOCATION结构体（8字节全0）作为结束标志。</p>
+<hr />
+<p><strong>需要修正的数据的RVA地址</strong>是采用页基址+页内偏移的方式计算得到：VirtualAddress基址+TypeOffset数组成员中低12位。</p>
+<p>注：TypeOffset数组成员高4位表示<strong>重定位类型</strong>，低12位表示偏移地址</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">重定位类型</th>
+<th style="text-align:center">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">IMAGE_REL_BASED_ABSOLUTE</td>
+<td style="text-align:center">没有具体含义，只是为了让每个段4字节对齐</td>
+</tr>
+<tr>
+<td style="text-align:center">IMACE_REL_BASED_HIGHLOW</td>
+<td style="text-align:center">重定位指向的整个地址都需要修正，实际上大部分情况下都是这样的</td>
+</tr>
+<tr>
+<td style="text-align:center">IMAGE_REL_BASED_DIR64</td>
+<td style="text-align:center">出现在64位 PE 文件中，对指向的整个地址进行修正</td>
+</tr>
+</tbody>
+</table>
+<p>在写代码时，要先判断数组每个成员的重定位类型：</p>
+<ul>
+<li>只有重定位类型为IMACE_REL_BASED_HIGHLOW（值是3）的才需要进行修正</li>
+<li>如果重定位类型是IMAGE_REL_BASED_ABSOLUTE，说明这个数组成员只是占个位置，目的是让<strong>重定位块</strong>按4字节对齐（按结构体对齐规则，以结构体中最宽的成员对齐，在IMAGE_BASE_RELOCATION结构体这个例子中最宽的成员是DWORD类型）。</li>
+</ul>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>为什么待修正的地址用这种方式表示？</span></summary><div class="body"><p>假设需要修正的数组的地址有：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0x8000123</span><br><span class="line">0x8000456</span><br><span class="line">0x8000789</span><br></pre></td></tr></table></figure><p>方案一：用一个DWORD数组来存</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">数组[<span class="number">0</span>]=<span class="number">0x8000123</span>;</span><br><span class="line">数组[<span class="number">1</span>]=<span class="number">0x8000456</span>;</span><br><span class="line">数组[<span class="number">2</span>]=<span class="number">0x8000789</span>;</span><br></pre></td></tr></table></figure><p>这种方案浪费空间。</p><p>方案二：采用基址+偏移的方式<br />按照保护模式中页式管理的知识，一个物理页4kb，寻址4kb需要12位0和1，即2^12次方。那么我们可以采用页基址+页内偏移的方式来表示最终需要修正的数据的地址</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">    DWORD   VirtualAddress;</span><br><span class="line"><span class="comment">//  WORD    TypeOffset[1];</span></span><br></pre></td></tr></table></figure><p>这种方案下，只有VirtualAddress占DOWRD大小的空间，页内偏移只需2字节表示，节省存储空间。</p><p>另外，2字节相比12位多了4位，这四位也利用起来，用来表示<strong>重定位类型</strong></p></div></details></div>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240429183620715.png" alt="image-20240429183620715" /></p>
+<h2 id="打印重定位块"><a class="markdownIt-Anchor" href="#打印重定位块"></a> 打印重定位块</h2>
+<blockquote>
+<p>测试用的dll的源码是<a href="/wiki/PE/%E5%AF%BC%E5%87%BA%E8%A1%A8.html#%E4%BE%8B">导出表-例</a>那里的源码，分别用VC和VS编译得到的两个dll</p>
+</blockquote>
+<div class="tag-plugin tabs" align="center"id="tab_136"><div class="nav-tabs"><div class="tab active"><a href="#tab_136-1">函数实现</a></div><div class="tab"><a href="#tab_136-2">测试函数</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_136-1"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">VOID <span class="title">PEManipulator::PrintReloactionTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 获取重定位表指针</span></span><br><span class="line">    <span class="keyword">auto</span> pBaseReloc = (PIMAGE_BASE_RELOCATION)<span class="built_in">GetDataDirectoryPointer</span>(IMAGE_DIRECTORY_ENTRY_BASERELOC);</span><br><span class="line">    <span class="keyword">if</span> (!pBaseReloc)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;   [-] No Base Relocation Table found.\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> iBlockIndex = <span class="number">0</span>; <span class="comment">// 第几个重定位块</span></span><br><span class="line">    <span class="keyword">while</span> (pBaseReloc-&gt;VirtualAddress &amp;&amp; pBaseReloc-&gt;SizeOfBlock)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\n   %d. Relocation Block:\n&quot;</span>, iBlockIndex++);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;    VirtualAddress:  0x%08X\n&quot;</span>, pBaseReloc-&gt;VirtualAddress);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;    SizeOfBlock:     0x%08X  (%d block entries)\n&quot;</span>,</span><br><span class="line">            pBaseReloc-&gt;SizeOfBlock,</span><br><span class="line">            (pBaseReloc-&gt;SizeOfBlock - <span class="built_in">sizeof</span>(IMAGE_BASE_RELOCATION)) / <span class="built_in">sizeof</span>(WORD));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 对齐表头</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\t    Index    Offset        Type          Full RVA      FOA           DataAtFOA\n&quot;</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\t    -------  ------------  ------------  ------------  ------------  ------------\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取TypeOffset数组的指针</span></span><br><span class="line">        PWORD pTypeOffset = (PWORD)(pBaseReloc + <span class="number">1</span>);</span><br><span class="line">        DWORD dwEntryCount = (pBaseReloc-&gt;SizeOfBlock - <span class="built_in">sizeof</span>(IMAGE_BASE_RELOCATION)) / <span class="built_in">sizeof</span>(WORD);</span><br><span class="line">        <span class="keyword">for</span> (DWORD i = <span class="number">0</span>; i &lt; dwEntryCount; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            WORD wType = pTypeOffset[i] &gt;&gt; <span class="number">12</span>;      <span class="comment">// 高4位是类型</span></span><br><span class="line">            WORD wOffset = pTypeOffset[i] &amp; <span class="number">0x0FFF</span>; <span class="comment">// 低12位是偏移</span></span><br><span class="line"></span><br><span class="line">            DWORD dwFullRVA = pBaseReloc-&gt;VirtualAddress + wOffset;</span><br><span class="line">            <span class="keyword">if</span> (wType == IMAGE_REL_BASED_HIGHLOW) <span class="comment">// 对于 HIGHLOW 类型</span></span><br><span class="line">            &#123;</span><br><span class="line">                DWORD dwFullFOA = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(dwFullRVA, dwFullFOA))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">return</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                DWORD dwDataAtFOA = *(PDWORD)((DWORD)m_lpFileBuffer + dwFullFOA);</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;\t    [%04d]   0x%08X    HIGHLOW       0x%08X    0x%08X    0x%08X\n&quot;</span>, i, wOffset, dwFullRVA, dwFullFOA, dwDataAtFOA);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (wType == IMAGE_REL_BASED_ABSOLUTE) <span class="comment">// 对于 ABSOLUTE 类型</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;\t    n/a       ABSOLUTE\n&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 移动到下一个重定位块</span></span><br><span class="line">        pBaseReloc = (PIMAGE_BASE_RELOCATION)((DWORD)pBaseReloc + pBaseReloc-&gt;SizeOfBlock);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_136-2"><figure class="highlight cpp"><figcaption><span>测试函数</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//测试打印重定位表</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">TestPrintReloactionTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function">PEManipulator <span class="title">PEFile</span><span class="params">(<span class="string">&quot;E:\\temp\\Export Table\\MyTest_VC.dll&quot;</span>)</span></span>;                             <span class="comment">//VC的</span></span><br><span class="line">    <span class="comment">//PEManipulator PEFile(&quot;D:\\005_Codefield\\VS2019\\MyTestDll\\Debug\\MyTestDll.dll&quot;);     //VS的</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">MapPEFile</span>() || !PEFile.<span class="built_in">ValidateAndExtractPEPointers</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    PEFile.<span class="built_in">PrintReloactionTable</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+<p>运行结果的部分截图：<br />
+（第5个块的数量和Offset，与LordPE上显示的一样）</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240429175001373.png" alt="image-20240429175001373" /></p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>Bug记录</span></summary><div class="body"><p>测VC编译的那个dll发现却打印不出来，调试发现是重定位表指针的值取到37000h，过去读，while表达式条件不成立，没进while循环，退出了。</p><p>思考和解决的过程：</p><ol><li>VC编译的那个dll的文件对齐和内存对齐一样。说明不需要RVA==FOA<br /><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163020581.png" alt="image-20240501163020581" /></li><li>数据目录表显示重定位表RVA是37000h<br /><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163027321.png" alt="image-20240501163027321" /><br />但实际上37000h是文件末尾了<br /><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163047182.png" alt="image-20240501163047182" /></li><li>继续点LordPE 重定位表的H按键，它打开的是35000h的十六进制界面<br /><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163104990.png" alt="image-20240501163104990" /><br /><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163207708.png" alt="image-20240501163207708" /></li></ol><p>疑问：</p><ol><li>它数据目录表里重定位表的RVA是37000h，指的地方是错的</li><li>那LordPE是怎么找到正确的位置35000h的？</li></ol><p>答案：还是“拉伸”的问题，上面第一点“文件对齐和内存对齐一样。说明不需要RVA转FOA”这一点就是错的。<u>因为一个节如果含有未初始化数据，会导致磁盘不占空间，内存时要空间，这个情况也会导致“拉伸”</u>。</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163406192.png" alt="image-20240501163406192" /></p><p>然后再看了下代码，是RVAToFOA函数有问题，需要修改。把下面红框（文件对齐=内存对齐）的条件去掉。即使文件对齐==内存对齐，也要算节偏移</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501163611812.png" alt="image-20240501163611812" /></p><figure class="highlight cpp"><figcaption><span>修改后的RVAToFOA函数</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">PEManipulator::RVAToFOA</span><span class="params">(DWORD dwRVA, OUT DWORD&amp; dwFOA)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    dwFOA = <span class="number">0</span>;                      <span class="comment">// 初始化 dwFOA，防止warning</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (dwRVA &lt; <span class="number">0</span>)					<span class="comment">//参数校验</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//RVA在SizeOfHeaders以内  </span></span><br><span class="line">    <span class="comment">// 不能加FileAlignment==SectionAlignment这个条件，即使对齐相同，文件中的实际数据可能由于 SizeOfRawData 小于 VirtualSize 而不完整。</span></span><br><span class="line">    <span class="keyword">if</span> (dwRVA &lt;= m_OptionalPeHdr-&gt;SizeOfHeaders )</span><br><span class="line">    &#123;</span><br><span class="line">        dwFOA = dwRVA;</span><br><span class="line">        <span class="keyword">return</span> TRUE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//在节表中</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; m_PeHdr-&gt;NumberOfSections; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (m_SecHdr[i].VirtualAddress &lt;= dwRVA &amp;&amp; dwRVA &lt; m_SecHdr[i].VirtualAddress + m_SecHdr[i].Misc.VirtualSize)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//节.PointerToRawData + 差值</span></span><br><span class="line">            <span class="comment">//差值=RVA-节.VirtualAddress</span></span><br><span class="line">            dwFOA = m_SecHdr[i].PointerToRawData + (dwRVA - m_SecHdr[i].VirtualAddress);</span><br><span class="line">            <span class="keyword">return</span> TRUE;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>如果更严谨点，输入的RVA在文件中可能是找不到的，即RVA超出了SizeOfRawData。所以算实际的FOA前，要判断下RVA是否超出了SizeOfRawData。</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">PEManipulator::RVAToFOA</span><span class="params">(DWORD dwRVA, OUT DWORD&amp; dwFOA)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    dwFOA = <span class="number">0</span>;                      <span class="comment">// 初始化 dwFOA，防止warning</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (dwRVA &lt; <span class="number">0</span>)					<span class="comment">//参数校验</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//RVA在SizeOfHeaders以内  </span></span><br><span class="line">    <span class="comment">// 不能加FileAlignment==SectionAlignment这个条件，即使对齐相同，文件中的实际数据可能由于 SizeOfRawData 小于 VirtualSize 而不完整。</span></span><br><span class="line">    <span class="keyword">if</span> (dwRVA &lt;= m_OptionalPeHdr-&gt;SizeOfHeaders )</span><br><span class="line">    &#123;</span><br><span class="line">        dwFOA = dwRVA;</span><br><span class="line">        <span class="keyword">return</span> TRUE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//在节表中</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; m_PeHdr-&gt;NumberOfSections; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (m_SecHdr[i].VirtualAddress &lt;= dwRVA &amp;&amp; dwRVA &lt; m_SecHdr[i].VirtualAddress + m_SecHdr[i].Misc.VirtualSize)</span><br><span class="line">        &#123;   </span><br><span class="line">            <span class="comment">// 检查RVA是否超出节的原始数据大小</span></span><br><span class="line">            <span class="keyword">if</span> (dwRVA &gt;= m_SecHdr[i].VirtualAddress + m_SecHdr[i].SizeOfRawData)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;[-] Error: RVA 0x%08X is beyond the raw data size of section %d.\n&quot;</span>, dwRVA, i);</span><br><span class="line">                <span class="keyword">return</span> FALSE;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//节.PointerToRawData + 差值</span></span><br><span class="line">            <span class="comment">//差值=RVA-节.VirtualAddress</span></span><br><span class="line">            dwFOA = m_SecHdr[i].PointerToRawData + (dwRVA - m_SecHdr[i].VirtualAddress);</span><br><span class="line">            <span class="keyword">return</span> TRUE;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果没有找到对应的节</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[-] Error: RVA 0x%08X does not correspond to any valid section.\n&quot;</span>, dwRVA);</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></details></div>
+<h2 id="修复重定位数据"><a class="markdownIt-Anchor" href="#修复重定位数据"></a> 修复重定位数据</h2>
+<p><strong>编程实现：根据重定位表去修复重定位数据。</strong><br />
+制造需要修改的条件：修改Dll的ImageBase<br />
+验证是否修正成功：再次使用修改后的Dll，看这个Dll是否可以正常使用<br />
+测试用例：</p>
+<table>
+<thead>
+<tr>
+<th>dll文件</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VC编译的dll</td>
+<td>文件对齐1000h，内存对齐1000h</td>
+</tr>
+<tr>
+<td>VS编译的dll</td>
+<td>文件对齐200h，内存对齐1000h</td>
+</tr>
+</tbody>
+</table>
+<p>设计的流程大致如下：</p>
+<ol>
+<li>先使用dll中的导出函数，确保dll能正常使用</li>
+<li>修改这个dll的ImageBase为其他值，修复重定位数据，存盘</li>
+<li>再使用修改后的dll中的导出函数，看是否能正常使用</li>
+</ol>
+<p>步骤1和3都是使用dll中的导出函数，功能一样，写成一个函数，这个函数接收一个文件路径参数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">UseExportedFunctionsFromDLL</span><span class="params">(LPCSTR DllPath)</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><figcaption><span>大致流程</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//测试修复重定位表</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">TestFixRelocationTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//1、正常使用dll中的导出函数</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[*] Using functions from DLL with original ImageBase...\n&quot;</span>);</span><br><span class="line">    <span class="built_in">UseExportedFunctionsFromDLL</span>(<span class="string">&quot;E:\\temp\\Export Table\\MyTest_VC.dll&quot;</span>);           <span class="comment">//VC的</span></span><br><span class="line">    <span class="comment">//UseExportedFunctionsFromDLL(&quot;D:\\005_Codefield\\VS2019\\MyTestDll\\Debug\\MyTestDll.dll&quot;);           //VS的</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//2、 暂停，提示用户即将修改ImageBase和修复重定位数据</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[*] Press any key to modify the ImageBase to 0x30000000 and fix relocations...\n&quot;</span>);</span><br><span class="line">    <span class="built_in">getchar</span>();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//3、修改ImageBase并修复重定位数据</span></span><br><span class="line">    <span class="function">PEManipulator <span class="title">PEFile</span><span class="params">(<span class="string">&quot;E:\\temp\\Export Table\\MyTest_VC.dll&quot;</span>)</span></span>;                            <span class="comment">//VC的</span></span><br><span class="line">    <span class="comment">//PEManipulator PEFile(&quot;D:\\005_Codefield\\VS2019\\MyTestDll\\Debug\\MyTestDll.dll&quot;);     //VS的</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">MapPEFile</span>() || !PEFile.<span class="built_in">ValidateAndExtractPEPointers</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 4、修改ImageBase并修复重定位数据</span></span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">ChangeImageBaseAndFixRelocations</span>(<span class="number">0x30000000</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[-] Failed to change ImageBase and fix relocations.\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 5、暂停，提示用户即将尝试使用修改后的dll中的导出函数</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] Press any key to attempt using functions from the DLL after modifying ImageBase...\n&quot;</span>);</span><br><span class="line">    <span class="built_in">getchar</span>();</span><br><span class="line">    <span class="built_in">UseExportedFunctionsFromDLL</span>(<span class="string">&quot;E:\\temp\\Export Table\\MyTest_VC_NewImageBase.dll&quot;</span>);             <span class="comment">//VC的</span></span><br><span class="line">    <span class="comment">//UseExportedFunctionsFromDLL(&quot;D:\\005_Codefield\\VS2019\\MyTestDll\\Debug\\MyTestDll_NewImageBase.dll&quot;); //VS的</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin tabs" align="center"id="tab_137"><div class="nav-tabs"><div class="tab active"><a href="#tab_137-1">UseExportedFunctionsFromDLL使用dll中的导出函数</a></div><div class="tab"><a href="#tab_137-2">ChangeImageBaseAndFixRelocations修改ImageBase+修正数据+存盘</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_137-1"><p>显式加载dll并使用里面的导出函数</p>
+<blockquote>
+<p>LoadLibraryA就是将dll加载到进程空间中，如果用OD看的话，执行LoadLibraryA(DllPath)后，“E”按钮模块会多出加载的dll。这个dll加载基址是ImageBase（如果基址没有随机加载的话）</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">UseExportedFunctionsFromDLL</span><span class="params">(LPCSTR DllPath)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 动态加载DLL到内存中</span></span><br><span class="line">    HMODULE hModule = <span class="built_in">LoadLibraryA</span>(DllPath);</span><br><span class="line">    <span class="keyword">if</span> (hModule == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[!] Failed to load %s\n&quot;</span>, DllPath);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 打印加载的DLL的基地址</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Loaded DLL at base address: 0x%p\n&quot;</span>, hModule);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取并验证函数地址</span></span><br><span class="line">    fpPlus myPlus = (fpPlus)<span class="built_in">GetProcAddress</span>(hModule, <span class="string">&quot;Plus&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!myPlus)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[!] Failed to get the address of Plus\n&quot;</span>);</span><br><span class="line">        <span class="built_in">FreeLibrary</span>(hModule);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fpSub mySub = (fpSub)<span class="built_in">GetProcAddress</span>(hModule, (LPCSTR)<span class="number">16</span>);</span><br><span class="line">    <span class="keyword">if</span> (!mySub)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[!] Failed to get the address of Sub(NOMANE)\n&quot;</span>);</span><br><span class="line">        <span class="built_in">FreeLibrary</span>(hModule);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fpMul myMul = (fpMul)<span class="built_in">GetProcAddress</span>(hModule, <span class="string">&quot;Mul&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!myMul)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[!] Failed to get the address of Mul\n&quot;</span>);</span><br><span class="line">        <span class="built_in">FreeLibrary</span>(hModule);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fpDiv myDiv = (fpDiv)<span class="built_in">GetProcAddress</span>(hModule, <span class="string">&quot;Div&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!myDiv)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[!] Failed to get the address of Div\n&quot;</span>);</span><br><span class="line">        <span class="built_in">FreeLibrary</span>(hModule);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调用函数</span></span><br><span class="line">    <span class="type">int</span> a = <span class="built_in">myPlus</span>(<span class="number">10</span>, <span class="number">2</span>);</span><br><span class="line">    <span class="type">int</span> b = <span class="built_in">mySub</span>(<span class="number">10</span>, <span class="number">2</span>);</span><br><span class="line">    <span class="type">int</span> c = <span class="built_in">myMul</span>(<span class="number">10</span>, <span class="number">2</span>);</span><br><span class="line">    <span class="type">int</span> d = <span class="built_in">myDiv</span>(<span class="number">10</span>, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Results: \n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;    Plus:          %4d\n&quot;</span>, a);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;    Sub (NONAME):  %4d\n&quot;</span>, b);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;    Mul:           %4d\n&quot;</span>, c);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;    Div:           %4d\n&quot;</span>, d);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 释放DLL</span></span><br><span class="line">    <span class="built_in">FreeLibrary</span>(hModule);</span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_137-2"><figure class="highlight cpp"><figcaption><span>ChangeImageBaseAndFixRelocations函数实现</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">PEManipulator::ChangeImageBaseAndFixRelocations</span><span class="params">(DWORD dwNewImageBase)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//1、申请一块NewBuffer，将FileBuffer原封不动拷过去</span></span><br><span class="line">    DWORD dwOriginalBufferSize = <span class="built_in">CalculateUnstretchedPESize</span>();</span><br><span class="line">    LPVOID lpNewBuffer = <span class="keyword">new</span> BYTE[dwOriginalBufferSize]();                   <span class="comment">//since C++11 ,it&#x27;s ok</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] new for NewBuffer successfully.\n&quot;</span>);</span><br><span class="line">    <span class="built_in">memcpy</span>(lpNewBuffer, m_lpFileBuffer, dwOriginalBufferSize);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] Allocated and copied original PE to new buffer.\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//2、在NewBuffer基础上修改ImageBase，并修正重定位数据</span></span><br><span class="line">        <span class="comment">// 修改PE头中的ImageBase</span></span><br><span class="line">    PIMAGE_OPTIONAL_HEADER32 pOptionalPeHdr_NewBuffer = <span class="built_in">GetOptionPeHeaders</span>(lpNewBuffer);</span><br><span class="line">    <span class="keyword">if</span> (!pOptionalPeHdr_NewBuffer)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">delete</span>[] lpNewBuffer;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    DWORD dwOldImageBase = pOptionalPeHdr_NewBuffer-&gt;ImageBase;</span><br><span class="line">    pOptionalPeHdr_NewBuffer-&gt;ImageBase = dwNewImageBase;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[*] Changed ImageBase from 0x%08X to 0x%08X.\n&quot;</span>, dwOldImageBase, dwNewImageBase);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 修复重定位数据</span></span><br><span class="line">    <span class="keyword">auto</span> pBaseReloc_NewBuffer = (PIMAGE_BASE_RELOCATION)<span class="built_in">GetDataDirectoryPointer</span>(IMAGE_DIRECTORY_ENTRY_BASERELOC, lpNewBuffer);</span><br><span class="line">    <span class="keyword">if</span> (!pBaseReloc_NewBuffer)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">delete</span>[] lpNewBuffer;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;   [-] No Base Relocation Table found.\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> iBlockIndex = <span class="number">0</span>; <span class="comment">// 第几个重定位块    </span></span><br><span class="line">    <span class="keyword">while</span> (pBaseReloc_NewBuffer-&gt;VirtualAddress &amp;&amp; pBaseReloc_NewBuffer-&gt;SizeOfBlock)</span><br><span class="line">    &#123;</span><br><span class="line">        iBlockIndex++;  <span class="comment">// 调试用</span></span><br><span class="line">        PWORD pTypeOffset = (PWORD)(pBaseReloc_NewBuffer + <span class="number">1</span>);              <span class="comment">//TypeOffset数组的指针</span></span><br><span class="line"></span><br><span class="line">        DWORD dwEntryCount = (pBaseReloc_NewBuffer-&gt;SizeOfBlock - <span class="built_in">sizeof</span>(IMAGE_BASE_RELOCATION)) / <span class="built_in">sizeof</span>(WORD);</span><br><span class="line">        <span class="keyword">for</span> (DWORD i = <span class="number">0</span>; i &lt; dwEntryCount; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            DWORD wType = pTypeOffset[i] &gt;&gt; <span class="number">12</span>;         <span class="comment">//高4位是类型</span></span><br><span class="line">            DWORD wOffset = pTypeOffset[i] &amp; <span class="number">0x0FFF</span>;    <span class="comment">//低12位是偏移</span></span><br><span class="line">            <span class="keyword">if</span> (wType == IMAGE_REL_BASED_HIGHLOW)       <span class="comment">// 对于 HIGHLOW 类型是数据，进行修正</span></span><br><span class="line">            &#123;</span><br><span class="line">                DWORD dwFullRVA = pBaseReloc_NewBuffer-&gt;VirtualAddress + wOffset;</span><br><span class="line">                DWORD dwFullFOA = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(dwFullRVA, dwFullFOA))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">delete</span>[] lpNewBuffer;</span><br><span class="line">                    <span class="keyword">return</span> FALSE;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">//修正数据</span></span><br><span class="line">                <span class="keyword">auto</span> pPatchAddr = (PDWORD)((DWORD)lpNewBuffer + dwFullFOA);</span><br><span class="line">                *pPatchAddr = *pPatchAddr - dwOldImageBase + dwNewImageBase;</span><br><span class="line">                </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//下一个重定位块</span></span><br><span class="line">        pBaseReloc_NewBuffer = (PIMAGE_BASE_RELOCATION)((DWORD)pBaseReloc_NewBuffer + pBaseReloc_NewBuffer-&gt;SizeOfBlock);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//3、 保存修改后的内存到新文件中</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">SaveUnstretchedPEToDisk</span>(lpNewBuffer, <span class="string">&quot;NewImageBase&quot;</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] SaveUnstretchedPEToDisk successfully.\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>讲解如下：</p>
+<p>PEManipulator类中新增一个函数ChangeImageBaseAndFixRelocations，负责修改dll中ImageBase并存盘</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">ChangeImageBaseAndFixRelocations</span><span class="params">(DWORD dwNewImageBase)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>ChangeImageBaseAndFixRelocations函数实现步骤为：</p>
+<ol>
+<li>先申请一块NewBuffer，将原文件内存映像拷过去</li>
+<li>在NewBuffer的基础上修改ImageBase，并根据重定位表修正重定位数据</li>
+<li>存盘</li>
+</ol>
+<p>每一步的实现如下：</p>
+<ol>
+<li>
+<p>申请NewBuffer并拷贝原数据</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1、申请一块NewBuffer，将FileBuffer原封不动拷过去</span></span><br><span class="line">DWORD dwOriginalBufferSize = <span class="built_in">CalculateUnstretchedPESize</span>();</span><br><span class="line">LPVOID lpNewBuffer = <span class="keyword">new</span> BYTE[dwOriginalBufferSize]();                   <span class="comment">//since C++11 ,it&#x27;s ok</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;[+] new for NewBuffer successfully.\n&quot;</span>);</span><br><span class="line"><span class="built_in">memcpy</span>(lpNewBuffer, m_lpFileBuffer, dwOriginalBufferSize);</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;[+] Allocated and copied original PE to new buffer.\n&quot;</span>);</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>修改ImageBase<br />
+后面修正数据时要用到旧的ImageBase，所以要用个变量存一下。否则ImageBase修改为新的，后面用pOptionalPeHdr_NewBuffer-&gt;ImageBase这个就是新的ImageBase的值了</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//2、在NewBuffer基础上修改ImageBase，并修正重定位数据</span></span><br><span class="line">    <span class="comment">// 修改PE头中的ImageBase</span></span><br><span class="line">PIMAGE_OPTIONAL_HEADER32 pOptionalPeHdr_NewBuffer = <span class="built_in">GetOptionPeHeaders</span>(lpNewBuffer);</span><br><span class="line"><span class="keyword">if</span> (!pOptionalPeHdr_NewBuffer)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">delete</span>[] lpNewBuffer;</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br><span class="line">DWORD dwOldImageBase = pOptionalPeHdr_NewBuffer-&gt;ImageBase;</span><br><span class="line">pOptionalPeHdr_NewBuffer-&gt;ImageBase = dwNewImageBase;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;[*] Changed ImageBase from 0x%08X to 0x%08X.\n&quot;</span>, dwOldImageBase, dwNewImageBase);</span><br></pre></td></tr></table></figure>
+<p>修正重定位数据</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment">// 修复重定位数据</span></span><br><span class="line"><span class="keyword">auto</span> pBaseReloc_NewBuffer = (PIMAGE_BASE_RELOCATION)<span class="built_in">GetDataDirectoryPointer</span>(IMAGE_DIRECTORY_ENTRY_BASERELOC, lpNewBuffer);</span><br><span class="line"><span class="keyword">if</span> (!pBaseReloc_NewBuffer)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">delete</span>[] lpNewBuffer;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [-] No Base Relocation Table found.\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> iBlockIndex = <span class="number">0</span>; <span class="comment">// 第几个重定位块    </span></span><br><span class="line"><span class="keyword">while</span> (pBaseReloc_NewBuffer-&gt;VirtualAddress &amp;&amp; pBaseReloc_NewBuffer-&gt;SizeOfBlock)</span><br><span class="line">&#123;</span><br><span class="line">    iBlockIndex++;  <span class="comment">// 调试用</span></span><br><span class="line">    PWORD pTypeOffset = (PWORD)(pBaseReloc_NewBuffer + <span class="number">1</span>);              <span class="comment">//TypeOffset数组的指针</span></span><br><span class="line">   </span><br><span class="line">    DWORD dwEntryCount = (pBaseReloc_NewBuffer-&gt;SizeOfBlock - <span class="built_in">sizeof</span>(IMAGE_BASE_RELOCATION)) / <span class="built_in">sizeof</span>(WORD);</span><br><span class="line">    <span class="keyword">for</span> (DWORD i = <span class="number">0</span>; i &lt; dwEntryCount; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        DWORD wType = pTypeOffset[i] &gt;&gt; <span class="number">12</span>;         <span class="comment">//高4位是类型</span></span><br><span class="line">        DWORD wOffset = pTypeOffset[i] &amp; <span class="number">0x0FFF</span>;    <span class="comment">//低12位是偏移</span></span><br><span class="line">        <span class="keyword">if</span> (wType == IMAGE_REL_BASED_HIGHLOW)       <span class="comment">// 对于 HIGHLOW 类型是数据，进行修正</span></span><br><span class="line">        &#123;</span><br><span class="line">            DWORD dwFullRVA = pBaseReloc_NewBuffer-&gt;VirtualAddress + wOffset;</span><br><span class="line">            DWORD dwFullFOA = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(dwFullRVA, dwFullFOA))</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">delete</span>[] lpNewBuffer;</span><br><span class="line">                <span class="keyword">return</span> FALSE;</span><br><span class="line">            &#125;</span><br><span class="line">   </span><br><span class="line">            <span class="comment">//修正数据</span></span><br><span class="line">            <span class="keyword">auto</span> pPatchAddr = (PDWORD)((DWORD)lpNewBuffer + dwFullFOA);</span><br><span class="line">            *pPatchAddr = *pPatchAddr - dwOldImageBase + dwNewImageBase;</span><br><span class="line">            </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//下一个重定位块</span></span><br><span class="line">    pBaseReloc_NewBuffer = (PIMAGE_BASE_RELOCATION)((DWORD)pBaseReloc_NewBuffer + pBaseReloc_NewBuffer-&gt;SizeOfBlock);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里提下修正数据那里</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">假设原来的ImageBase是<span class="number">0x10000000</span></span><br><span class="line"></span><br><span class="line">写死的地址是<span class="number">0x10003456</span></span><br><span class="line"></span><br><span class="line">现在新的ImageBase是<span class="number">0x20000000</span></span><br><span class="line"></span><br><span class="line">那么这样改：</span><br><span class="line">    <span class="number">1</span>、让写死的地址减去原ImageBase</span><br><span class="line">    <span class="number">2</span>、再加上新ImageBase</span><br><span class="line">    （不用想着先算新ImageBase和原ImageBase差值正数还是负数，什么补码什么的）</span><br><span class="line"></span><br><span class="line">即：</span><br><span class="line">    <span class="number">0x10003456</span><span class="number">-0x10000000</span>+<span class="number">0x20000000</span></span><br><span class="line">代码就是</span><br><span class="line">    *pPatchAddr = *pPatchAddr - dwOldImageBase + dwNewImageBase;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>存盘</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//3、 保存修改后的内存到新文件中</span></span><br><span class="line"><span class="keyword">if</span> (!<span class="built_in">SaveUnstretchedPEToDisk</span>(lpNewBuffer, <span class="string">&quot;NewImageBase&quot;</span>))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;[+] SaveUnstretchedPEToDisk successfully.\n&quot;</span>);</span><br></pre></td></tr></table></figure>
+</li>
+</ol></div></div></div>
+<p><strong>运行</strong></p>
+<div class="tag-plugin tabs" align="center"id="tab_138"><div class="nav-tabs"><div class="tab active"><a href="#tab_138-1">VC的dll</a></div><div class="tab"><a href="#tab_138-2">VS的dll</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_138-1"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501172102930.png" alt="image-20240501172102930" /></p></div><div class="tab-pane" id="tab_138-2"><p>VS编译的dll需要给PE头里Characteristics加上IMAGE_FILE_RELOCS_STRIPPED属性，表示<strong>文件中不存在重定位信息</strong>，这样这个dll加载时会强制按ImageBase加载。否则加载基址是随机的，也就是说，即使程序将它的基址修改然后修正了数据，结果人家加载进exe时随机选了个地址，由系统又修正了一遍。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501171858768.png" alt="image-20240501171858768" /></p>
+<p>这样就可以了</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/image-20240501172006387.png" alt="image-20240501172006387" /></p></div></div></div>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/PE/%E5%AF%BC%E5%87%BA%E8%A1%A8.html">导出表</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/PE/%E5%AF%BC%E5%85%A5%E8%A1%A8.html">导入表</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

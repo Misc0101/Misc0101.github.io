@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>科学上网技术：trojan原理与节点搭建 - Misc010</title>
+
+  
+    <meta name="description" content="前置知识  https https:http+tls 服务器会有一对公私钥，私钥保留，公钥在TLS握手时会用到。具体的TLS握手细节这里不详细介绍。总之，TLS握手后客户端和服务端协商出会话的加密密钥（对称加密）。  证书 CA机构颁发给域名的证书，是用于客户端鉴别服务端身份用的。防止攻击者伪造服务端身份。 客户端中有个CA机构信任列表（cmd-certmgr.msc），客户端会查看网站证书的信">
+<meta property="og:type" content="website">
+<meta property="og:title" content="trojan原理与节点搭建">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Proxy_Protocols/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="前置知识  https https:http+tls 服务器会有一对公私钥，私钥保留，公钥在TLS握手时会用到。具体的TLS握手细节这里不详细介绍。总之，TLS握手后客户端和服务端协商出会话的加密密钥（对称加密）。  证书 CA机构颁发给域名的证书，是用于客户端鉴别服务端身份用的。防止攻击者伪造服务端身份。 客户端中有个CA机构信任列表（cmd-certmgr.msc），客户端会查看网站证书的信">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/image-20240121171334964.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/v2-553749a37a9ca03f37850445832e13ab_1440w.webp">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2JsYXRlb3I=,size_16,color_FFFFFF,t_70.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/image-20240120204403293.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/image-20240120135253326.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/image-20240119173108475.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/image-20240121175117250.png">
+<meta property="article:published_time" content="2024-01-19T09:24:11.000Z">
+<meta property="article:modified_time" content="2024-01-19T09:24:11.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/image-20240121171334964.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><div class="main" ff="title">科学上网技术</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Proxy_Protocols/" placeholder="在/wiki/Proxy_Protocols/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">序</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html#start"><span class="toc-text">前置知识</span></a></div></div><div class="widget-header cap dis-select"><span class="name">shadowsocks</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Proxy_Protocols/shadowsocks%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA.html"><span class="toc-text">shadowsocks原理与节点搭建</span></a></div></div><div class="widget-header cap dis-select"><span class="name">trojan</span></div><div class="widget-body fs14"><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Proxy_Protocols/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA.html"><span class="toc-text">trojan原理与节点搭建</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-text"> 前置知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#https"><span class="toc-text"> https</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%81%E4%B9%A6"><span class="toc-text"> 证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sni"><span class="toc-text"> sni</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8trojan%E4%BB%A3%E7%90%86%E4%B8%8B%E7%9A%84%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B"><span class="toc-text"> 使用trojan代理下的浏览器请求过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%90%AD%E5%BB%BAtrojan%E8%8A%82%E7%82%B9"><span class="toc-text"> 搭建trojan节点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%89%8D%E7%BD%AE%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-text"> 服务端前置准备工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%AB%99%E8%AF%81%E4%B9%A6%E7%94%B3%E8%AF%B7"><span class="toc-text"> 网站证书申请</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%90%AD%E5%BB%BA%E6%AD%A5%E9%AA%A4"><span class="toc-text"> 服务端搭建步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BD%BF%E7%94%A8"><span class="toc-text"> 客户端使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5"><span class="toc-text"> 相关链接</span></a></li></ol></div></div><div class="widget-header cap dis-select"><span class="name">vmess</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Proxy_Protocols/vmess%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA.html"><span class="toc-text">vmess原理与节点搭建</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Proxy_Protocols/%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="toc-text">相关概念</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><span class="title">汇编语言</span><span class="excerpt">x86汇编笔记：以滴水三期_汇编语言课程为框架，《汇编语言4th-王爽》和《汇编语言-基于x86处理器-第七版》为补充。</span></a><a class="item wiki" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><span class="title">C++</span><span class="excerpt">滴水三期_C++语言笔记，C++能做的C都能做，只不过如果使用C++，可以节省很多时间，因为编译器帮编程人员做了很多工作，让编程人员省事。学习的目标：相对于C，编译器替我们做了哪些工作。</span></a><a class="item wiki" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><span class="title">C</span><span class="excerpt">滴水三期_C语言笔记，以逆向角度看待和学习C语言，精彩点：堆栈图与指针。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Thinking_in_C++/Pointers.html"><span class="title">Thinking in C++</span><span class="excerpt">《Thinking in C++ vol 1》笔记，知识内化后的输出，少部分是摘抄，少用的细节不做记录用时在查，参考视频：《面向对象程序设计_C++_翁恺老师》。</span></a><a class="item wiki" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><span class="title">Windows API编程</span><span class="excerpt">滴水三期_win32 api笔记，学习Windows API编程的困难并不在于函数参数参数众多或者英文不好这类表象原因，而是需要从Windows系统的整体知识架构出发来学习这些API，深入理解每个参数背后的含义和背景。如此，未来查阅MSDN时便不再像是看天书。</span></a><a class="item wiki" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><span class="title">数据的运算与表示</span><span class="excerpt">滴水三期_进制笔记，学习与理解进制、数据宽度、数的表示、位运算等概念。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html">科学上网技术</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-01-19T09:24:11.000Z">2024-01-19</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>trojan原理与节点搭建</span></h1>
+<h2 id="前置知识"><a class="markdownIt-Anchor" href="#前置知识"></a> 前置知识</h2>
+<h3 id="https"><a class="markdownIt-Anchor" href="#https"></a> https</h3>
+<p>https:http+tls</p>
+<p>服务器会有一对公私钥，私钥保留，公钥在TLS握手时会用到。具体的TLS握手细节这里不详细介绍。总之，TLS握手后客户端和服务端协商出会话的加密密钥（对称加密）。</p>
+<h3 id="证书"><a class="markdownIt-Anchor" href="#证书"></a> 证书</h3>
+<p>CA机构颁发给域名的证书，是用于客户端鉴别服务端身份用的。防止攻击者伪造服务端身份。</p>
+<p>客户端中有个CA机构信任列表（cmd-certmgr.msc），客户端会查看网站证书的信任链上的机构是否在自己的信任列表上。（也可以自己在信任列表上手动添加信任的机构）</p>
+<p>访问https网站时如果证书有问题，浏览器会报警：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/image-20240121171334964.png" alt="image-20240121171334964" /></p>
+<h3 id="sni"><a class="markdownIt-Anchor" href="#sni"></a> sni</h3>
+<p>一般而言，一台服务器对应着1个ip，如果一台服务器上同时运行着多个web网页（拥有多个域名），每个域名都有着各自的证书。如果一个客户端请求来源只有ip地址这一项信息，这台服务器就无法确定访问者想访问哪个网站，也就不知道用哪个网站的证书进行TLS握手。</p>
+<p>SNI就是解决这种情况下带来的问题，SNI（Server Name Indication）是TLS的扩展，在TLS1.2开始支持，它允许在握手过程开始时通过客户端告诉它正在连接的服务器的主机名称。</p>
+<p>SNI信息在Client Hello中给出，是明文传输的。服务端通过sni这个字段来知道客户端要连接的主机名称。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/v2-553749a37a9ca03f37850445832e13ab_1440w.webp" alt="img" /></p>
+<blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/pam-sh/p/13409492.html">什么是 SNI？</a></p>
+</blockquote>
+<p>在TLS1.3中，SNI这个字段在传输过程中也能加密，称为ESNI。不过现在TLS1.3并不普及，当含有ESNI的流量经过GFW，GFW因为不知晓访问者想访问哪个网页，所以对于所有使用ESNI的数据包都进行丢弃。</p>
+<h2 id="使用trojan代理下的浏览器请求过程"><a class="markdownIt-Anchor" href="#使用trojan代理下的浏览器请求过程"></a> 使用trojan代理下的浏览器请求过程</h2>
+<p>使用trojan代理协议节点进行科学上网，在浏览器输入google.com的请求过程是这样的（假设ip已知，DNS查询过程略）：</p>
+<ol>
+<li>浏览器的数据包请求被创建，交由本地的trojan代理进行处理，浏览器和trojan-local之间用socks5协议</li>
+<li>trojan-local与trojan-server建立TCP连接，通过TLS握手协商出会话加密密钥，该会话密钥称为A。</li>
+<li>协商成功后，浏览器通过trojan代理向google.com发起请求，建立TCP连接和TLS握手，协商出会话加密密钥，该会话密钥称为B。</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>TCP握手和TLS握手抓包图</span></summary><div class="body"><p>浏览器和Trojan-local是用socks5通信：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">+-----+------+----------+----------+</span><br><span class="line">| CMD | ATYP | DST.ADDR | DST.PORT |</span><br><span class="line">+-----+------+----------+----------+</span><br><span class="line">|  1  |  1   | Variable |    2     |</span><br><span class="line">+-----+------+----------+----------+</span><br><span class="line"></span><br><span class="line">o  CMD</span><br><span class="line">        o  CONNECT X&#x27;01&#x27;</span><br><span class="line">        o  UDP ：X&#x27;03&#x27;</span><br><span class="line">o  ATYP </span><br><span class="line">        o  IP V4 : X&#x27;01&#x27;</span><br><span class="line">        o  域名: X&#x27;03&#x27;</span><br><span class="line">        o  IP V6 : X&#x27;04&#x27;</span><br><span class="line">o  DST.ADDR 所需的目标地址</span><br><span class="line">o  DST.PORT 目标端口</span><br></pre></td></tr></table></figure><hr /><p>TCP握手包序号：73，74，75</p><p>TLS握手：76，77，78，79，80，81，82，83</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2JsYXRlb3I=,size_16,color_FFFFFF,t_70.png" alt="TCP与TLS握手" /></p><p>然后，trojan-local和trojan-server之间发送的数据包格式如下（TLS加密之后的）：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">+-----------------------+---------+----------------+---------+----------+</span><br><span class="line">| hex(SHA224(password)) |  CRLF   | Trojan Request |  CRLF   | Payload  |</span><br><span class="line">+-----------------------+---------+----------------+---------+----------+</span><br><span class="line">|          56           | X&#x27;0D0A&#x27; |    Variable    | X&#x27;0D0A&#x27; | Variable |</span><br><span class="line">+-----------------------+---------+----------------+---------+----------+</span><br></pre></td></tr></table></figure><blockquote><p>参考：</p><p><a target="_blank" rel="noopener" href="https://www.twblogs.net/a/5e53bdf8bd9eee211682fe00/?lang=zh-cn">Trojan协议流量分析</a></p><p><a target="_blank" rel="noopener" href="https://trojan-gfw.github.io/trojan/protocol">The Trojan Protocol | trojan (trojan-gfw.github.io)</a></p></blockquote></div></details></div>
+<p>建立连接后，浏览器请求google.com返回“如何成为一名高手”的查询数据：</p>
+<ol>
+<li>浏览器在HTTP层创建原始数据“如何成为一名高手”，交由TLS层处理。</li>
+<li>在TLS层，使用会话密钥A对payload数据加密，加上访问的ip地址和SNI（目标web服务器，<a target="_blank" rel="noopener" href="http://google.com">google.com</a>）。</li>
+<li>由于网络配置中设置了代理，上一步骤的数据包发给本地的监听端口1080，这是trojan-local监听的端口。</li>
+<li>trojan-local接收到这个数据包，在HTTP层添加trojan协议数据，包括密码password等信息，交由TLS层处理</li>
+<li>在TLS层，使用会话密钥B对payload数据加密，加上访问ip和SNI（远端trojan服务器）。</li>
+<li>数据包过GFW时，GFW看到这个数据包是去往217.69.7.188（未被墙的vps），<a target="_blank" rel="noopener" href="http://xn--SNIexample-j07u.tk">SNI是example.tk</a>（不在黑名单中），放行</li>
+<li>trojan-server接收到数据后，使用会话密钥B解密数据包，根据是否是有效的trojan数据包做分类处理：
+<ul>
+<li>如果是有效的trojan数据包，进行代理功能，将数据包转发给142.250.188.14。142.250.188.14收到数据包，给google.com处理，google用会话密钥B解密得到原始数据。返回数据的处理过程与请求类似，这里略。</li>
+<li>如果不是有效的trojan数据包，服务器将断开连接或重定向到一个伪装的网页（防止GFW主动探测。如果GFW主动连接，将看到的是一个正常的网页）</li>
+</ul>
+</li>
+</ol>
+<p>从GFW视角看：用户A是访问境外的一个https网站，并且主动探测也确实看到是一个网站。殊不知，trojan-server对来源的客户端请求做了判断。</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>TLS握手的具体先后顺序</span></summary><div class="body"><ol><li>当浏览器有访问请求时，它会创建一个数据包，这个数据包首先在HTTP层生成，然后交给TLS层进行加密。</li><li>加密后的数据包被发送到本地的trojan-local代理。此时，数据包还没有被加密为最终的形式，因为它需要通过trojan-local与trojan-server之间的TLS握手来生成会话密钥A。</li><li>trojan-local代理与trojan-server建立TCP连接，并进行TLS握手，协商出会话密钥A。这个密钥用于加密从trojan-local到trojan-server的流量。</li><li>一旦TLS握手完成，trojan-local就会使用密钥A对浏览器的原始请求数据进行加密。</li><li>加密后的数据通过互联网发送到trojan-server。在这个过程中，GFW看到的是加密的流量，它无法辨认出实际的内容。</li><li>trojan-server收到加密数据后，使用密钥A解密，得到浏览器的原始请求数据。</li><li>trojan-server接着充当代理角色，与google.com建立TCP连接，并进行TLS握手，协商出会话密钥B。</li><li>使用密钥B，trojan-server将浏览器的原始请求数据加密，<a target="_blank" rel="noopener" href="http://xn--google-245jg71e9t0e339a.com">并发送给google.com</a>。</li><li>google.com处理请求并返回数据，这些返回的数据被加密（使用密钥B），然后发送回trojan-server。</li><li>trojan-server使用密钥B解密返回的数据，然后使用密钥A重新加密这些数据，再发送回trojan-local。</li><li>trojan-local使用密钥A解密数据，然后将解密后的数据发送给浏览器。</li></ol><blockquote><p>可以看到，访问谷歌的TLS数据，外面又包了一层trojan的TLS。这种TLS in TLS会存在特征：</p><ul><li>与google  TLS握手时的数据包体积增大</li></ul><p>有兴趣可以参考：</p><p><strong><a target="_blank" rel="noopener" href="https://github.com/XTLS/Trojan-killer">Trojan-killer</a></strong></p><p><a target="_blank" rel="noopener" href="https://bulianglin.com/archives/xraymitm.html">trojan节点已被精准识别？！tls-in-tls特征原理分析，搭建MITM节点解决tls-in-tls特征</a></p><p><a target="_blank" rel="noopener" href="https://github.com/XTLS/Trojan-killer/issues/6">很好奇识别的原理 #6</a></p></blockquote></div></details></div>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/image-20240120204403293.png" alt="" /></p>
+<p>当一个客户端试图连接Trojan-Go的监听端口时，会发生下面的事情：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th>处理</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TLS握手成功</td>
+<td>TLS的内容是Trojan协议</td>
+<td>密码正确</td>
+<td>解析来自客户端的请求并进行代理</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>密码不正确</td>
+<td>将TLS连接代理到本地127.0.0.1:80上的HTTP服务</td>
+<td>有可能是HTTP请求，或者来自GFW的主动探测，</br>这样的处理在远端看来，Trojan-Go服务就是一个HTTPS网站</td>
+</tr>
+<tr>
+<td></td>
+<td>TLS的内容不是Trojan协议</td>
+<td></td>
+<td>将TLS连接代理到本地127.0.0.1:80上的HTTP服务</td>
+<td>有可能是HTTP请求，或者来自GFW的主动探测，</br>这样的处理在远端看来，Trojan-Go服务就是一个HTTPS网站</td>
+</tr>
+<tr>
+<td>TLS握手失败</td>
+<td></td>
+<td></td>
+<td>将这个TCP连接代理到本地127.0.0.1:1234上运行的HTTPS服务（或者HTTP服务），</br>返回一个展示400 Bad Reqeust的HTTP页面。</td>
+<td>TLS握手失败说明对方使用的不是TLS协议进行连接</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td><code>fallback_port</code>是一个可选选项，</br>如果没有填写，Trojan-Go会直接终止连接。</br>虽然是可选的，但是还是强烈建议填写。</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/image-20240120135253326.png" alt="image-20240120135253326" /></p>
+<h2 id="搭建trojan节点"><a class="markdownIt-Anchor" href="#搭建trojan节点"></a> 搭建trojan节点</h2>
+<h3 id="服务端前置准备工作"><a class="markdownIt-Anchor" href="#服务端前置准备工作"></a> 服务端前置准备工作</h3>
+<ul>
+<li>一个境外vps，未被GFW封锁</li>
+<li>域名（可以无）</li>
+<li>证书和密钥，从CA机构申请签发</li>
+<li>伪装跳转的HTTP服务器
+<ul>
+<li>作用：当GFW主动探测时，展示一个正常的web页面</li>
+<li>可以是自己用nginx，apache，caddy等配置的一个本地HTTP服务器或者是填写别人的HTTP服务器</li>
+</ul>
+</li>
+</ul>
+<h3 id="网站证书申请"><a class="markdownIt-Anchor" href="#网站证书申请"></a> 网站证书申请</h3>
+<p>.crt是证书（公钥在证书里），.key是私钥</p>
+<div class="tag-plugin tabs" align="center"id="tab_185"><div class="nav-tabs"><div class="tab active"><a href="#tab_185-1">已有域名</a></div><div class="tab"><a href="#tab_185-2">自签证书</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_185-1"><p>从网站下载sh并执行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://get.acme.sh | sh</span><br></pre></td></tr></table></figure>
+<p>安装socat（使用独立模式要安装socat）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt install socat</span><br></pre></td></tr></table></figure>
+<p>添加软链接</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s  /root/.acme.sh/acme.sh /usr/local/bin/acme.sh</span><br></pre></td></tr></table></figure>
+<p>注册账号</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">acme.sh --register-account -m my@example.com</span><br></pre></td></tr></table></figure>
+<p>防火墙开放80端口（独立模式会在本地80端口开一个服务器，等CA机构来验证）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ufw allow 80</span><br></pre></td></tr></table></figure>
+<p>申请证书：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">acme.sh  --issue -d 替换为你的域名  --standalone -k ec-256</span><br></pre></td></tr></table></figure>
+<p>安装证书（就是将.key和.crt复制到文件夹中）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">acme.sh --installcert -d 替换为你的域名 --ecc  --key-file   /root/trojan/server.key   --fullchain-file /root/trojan/server.crt</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果默认CA无法颁发，可以切换使用其他CA来申请证书</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">切换 Let’s Encrypt：</span></span><br><span class="line">acme.sh --set-default-ca --server letsencrypt</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">切换 Buypass：</span></span><br><span class="line">acme.sh --set-default-ca --server buypass</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">切换 ZeroSSL：</span></span><br><span class="line">acme.sh --set-default-ca --server zerossl</span><br></pre></td></tr></table></figure>
+</blockquote></div><div class="tab-pane" id="tab_185-2"><p>没域名的情况下，自签证书。</p>
+<p>生成私钥</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl ecparam -genkey -name prime256v1 -out ca.key</span><br></pre></td></tr></table></figure>
+<p>生成证书</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -x509 -days 36500 -key ca.key -out ca.crt  -subj &quot;/CN=bing.com&quot;</span><br></pre></td></tr></table></figure></div></div></div>
+<h3 id="服务端搭建步骤"><a class="markdownIt-Anchor" href="#服务端搭建步骤"></a> 服务端搭建步骤</h3>
+<p>用的是trojan-go，不在内置源中，在github复制二进制文件的链接，在ubuntu上用wget下载</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/p4gefau1t/trojan-go/releases/download/v0.10.6/trojan-go-linux-amd64.zip</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/image-20240119173108475.png" alt="image-20240119173108475" /></p>
+<p>unzip解压</p>
+<p>example文件夹下是示例的配置文件</p>
+<p>trojan-go目录下创建config.json文件，编写配置文件</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;run_type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;server&quot;</span><span class="punctuation">,</span>        </span><br><span class="line">    <span class="attr">&quot;local_addr&quot;</span><span class="punctuation">:</span> <span class="string">&quot;0.0.0.0&quot;</span><span class="punctuation">,</span>       </span><br><span class="line">    <span class="attr">&quot;local_port&quot;</span><span class="punctuation">:</span> <span class="number">443</span><span class="punctuation">,</span>             </span><br><span class="line">    <span class="attr">&quot;remote_addr&quot;</span><span class="punctuation">:</span> <span class="string">&quot;127.0.0.1&quot;</span><span class="punctuation">,</span>  </span><br><span class="line">    <span class="attr">&quot;remote_port&quot;</span><span class="punctuation">:</span> <span class="number">80</span><span class="punctuation">,</span>        </span><br><span class="line">    <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="string">&quot;your_awesome_password&quot;</span></span><br><span class="line">    <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ssl&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;cert&quot;</span><span class="punctuation">:</span> <span class="string">&quot;server.crt&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;key&quot;</span><span class="punctuation">:</span> <span class="string">&quot;server.key&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>value</th>
+<th>注释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>run_type</td>
+<td>“server”</td>
+<td>表示是服务器的配置</td>
+</tr>
+<tr>
+<td>local_addr</td>
+<td>“0.0.0.0”</td>
+<td>监听所有ip来源</td>
+</tr>
+<tr>
+<td>local_port</td>
+<td>443</td>
+<td>监听端口，大多数https是443端口，换成其他的会显得突出</td>
+</tr>
+<tr>
+<td>remote_addr</td>
+<td></td>
+<td>伪装跳转的HTTP服务器地址/域名</td>
+</tr>
+<tr>
+<td>remote_port</td>
+<td></td>
+<td>伪装跳转的HTTP服务器的端口</td>
+</tr>
+<tr>
+<td>password</td>
+<td></td>
+<td>身份认证用</td>
+</tr>
+<tr>
+<td>ssl，cert</td>
+<td>.crt</td>
+<td>CA颁发的网站证书，TLS握手时服务端会给到客户端以表明自己的身份</td>
+</tr>
+<tr>
+<td>ssl，key</td>
+<td>.key</td>
+<td>网站的私钥，TLS握手时会用到</td>
+</tr>
+</tbody>
+</table>
+<p>后台运行并输出日志（只有服务器崩溃或重启trojan服务才会结束）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup ./trojan-go &gt; trojan.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+<h3 id="客户端使用"><a class="markdownIt-Anchor" href="#客户端使用"></a> 客户端使用</h3>
+<p>v2rayN添加trojan服务器</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA/image-20240121175117250.png" alt="image-20240121175117250" /></p>
+<p>如果<strong>服务器地址</strong>填写的是域名，sni可以省略。如果<strong>服务器地址</strong>填写的是ip，sni字段要填写你申请证书的对应域名，或者你自己签发的证书的Common Name，而且必须一致。</p>
+<p>sni就是伪装的最外层的字段，在目前的TLS协议是明文传输，GFW会看到，所以不要填写类似<code>google.com</code>等已经被封锁的域名，否则很有可能导致你的服务器也被遭到封锁。</p>
+<hr />
+<p>自签证书的话，可以将自签的CA机构加入到电脑的信任列表，或v2rayN选择跳过证书验证（最好不要跳过，要不存在服务端被攻击者伪装的情况）</p>
+<p>SNI要输入自签时的域名</p>
+<p><a target="_blank" rel="noopener" href="http://xn--bing-4z8f123bvhvjxkwnx6llxgr.com">比如自签时写的bing.com</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -x509 -days 36500 -key ca.key -out ca.crt  -subj &quot;/CN=bing.com&quot;</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="http://xn--snibing-lb4ks0wg13h3wzbx5p8mc42f.com">那么这里的sni要写bing.com</a></p>
+<h2 id="相关链接"><a class="markdownIt-Anchor" href="#相关链接"></a> 相关链接</h2>
+<p><a target="_blank" rel="noopener" href="https://youtu.be/gw2Vl1h89Wo?si=7A9Z4rBsFqPiVfmo">节点搭建系列(4):目前最好的翻墙协议?史上最详细trojan协议原理解析与实战搭建，流量伪装成https实现绕过防火墙探测进行科学上网。彻底弄明白什么是网站证书、什么是TLS/SSL</a></p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://trojan-gfw.github.io/trojan/">trojan主页</a></td>
+<td>trojan主页</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/p4gefau1t/trojan-go">trojan-go</a></td>
+<td>trojan-go，github项目地址</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://p4gefau1t.github.io/trojan-go/">Trojan-Go文档</a></td>
+<td>Trojan-Go文档，写得挺详细的</td>
+</tr>
+</tbody>
+</table>
+<p>做对比时用：Trojan原理简单分析<a target="_blank" rel="noopener" href="https://xzchsia.github.io/2020/09/29/trojan-code-analysis/">https://xzchsia.github.io/2020/09/29/trojan-code-analysis/</a></p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Proxy_Protocols/shadowsocks%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA.html">shadowsocks原理与节点搭建</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/Proxy_Protocols/vmess%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA.html">vmess原理与节点搭建</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

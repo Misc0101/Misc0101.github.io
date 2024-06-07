@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Protected_Mode：PDE、PTE初步感受 - Misc010</title>
+
+  
+    <meta name="description" content="概念 第一级：页目录表（PDT，Page-Directory Table） 页目录表项（PDE，Page Directory Entry），页目录表中的成员  第二级：页表（PTT，Page Table） 页表项（PTE，Page Table Entry），页表中的成员  CR3里存储的物理地址指向页目录表（PDT），里面的成员页目录表项（PDE）指向页表（PTT），里面的成员页表项（PTE）指向">
+<meta property="og:type" content="website">
+<meta property="og:title" content="PDE、PTE初步感受">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="概念 第一级：页目录表（PDT，Page-Directory Table） 页目录表项（PDE，Page Directory Entry），页目录表中的成员  第二级：页表（PTT，Page Table） 页表项（PTE，Page Table Entry），页表中的成员  CR3里存储的物理地址指向页目录表（PDT），里面的成员页目录表项（PDE）指向页表（PTT），里面的成员页表项（PTE）指向">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/867232_Z72BW8AZDRC2DNF.jpg">
+<meta property="og:image" content="https://bu.dusays.com/2022/10/24/63567d3e07da3.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230816155006283.png">
+<meta property="og:image" content="https://bu.dusays.com/2022/10/24/63567d3e07da3.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230816161507244.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230816161711732.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230816164138842.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230816164424890.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230816163949808.png">
+<meta property="og:image" content="https://bu.dusays.com/2022/10/24/63567d3e07da3.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230817142224051.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230817150003588.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230817150531669.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230817150748136.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230817150248577.png">
+<meta property="article:published_time" content="2023-08-16T07:01:44.000Z">
+<meta property="article:modified_time" content="2023-08-16T07:01:44.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/867232_Z72BW8AZDRC2DNF.jpg">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><div class="main" ff="title">Protected_Mode</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Protected_Mode/" placeholder="在/wiki/Protected_Mode/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">段</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html#start"><span class="toc-text">段寄存器</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90.html"><span class="toc-text">段描述符与段选择子</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E6%9D%83%E9%99%90%E6%A3%80%E6%9F%A5.html"><span class="toc-text">段权限检查</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E9%97%B4%E8%B7%B3%E8%BD%AC.html"><span class="toc-text">段间跳转</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%B7%A8%E6%AE%B5%E8%B7%B3%E8%BD%AC.html"><span class="toc-text">跨段跳转</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%B0%83%E7%94%A8%E9%97%A8.html"><span class="toc-text">调用门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%B8%AD%E6%96%AD%E9%97%A8.html"><span class="toc-text">中断门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%99%B7%E9%98%B1%E9%97%A8.html"><span class="toc-text">陷阱门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%BB%BB%E5%8A%A1%E6%AE%B5.html"><span class="toc-text">任务段</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%BB%BB%E5%8A%A1%E9%97%A8.html"><span class="toc-text">任务门</span></a></div></div><div class="widget-header cap dis-select"><span class="name">页</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/10-10-12%E5%88%86%E9%A1%B5.html"><span class="toc-text">10-10-12分页</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97.html"><span class="toc-text">PDE、PTE初步感受</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E5%BF%B5"><span class="toc-text">概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B5%E8%A1%A8%E9%A1%B9%EF%BC%88PTE%EF%BC%89%E7%89%B9%E5%BE%81"><span class="toc-text">页表项（PTE）特征</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-10-12%E5%88%86%E9%A1%B5%E4%BD%8D%E6%95%B0%E5%88%92%E5%88%86%E5%88%86%E6%9E%90"><span class="toc-text">10-10-12分页位数划分分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C"><span class="toc-text">实验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%BE%E5%90%8E%E7%BB%83%E4%B9%A0"><span class="toc-text">课后练习</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7.html"><span class="toc-text">PDE、PTE属性</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%9F%BA%E5%9D%80.html"><span class="toc-text">页目录表基址</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%A1%B5%E8%A1%A8%E5%9F%BA%E5%9D%80.html"><span class="toc-text">页表基址</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/2-9-9-12%E5%88%86%E9%A1%B5.html"><span class="toc-text">2-9-9-12分页</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%8D%89%E7%A8%BF%E6%9C%AC.html"><span class="toc-text">草稿本</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/PE/Overview_PE.html"><span class="title">PE</span><span class="excerpt">滴水三期_PE文件笔记(To finish...)。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html">Protected_Mode</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-08-16T07:01:44.000Z">2023-08-16</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>PDE、PTE初步感受</span></h1>
+<div class="tag-plugin quot"><h2 class="content" id="概念" type="text"><a href="#概念" class="headerlink" title="概念"></a>概念</h2></div>
+<p>第一级：页目录表（PDT，Page-Directory Table）</p>
+<p>页目录表项（PDE，Page Directory Entry），页目录表中的成员</p>
+</br>
+<p>第二级：页表（PTT，Page Table）</p>
+<p>页表项（PTE，Page Table Entry），页表中的成员</p>
+</br>
+<p>CR3里存储的物理地址指向页目录表（PDT），里面的成员页目录表项（PDE）指向页表（PTT），里面的成员页表项（PTE）指向物理页。</p>
+<p>PDE和PTE后三位（十六进制）是属性</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/867232_Z72BW8AZDRC2DNF.jpg" alt="image-20210413101806515" /></p>
+<div class="tag-plugin quot"><h2 class="content" id="页表项（PTE）特征" type="text"><a href="#页表项（PTE）特征" class="headerlink" title="页表项（PTE）特征"></a>页表项（PTE）特征</h2></div>
+<ul>
+<li>
+<p>PTE可以不指向物理页</p>
+<blockquote>
+<p>还没分配到</p>
+</blockquote>
+</li>
+<li>
+<p>1个PTE只能指向1个物理页</p>
+</li>
+<li>
+<p>多个PTE可以指向同一个物理页（不同权限）</p>
+</li>
+</ul>
+<div class="tag-plugin quot"><h2 class="content" id="10-10-12分页位数划分分析" type="text"><a href="#10-10-12分页位数划分分析" class="headerlink" title="10-10-12分页位数划分分析"></a>10-10-12分页位数划分分析</h2></div>
+<p>在Windows中，一个页的大小通常为4KB(也有4MB的页，称为大页，这里先不管)。</p>
+<p>物理页大小4KB，即2^12次方，要用12位表示。</p>
+<p>页目录表（PDT）大小4KB，4096字节，每一项是4字节（32位下地址宽度4字节），所以有1024项，即2^10次方，需要10位来作为页目录表（PDT）的序号，表明找哪一项。</p>
+<p>页表（PTT）大小4KB，每一项是4字节（32位下地址宽度4字节），所以有1024项，即2^10次方，需要10位来作为页表（PTT）的序号，表明找哪一项。</p>
+<p>所以是10-10-12。</p>
+<div class="tag-plugin quot"><h2 class="content" id="实验" type="text"><a href="#实验" class="headerlink" title="实验"></a>实验</h2></div>
+<div class="tag-plugin quot"><p class="content" type="icon"><img class="icon prefix lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://bu.dusays.com/2022/10/24/63567d3e07da3.png" />1. 拆分线性地址0，观察PTE是否有物理页</p></div>
+<p>线性地址0+windbg用<code>! process 0 0</code>随便找1个进程的CR3，去找物理页</p>
+<p>线性地址0按10-10-12拆，都是0，和没加一样，所以下面把PDE和PTE后3位属性位写成0，然后查就行。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230816155006283.png" alt="image-20230816155006283" /></p>
+<p>可以看到，线性地址0拆出来的PTE为0，即没有指向物理页。（证明了上面说的PTE可以不指向任何物理页）</p>
+<p>所以0地址无法读数据，也没办法写数据，因为没分配物理页。那我们实在想写呢？给它挂一个物理页呗，来，第二题。</p>
+<div class="tag-plugin quot"><p class="content" type="icon"><img class="icon prefix lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://bu.dusays.com/2022/10/24/63567d3e07da3.png" />2. 向0地址读写数据</p></div>
+<p>代码分析：变量x一运行就会自动分配到物理地址，将线性地址0的PTE改成变量x的PTE，即地址0挂上了物理页，就能读写0地址了。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> x = <span class="number">1</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;x的地址:%x\n&quot;</span>,&amp;x);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//在windbg挂起，得到程序的CR3，根据CR3和变量x的地址得到PTE</span></span><br><span class="line">    <span class="comment">//把线性地址0的PTE改成变量x的PTE</span></span><br><span class="line">    getchar();</span><br><span class="line"></span><br><span class="line">    <span class="comment">//修改PTE后0地址处的值是多少，后文讲拓展会提到这句</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;向0地址写入123前，0地址数据为:%d\n&quot;</span>,*(<span class="type">int</span>*)<span class="number">0</span>);</span><br><span class="line">    <span class="comment">//向0地址写入数据</span></span><br><span class="line">	*(<span class="type">int</span>*)<span class="number">0</span> = <span class="number">123</span>;</span><br><span class="line">    <span class="comment">//向0地址读数据</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;向0地址写入123后，0地址数据为:%d\n&quot;</span>,*(<span class="type">int</span>*)<span class="number">0</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译运行，一运行变量x会自动分配到线性地址。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230816161507244.png" alt="image-20230816161507244" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230816161711732.png" alt="image-20230816161711732" /></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">线性地址<span class="number">12f</span>f7C拆分</span><br><span class="line"><span class="number">0</span>				    <span class="comment">//10    ;0*4=0</span></span><br><span class="line"><span class="number">0100101111</span>,<span class="number">12F</span>      <span class="comment">//10    ;12F*4=4BC</span></span><br><span class="line">F7C                 <span class="comment">//12</span></span><br></pre></td></tr></table></figure>
+<p>windbg下断，<code>! process 0 0</code>查看到该进程的CR3是<code>19e8a000</code></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230816164138842.png" alt="image-20230816164138842" /></p>
+<p>因为在同一个进程中，所以变量x和地址0的CR3一样</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">线性地址<span class="number">0</span>拆分</span><br><span class="line"><span class="number">0</span>				    <span class="comment">//10    ;0*4=0</span></span><br><span class="line"><span class="number">0</span>                   <span class="comment">//10    ;0*4=0</span></span><br><span class="line"><span class="number">0</span>                   <span class="comment">//12</span></span><br></pre></td></tr></table></figure>
+<p>把线性地址0的PTE改成变量x的PTE</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230816164424890.png" alt="image-20230816164424890" /></p>
+<p>输入g，返回虚拟机，查看结果输出：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230816163949808.png" alt="image-20230816163949808" /></p>
+<p>修改PTE后，成功读、写0地址数据</p>
+<hr />
+<p>讲些细节，上边可能没注意到</p>
+<blockquote>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Kwansy/article/details/108906147">（18）修改 PTE 实现挂物理页读写空指针-hambaga的csdn博客</a></p>
+</blockquote>
+<ul>
+<li>PDE和PTE</li>
+</ul>
+<p>变量x的线性地址是：12ff7c，按10-10-12拆完后是</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">线性地址<span class="number">12f</span>f7C拆分</span><br><span class="line"><span class="number">0</span>				    <span class="comment">//10    ;0*4=0</span></span><br><span class="line"><span class="number">0100101111</span>,<span class="number">12F</span>      <span class="comment">//10    ;12F*4=4BC</span></span><br><span class="line">F7C                 <span class="comment">//12</span></span><br></pre></td></tr></table></figure>
+<p>线性地址0拆完后是</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">线性地址<span class="number">0</span>拆分</span><br><span class="line"><span class="number">0</span>				    <span class="comment">//10    ;0*4=0</span></span><br><span class="line"><span class="number">0</span>                   <span class="comment">//10    ;0*4=0</span></span><br><span class="line"><span class="number">0</span>                   <span class="comment">//12</span></span><br></pre></td></tr></table></figure>
+<p>第一个10都是0，加上CR3一样，所以PDE一样。</p>
+<p>然后通过PDE去页表（PTT）找PTE时，变量x是加4BC，地址0是加0，所以两者指向装着PTE的页表（PTT）地址不一样。</p>
+<table>
+<thead>
+<tr>
+<th>变量x</th>
+<th>地址0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>19dc1000+4BC=19ec5067</td>
+<td>19dc1000+0=19dc1000</td>
+</tr>
+</tbody>
+</table>
+<p>将地址0的PTE改成变量x的PTE后，<u>地址0和变量x的PTE都指向了同一个物理页，但是偏移不同（拆完的12位不一样，变量x的是F7C，地址0的是0）</u>。</p>
+<blockquote>
+<p>并不是地址0就用了变量x的实际物理地址，通过代码中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment">//修改PTE后0地址处的值是多少，后文讲拓展会提到这句</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;向0地址写入123前，0地址数据为:%d\n&quot;</span>,*(<span class="type">int</span>*)<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<p>这行输出是可以看出来的，修改地址0的PTE后，输出的值是70（随机值），而不是变量x的值1。</p>
+</blockquote>
+<blockquote>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>变量x</th>
+<th>地址0</th>
+<th>修改PTE后的地址0</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>线性地址</td>
+<td>12ff7c</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>CR3</td>
+<td>19e8a000</td>
+<td>19e8a000</td>
+<td>19e8a000</td>
+<td>因为在同一个进程</td>
+</tr>
+<tr>
+<td>拆分后第1个10</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>CR3+第1个10，指向的PDE</br></td>
+<td>19dc1067</td>
+<td>19dc1067</td>
+<td>19dc1067</td>
+<td>因为拆分后的10一样，所以PDE一样</td>
+</tr>
+<tr>
+<td>拆分后第2个10（已*4）</td>
+<td>4BC</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>PDE+第2个10，指向的PTE</td>
+<td>19ec5067</td>
+<td>0</td>
+<td><strong>19ec5067</strong></td>
+<td>将地址0的PTE改为和变量x的PTE一样</td>
+</tr>
+<tr>
+<td>拆分后的12</td>
+<td>F7C</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>指向的物理页基址</td>
+<td>19ec5000</td>
+<td>无</td>
+<td>19ec5000</td>
+<td></td>
+</tr>
+<tr>
+<td>实际物理地址</td>
+<td>19ec5000+F7C</td>
+<td>无</td>
+<td>19ec5000+0</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p>现在，地址0的PTE已经指向了一个物理页，可以进行读写了。</p>
+<div class="tag-plugin quot"><p class="content" type="icon"><img class="icon prefix lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://bu.dusays.com/2022/10/24/63567d3e07da3.png" />拓展和总结</p></div>
+<p><u>有效的PTE=有效的物理地址+P=1</u></p>
+<p>没有所谓不能访问的地址，无论3环还是0环，只要给个有效的PTE就能访问</p>
+<hr />
+<p>推导过程：</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>有效的物理地址</span></summary><div class="body"><p>0的PTE是0，只改属性位能实现可读可写吗？</p><p>即使把线性地址0的PTE，改了属性P=1，R/W=1，有效，可读可写。也不行</p><hr /><p>原因：</p><p>线性地址0的PTE由物理地址+12位的属性组成。</p><p>假设线性地址0的PTE：0+12属性（线性地址0 对应-&gt;物理地址0）</p><p>0 PTE:0 + 12属性（线性地址0-&gt;物理地址0）</p><p>0 PTE:1234 + 12属性（线性地址1234-&gt;物理地址1234）</p><p>这个地址不是你随便想用就用的，要看操作系统是否分配了的。</p><p>回到之前说的，CPU和操作系统，页的关系，CPU定义了从CR3-&gt;一级页-&gt;二级页的查找规则，但是页表的内容由操作系统定义的。</p><p>你不知道操作系统分了哪些地址是分了哪些没分，所以自己定义一个变量（这个变量会自动分配到物理页），然后将x的物理页给0挂上。</p><p>注意要给变量x赋值，x只有定义可能没分配到物理页</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x =<span class="number">1</span>;</span><br></pre></td></tr></table></figure><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x;</span><br></pre></td></tr></table></figure></div></details><details class="folder" index="1"><summary><span>P位=1</span></summary><div class="body"><p>假设我定义了一个变量x</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x=<span class="number">12345678</span>;</span><br></pre></td></tr></table></figure><p>通过10-10-12拆分x的线性地址可以得到x的PDE和PTE，记为PTEA</p><p>通过10-10-12拆分线性地址0可以得到0的PDE和PTE，记为PTEB</p><p>然后将0的PTE修改为x的PTE，并且把0的PTE的P位修改为0。</p><p>现在，x的PTEA，0的PTEB，除了P位，其他一样，因为地址部分20位一致，所以它们指向同一个物理页。</p><p>看0的PTEB，它的地址部分20位，指向了有效的物理页，但是在程序中还是不能读写线性地址0，因为P位是0。</p></div></details></div>
+<p>为什么保护模式这么设计？</p>
+<p>实现对内存的保护，可以通过P位、R/W、U/S位来保护，想怎么保护就怎么保护</p>
+<div class="tag-plugin quot"><h2 class="content" id="课后练习" type="text"><a href="#课后练习" class="headerlink" title="课后练习"></a>课后练习</h2></div>
+<ol>
+<li>线性地址0为什么不能访问?将0地址设置为可读可写。</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p>同实验部分</p></div></details></div>
+<ol start="2">
+<li>为变量x再映射一个线性地址,并通过这个新的地址读取x的值。</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><div class="tag-plugin tabs" align="center"id="tab_149"><div class="nav-tabs"><div class="tab active"><a href="#tab_149-1">分析</a></div><div class="tab"><a href="#tab_149-2">代码</a></div><div class="tab"><a href="#tab_149-3">运行</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_149-1"><blockquote><p>参考：</p><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Kwansy/article/details/108906147">（18）修改 PTE 实现挂物理页读写空指针-hambaga-csdn博客</a></p></blockquote><p>回顾一下寻址过程：</p><p>线性地址：10:10:12</p><p>CR3+第1个10位*4-&gt;PDE</p><p>PDE(后三位清0)+第2个10位*4-&gt;PTE</p><p>PTE(后三位清0)+12位（偏移）-&gt;物理页</p><hr /><p>声明一个int类型变量x，赋值为1。</p><p>用VirualAlloc申请一块物理页，得到指针p。</p><p>同一个程序，CR3一样。</p><p>因为指针p要指向变量x，所以物理页页偏移要一样，12位一样。</p><p>第1个10位决定PDE，第2个10位决定PTE。</p><p>将指针p的PTE修改和变量x的一样就好了。</p><p>总结：改指针p的PTE和12位。</p><p>物理页页偏移在代码中改，指针p的PTE在windbg中改。</p><blockquote><p>如果将指针p的第1个10位也改了，其实整个线性地址和变量x是一样的了。代码表示就是</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">1</span>;</span><br><span class="line"><span class="type">int</span> *p = &amp;x;<span class="comment">//p指向x的地址</span></span><br></pre></td></tr></table></figure></blockquote></div><div class="tab-pane" id="tab_149-2"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> x = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 申请一个新的物理页，将p的PTE和物理页内偏移改成和x一样</span></span><br><span class="line">    <span class="type">int</span> p = (<span class="type">int</span>)VirtualAlloc(<span class="literal">NULL</span>, <span class="number">0x1000</span>, MEM_COMMIT, PAGE_READWRITE);</span><br><span class="line">    <span class="type">int</span> p_bak = p;               <span class="comment">// 备份新分配的内存区域的起始地址，以便后续释放内存</span></span><br><span class="line">    <span class="built_in">memset</span>((<span class="type">int</span> *)p, <span class="number">0</span>, <span class="number">0x1000</span>); <span class="comment">// 将新分配的内存区域清零</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;x的地址：%x\n&quot;</span>, &amp;x);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//修改指针p的PTE和物理页偏移</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;修改前，指针p的线性地址：%x\n&quot;</span>, p);</span><br><span class="line">    p &amp;= <span class="number">0xFFFFF000</span>;</span><br><span class="line">    p |= ((<span class="type">int</span>)&amp;x &amp; <span class="number">0x00000FFF</span>);                <span class="comment">//将指针p的后12位修改为变量x的</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;修改后，指针p的线性地址：%x\n&quot;</span>, p);</span><br><span class="line">    getchar();                                  <span class="comment">// 在windbg里修改 p 的 PTE</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 用新的线性地址读x</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;通过线性地址p来读取x的值，*addr：%x\n&quot;</span>, *(<span class="type">int</span> *)p);  <span class="comment">// 0x1</span></span><br><span class="line">    <span class="comment">// 用新的线性地址写x</span></span><br><span class="line">    *(<span class="type">int</span> *)p = <span class="number">0x112233</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;通过线性地址p修改x后，x：%x\n&quot;</span>, x);                 <span class="comment">// 0x112233</span></span><br><span class="line"></span><br><span class="line">    getchar();</span><br><span class="line">    VirtualFree((<span class="type">int</span> *)p_bak, <span class="number">0x1000</span>, MEM_DECOMMIT);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_149-3"><ol><li>运行</li></ol><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230817142224051.png" alt="image-20230817142224051" /></p><ol start="2"><li>windbg下断，查变量x的PTE</li></ol><p>查到该进程的CR3是20a52000</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230817150003588.png" alt="image-20230817150003588" /></p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">线性地址<span class="number">12f</span>f7C拆分</span><br><span class="line"><span class="number">0</span>				    <span class="comment">//10    ;0*4=0</span></span><br><span class="line"><span class="number">0100101111</span>,<span class="number">12F</span>      <span class="comment">//10    ;12F*4=4BC</span></span><br><span class="line">F7C                 <span class="comment">//12</span></span><br></pre></td></tr></table></figure><p>查x的PTE：</p><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">!dd <span class="number">20</span>a52000+<span class="number">0</span></span><br><span class="line">!dd <span class="number">2061</span>d000+<span class="number">4</span>BC</span><br><span class="line">!dd <span class="number">20321000</span>+F7C</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230817150531669.png" alt="image-20230817150531669" /></p><p>PTE是20321067</p><ol start="3"><li>修改指针p的PTE为变量x的</li></ol><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">线性地址<span class="number">3</span>a0f7c拆分</span><br><span class="line"><span class="number">0</span>				        <span class="comment">//10    ;0*4=0</span></span><br><span class="line"><span class="number">11</span> <span class="number">1010</span> <span class="number">0000</span>，<span class="number">3</span>A0       <span class="comment">//10    ;3A0*4=E80</span></span><br><span class="line">F7C                     <span class="comment">//12</span></span><br></pre></td></tr></table></figure><p>改指针p的命令</p><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">!dd <span class="number">2061</span>d000+E80</span><br><span class="line">!ed <span class="number">2061</span>de80 <span class="number">20321067</span></span><br><span class="line">!dd <span class="number">2061</span>d000+E80</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230817150748136.png" alt="image-20230817150748136" /></p><ol start="4"><li>返回虚拟机继续执行</li></ol><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97/image-20230817150248577.png" alt="image-20230817150248577" /></p><p>回车，getchar按下后，windbg就报错了。我也不知道什么原因</p><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; g</span><br><span class="line"></span><br><span class="line">*** Fatal System Error: <span class="number">0</span>x0000004e</span><br><span class="line">                       (<span class="number">0</span>x00000099,<span class="number">0</span>x00000000,<span class="number">0</span>x00000000,<span class="number">0</span>x00000000)</span><br><span class="line"></span><br><span class="line"><span class="built_in">Break</span> instruction exception - code <span class="number">80000003</span> (first chance)</span><br><span class="line"></span><br><span class="line">A fatal system error has occurred.</span><br><span class="line">Debugger entered on first try; Bugcheck callbacks have <span class="keyword">not</span> been invoked.</span><br><span class="line"></span><br><span class="line">A fatal system error has occurred.</span><br><span class="line"></span><br><span class="line">Connected to Windows XP <span class="number">2600</span> x86 compatible target <span class="built_in">at</span> (Thu Aug <span class="number">17</span> <span class="number">15</span>:<span class="number">03</span>:<span class="number">09</span>.<span class="number">317</span> <span class="number">2023</span> (UTC + <span class="number">8</span>:<span class="number">00</span>)), ptr64 FALSE</span><br><span class="line">Loading Kernel Symbols</span><br><span class="line">...........................................</span><br></pre></td></tr></table></figure></div></div></div></div></details></div>
+<ol start="3">
+<li>10-10-12分页模式物理内存能够识别的最多范围是多少?</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p>1个PDE指向了1个页表。有多少个PDE就有多少个页表。</p><p>页目录表有1024项，页表有1024项，物理页有4KB<br />寻址范围: 1024×1024×4096 = 4GB</p><hr /><p>物理页大小为4KB（在10-10-12中还有一种页,4MB,称为大页)一张页表能包含的物理页:1024×4KB = 4MB<br />10-10-12分页中共有1024张页表:1024×4MB= 4GB</p></div></details></div>
+<ol start="4">
+<li>如何判断2个线性地址是否在同一个物理页?</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><blockquote><p>通过练习1、2题可以感受到</p></blockquote><p>前提：CR3一样。</p><p>看线性地址前20位，只要相同就在同一个物理页。<br />因为前20位确定了PDE和PTE，PTE相同一定是同一个物理页。</p><hr /><p>推导：</p><p>PTE相同，物理页相同。</p><p>PTE相同，PDE一定一样。</p><p>所以PDE、PTE一样。</p></div></details></div>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>推导：一整个物理页的属性是一致的</span></summary><div class="body"><p>有如下C代码</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> *p = <span class="number">0</span>;</span><br><span class="line">*p = <span class="number">12345678</span>;</span><br></pre></td></tr></table></figure><p>等价汇编指令是</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov dword ptr ds:[0],12345678</span><br></pre></td></tr></table></figure><p>cpu执行这行指令时如何判断这个地址可不可写？</p><p>先用段的机制检查，ds的Attribute可读，ok没问题</p><p>算线性地址,ds.base+0，为0。然后拆，10-10-12，肯定能算到一个物理页，无论线性地址为多少。</p><p>得到物理页必须经过PTE，PTE中的两个属性决定了这个物理页能不能读，能不能写。</p><hr /><p>拓展：</p><p>通过拆分线性地址0，10-10-12，找到了这个物理页，得知这个物理页不能读也不能写，那么这整一个物理页都不能读不能写。</p><p>一个物理页的属性是一样的。不会出现在同一个物理页中，上面可读不可写，下面可读可写。</p><p>已知线性地址0对应的物业页可读不可写，那么就知道对应的线性地址0~fff都可读不可写。（前20位一样，在同一个物理页上）。</p></div></details></div>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Protected_Mode/10-10-12%E5%88%86%E9%A1%B5.html">10-10-12分页</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7.html">PDE、PTE属性</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

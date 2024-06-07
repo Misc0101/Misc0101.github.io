@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>【求助文】一些暂时没找到答案的计算机问题 - Misc010</title>
+
+  
+    <meta name="description" content="在学习信息安全和计算机技术的过程中，遇到了一些问题。由于知识水平限制或其他因素，暂时无法找到答案。在此记录这些问题，并诚挚请求各位专家前辈或有经验的师傅提供帮助和指导。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【求助文】一些暂时没找到答案的计算机问题">
+<meta property="og:url" content="https://misc0101.github.io/posts/3d7b63a8.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="在学习信息安全和计算机技术的过程中，遇到了一些问题。由于知识水平限制或其他因素，暂时无法找到答案。在此记录这些问题，并诚挚请求各位专家前辈或有经验的师傅提供帮助和指导。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%B8%80%E4%BA%9B%E6%9A%82%E6%97%B6%E6%B2%A1%E6%89%BE%E5%88%B0%E7%AD%94%E6%A1%88%E7%9A%84%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%97%AE%E9%A2%98/image-20240428114357404.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%B8%80%E4%BA%9B%E6%9A%82%E6%97%B6%E6%B2%A1%E6%89%BE%E5%88%B0%E7%AD%94%E6%A1%88%E7%9A%84%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%97%AE%E9%A2%98/image-20240428114644146.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%B8%80%E4%BA%9B%E6%9A%82%E6%97%B6%E6%B2%A1%E6%89%BE%E5%88%B0%E7%AD%94%E6%A1%88%E7%9A%84%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%97%AE%E9%A2%98/image-20240428114649702.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E4%B8%80%E4%BA%9B%E6%9A%82%E6%97%B6%E6%B2%A1%E6%89%BE%E5%88%B0%E7%AD%94%E6%A1%88%E7%9A%84%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%97%AE%E9%A2%98/image-20240428103355489.png">
+<meta property="article:published_time" content="2024-04-28T03:14:18.000Z">
+<meta property="article:modified_time" content="2024-04-28T03:14:18.000Z">
+<meta property="article:author" content="Misc">
+<meta property="article:tag" content="问题求助">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E4%B8%80%E4%BA%9B%E6%9A%82%E6%97%B6%E6%B2%A1%E6%89%BE%E5%88%B0%E7%AD%94%E6%A1%88%E7%9A%84%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%97%AE%E9%A2%98/image-20240428114357404.png">
+  
+  
+  
+  <meta name="keywords" content="问题求助">
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='post'>
+    
+
+  
+
+<header class="header"><div class="logo-wrap"><a class="title" href="/"><div class="main" ff="title">Misc010</div></a></div>
+
+<nav class="menu dis-select"><a class="nav-item active" href="/">文章</a><a class="nav-item" href="/wiki/">项目</a><a class="nav-item" href="/about/">关于</a></nav>
+</header>
+
+
+<div class="widgets">
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/blog/" placeholder="文章搜索"><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc single" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">本文目录</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0%E6%A8%A1%E6%9D%BF"><span class="toc-text"> 问题描述模板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pe%E5%AF%BC%E5%87%BA%E8%A1%A8%E5%9C%B0%E5%9D%80%E8%A1%A8%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98"><span class="toc-text"> PE导出表地址表优化问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9D%97%E9%97%B4%E5%AF%B9%E9%BD%90%E5%80%BC"><span class="toc-text"> 模块间对齐值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cmp%E6%8C%87%E4%BB%A4%E4%B8%8E%E6%9C%89%E7%AC%A6%E5%8F%B7%E6%95%B0"><span class="toc-text"> CMP指令与有符号数</span></a></li></ol></div></div></widget>
+
+
+
+
+
+
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+
+      
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9F%A5%E8%AF%86/">计算机知识</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9F%A5%E8%AF%86/%E9%97%AE%E9%A2%98%E6%B1%82%E5%8A%A9/">问题求助</a></div><div id="post-meta"><span class="author">发布于</span>
+    <span class="created"><time datetime="2024-04-28T03:14:18.000Z">2024-04-28</time></span>
+    
+    <span class="updated">，更新于&nbsp;<time datetime="2024-04-28T03:14:18.000Z">2024-04-28</time></span>
+    </div></div></div>
+
+<article class='md-text content post'>
+<h1 class="article-title"><span>【求助文】一些暂时没找到答案的计算机问题</span></h1>
+<h2 id="问题描述模板"><a class="markdownIt-Anchor" href="#问题描述模板"></a> 问题描述模板</h2>
+<p><strong>问题简要描述</strong></p>
+<p><strong>博客中与这块知识相关的文章链接（可选）</strong></p>
+<p><strong>详细细节</strong></p>
+<p><strong>尝试思考的过程</strong></p>
+<p><strong>思维发散和扩展（可选）</strong></p>
+<hr />
+<hr />
+<p>目录索引表：</p>
+<table>
+<thead>
+<tr>
+<th>问题名称</th>
+<th>该问题解决的迫切程度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PE导出表地址表优化问题【问题求助中，未解决】</td>
+<td>1</td>
+</tr>
+<tr>
+<td>模块间对齐值【问题求助中，未解决】</td>
+<td>1</td>
+</tr>
+<tr>
+<td>CMP指令与有符号数【问题求助中，未解决】</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>【问题求助中，未解决】</p>
+<p>【问题已于xxx时间解决】</p>
+<p>该问题解决的迫切程度：</p>
+<ul>
+<li>0：解决强迫症，这个问题解决了可能也没啥用</li>
+<li>1：比0高，研究价值可能也不是很高</li>
+</ul>
+<h2 id="pe导出表地址表优化问题"><a class="markdownIt-Anchor" href="#pe导出表地址表优化问题"></a> PE导出表地址表优化问题</h2>
+<p><strong>问题简要描述</strong></p>
+<p>写dll时存在函数别名，在这种情况下。为什么地址表中还会将函数别名的函数地址又存一遍，而不是让序号表里多个序号指向地址表的同一项，这样就可以减少地址表中重复的函数地址存储，节省空间。</p>
+<p><strong>博客中与这块知识相关的文章链接（可选）</strong></p>
+<p><a href="/wiki/PE/%E5%AF%BC%E5%87%BA%E8%A1%A8.html">导出表</a></p>
+<p><strong>详细细节</strong></p>
+<p>测试用的dll文件源码如下，用VS 32位编译</p>
+<div class="tag-plugin grid"  style="grid-template-columns: repeat(2, 1fr);"><div class="cell" style="">
+    <figure class="highlight cpp"><figcaption><span>ArithmeticOperations.h</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> once</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Plus</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Sub</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Mul</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Div</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span>;</span><br></pre></td></tr></table></figure><figure class="highlight cpp"><figcaption><span>Source.def</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">;LIBRARY</span><br><span class="line"></span><br><span class="line">;EXPORTS	</span><br><span class="line">;	Plus   	@<span class="number">1</span></span><br><span class="line">;	;Add     = Plus			; Add is an alias <span class="keyword">for</span> Plus</span><br><span class="line">;	;Add2    = Plus			; Add2 also is an alias <span class="keyword">for</span> Plus</span><br><span class="line">;	Sub		@<span class="number">2</span> NONAME</span><br><span class="line">;	Mul    	@<span class="number">3</span></span><br><span class="line">;	Div    	@<span class="number">4</span></span><br></pre></td></tr></table></figure><p>加减乘除，对应序号1，2，3，4<br />同时还有两个别名：分别是Add，Add2作为Plus函数的别名</p>
+    </div>
+    <div class="cell" style="">
+    <figure class="highlight cpp"><figcaption><span>ArithmeticOperations.cpp</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;ArithmeticOperations.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Plus</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x + y;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Sub</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x - y;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Mul</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x * y;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Div</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x / y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+    </div>
+<p>基于这下面这两点认知：</p>
+<ol>
+<li>通过导出函数名字在导出函数名称表查完后，为什么还需要一个序号表？因为：一个导出函数可能有多个名字，所以还需要一个序号表，用于用于连接名称表和地址表。</li>
+<li>导出函数地址表的个数是NumberOfFunctions个，计算方法是：导出函数中序号最大的-导出函数中序号最小的+1。比如写dll时.def序号最小是11，最大是15，那么一共有15-11+1=5个。如果只用到11，12，13，15；14没用到，地址表中14那项函数地址补0</li>
+</ol>
+<p>以为查看dll中三张子表的情况如下图所示：认为Add，Add2，plus名称在序号表都指向同一个序号值（名称表有多少个，序号表就有多少个）。然后多个序号都指向地址表的同一项。也就是说，在地址表中函数地址0x00011235只存一次。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%B8%80%E4%BA%9B%E6%9A%82%E6%97%B6%E6%B2%A1%E6%89%BE%E5%88%B0%E7%AD%94%E6%A1%88%E7%9A%84%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%97%AE%E9%A2%98/image-20240428114357404.png" alt="image-20240428114357404" /></p>
+<p>但实际情况是：<br />
+算上别名2次，加上Plus本名，它将Plus函数函数地址在地址表存了3遍！</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%B8%80%E4%BA%9B%E6%9A%82%E6%97%B6%E6%B2%A1%E6%89%BE%E5%88%B0%E7%AD%94%E6%A1%88%E7%9A%84%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%97%AE%E9%A2%98/image-20240428114644146.png" alt="image-20240428114644146" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%B8%80%E4%BA%9B%E6%9A%82%E6%97%B6%E6%B2%A1%E6%89%BE%E5%88%B0%E7%AD%94%E6%A1%88%E7%9A%84%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%97%AE%E9%A2%98/image-20240428114649702.png" alt="image-20240428114649702" /></p>
+<p>上述实验得到的结论是：</p>
+<ol>
+<li>地址表个数无法&gt;名字表。因为即使多了别名，编译器生成的函数地址表也会再存一遍别名的函数的函数地址。它不会让名称表中多个值指向地址表中同一项，来达到优化存储的目的。</li>
+<li>NumberOfFunctions=导出函数中序号最大的-导出函数中序号最小的+1，还要进行补充：
+<ul>
+<li>导出序号不连续导致了空位，然后又有别名，别名会先占空位的位置，空位没了，地址表继续增加项数</li>
+</ul>
+</li>
+</ol>
+<p>和之前的认知不符：</p>
+<ol>
+<li>地址表个数可能&gt;名字表，因为可以多个名字对应同一个函数地址</li>
+<li>NumberOfFunctions=导出函数中序号最大的-导出函数中序号最小的+1。</li>
+</ol>
+<p><strong>尝试思考的过程</strong></p>
+<p>以函数名查找导出函数方式是先去名称表匹配，找到数组的索引值，Add和Plus得到的数组索引值没法一样，所以还需要序号表做中转。序号表用于连接函数名和地址表，所以序号表个数和名称表个数一样，这个能接受。那序号表[0]，序号表[1]，序号表[4]都存个0呗，就都指向地址表[0]，这样就节省了地址表的存储空间了，但用VS或用VC编译的dll并没有这样。</p>
+<p><strong>思维发散和扩展（可选）</strong></p>
+<p>如果想对函数地址表存的地址去重，只留下一个；再修改序号表里的关系。第一步就是道算法题了：删除无序顺序表中重复的元素，只留下一个</p>
+<p>编译器在编译时加上去重并不难，不清楚为啥没有实现</p>
+<hr />
+<p>地址表去重的工作没继续做，目前觉得没啥研究价值，可以用于导出表压缩？但压缩的这点空间好像不够看的。先记下，未来有机会再看吧</p>
+<h2 id="模块间对齐值"><a class="markdownIt-Anchor" href="#模块间对齐值"></a> 模块间对齐值</h2>
+<p><strong>问题简要描述</strong></p>
+<p>在进程空间中，模块与模块之间的对齐值为什么是64k</p>
+<p><strong>博客中与这块知识相关的文章链接（可选）</strong></p>
+<p><a href="/wiki/PE/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5_PE.html#%E5%AF%B9%E9%BD%90%E5%80%BC">wiki-PE-一些概念文章</a></p>
+<p><strong>观测细节</strong></p>
+<p>用OD拖进32位的notepad，找了两个相邻的模块</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E4%B8%80%E4%BA%9B%E6%9A%82%E6%97%B6%E6%B2%A1%E6%89%BE%E5%88%B0%E7%AD%94%E6%A1%88%E7%9A%84%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%97%AE%E9%A2%98/image-20240428103355489.png" alt="image-20240428103355489" /></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模块名</th>
+<th>基址</th>
+<th>大小</th>
+<th>基址+大小</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">IMM32</td>
+<td>75610000h</td>
+<td>26000h</td>
+<td>75636000h</td>
+</tr>
+<tr>
+<td style="text-align:left">gdi32ful</td>
+<td>75640000h</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>模块IMM32末尾地址75636000h和下一个模块gdi32ful基址75640000h，之间，填充了4000h。发现模块一和模块二之间确实是按64k对齐，即10000h。换个看法，模块IMM32和模块gdi32ful的基址也是10000h的整数倍。</p>
+<p><strong>尝试思考的过程</strong></p>
+<p>但不清楚为什么对齐值是64k，感觉像个魔数（magic number）。1个物理小页4kb，16个物理页，用段式和页式管理的知识也不清楚怎么凑出64k这个数。</p>
+<p>gpt4回答：“在进程空间中，各模块间通常采用较大的对齐值，如64KB，以避免模块间数据的冲突和便于内存管理。这种大尺寸对齐有助于操作系统更高效地分配和管理内存空间，尽管这会在一定程度上增加内存的碎片。”意思就是选个大点的尺寸呗，但笔者想要个更“好”的回答。</p>
+<h2 id="cmp指令与有符号数"><a class="markdownIt-Anchor" href="#cmp指令与有符号数"></a> CMP指令与有符号数</h2>
+<p><strong>问题简要描述</strong></p>
+<p>CMP指令执行后，如果通过SF和OF两个符号位来知道有符号数比较的结构</p>
+<p><strong>博客中与这块知识相关的文章链接（可选）</strong></p>
+<p><a href="/wiki/Assembly_Language/%E6%A0%87%E5%BF%97%E5%AF%84%E5%AD%98%E5%99%A8%E5%92%8CJCC%E6%8C%87%E4%BB%A4.html">标志寄存器和JCC指令</a></p>
+<p><strong>详细细节</strong></p>
+<p>CMP（比较)指令执行从目的操作数中减去源操作数的隐含减法操作，并且不修改任何操作数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CMP destination,source</span><br></pre></td></tr></table></figure>
+<p>如果比较的是两个有符号数,则符号标志位、零标志位和溢出标志位表示的两个操作数之间的关系如下表所示:</p>
+<table>
+<thead>
+<tr>
+<th>CMP结果</th>
+<th>标志位</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目的操作数＜源操作数</td>
+<td>SF≠OF</td>
+<td></td>
+</tr>
+<tr>
+<td>目的操作数＞源操作数</td>
+<td>SF=OF</td>
+<td></td>
+</tr>
+<tr>
+<td>目的操作数＝源操作数</td>
+<td>ZF=1</td>
+<td>一样大，结果=0，ZF=1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>尝试思考的过程</strong></p>
+<table>
+<thead>
+<tr>
+<th>目的操作数＜源操作数（不够减）</th>
+<th>目的操作数＞源操作数（够减）</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>正-正&lt;=&gt;正+负</td>
+<td>比如2-3，结果为负，SF=1。正+负不会有溢出，OF=0</td>
+<td>比如3-2，结果为正，SF=0。没有溢出，OF=0</td>
+</tr>
+<tr>
+<td>正-负&lt;=&gt;正+正</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>负-正&lt;=&gt;正+负</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>负-负&lt;=&gt;正+负</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>SF表示有符号整型的最高有效位。(0指示结果为正，反之则为负)</p>
+<p>OF用于反映有符号数加减运算所得结果是否溢出</p>
+<hr />
+<p>正＋正=正，但如果结果是负数，则说明有溢出<br />
+负＋负=负，但如果结果是正数，则说明有溢出</p>
+<p>正＋负，永远都不会有溢出</p>
+</blockquote>
+<p>没分析出来</p>
+
+
+
+<div class="article-footer reveal fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/posts/df83ab2b.html">线程同步与线程互斥</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/posts/32e8f536.html">那些有着异曲同工之处的计算机知识</a></div></section></div>
+
+
+
+
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

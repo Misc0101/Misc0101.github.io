@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Thinking in C++：引用I-基础概念 - Misc010</title>
+
+  
+    <meta name="description" content="A reference is like a constant pointer that is automatically dereferenced by the compiler, so it has the effect of being an alias to an object.  Declaring references Initialization establishes a bindi">
+<meta property="og:type" content="website">
+<meta property="og:title" content="引用I-基础概念">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Thinking_in_C++/%E5%BC%95%E7%94%A8I-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="A reference is like a constant pointer that is automatically dereferenced by the compiler, so it has the effect of being an alias to an object.  Declaring references Initialization establishes a bindi">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-05T14:00:23.000Z">
+<meta property="article:modified_time" content="2024-03-05T14:00:23.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Thinking_in_C++/Pointers.html"><div class="main" ff="title">Thinking in C++</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Thinking_in_C++/" placeholder="在/wiki/Thinking_in_C++/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">Ch8 Constants</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/Pointers.html#start"><span class="toc-text">Pointers</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/Function_arguments&return_values.html"><span class="toc-text">Function arguments & return values</span></a></div></div><div class="widget-header cap dis-select"><span class="name">Ch10 Name Control</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/static.html"><span class="toc-text">static</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/static%EF%BC%88%E5%BA%9F%E5%BC%83%E8%8D%89%E7%A8%BF%EF%BC%89.html"><span class="toc-text">static（废弃草稿）</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/Namespaces.html"><span class="toc-text">Namespaces</span></a></div></div><div class="widget-header cap dis-select"><span class="name">Ch11 References&the Copy-Constructor</span></div><div class="widget-body fs14"><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Thinking_in_C++/%E5%BC%95%E7%94%A8I-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5.html"><span class="toc-text">引用I-基础概念</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#declaring-references"><span class="toc-text"> Declaring references</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rules-of-references"><span class="toc-text"> Rules of references</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#references-in-functions"><span class="toc-text"> References in functions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pointers-vs-references"><span class="toc-text"> Pointers vs. References</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#restrictions"><span class="toc-text"> Restrictions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#understanding-of-references"><span class="toc-text"> Understanding of references</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#why-reference"><span class="toc-text"> Why Reference</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/%E5%BC%95%E7%94%A8II.html"><span class="toc-text">引用II</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/%E6%8B%B7%E8%B4%9D%E6%9E%84%E9%80%A0I.html"><span class="toc-text">拷贝构造I</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><span class="title">汇编语言</span><span class="excerpt">x86汇编笔记：以滴水三期_汇编语言课程为框架，《汇编语言4th-王爽》和《汇编语言-基于x86处理器-第七版》为补充。</span></a><a class="item wiki" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><span class="title">C++</span><span class="excerpt">滴水三期_C++语言笔记，C++能做的C都能做，只不过如果使用C++，可以节省很多时间，因为编译器帮编程人员做了很多工作，让编程人员省事。学习的目标：相对于C，编译器替我们做了哪些工作。</span></a><a class="item wiki" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><span class="title">C</span><span class="excerpt">滴水三期_C语言笔记，以逆向角度看待和学习C语言，精彩点：堆栈图与指针。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="title">科学上网技术</span><span class="excerpt">从正常网络通信数据包通信过程出发，逐步推导到使用代理协议进行科学上网，随后依次介绍各代理协议ss、trojan、vmess、vless原理与节点搭建，还有相关的工具、技术、概念介绍。</span></a><a class="item wiki" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><span class="title">Windows API编程</span><span class="excerpt">滴水三期_win32 api笔记，学习Windows API编程的困难并不在于函数参数参数众多或者英文不好这类表象原因，而是需要从Windows系统的整体知识架构出发来学习这些API，深入理解每个参数背后的含义和背景。如此，未来查阅MSDN时便不再像是看天书。</span></a><a class="item wiki" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><span class="title">数据的运算与表示</span><span class="excerpt">滴水三期_进制笔记，学习与理解进制、数据宽度、数的表示、位运算等概念。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Thinking_in_C++/Pointers.html">Thinking in C++</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-03-05T14:00:23.000Z">2024-03-05</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>引用I-基础概念</span></h1>
+<p>A reference is like a constant pointer that is automatically dereferenced by the compiler, so it has the effect of being an alias to an object.</p>
+<h2 id="declaring-references"><a class="markdownIt-Anchor" href="#declaring-references"></a> Declaring references</h2>
+<p>Initialization establishes a binding</p>
+<ol>
+<li>
+<p>本地或全局变量</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">type &amp;refname =name;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">3</span>;</span><br><span class="line"><span class="type">int</span>&amp; y = x;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>A reference must be initialized when it is created.</li>
+</ul>
+</li>
+<li>
+<p>参数列表或成员变量</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">type &amp;refname</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(<span class="type">int</span> &amp;x)</span></span>;</span><br><span class="line"><span class="built_in">f</span>(y);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>在函数被调用或构造函数执行时初始化</li>
+</ul>
+</li>
+</ol>
+<h2 id="rules-of-references"><a class="markdownIt-Anchor" href="#rules-of-references"></a> Rules of references</h2>
+<ul>
+<li>
+<p>绑定后不能在改变，不能再指向别人</p>
+</li>
+<li>
+<p>Assignment changes the object referred-to，改变引用的值就是改变它指向的那个变量的值</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span>&amp; y = x;</span><br><span class="line">y = <span class="number">12</span>; <span class="comment">// Changes value of x</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>引用绑定的目标必须有位置，不能是一个临时的结果</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">(<span class="type">int</span> &amp;)</span></span>;</span><br><span class="line"><span class="built_in">func</span>(i * <span class="number">3</span>); <span class="comment">// Warning or error!</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="references-in-functions"><a class="markdownIt-Anchor" href="#references-in-functions"></a> References in functions</h2>
+<p>You can think of a reference as nothing more than a syntax convenience, if you want.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//: C11:Reference.cpp</span></span><br><span class="line"><span class="comment">// Simple C++ references</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span>* <span class="title">f</span><span class="params">(<span class="type">int</span>* x)</span> </span>&#123;</span><br><span class="line">  (*x)++;</span><br><span class="line">  <span class="keyword">return</span> x; <span class="comment">// Safe, x is outside this scope</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span>&amp; <span class="title">g</span><span class="params">(<span class="type">int</span>&amp; x)</span> </span>&#123;</span><br><span class="line">  x++; <span class="comment">// Same effect as in f()</span></span><br><span class="line">  <span class="keyword">return</span> x; <span class="comment">// Safe, outside this scope</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span>&amp; <span class="title">h</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> q;</span><br><span class="line"><span class="comment">//!  return q;  // Error</span></span><br><span class="line">  <span class="type">static</span> <span class="type">int</span> x;</span><br><span class="line">  <span class="keyword">return</span> x; <span class="comment">// Safe, x lives outside this scope</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> a = <span class="number">0</span>;</span><br><span class="line">  <span class="built_in">f</span>(&amp;a); <span class="comment">// Ugly (but explicit)</span></span><br><span class="line">  <span class="built_in">g</span>(a);  <span class="comment">// Clean (but hidden)</span></span><br><span class="line">  <span class="built_in">h</span>()=<span class="number">16</span>;<span class="comment">//返回的是reference，可以做左值  </span></span><br><span class="line">&#125; <span class="comment">///:~</span></span><br></pre></td></tr></table></figure>
+<p>使用引用，会更清晰，但<code>g(a)</code>的形式看不出是by-value还是by-references，表明上看是传一个变量名a，但实际上函数内部可能会修改到传的这个变量a值</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>上面h()做左值的问题</span></summary><div class="body"><p>左值是可以被赋值的值。与之相对的是右值（R-value），通常指那些不能被赋值的临时值或字面值</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span>&amp; <span class="title">h</span><span class="params">()</span>        <span class="comment">// 返回了一个引用类型，可以做左值</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span>* <span class="title">g</span><span class="params">()</span>        <span class="comment">// 返回类型是一个指针类型，返回了&amp;x，x的地址，对它解引用后可做左值</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &amp;x;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">h</span>() = <span class="number">2</span>;            <span class="comment">// 返回的引用没有名字，匿名了，h()在这里表示是x的别名，这一行实际上就是 x = 2</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, x);</span><br><span class="line"></span><br><span class="line">    *<span class="built_in">g</span>() = <span class="number">4</span>;           <span class="comment">// 实际上就是 *(&amp;x)，即x = 4</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, x);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><figure class="highlight cpp"><figcaption><span>运行输出</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2</span></span><br><span class="line"><span class="number">4</span></span><br></pre></td></tr></table></figure><p><code>int&amp; h()</code>：这个函数返回一个对整数 <code>x</code> 的引用。由于返回的是引用，所以在 <code>main</code> 函数中 <code>h()</code> 可以被当作 <code>x</code> 来使用，它是 <code>x</code> 的一个别名。因此 <code>h() = 2;</code> 等同于 <code>x = 2;</code>。</p><p><code>int* g()</code>：这个函数返回一个指向整数 <code>x</code> 的指针。当在 <code>main</code> 函数中使用 <code>*g()</code> 时，你实际上是在解引用返回的指针，也就是获取指针所指向的值，即 <code>x</code>。所以 <code>*g() = 4;</code> 相当于 <code>*(&amp;x) = 4;</code>，进一步就是 <code>x = 4;</code>。</p><hr /><p>对于<code>h()</code>，如果不想被做左值，加上const，表示返回的是常量引用（指向的是常量），你不能通过这个引用来修改这个引用指向的值；g()指针，同理</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">const</span> <span class="type">int</span>&amp; <span class="title">h</span><span class="params">()</span>        <span class="comment">// 返回的是一个常量引用（指向的是常量），你不能用这个引用来修改它指向的值</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">const</span> <span class="type">int</span>* <span class="title">g</span><span class="params">()</span>        <span class="comment">// 返回一个指向常量的指针，你不能解引用后来修改它指向的值</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &amp;x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></details></div>
+<h2 id="pointers-vs-references"><a class="markdownIt-Anchor" href="#pointers-vs-references"></a> Pointers vs. References</h2>
+<table>
+<thead>
+<tr>
+<th>References</th>
+<th>Pointers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>can’t be null</td>
+<td>can be set to null</td>
+</tr>
+<tr>
+<td>are dependent on an existing variable,they are an alias别名 for an variable</td>
+<td>pointer is independent of existing objects</td>
+</tr>
+<tr>
+<td>can’t change to a new “address” location</td>
+<td>can change to point to a different address</td>
+</tr>
+</tbody>
+</table>
+<h2 id="restrictions"><a class="markdownIt-Anchor" href="#restrictions"></a> Restrictions</h2>
+<ul>
+<li>
+<p>No references to references</p>
+</li>
+<li>
+<p>No pointers to references</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span>&amp; *p;   <span class="comment">// illegal</span></span><br><span class="line">           <span class="comment">//指向int&amp;的指针</span></span><br></pre></td></tr></table></figure>
+<p>所以也没有arrays of references</p>
+<ul>
+<li>Reference to pointer is ok</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(<span class="type">int</span>*&amp; p)</span></span>; <span class="comment">// p是引用，是int指针类型p的别名</span></span><br><span class="line">                 <span class="comment">// 因为指针变量p有位置，所以引用可以是它的别名</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>以上两点是因为引用在反汇编中看是没有位置的，找不到在哪里来表示了这个引用，正如开头所说，引用是编译器智能维护的一个const pointer</p>
+<h2 id="understanding-of-references"><a class="markdownIt-Anchor" href="#understanding-of-references"></a> Understanding of references</h2>
+<ol>
+<li>表面上看，是给变量起别名，对别名的操作就是对它指向的那个object的操作</li>
+<li>实际上，引用是通过constant pointer实现的，由编译器维护</li>
+</ol>
+<h2 id="why-reference"><a class="markdownIt-Anchor" href="#why-reference"></a> Why Reference</h2>
+<ol>
+<li>安全<br />
+弱化版的指针，不能做运算，不能取值，不能指向别的地方。</li>
+<li>语义清晰<br />
+让代码少了很多*号</li>
+</ol>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Thinking_in_C++/Namespaces.html">Namespaces</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/Thinking_in_C++/%E5%BC%95%E7%94%A8II.html">引用II</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

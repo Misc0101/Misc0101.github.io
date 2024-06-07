@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>PE：导出表 - Misc010</title>
+
+  
+    <meta name="description" content="前言 一个exe的进程空间由多个模块组成。用OD打开fg.exe，点击按钮E，可以看到进程空间中所有的模块。双击运行fg时，fg如何知道需要加载哪些模块到自己的进程空间中？  导入表：记录当前PE文件需要用到的其他PE文件有哪些，以及用到了其他PE文件中的哪些函数 导出表：存储当前PE文件提供了哪些函数给别人用，函数的地址是多少 一般情况下，dll提供函数给别人用（有导出表），exe用别人提供的">
+<meta property="og:type" content="website">
+<meta property="og:title" content="导出表">
+<meta property="og:url" content="https://misc0101.github.io/wiki/PE/%E5%AF%BC%E5%87%BA%E8%A1%A8.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="前言 一个exe的进程空间由多个模块组成。用OD打开fg.exe，点击按钮E，可以看到进程空间中所有的模块。双击运行fg时，fg如何知道需要加载哪些模块到自己的进程空间中？  导入表：记录当前PE文件需要用到的其他PE文件有哪些，以及用到了其他PE文件中的哪些函数 导出表：存储当前PE文件提供了哪些函数给别人用，函数的地址是多少 一般情况下，dll提供函数给别人用（有导出表），exe用别人提供的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240308163454804.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426165812680.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426170422416.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426170902166.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426171133167.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426171328641.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426171429883.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240420205833773.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426171910831.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426172120444.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426172643310.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426173130372.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426173446161.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426173130372.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240428114357404.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240428114644146.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426174703781.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426174913978.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426175707026.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426180829726.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426181011847.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240427165237598.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240427170012589.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240427170349531.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240427173157353.png">
+<meta property="article:published_time" content="2024-04-17T07:55:04.000Z">
+<meta property="article:modified_time" content="2024-04-17T07:55:04.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240308163454804.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/PE/Overview_PE.html"><div class="main" ff="title">PE</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/PE/" placeholder="在/wiki/PE/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">基本概念</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/Overview_PE.html#start"><span class="toc-text">Overview</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5_PE.html"><span class="toc-text">一些概念</span></a></div></div><div class="widget-header cap dis-select"><span class="name">字段解读</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/DOS%E9%83%A8%E5%88%86.html"><span class="toc-text">DOS部分</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/PE%E5%A4%B4.html"><span class="toc-text">PE头</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E8%8A%82%E8%A1%A8.html"><span class="toc-text">节表</span></a></div></div><div class="widget-header cap dis-select"><span class="name">练习和项目</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BB%83%E4%B9%A0_PE.html"><span class="toc-text">练习</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BC%96%E7%A8%8B%E7%BB%83%E4%B9%A0_PE.html"><span class="toc-text">编程练习</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/PE%E8%A7%A3%E6%9E%90%E5%99%A8.html"><span class="toc-text">PE解析器</span></a></div></div><div class="widget-header cap dis-select"><span class="name">节操作</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%A9%BA%E7%99%BD%E5%8C%BA%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81.html"><span class="toc-text">空白区添加代码</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E6%89%A9%E5%A4%A7%E8%8A%82.html"><span class="toc-text">扩大节</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E6%96%B0%E5%A2%9E%E8%8A%82.html"><span class="toc-text">新增节</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%90%88%E5%B9%B6%E8%8A%82.html"><span class="toc-text">合并节</span></a></div></div><div class="widget-header cap dis-select"><span class="name">数据目录表</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E5%92%8C%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93.html"><span class="toc-text">静态链接库和动态链接库</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/PE/%E5%AF%BC%E5%87%BA%E8%A1%A8.html"><span class="toc-text">导出表</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text"> 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%BC%E5%87%BA%E8%A1%A8"><span class="toc-text"> 导出表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B"><span class="toc-text"> 例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BC%E5%87%BA%E5%87%BD%E6%95%B0%E5%9C%B0%E5%9D%80%E8%A1%A8"><span class="toc-text"> 导出函数地址表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BC%E5%87%BA%E5%87%BD%E6%95%B0%E5%90%8D%E7%A7%B0%E8%A1%A8"><span class="toc-text"> 导出函数名称表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BC%E5%87%BA%E5%87%BD%E6%95%B0%E5%BA%8F%E5%8F%B7%E8%A1%A8"><span class="toc-text"> 导出函数序号表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%A1%A8%E8%BF%87%E7%A8%8B"><span class="toc-text"> 查表过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A5%E5%87%BD%E6%95%B0%E5%90%8D%E6%9D%A5%E5%AF%BB%E6%89%BE"><span class="toc-text"> 以函数名来寻找</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A5%E5%BA%8F%E5%8F%B7%E6%9D%A5%E5%AF%BB%E6%89%BE"><span class="toc-text"> 以序号来寻找</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text"> 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E6%9C%89%E5%BA%8F%E5%8F%B7%E8%A1%A8"><span class="toc-text"> 为什么要有序号表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E7%A8%8B%E5%AE%9E%E7%8E%B0"><span class="toc-text"> 编程实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%93%E5%8D%B0%E5%AF%BC%E5%87%BA%E8%A1%A8"><span class="toc-text"> 打印导出表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E5%87%BD%E6%95%B0%E5%9C%B0%E5%9D%80%E8%BF%87%E7%A8%8B"><span class="toc-text"> 查函数地址过程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A5%E5%BA%8F%E5%8F%B7%E6%9F%A5%E8%AF%A2"><span class="toc-text"> 以序号查询</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A5%E5%87%BD%E6%95%B0%E5%90%8D%E6%9F%A5%E8%AF%A2"><span class="toc-text"> 以函数名查询</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A9%E5%B1%95lordpe%E5%90%88%E5%B9%B6%E5%AF%BC%E5%87%BA%E8%A1%A8%E4%B8%89%E5%BC%A0%E5%AD%90%E8%A1%A8"><span class="toc-text"> 扩展：LordPE合并导出表三张子表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-text"> 代码实现</span></a></li></ol></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8.html"><span class="toc-text">重定位表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%AF%BC%E5%85%A5%E8%A1%A8.html"><span class="toc-text">导入表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BB%91%E5%AE%9A%E5%AF%BC%E5%85%A5%E8%A1%A8.html"><span class="toc-text">绑定导入表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E8%B5%84%E6%BA%90%E8%A1%A8.html"><span class="toc-text">资源表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%A7%BB%E5%8A%A8%E5%90%84%E7%A7%8D%E8%A1%A8.html"><span class="toc-text">移动各种表</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/To_Learn_List.html"><span class="toc-text">To Learn List</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><span class="title">Protected_Mode</span><span class="excerpt">滴水三期_保护模式笔记。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/PE/Overview_PE.html">PE</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-04-17T07:55:04.000Z">2024-04-17</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>导出表</span></h1>
+<h2 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h2>
+<p>一个exe的进程空间由多个模块组成。用OD打开fg.exe，点击按钮E，可以看到进程空间中所有的模块。双击运行fg时，fg如何知道需要加载哪些模块到自己的进程空间中？</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240308163454804.png" alt="image-20240308163454804" /></p>
+<p>导入表：记录当前PE文件需要用到的其他PE文件有哪些，以及用到了其他PE文件中的哪些函数<br />
+导出表：存储当前PE文件提供了哪些函数给别人用，函数的地址是多少</p>
+<p>一般情况下，dll提供函数给别人用（有导出表），exe用别人提供的函数（没导出表）。但实际上，exe和dll都是PE文件，都可以提供函数给别人用，都可以有导出表。</p>
+<p>本小节讲解导出表，从拓展PE头数据目录表数据的第一个成员得到导出表的起始地址（这个值是RVA）和大小。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_DATA_DIRECTORY</span> &#123;</span></span><br><span class="line">    DWORD   VirtualAddress;</span><br><span class="line">    DWORD   Size;</span><br><span class="line">&#125; IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;</span><br></pre></td></tr></table></figure>
+<p>这个Size是算上导出表IMAGE_EXPORT_DIRECTORY结构体+其子表一共占用的空间，单论IMAGE_EXPORT_DIRECTORY结构体的大小是40个字节。</p>
+<blockquote>
+<p>Size这个值是编译器编译后填写的值，没有实际意义。导出表有自己的格式结构体字段来找到它的数据，这个Size说是改掉也可以，不影响执行，但俺还没试过</p>
+</blockquote>
+<h2 id="导出表"><a class="markdownIt-Anchor" href="#导出表"></a> 导出表</h2>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_EXPORT_DIRECTORY</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    DWORD Characteristics;       <span class="comment">// 未使用</span></span><br><span class="line">    DWORD TimeDateStamp;         <span class="comment">// 时间戳，表示当前PE文件（DLL）编译时的时间</span></span><br><span class="line">    WORD MajorVersion;           <span class="comment">// 未使用</span></span><br><span class="line">    WORD MinorVersion;           <span class="comment">// 未使用</span></span><br><span class="line">    DWORD Name;                  <span class="comment">// 当前导出表文件名（字符串）的起始地址，是个RVA值</span></span><br><span class="line">    DWORD Base;                  <span class="comment">// 导出函数起始序号，用于计算导出函数的实际序号</span></span><br><span class="line">    DWORD NumberOfFunctions;     <span class="comment">// 所有导出函数的个数，包括具名和匿名函数</span></span><br><span class="line">    DWORD NumberOfNames;         <span class="comment">// 具名导出函数的个数</span></span><br><span class="line">    DWORD AddressOfFunctions;    <span class="comment">// 导出函数地址表的起始地址，是个RVA值</span></span><br><span class="line">    DWORD AddressOfNames;        <span class="comment">// 导出函数名称表的起始地址，是个RVA值</span></span><br><span class="line">    DWORD AddressOfNameOrdinals; <span class="comment">// 导出函数序号表的起始地址，是个RVA值</span></span><br><span class="line">&#125; IMAGE_EXPORT_DIRECTORY, *PIMAGE_EXPORT_DIRECTORY;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>
+<p>Characteristics：未使用，总是为0</p>
+</li>
+<li>
+<p>TimeDateStamp：时间戳，当前DLL文件编译时的时间</p>
+<ul>
+<li>GMT时间（当前时间与<code>1970年01月01日00时00分00秒</code>差的秒数）。</li>
+<li>标准PE中的TimeDateStamp字段和这个一样，都是记录当前PE文件什么时候生成的。</li>
+</ul>
+</li>
+<li>
+<p>MajorVersion：输出表的主版本号，未使用，设置为0</p>
+</li>
+<li>
+<p>MinorVersion：输出表的次版本号，未使用，设置为0</p>
+</li>
+<li>
+<p>Name：指向一个以’\0’结尾的ASCII字符串，这个值是RVA。指向的字符串是当前导出表文件的名字（如Kernel32.dll）。</p>
+<ul>
+<li>辅助信息，可以修改。</li>
+</ul>
+</li>
+<li>
+<p><strong>Base</strong>：导出函数的起始序号，也就是.def中最小的导出序号。</p>
+<ul>
+<li>使用导出序号查询导出函数函数地址的过程：先用导出序号-Base（起始序号），用减后的数字作为索引去<strong>导出函数地址表</strong>查表得到导出函数的函数地址。</li>
+</ul>
+</li>
+<li>
+<p><strong>NumberOfFunctions</strong>：当前PE文件中一共有多少个导出函数，这个数除了真实有的函数地址，还包括空缺补位。</p>
+<ul>
+<li>这个字段的值=导出函数中序号最大的-导出函数中序号最小的+1。比如写dll时.def序号最小是11，最大是15，那么一共有15-11+1=5个。（不是那么准确，具体见<a href="/posts/3d7b63a8.html#pe%E5%AF%BC%E5%87%BA%E8%A1%A8%E5%9C%B0%E5%9D%80%E8%A1%A8%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98">这篇文章</a>）</li>
+</ul>
+</li>
+<li>
+<p><strong>NumberOfNames</strong>：有名导出函数的个数，包括函数别名。</p>
+</li>
+<li>
+<p><strong>AddressOfFunctions</strong>：导出函数地址表的起始地址，是个RVA值。</p>
+<ul>
+<li>
+<p>AddressOfFunctions指向了一张表，这张表里存储了该PE文件中所有导出函数的函数地址。32位下函数地址宽度为4字节。</p>
+</li>
+<li>
+<p>导出函数地址表（EAT，Export Address Table）：数组，里面存的是所有导出函数的函数地址。未使用的导出序号在这个表项目中对应的元素为0。数组个数由NumberOfFunctions确定。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>AddressOfNames</strong>：导出函数名称表的起始地址，是个RVA值。</p>
+<ul>
+<li>AddressOfNames指向了一张表，表里存的是RVA地址（32位下地址宽度为4字节），这个地址指向以’\0’作为结束符的ASCII字符串。所有导出函数函数名和别名的字符串地址都在这个表中。</li>
+<li>表中存的字符串地址按字符串名称从小到大排序了，小的字符串的地址在前面。比如导出函数名有Plus，Mul，Div，那么在这个表中存的顺序依次是Div字符串的地址，Mul字符串的地址，Plus字符串的地址。数组个数由NumberOfNames确定。</li>
+<li>导出函数名称表（ENT， Export Name Table）：数组，里面存的是个RVA地址，每个地址均指向以’\0’作为结束符的ASCII字符串，这个字符串是具名导出函数的函数名称或别名。</li>
+</ul>
+</li>
+<li>
+<p><strong>AddressOfNameOrdinals</strong>：导出函数序号表的起始地址，是个RVA值。</p>
+<ul>
+<li>导出函数序号表（EOT，Export Ordinal Table，通常称为Ordinal Table）：数组，每个成员大小2个字节，存的是导出函数的序号，这个序号+Base后才是.def里导出序号的值。</li>
+</ul>
+</li>
+</ol>
+<p><strong>导出函数地址表（EAT，Export Address Table）</strong></p>
+<ul>
+<li>起始地址：由AddressOfFunctions指出，这个值是个RVA</li>
+<li>数据结构：地址数组，存的是所有导出函数的RVA函数地址，加上ImageBase才是真正的函数地址。</li>
+<li>元素大小：4字节，一个地址</li>
+<li>内容：元素为非0的，是某个导出函数的函数地址；未使用的导出序号在这个地址数组中对应的元素为0</li>
+<li>数组个数：由NumberOfFunctions确定</li>
+</ul>
+<p><strong>导出函数名称表（ENT， Export Name Table）</strong></p>
+<ul>
+<li>起始地址：由AddressOfNames指出，这个值是个RVA</li>
+<li>数据结构：地址数组</li>
+<li>元素大小：一个地址，32位下地址宽度为4字节</li>
+<li>内容：每个元素都是一个地址，每个地址都是一个指向以’\0’作为结束符的ASCII字符串。这个字符串是导出函数的函数名和别名</li>
+<li>有顺序：按名称大小排序，小的字符串的地址在前面。比如导出函数有Plus，Mul，Div，那么在这个表中存的字符串地址顺序依次是Div字符串的地址，Mul字符串的地址，Plus字符串的地址</li>
+<li>数组个数：由NumberOfNames确定</li>
+<li>函数名字这个字符串在文件中的位置是不确定的；而名称表中字符串地址是按字符串大小排序的。也就是说，函数名为Axx开头的字符串地址在名称表中排前面，而Axx这个函数名，在文件中存放的位置可能比Bxx这个函数名的地址高</li>
+</ul>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426165812680.png" alt="image-20240426165812680" /></p>
+<p><strong>导出函数序号表（EOT，Export Ordinal Table，通常称为Ordinal Table）</strong></p>
+<ul>
+<li>起始地址：由AddressOfNameOrdinals指出，这个值是个RVA</li>
+<li>数据结构：数组，该数组存的是导出函数的序号</li>
+<li>元素大小：2字节，一个数</li>
+<li>内容：每个元素都是一个序号</li>
+<li>数组个数：<u>导出函数名称表有几项，这个表就有几项</u>，也就是NumberOfFunctions个</li>
+</ul>
+<hr />
+<p>地址表和名称表哪个表的项数多？不一定，一个函数地址，可能有多个不同的名字，本名+别名。这这种情况下，名称表个数会&gt;地址表个数。但实际尝试下来发现名称表个数没法&gt;地址表个数，具体见<a href="/posts/3d7b63a8.html#pe%E5%AF%BC%E5%87%BA%E8%A1%A8%E5%9C%B0%E5%9D%80%E8%A1%A8%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98">这篇文章</a>。</p>
+<h2 id="例"><a class="markdownIt-Anchor" href="#例"></a> 例</h2>
+<p>用VC编译如下代码（debug下）得到本小节中演示的dll。（VC编译出的dll文件对齐和内存对齐都是1000h，免去RVA转FOA的计算）</p>
+<div class="tag-plugin grid"  style="grid-template-columns: repeat(2, 1fr);"><div class="cell" style="">
+    <figure class="highlight cpp"><figcaption><span>ArithmeticOperations.h</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> once</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Plus</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Sub</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Mul</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Div</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span>;</span><br></pre></td></tr></table></figure><figure class="highlight cpp"><figcaption><span>Source.def</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">LIBRARY</span><br><span class="line"></span><br><span class="line">EXPORTS	</span><br><span class="line">	Plus   	@<span class="number">12</span></span><br><span class="line">	Sub		@<span class="number">16</span> NONAME</span><br><span class="line">	Mul    	@<span class="number">13</span></span><br><span class="line">	Div    	@<span class="number">17</span></span><br></pre></td></tr></table></figure>
+    </div>
+    <div class="cell" style="">
+    <figure class="highlight cpp"><figcaption><span>ArithmeticOperations.cpp</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;ArithmeticOperations.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Plus</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x + y;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Sub</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x - y;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Mul</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x * y;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> __stdcall <span class="title">Div</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x / y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+    </div>
+<p>根据数据目录表找到导出表的RVA为：0002DF10h，大小为179h。</p>
+<blockquote>
+<p>179h计算来源：（上一个编译的dll的大小是179h，想试算看这个大小试怎么得到的。即使算上函数前后的int 3，离这个数还是远远不够，遂放弃。这里是遗留下的草稿）</p>
+<p>IMAGE_EXPORT_DIRECTORY结构体，40个字节；</p>
+<p>Name指向的子表大小，从0002DF5Eh起到2df67h，大小为10个字节；</p>
+<p>AddressOfFunctions指向的子表大小，从0002DF38h起到0002DF4bh，20个字节；每项是个函数地址，还要算上这段函数硬编码占的空间，jmp+真正的函数，Plus函数占5字节（jmp）+39（函数内容）=44字节，Mul函数占5+40=45字节，Sub函数占5+39=44字节，Div函数占5+40=45字节；一共20+44+45+44+45=198字节</p>
+<p>AddressOfNames指向的子表大小，从0002DF4Ch起到0002DF57h，12个字节；表项指向的字符串占的空间，从0002DF68h到0002DF70h，13个字节；一共25个字节；</p>
+<p>AddressOfNameOrdinals指向的子表大小，从0002DF58h起到0002DF5dh，6个字节。</p>
+<p>一共40+10+?+25+6=267=</p>
+<p>81+?=377</p>
+<p>179h=377d</p>
+<p>差296字节-20=276/4=69？</p>
+</blockquote>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426170422416.png" alt="image-20240426170422416" /></p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DWORD Characteristics</td>
+<td>0h</td>
+</tr>
+<tr>
+<td>DWORD TimeDateStamp</td>
+<td>662B6D63h</td>
+</tr>
+<tr>
+<td>WORD MajorVersion</td>
+<td>0h</td>
+</tr>
+<tr>
+<td>WORD MinorVersion</td>
+<td>0h</td>
+</tr>
+<tr>
+<td>DWORD Name</td>
+<td>0002DF62h</td>
+</tr>
+<tr>
+<td>DWORD Base</td>
+<td>Ch</td>
+</tr>
+<tr>
+<td>DWORD NumberOfFunctions</td>
+<td>6</td>
+</tr>
+<tr>
+<td>DWORD NumberOfNames</td>
+<td>3</td>
+</tr>
+<tr>
+<td>DWORD AddressOfFunctions</td>
+<td>0002DF38h</td>
+</tr>
+<tr>
+<td>DWORD AddressOfNames</td>
+<td>0002DF50h</td>
+</tr>
+<tr>
+<td>DWORD AddressOfNameOrdinals</td>
+<td>0002DF5Ch</td>
+</tr>
+</tbody>
+</table>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426170902166.png" alt="image-20240426170902166" /></p>
+<p>Name字段的值是0002DF62h，这个值是一个字符串的起始地址，找过去开始读，以0结尾，名字是“MyDll.dll”。（俺用VC编译时工程名是MyDll.dll，拖到实体机后改名改为MyDll_VC.dll的）</p>
+<h3 id="导出函数地址表"><a class="markdownIt-Anchor" href="#导出函数地址表"></a> 导出函数地址表</h3>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426171133167.png" alt="image-20240426171133167" /></p>
+<p>AddressOfFunctions字段的值是0002DF38h，这个值是导出函数地址表的起始地址，这个地址表每一项大小是4字节，找过去，表项的数量是NumberOfFunctions个，得到导出函数地址表如下：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>表项的内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>00001014h</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0000100Ah</td>
+</tr>
+<tr>
+<td>2</td>
+<td>00000000h</td>
+</tr>
+<tr>
+<td>3</td>
+<td>00000000h</td>
+</tr>
+<tr>
+<td>4</td>
+<td>0000100Fh</td>
+</tr>
+<tr>
+<td>5</td>
+<td>00001005h</td>
+</tr>
+</tbody>
+</table>
+<p>（序号2和3是空缺位，补0，因为前面的.def文件用的序号不连续，没用到序号14和序号15）</p>
+<figure class="highlight cpp"><figcaption><span>Source.def</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">LIBRARY</span><br><span class="line"></span><br><span class="line">EXPORTS	</span><br><span class="line">	Plus   	@<span class="number">12</span></span><br><span class="line">	Sub		@<span class="number">16</span> NONAME</span><br><span class="line">	Mul    	@<span class="number">13</span></span><br><span class="line">	Div    	@<span class="number">17</span></span><br></pre></td></tr></table></figure>
+<p>表项里存的是函数地址，是个RVA值。可以通过这个地址找过去，将对应的字节贴到OD里看反汇编，来知道这个函数地址是对应上面写的Plus、Sub、Mul、Div中的哪一个（这里写出对应写的哪个函数是为了后面查导出表时方便观察学习）。</p>
+<p>以序号0为例来体现这个过程，序号0表项存的是00001014h，查过去，看到字节码是个jmp，也能接着查。jmp+相对偏移，相对偏移是17h，正数，说明实际的函数地址比这个jmp指令高17个字节。目前jmp指令FOA是1014h，从1019h(jmp指令下一条指令的地址)后跳17个字节，就来到真正的函数地址。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426171328641.png" alt="image-20240426171328641" /></p>
+<p>看到了55 8B（函数栈帧开头的套路），随便复制一段字节码，假设是蓝颜色方框里的内容</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426171429883.png" alt="image-20240426171429883" /></p>
+<p>随便用OD打开一个程序，然后修改反汇编区中的二进制，将上面蓝颜色方框的内容贴进去，看对应的汇编指令是什么。这个例子看出是Add函数</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240420205833773.png" alt="image-20240420205833773" /></p>
+<p>其他三个函数地址都用这样的方法得知对应之前写dll时的哪个函数。对上面的表格再加一列，得到下面的表格：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>表项的内容</th>
+<th>假装知道函数地址对应上面写的哪个函数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>00001014h</td>
+<td>Plus函数</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0000100Ah</td>
+<td>Mul函数</td>
+</tr>
+<tr>
+<td>2</td>
+<td>00000000h</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>0000100Fh</td>
+<td>Sub函数</td>
+</tr>
+<tr>
+<td>4</td>
+<td>00001005h</td>
+<td>Div函数</td>
+</tr>
+</tbody>
+</table>
+<h3 id="导出函数名称表"><a class="markdownIt-Anchor" href="#导出函数名称表"></a> 导出函数名称表</h3>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426171910831.png" alt="image-20240426171910831" /></p>
+<p>AddressOfNames字段的值是0002DF50h，这个值是导出函数名称表的起始地址，这个地址表每一项大小是4字节，表项的数量是NumberOfFunctions个。表项是一个指向函数名称字符串的地址。</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>表项的内容</th>
+<th>表项地址指向的字符串</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0002DF6Ch</td>
+<td>Div</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0002DF70h</td>
+<td>Mul</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0002DF74h</td>
+<td>Plus</td>
+</tr>
+</tbody>
+</table>
+<p>可以看到这个表是按字符串从小到大排了序的。</p>
+<h3 id="导出函数序号表"><a class="markdownIt-Anchor" href="#导出函数序号表"></a> 导出函数序号表</h3>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426172120444.png" alt="image-20240426172120444" /></p>
+<p>AddressOfNameOrdinals字段的值是0002DF5Ch，这个值是导出函数序号表的起始地址，这个地址表每一项大小是2字节，<u>导出函数名称表有几项，这个表就有几项</u>。</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>表项的内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>5</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h2 id="查表过程"><a class="markdownIt-Anchor" href="#查表过程"></a> 查表过程</h2>
+<p>调用dll中导出函数的办法是用GetProcAddress获取dll中导出函数的函数地址，然后通过这个函数地址来调用函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">FARPROC <span class="title function_">GetProcAddress</span><span class="params">(</span></span><br><span class="line"><span class="params">    HMODULE hModule,  <span class="comment">// DLL模块句柄</span></span></span><br><span class="line"><span class="params">    LPCSTR lpProcName <span class="comment">// 传函数名或序号</span></span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+<p>在本文的上面，我们获取到了如下三张表的信息，现在我们来讲述用GetProcAddress获取导出函数地址的过程（就是GetProcAddress函数的内部实现）。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426172643310.png" alt="image-20240426172643310" /></p>
+<h3 id="以函数名来寻找"><a class="markdownIt-Anchor" href="#以函数名来寻找"></a> 以函数名来寻找</h3>
+<p>当GetProcAddress第二个参数传的是函数名，查找导出函数地址的过程如下：</p>
+<ol>
+<li>在<strong>导出函数名称表</strong>查这个函数名在这张表中对应的数组索引号，假设记为name_index</li>
+<li>以name_index作为数组索引，去<strong>导出函数序号表</strong>查对应项，得到序号ordinal</li>
+<li>以ordinal作为数组索引，去<strong>导出函数地址表</strong>查对应项，得到函数地址</li>
+</ol>
+<p><strong>例</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GetProcAddress(hModule, <span class="string">&quot;Div&quot;</span>);</span><br></pre></td></tr></table></figure>
+<ol>
+<li>Div在<strong>导出函数名称表</strong>中是第0项</li>
+<li><strong>导出函数名称表</strong>第0项内容是5</li>
+<li><strong>导出函数地址表</strong>第5项内容是0x00001005</li>
+</ol>
+<p>于是GetProcAddress(hModule, “Div”)返回0x00001005</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426173130372.png" alt="image-20240426173130372" /></p>
+<h3 id="以序号来寻找"><a class="markdownIt-Anchor" href="#以序号来寻找"></a> 以序号来寻找</h3>
+<p>当GetProcAddress第二个参数传的是序号，查找导出函数地址的过程如下：</p>
+<ol>
+<li>用序号减去Base（起始序号）得到一个值</li>
+<li>使用步骤1得到的这个值作为数组索引，在<strong>导出函数地址表</strong>查对应项，得到函数地址</li>
+</ol>
+<p><strong>例</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GetProcAddress(hModule, <span class="number">17</span>);</span><br></pre></td></tr></table></figure>
+<ol>
+<li>17-Base（12）=5</li>
+<li><strong>导出函数地址表</strong>第5项内容是0x00001005</li>
+</ol>
+<p>于是GetProcAddress(hModule, 17)返回0x00001005</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426173446161.png" alt="image-20240426173446161" /></p>
+<p>或让<strong>导出函数地址表</strong>的索引+上Base，那么<strong>导出函数地址表</strong>项数和序号对应如下：</p>
+<ul>
+<li>第0项，对应序号12</li>
+<li>第1项，对应序号13</li>
+<li>第2项，对应序号14</li>
+<li>第3项，对应序号15</li>
+<li>第4项，对应序号16</li>
+<li>第5项，对应序号17</li>
+</ul>
+<p>然后拿传的序号17去<strong>导出函数地址表</strong>查序号17表项内容是多少，一样的。</p>
+<h3 id="小结"><a class="markdownIt-Anchor" href="#小结"></a> 小结</h3>
+<p>以函数名查函数地址，要用到名称表，序号表，地址表</p>
+<p>以导出序号查函数地址，只需要地址表</p>
+<h2 id="为什么要有序号表"><a class="markdownIt-Anchor" href="#为什么要有序号表"></a> 为什么要有序号表</h2>
+<p>以上面用函数名Div查看函数地址的过程为例</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426173130372.png" alt="image-20240426173130372" /></p>
+<p>如果Div还有一个别名，假设为rDiv1（前面的r为了字符串排序加的，没其他意思），那么名称表会多一项名称表[3]=&quot;rDiv1&quot;字符串的地址。</p>
+<p>当使用Div和rDiv1名称去名称表查序号，查Div和rDiv1得到的数组索引号肯定是不一样的，Div是0，rDiv1是3。</p>
+<p>Div和rDiv1实际上都是同一个函数地址，所以在名称表和地址表之间再加一个序号表作为中转，用于用于连接名称表和地址表。</p>
+<p><strong>小结</strong>：序号表存在的意义为了应对有函数别名的情况，序号表用于连接名称表和地址表。</p>
+<hr />
+<p>但经过实验发现，存在别名的情况下，序号表对从名称表得到的索引还是“映射”成不同的值，地址表也又存了一份别名的函数地址。而不会让序号表里多个序号指向地址表同一个函数地址，具体可见<a href="/posts/3d7b63a8.html#pe%E5%AF%BC%E5%87%BA%E8%A1%A8%E5%9C%B0%E5%9D%80%E8%A1%A8%E4%BC%98%E5%8C%96%E9%97%AE%E9%A2%98">这篇文章</a>。</p>
+<p>本来用序号表可以优化成：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240428114357404.png" alt="image-20240428114357404" /></p>
+<p>结果是这个样子：算上别名2次，加上Plus本名，它将Plus函数函数地址在地址表存了3遍！</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240428114644146.png" alt="image-20240428114644146" /></p>
+<p>小声bb：有别名，地址表就多存一份。那都没必要用序号表了，去名称表查得到索引，直接拿索引去地址表查就行了。</p>
+<h2 id="编程实现"><a class="markdownIt-Anchor" href="#编程实现"></a> 编程实现</h2>
+<p>辅助函数</p>
+<div class="tag-plugin tabs" align="center"id="tab_109"><div class="nav-tabs"><div class="tab active"><a href="#tab_109-1">导出表指针获取</a></div><div class="tab"><a href="#tab_109-2">RVA转FOA</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_109-1"><figure class="highlight cpp"><figcaption><span>获取FileBuffer中导出表指针</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">PIMAGE_EXPORT_DIRECTORY <span class="title">PEManipulator::GetExportDirectoryPointer</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    DWORD dwExportDirectoryRVA = m_OptionalPeHdr-&gt;DataDirectory[<span class="number">0</span>].VirtualAddress;</span><br><span class="line">    <span class="keyword">if</span> (dwExportDirectoryRVA == <span class="number">0</span>) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[-] Error: DataDirectory[0].VirtualAddress is Empty\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    DWORD dwExportDirectoryFOA = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(dwExportDirectoryRVA, dwExportDirectoryFOA)) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[-] Error: Failed to convert RVA to FOA\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (PIMAGE_EXPORT_DIRECTORY)((DWORD)m_lpFileBuffer + dwExportDirectoryFOA);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_109-2"><figure class="highlight cpp"><figcaption><span>RVA转FOA</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">PEManipulator::RVAToFOA</span><span class="params">(DWORD dwRVA, OUT DWORD&amp; dwFOA)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    dwFOA = <span class="number">0</span>;                      <span class="comment">// 初始化 dwFOA，防止warning</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (dwRVA &lt; <span class="number">0</span>)					<span class="comment">//参数校验</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//RVA在SizeOfHeaders以内  或 FileAlignment==SectionAlignment 时FOA=RVA</span></span><br><span class="line">    <span class="keyword">if</span> (dwRVA &lt;= m_OptionalPeHdr-&gt;SizeOfHeaders || m_OptionalPeHdr-&gt;FileAlignment == m_OptionalPeHdr-&gt;SectionAlignment)</span><br><span class="line">    &#123;</span><br><span class="line">        dwFOA = dwRVA;</span><br><span class="line">        <span class="keyword">return</span> TRUE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//在节表中</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; m_PeHdr-&gt;NumberOfSections; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (m_SecHdr[i].VirtualAddress &lt;= dwRVA &amp;&amp; dwRVA &lt; m_SecHdr[i].VirtualAddress + m_SecHdr[i].Misc.VirtualSize)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//节.PointerToRawData + 差值</span></span><br><span class="line">            <span class="comment">//差值=RVA-节.VirtualAddress</span></span><br><span class="line">            dwFOA = m_SecHdr[i].PointerToRawData + (dwRVA - m_SecHdr[i].VirtualAddress);</span><br><span class="line">            <span class="keyword">return</span> TRUE;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+<h3 id="打印导出表"><a class="markdownIt-Anchor" href="#打印导出表"></a> 打印导出表</h3>
+<div class="tag-plugin tabs" align="center"id="tab_110"><div class="nav-tabs"><div class="tab active"><a href="#tab_110-1">打印导出表字段</a></div><div class="tab"><a href="#tab_110-2">打印名称表</a></div><div class="tab"><a href="#tab_110-3">打印序号表</a></div><div class="tab"><a href="#tab_110-4">打印地址表</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_110-1"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">VOID <span class="title">PEManipulator::PrintExportTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> pExportDirectory = <span class="built_in">GetExportDirectoryPointer</span>();</span><br><span class="line">    <span class="keyword">if</span> (!pExportDirectory)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          Characteristics:                  0x%08X\n&quot;</span>, pExportDirectory-&gt;Characteristics);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          TimeDateStamp:                    0x%08X\n&quot;</span>, pExportDirectory-&gt;TimeDateStamp);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          MajorVersion:                     0x%04X\n&quot;</span>, pExportDirectory-&gt;MajorVersion);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          MinorVersion:                     0x%04X\n&quot;</span>, pExportDirectory-&gt;MinorVersion);</span><br><span class="line">    DWORD dwNameFOA = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">RVAToFOA</span>(pExportDirectory-&gt;Name, dwNameFOA) == FALSE)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    PCHAR cName = (PCHAR)((DWORD)m_lpFileBuffer + dwNameFOA);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          Name:                             0x%08X  (\&quot;%s\&quot;)\n&quot;</span>, pExportDirectory-&gt;Name, cName);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          Base:                             0x%08X\n&quot;</span>, pExportDirectory-&gt;Base);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          NumberOfFunctions:                0x%08X\n&quot;</span>, pExportDirectory-&gt;NumberOfFunctions);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          NumberOfNames:                    0x%08X\n&quot;</span>, pExportDirectory-&gt;NumberOfNames);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          AddressOfFunctions:               0x%08X\n&quot;</span>, pExportDirectory-&gt;AddressOfFunctions);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          AddressOfNames:                   0x%08X\n&quot;</span>, pExportDirectory-&gt;AddressOfNames);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          AddressOfNameOrdinals:            0x%08X\n&quot;</span>, pExportDirectory-&gt;AddressOfNameOrdinals);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_110-2"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">VOID <span class="title">PEManipulator::PrintNameTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//获取导出表指针</span></span><br><span class="line">    <span class="keyword">auto</span> pExportDirectory = <span class="built_in">GetExportDirectoryPointer</span>();</span><br><span class="line">    <span class="keyword">if</span> (!pExportDirectory)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取函数名称表指针</span></span><br><span class="line">    DWORD dwNameTableFOA = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pExportDirectory-&gt;AddressOfNames, dwNameTableFOA))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">auto</span> pNameTable = <span class="built_in">PDWORD</span>((DWORD)m_lpFileBuffer + dwNameTableFOA);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//打印函数名称表内容</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n          Index    Name RVA     Name FOA      Name\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          -----   ----------    ----------    ----\n&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (DWORD i = <span class="number">0</span>; i &lt; pExportDirectory-&gt;NumberOfNames; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        DWORD dwNameRVA = pNameTable[i];</span><br><span class="line">        DWORD dwNameFOA = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(dwNameRVA, dwNameFOA))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        PCHAR Name = (PCHAR)((DWORD)m_lpFileBuffer + dwNameFOA);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;          %02lu      0x%08X    0x%08X    %s\n&quot;</span>, i, dwNameRVA, dwNameFOA, Name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_110-3"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">VOID <span class="title">PEManipulator::PrintOrdinalTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//获取导出表指针</span></span><br><span class="line">    <span class="keyword">auto</span> pExportDirectory = <span class="built_in">GetExportDirectoryPointer</span>();</span><br><span class="line">    <span class="keyword">if</span> (!pExportDirectory)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取导出函数序号表指针</span></span><br><span class="line">    DWORD dwOrdinalTableFOA = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pExportDirectory-&gt;AddressOfNameOrdinals, dwOrdinalTableFOA))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">auto</span> pOrdinalTable = <span class="built_in">PWORD</span>((DWORD)m_lpFileBuffer + dwOrdinalTableFOA);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//打印函数序号表内容</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n          Index   Ordinal\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          -----   -------\n&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (DWORD i = <span class="number">0</span>; i &lt; pExportDirectory-&gt;NumberOfNames; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;          %02lu       %04d\n&quot;</span>, i, pOrdinalTable[i]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_110-4"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">VOID <span class="title">PEManipulator::PrintFunctionTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//获取导出表指针</span></span><br><span class="line">    <span class="keyword">auto</span> pExportDirectory = <span class="built_in">GetExportDirectoryPointer</span>();</span><br><span class="line">    <span class="keyword">if</span> (!pExportDirectory)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取函数地址表指针</span></span><br><span class="line">    DWORD dwFunctionTableFOA = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pExportDirectory-&gt;AddressOfFunctions, dwFunctionTableFOA))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">auto</span> pFunctionTable = <span class="built_in">PDWORD</span>((DWORD)m_lpFileBuffer + dwFunctionTableFOA);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//打印函数地址表内容</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n          Index   Function RVA   Function FOA\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;          -----   -------------   -------------\n&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (DWORD i = <span class="number">0</span>; i &lt; pExportDirectory-&gt;NumberOfFunctions; i++) </span><br><span class="line">    &#123;</span><br><span class="line">        DWORD dwFunctionAddressRVA = pFunctionTable[i];</span><br><span class="line">        DWORD dwFunctionAddressFOA = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(dwFunctionAddressRVA, dwFunctionAddressFOA)) </span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;          %02lu       0x%08X      0x%08X\n&quot;</span>, i, dwFunctionAddressRVA, dwFunctionAddressFOA);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+<p><strong>测试函数</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//测试打印导出表</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">TestPrintExportTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//用户输入版</span></span><br><span class="line">    <span class="comment">//CHAR cFilePath[MAX_PATH];</span></span><br><span class="line">    <span class="comment">//printf(&quot;Enter the path of the PE file: &quot;);</span></span><br><span class="line">    <span class="comment">//fflush(stdout);                // 确保输出立即显示</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//if (!fgets(cFilePath, MAX_PATH, stdin)) </span></span><br><span class="line">    <span class="comment">//&#123;</span></span><br><span class="line">    <span class="comment">//    printf(&quot;[!] Error reading input.\n&quot;);</span></span><br><span class="line">    <span class="comment">//    return 1;</span></span><br><span class="line">    <span class="comment">//&#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//size_t len = strlen(cFilePath);// 去除末尾的换行符</span></span><br><span class="line">    <span class="comment">//if (len &gt; 0 &amp;&amp; cFilePath[len - 1] == &#x27;\n&#x27;) </span></span><br><span class="line">    <span class="comment">//&#123;</span></span><br><span class="line">    <span class="comment">//    cFilePath[len - 1] = &#x27;\0&#x27;;</span></span><br><span class="line">    <span class="comment">//&#125;</span></span><br><span class="line">    <span class="comment">//PEManipulator PEFile(cFilePath); </span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//写死的，方便测试用</span></span><br><span class="line">    <span class="function">PEManipulator <span class="title">PEFile</span><span class="params">(<span class="string">&quot;E:\\temp\\Export Table\\MyDll_VC.dll&quot;</span>)</span></span>;                             <span class="comment">//VC的，文件对齐和内存对齐都是1000h</span></span><br><span class="line">    <span class="comment">//PEManipulator PEFile(&quot;D:\\005_Codefield\\VS2019\\MyTestDll\\Debug\\MyTestDll.dll&quot;);     //VS的，文件对齐200h，内存对齐是1000h</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">MapPEFile</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">ValidateAndExtractPEPointers</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    PEFile.<span class="built_in">PrintExportTable</span>();</span><br><span class="line"></span><br><span class="line">    PEFile.<span class="built_in">PrintNameTable</span>();</span><br><span class="line">    PEFile.<span class="built_in">PrintOrdinalTable</span>();</span><br><span class="line">    PEFile.<span class="built_in">PrintFunctionTable</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin tabs" align="center"id="tab_111"><div class="nav-tabs"><div class="tab active"><a href="#tab_111-1">文件对齐≠内存对齐</a></div><div class="tab"><a href="#tab_111-2">文件对齐=内存对齐</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_111-1"><p>测试的dll源码还是本文前面的源码，在VC下编译，文件对齐≠内存对齐</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426174703781.png" alt="image-20240426174703781" /></p></div><div class="tab-pane" id="tab_111-2"><p>测试的dll源码还是本文前面的源码，在VS下32位编译，文件对齐和内存对齐都是1000h</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426174913978.png" alt="image-20240426174913978" /></p></div></div></div>
+<h3 id="查函数地址过程"><a class="markdownIt-Anchor" href="#查函数地址过程"></a> 查函数地址过程</h3>
+<p>作业题是：</p>
+<ol>
+<li>GetFunctionAddrByName(FileBuffer指针，函数名指针)</li>
+<li>GetFunctionAddrByOrdinals(FileBuffer指针，函数名导出序号)</li>
+</ol>
+<p>因为俺是用C++写的，FileBuffer是成员变量，所以俺实现的上面两个函数没这个参数，不重要，重点是如何通过函数名or序号来查函数地址的过程，Buffer不同只是PE中相关指针获取的变动。</p>
+<p>另外，GetFunctionAddrByName和GetFunctionAddrByOrdinals和下面GetProcAddress的区别就是：</p>
+<ul>
+<li>FileBuffer是未拉伸的文件映像内存，所以当遇到RVA的值时，需要转为FOA</li>
+<li>hModule是dll加载进进程空间后的基址，也就是前面学习的ImageBuffer，即拉伸后的文件映像内存</li>
+</ul>
+<p>知道GetFunctionAddrByName和GetFunctionAddrByOrdinals怎么写了，合并成GetProcAddress还需要判断第二个参数传入的是函数名或序号。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">FARPROC <span class="title">GetProcAddress</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    HMODULE hModule,  <span class="comment">// DLL模块句柄</span></span></span></span><br><span class="line"><span class="params"><span class="function">    LPCSTR lpProcName <span class="comment">// 传函数名或序号</span></span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
+<h4 id="以序号查询"><a class="markdownIt-Anchor" href="#以序号查询"></a> 以序号查询</h4>
+<div class="tag-plugin tabs" align="center"id="tab_112"><div class="nav-tabs"><div class="tab active"><a href="#tab_112-1">GetFunctionAddressByOrdinals序号查询函数实现</a></div><div class="tab"><a href="#tab_112-2">测试函数</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_112-1"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">DWORD <span class="title">PEManipulator::GetFunctionAddressByOrdinals</span><span class="params">(DWORD dwFunctionOrdinal)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//获取导出表指针</span></span><br><span class="line">    <span class="keyword">auto</span> pExportDirectory = <span class="built_in">GetExportDirectoryPointer</span>();</span><br><span class="line">    <span class="keyword">if</span> (!pExportDirectory)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取函数地址表指针</span></span><br><span class="line">    DWORD dwFunctionTableFOA = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pExportDirectory-&gt;AddressOfFunctions, dwFunctionTableFOA))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">auto</span> pFunctionTable = <span class="built_in">PDWORD</span>((DWORD)m_lpFileBuffer + dwFunctionTableFOA);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//减去Base获得真实序号 并 对输入的序号做范围检查</span></span><br><span class="line">    DWORD dwRealOrdinalIndex = dwFunctionOrdinal - pExportDirectory-&gt;Base;</span><br><span class="line">    <span class="keyword">if</span> (dwRealOrdinalIndex &lt; <span class="number">0</span> || dwRealOrdinalIndex &gt;= pExportDirectory-&gt;NumberOfFunctions)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[-] Error: Function ordinal %d is out of range.\n&quot;</span>, dwFunctionOrdinal);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Fetch the function address by the real ordinal index.</span></span><br><span class="line">    DWORD dwfunctionRVA = pFunctionTable[dwRealOrdinalIndex];</span><br><span class="line">    <span class="keyword">if</span> (dwfunctionRVA == <span class="number">0</span>) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[-] Error: Function RVA is null, indicating a non-existent function at this ordinal.\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dwfunctionRVA;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_112-2"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//测试通过序号获取导出函数地址</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">TestGetFunctionAddressByOrdinals</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//用户输入版</span></span><br><span class="line">    <span class="comment">//CHAR cFilePath[MAX_PATH];</span></span><br><span class="line">    <span class="comment">//printf(&quot;Enter the path of the PE file: &quot;);</span></span><br><span class="line">    <span class="comment">//fflush(stdout);                // 确保输出立即显示</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//if (!fgets(cFilePath, MAX_PATH, stdin)) </span></span><br><span class="line">    <span class="comment">//&#123;</span></span><br><span class="line">    <span class="comment">//    printf(&quot;[!] Error reading input.\n&quot;);</span></span><br><span class="line">    <span class="comment">//    return 1;</span></span><br><span class="line">    <span class="comment">//&#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//size_t len = strlen(cFilePath);// 去除末尾的换行符</span></span><br><span class="line">    <span class="comment">//if (len &gt; 0 &amp;&amp; cFilePath[len - 1] == &#x27;\n&#x27;) </span></span><br><span class="line">    <span class="comment">//&#123;</span></span><br><span class="line">    <span class="comment">//    cFilePath[len - 1] = &#x27;\0&#x27;;</span></span><br><span class="line">    <span class="comment">//&#125;</span></span><br><span class="line">    <span class="comment">//PEManipulator PEFile(cFilePath); </span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//写死的，方便测试用</span></span><br><span class="line">    <span class="comment">//PEManipulator PEFile(&quot;D:\\005_Codefield\\VS2019\\MyTestDll\\Debug\\MyTestDll.dll&quot;);     //是PE文件</span></span><br><span class="line">    <span class="function">PEManipulator <span class="title">PEFile</span><span class="params">(<span class="string">&quot;E:\\temp\\Export Table\\MyDll_VC.dll&quot;</span>)</span></span>;                             <span class="comment">//VC的</span></span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">MapPEFile</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">ValidateAndExtractPEPointers</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    PEFile.<span class="built_in">PrintExportTable</span>();</span><br><span class="line">    PEFile.<span class="built_in">PrintFunctionTable</span>();</span><br><span class="line"></span><br><span class="line">    <span class="type">char</span> input[<span class="number">10</span>];  <span class="comment">// 增大缓冲区以防止溢出</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\nEnter the function ordinal to lookup (Enter &#x27;q&#x27; to exit): &quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">scanf</span>(<span class="string">&quot;%9s&quot;</span>, input) != <span class="number">1</span>)  <span class="comment">// 使用%s来读取字符串，限制读取的字符数</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;[!] Invalid input. Please enter a valid number or &#x27;q&#x27; to exit.\n&quot;</span>);</span><br><span class="line">            <span class="comment">// 清除错误的输入</span></span><br><span class="line">            <span class="keyword">while</span> (<span class="built_in">getchar</span>() != <span class="string">&#x27;\n&#x27;</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 提供退出条件</span></span><br><span class="line">        <span class="keyword">if</span> (input[<span class="number">0</span>] == <span class="string">&#x27;q&#x27;</span> &amp;&amp; input[<span class="number">1</span>] == <span class="string">&#x27;\0&#x27;</span>)  <span class="comment">// 确保只有一个字符&#x27;q&#x27;</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        DWORD dwOrdinal;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">sscanf</span>(input, <span class="string">&quot;%lu&quot;</span>, &amp;dwOrdinal) == <span class="number">1</span>)  <span class="comment">// 尝试将输入转换为数字</span></span><br><span class="line">        &#123;</span><br><span class="line">            DWORD dwFunctionAddress = PEFile.<span class="built_in">GetFunctionAddressByOrdinals</span>(dwOrdinal);</span><br><span class="line">            <span class="keyword">if</span> (dwFunctionAddress != <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;Function address for ordinal %lu is: 0x%08X\n&quot;</span>, dwOrdinal, dwFunctionAddress);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;[!] Invalid ordinal. Please enter a valid number or &#x27;q&#x27; to exit.\n&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426175707026.png" alt="image-20240426175707026" /></p>
+<h4 id="以函数名查询"><a class="markdownIt-Anchor" href="#以函数名查询"></a> 以函数名查询</h4>
+<div class="tag-plugin tabs" align="center"id="tab_113"><div class="nav-tabs"><div class="tab active"><a href="#tab_113-1">GetFunctionAddressByName以函数名查询的函数实现</a></div><div class="tab"><a href="#tab_113-2">测试函数</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_113-1"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">DWORD <span class="title">PEManipulator::GetFunctionAddressByName</span><span class="params">(PCHAR pFunName)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//获取导出表指针</span></span><br><span class="line">    <span class="keyword">auto</span> pExportDirectory = <span class="built_in">GetExportDirectoryPointer</span>();</span><br><span class="line">    <span class="keyword">if</span> (!pExportDirectory)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取函数名称表指针</span></span><br><span class="line">    DWORD dwNameTableFOA = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pExportDirectory-&gt;AddressOfNames, dwNameTableFOA))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">auto</span> pNameTable = <span class="built_in">PDWORD</span>((DWORD)m_lpFileBuffer + dwNameTableFOA);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取导出函数序号表指针</span></span><br><span class="line">    DWORD dwOrdinalTableFOA = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pExportDirectory-&gt;AddressOfNameOrdinals, dwOrdinalTableFOA))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">auto</span> pOrdinalTable = <span class="built_in">PWORD</span>((DWORD)m_lpFileBuffer + dwOrdinalTableFOA);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取函数地址表指针</span></span><br><span class="line">    DWORD dwFunctionTableFOA = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pExportDirectory-&gt;AddressOfFunctions, dwFunctionTableFOA))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">auto</span> pFunctionTable = <span class="built_in">PDWORD</span>((DWORD)m_lpFileBuffer + dwFunctionTableFOA);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//通过函数名称获取函数地址</span></span><br><span class="line">    <span class="keyword">for</span> (DWORD i = <span class="number">0</span>; i &lt; pExportDirectory-&gt;NumberOfNames; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        DWORD dwNameRVA = pNameTable[i];</span><br><span class="line">        DWORD dwNameFOA = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(dwNameRVA, dwNameFOA))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        PCHAR pName = (PCHAR)((DWORD)m_lpFileBuffer + dwNameFOA);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">strcmp</span>(pName, pFunName) == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//从序号表获取函数序号表的索引</span></span><br><span class="line">            DWORD dwFunTableIndex = pOrdinalTable[i];</span><br><span class="line">            <span class="comment">//通过序号表获取的索引在函数地址表获取函数地址</span></span><br><span class="line">            DWORD dwFunctionRVA = pFunctionTable[dwFunTableIndex];</span><br><span class="line">            <span class="keyword">if</span> (dwFunctionRVA == <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;[-] Error: Function RVA is null, indicating a non-existent function at this index.\n&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> dwFunctionRVA;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[-] Error: No function named &#x27;%s&#x27; found in the export table.\n&quot;</span>, pFunName);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里提一下，用函数名查名称表得到索引号，拿着这个索引号去地址表查表，一般情况下不太可能查到地址为0（除非被别人改过这个dll的内容，正常写dll的话，没法出现名称表里的名字，最后对上地址表里一个为0的函数地址吧）。但是代码中还是对查地址表时得到的函数地址做了检验</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (dwFunctionRVA == <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[-] Error: Function RVA is null, indicating a non-existent function at this index.\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_113-2"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//测试通过序号获取导出函数地址</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">TestGetFunctionAddressByName</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;   </span><br><span class="line">    <span class="comment">//写死的，方便测试用</span></span><br><span class="line">    <span class="function">PEManipulator <span class="title">PEFile</span><span class="params">(<span class="string">&quot;E:\\temp\\Export Table\\MyDll_VC.dll&quot;</span>)</span></span>;                          <span class="comment">//VC的</span></span><br><span class="line">    <span class="comment">//PEManipulator PEFile(&quot;D:\\005_Codefield\\VS2019\\MyTestDll\\Debug\\MyTestDll.dll&quot;);     //VS的</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">MapPEFile</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">ValidateAndExtractPEPointers</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    PEFile.<span class="built_in">PrintExportTable</span>();</span><br><span class="line"></span><br><span class="line">    PEFile.<span class="built_in">PrintNameTable</span>();</span><br><span class="line">    PEFile.<span class="built_in">PrintOrdinalTable</span>();</span><br><span class="line">    PEFile.<span class="built_in">PrintFunctionTable</span>();</span><br><span class="line"></span><br><span class="line">    <span class="type">char</span> functionName[<span class="number">256</span>];</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\nEnter function name (&#x27;q&#x27; to quit): &quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">fgets</span>(functionName, <span class="built_in">sizeof</span>(functionName), stdin) == <span class="literal">nullptr</span>)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Remove newline character, if present</span></span><br><span class="line">        <span class="type">size_t</span> len = <span class="built_in">strlen</span>(functionName);</span><br><span class="line">        <span class="keyword">if</span> (len &gt; <span class="number">0</span> &amp;&amp; functionName[len - <span class="number">1</span>] == <span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">            functionName[len - <span class="number">1</span>] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">strcmp</span>(functionName, <span class="string">&quot;q&quot;</span>) == <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        DWORD functionAddress = PEFile.<span class="built_in">GetFunctionAddressByName</span>(functionName);</span><br><span class="line">        <span class="keyword">if</span> (functionAddress != <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;Function &#x27;%s&#x27; address: 0x%08X\n&quot;</span>, functionName, functionAddress);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;Function &#x27;%s&#x27; not found or has no address.\n&quot;</span>, functionName);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426180829726.png" alt="image-20240426180829726" /></p>
+<p>用LoarPE检查下，通过函数名Div，Mul，Plus找到的3个导出函数地址是正确的</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240426181011847.png" alt="image-20240426181011847" /></p>
+<h2 id="扩展lordpe合并导出表三张子表"><a class="markdownIt-Anchor" href="#扩展lordpe合并导出表三张子表"></a> 扩展：LordPE合并导出表三张子表</h2>
+<p>LordPE看导出表时它会将三张子表的信息合并然后输出：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240427165237598.png" alt="image-20240427165237598" /></p>
+<p>它的做法是：</p>
+<ol>
+<li>去函数地址表遍历
+<ul>
+<li>表项的函数地址为0，跳过</li>
+<li>表项的函数地址不为0，则用函数地址的这个索引号去序号表找内容为这个值的索引号是多少</li>
+</ul>
+</li>
+<li>如果在序号表找得到，说明这个函数地址有名字。拿着匹配到的索引号接着去名称表得到函数名字<br />
+如果如果在序号表找不到，说明这个函数地址没有名字，是按序号导出的。Funciton Name那一列就打印“-”表示没名字。真实序号就是+Base得到的</li>
+</ol>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240427170012589.png" alt="image-20240427170012589" /></p>
+<p><strong>例：有函数名的例子</strong></p>
+<ol>
+<li>函数地址表第0项，函数地址非0。</li>
+<li>拿着<strong>索引号0</strong>去序号表看能否找到表项为0的。有，序号表第2项的值为0，说明这个函数地址有名字。</li>
+<li>那么接着拿<strong>索引号2</strong>去名称表查表，查到函数名称为Plus</li>
+</ol>
+<p><strong>例：无函数名的例子</strong></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240427170349531.png" alt="image-20240427170349531" /></p>
+<ol>
+<li>函数地址表第4项，函数地址非0。</li>
+<li>拿着<strong>索引号4</strong>去序号表看能否找到表项为4的。没有，说明这个函数地址是序号导出的，真实序号是<strong>索引号4</strong>加上Base</li>
+</ol>
+<h3 id="代码实现"><a class="markdownIt-Anchor" href="#代码实现"></a> 代码实现</h3>
+<div class="tag-plugin tabs" align="center"id="tab_114"><div class="nav-tabs"><div class="tab active"><a href="#tab_114-1">函数实现</a></div><div class="tab"><a href="#tab_114-2">测试函数</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_114-1"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">VOID <span class="title">PEManipulator::PrintMergedExportTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 获取导出表指针</span></span><br><span class="line">    <span class="keyword">auto</span> pExportDirectory = <span class="built_in">GetExportDirectoryPointer</span>();</span><br><span class="line">    <span class="keyword">if</span> (!pExportDirectory)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Failed to get export directory pointer.\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取函数地址表、函数名称表和函数序号表的指针</span></span><br><span class="line">    DWORD dwFunctionTableFOA, dwNameTableFOA, dwOrdinalTableFOA;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(pExportDirectory-&gt;AddressOfFunctions, dwFunctionTableFOA) ||</span><br><span class="line">        !<span class="built_in">RVAToFOA</span>(pExportDirectory-&gt;AddressOfNames, dwNameTableFOA) ||</span><br><span class="line">        !<span class="built_in">RVAToFOA</span>(pExportDirectory-&gt;AddressOfNameOrdinals, dwOrdinalTableFOA))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Failed to convert RVAs to FOAs.\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">auto</span> pFunctionTable = <span class="built_in">PDWORD</span>((DWORD)m_lpFileBuffer + dwFunctionTableFOA);</span><br><span class="line">    <span class="keyword">auto</span> pNameTable = <span class="built_in">PDWORD</span>((DWORD)m_lpFileBuffer + dwNameTableFOA);</span><br><span class="line">    <span class="keyword">auto</span> pOrdinalTable = <span class="built_in">PWORD</span>((DWORD)m_lpFileBuffer + dwOrdinalTableFOA);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Real Index\tOrdinal\tFunction RVA\tFunction FOA\tFunction Name\n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;----------\t-------\t------------\t------------\t-------------\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (DWORD i = <span class="number">0</span>; i &lt; pExportDirectory-&gt;NumberOfFunctions; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        DWORD dwFunctionRVA = pFunctionTable[i];</span><br><span class="line">        <span class="keyword">if</span> (dwFunctionRVA == <span class="number">0</span>)  <span class="comment">// Skip empty entries</span></span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">        DWORD dwFunctionFOA;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">RVAToFOA</span>(dwFunctionRVA, dwFunctionFOA))</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Initialize function name as not found</span></span><br><span class="line">        <span class="type">const</span> <span class="type">char</span>* cpFunctionName = <span class="string">&quot;-&quot;</span>;</span><br><span class="line">        DWORD dwRealIndex = i + pExportDirectory-&gt;Base;  <span class="comment">// Calculate real index</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// Try to find a matching ordinal in the ordinal table to get the name index</span></span><br><span class="line">        <span class="keyword">for</span> (DWORD j = <span class="number">0</span>; j &lt; pExportDirectory-&gt;NumberOfNames; j++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (pOrdinalTable[j] == i)</span><br><span class="line">            &#123;</span><br><span class="line">                DWORD dwNameRVA = pNameTable[j];</span><br><span class="line">                DWORD dwNameFOA;</span><br><span class="line">                <span class="keyword">if</span> (<span class="built_in">RVAToFOA</span>(dwNameRVA, dwNameFOA))</span><br><span class="line">                &#123;</span><br><span class="line">                    cpFunctionName = (<span class="type">char</span>*)((DWORD)m_lpFileBuffer + dwNameFOA);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d\t\t%u\t0x%08X\t0x%08X\t%s\n&quot;</span>, dwRealIndex, i, dwFunctionRVA, dwFunctionFOA, cpFunctionName);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_114-2"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//测试打印导出表合并后的三张子表，像LordPE那样</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">TestPrintMergedExportTable</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//写死的，方便测试用</span></span><br><span class="line">    <span class="function">PEManipulator <span class="title">PEFile</span><span class="params">(<span class="string">&quot;E:\\temp\\Export Table\\MyDll_VC.dll&quot;</span>)</span></span>;                             <span class="comment">//VC的</span></span><br><span class="line">    <span class="comment">//PEManipulator PEFile(&quot;D:\\005_Codefield\\VS2019\\MyTestDll\\Debug\\MyTestDll.dll&quot;);     //VS的</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">MapPEFile</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!PEFile.<span class="built_in">ValidateAndExtractPEPointers</span>())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    PEFile.<span class="built_in">PrintMergedExportTable</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%AF%BC%E5%87%BA%E8%A1%A8/image-20240427173157353.png" alt="image-20240427173157353" /></p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/PE/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E5%92%8C%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93.html">静态链接库和动态链接库</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/PE/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8.html">重定位表</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

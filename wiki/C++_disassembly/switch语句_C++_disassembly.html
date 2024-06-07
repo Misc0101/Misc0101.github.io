@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>C++反汇编：switch语句 - Misc010</title>
+
+  
+    <meta name="description" content="严谨点讲，不同编译器算法不同，对于switch语句生成的反汇编也不尽相同。并不是分支数&gt;3就生成地址表。以下以VC++编译器为例，注意体会编译器处理的方式即可。  分支数≤3 编写不超过3条case的switch结构的代码，再用if…else  if结构实现相同功能，观察它们的反汇编。 switch结构（VC++_x86_debug）if...else  if结构（VC++_x86_debu">
+<meta property="og:type" content="website">
+<meta property="og:title" content="switch语句">
+<meta property="og:url" content="https://misc0101.github.io/wiki/C++_disassembly/switch%E8%AF%AD%E5%8F%A5_C++_disassembly.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="严谨点讲，不同编译器算法不同，对于switch语句生成的反汇编也不尽相同。并不是分支数&gt;3就生成地址表。以下以VC++编译器为例，注意体会编译器处理的方式即可。  分支数≤3 编写不超过3条case的switch结构的代码，再用if…else  if结构实现相同功能，观察它们的反汇编。 switch结构（VC++_x86_debug）if...else  if结构（VC++_x86_debu">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231102175557564.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231102175848827.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106190716870.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106191056053.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106192636021.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106191520332.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106191353827.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106193021807.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106193228631.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106193504014.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106194729779.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106195327757.png">
+<meta property="article:published_time" content="2023-11-02T09:13:36.000Z">
+<meta property="article:modified_time" content="2023-11-02T09:13:36.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231102175557564.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><div class="main" ff="title">C++反汇编</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/C++_disassembly/" placeholder="在/wiki/C++_disassembly/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html#start"><span class="toc-text">分支语句</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/C++_disassembly/switch%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="toc-text">switch语句</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%94%AF%E6%95%B03"><span class="toc-text"> 分支数≤3</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text"> 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%B0%E5%9D%80%E8%A1%A8%E5%A4%A7%E8%A1%A8"><span class="toc-text"> 地址表（大表）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#case1-4"><span class="toc-text">case1-4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#case101-104"><span class="toc-text">case101-104</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%93%E4%B9%B1%E9%A1%BA%E5%BA%8F%E7%9A%84case1-4"><span class="toc-text">打乱顺序的case1-4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E9%97%B4%E7%A9%BA%E7%BC%BA%E5%87%A0%E9%A1%B9"><span class="toc-text">中间空缺几项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93-2"><span class="toc-text"> 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%B0%E5%9D%80%E8%A1%A8%E7%B4%A2%E5%BC%95%E8%A1%A8%E5%A4%A7%E8%A1%A8%E5%B0%8F%E8%A1%A8"><span class="toc-text"> 地址表+索引表（大表+小表）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93-3"><span class="toc-text"> 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="toc-text"> 二叉树</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text"> 总结</span></a></li></ol></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/PE/Overview_PE.html"><span class="title">PE</span><span class="excerpt">滴水三期_PE文件笔记(To finish...)。</span></a><a class="item wiki" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><span class="title">Protected_Mode</span><span class="excerpt">滴水三期_保护模式笔记。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html">C++反汇编</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-11-02T09:13:36.000Z">2023-11-02</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>switch语句</span></h1>
+<p>严谨点讲，不同编译器算法不同，对于switch语句生成的反汇编也不尽相同。并不是分支数&gt;3就生成地址表。以下以VC++编译器为例，注意体会编译器处理的方式即可。</p>
+<h2 id="分支数3"><a class="markdownIt-Anchor" href="#分支数3"></a> 分支数≤3</h2>
+<p>编写不超过3条case的switch结构的代码，再用if…else  if结构实现相同功能，观察它们的反汇编。</p>
+<div class="tag-plugin tabs" align="center"id="tab_74"><div class="nav-tabs"><div class="tab active"><a href="#tab_74-1">switch结构（VC++_x86_debug）</a></div><div class="tab"><a href="#tab_74-2">if...else  if结构（VC++_x86_debug）</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_74-1"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> n = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">switch</span> (n)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;n == 1&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;n == 3&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">100</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;n == 100&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;default&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>依次判断，是否等于1，是否等于3，是否等于100。<code>00401047</code>处的jmp跳向default，如果没有default，就到switch语句块结尾。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231102175557564.png" alt="image-20231102175557564" /></p></div><div class="tab-pane" id="tab_74-2"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> n = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (n == <span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;n == 1&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">3</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;n == 3&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (n == <span class="number">100</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;n == 100&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;default&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231102175848827.png" alt="image-20231102175848827" /></p></div></div></div>
+<p>switch分支数≤3时（default不算数），采用模拟if…else  if的方法。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>结构</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>if…else</td>
+<td>条件跳转后紧跟语句块</td>
+</tr>
+<tr>
+<td>switch语句</td>
+<td>所有的条件跳转都放置在一起</br>所有的case语句都是连在一起的（这样实现了C语法要求，在case语句中没有break语句时，会顺序执行后续case语句块）</td>
+</tr>
+</tbody>
+</table>
+<p>在效率上没有区别，都是一个一个作比较，然后跳or不跳。</p>
+<h3 id="小结"><a class="markdownIt-Anchor" href="#小结"></a> 小结</h3>
+<p>看每个条件跳转指令后是否跟有语句块，如果没有，识别为switch分支结构。</p>
+<p>case语句块</p>
+<ul>
+<li>
+<p>case的判定值，根据比较信息和jcc指令确定。</p>
+</li>
+<li>
+<p>起始地址：根据jcc指令跳到的地址来确定。</p>
+</li>
+<li>
+<p>结束地址</p>
+<ul>
+<li>如果有break，会出现jmp指令结尾</li>
+<li>如果没有break，用下一个case起始地址来确定。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">    mov reg,mem     ;取出switch中考察的变量</span><br><span class="line">    ;影响标志位的指令</span><br><span class="line">    jxx xxxx        ;跳转至对应case语句块的首地址处</span><br><span class="line">    ;影响标志位的指令</span><br><span class="line">    jxx xxxx</span><br><span class="line">    ;影响标志位的指令</span><br><span class="line">    jxx xxxx</span><br><span class="line"></span><br><span class="line">    jmp END         ;跳转到switch的结尾地址处</span><br><span class="line">    ...             ; case语句块的首地址</span><br><span class="line">    jmp END         ; case语句块结束，有break则产生这个jmp</span><br><span class="line">    ...             ; case语句块的首地址</span><br><span class="line">    jmp END         ; case语句块的结束，有break则产生这个jmp</span><br><span class="line">    ......          ; case语句块的首地址</span><br><span class="line">    jmp END         ; case语句块结束，有break则产生这个jmp</span><br><span class="line">END:                </span><br><span class="line">    ...             ; switch结尾</span><br></pre></td></tr></table></figure>
+<h2 id="地址表大表"><a class="markdownIt-Anchor" href="#地址表大表"></a> 地址表（大表）</h2>
+<p>当分支数&gt;3，且case的判定值<u>存在明显线性关系组合</u>时，编译器会为case语句制作一份case地址数组（或称为case地址表，海哥课中称为大表），这个数组保存了每个case语句块的首地址。</p>
+<p>下面通过几个例子，逐渐加深对大表的理解</p>
+<table>
+<thead>
+<tr>
+<th>例子</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>case1-4</td>
+<td>最基本的例子</td>
+</tr>
+<tr>
+<td>case101-104</td>
+<td>体会只要case判定值<u>存在明显线性关系组合</u>，就会使用大表</td>
+</tr>
+<tr>
+<td>打乱顺序的case1-4</td>
+<td>观察case语句的顺序是否影响大表的生成</td>
+</tr>
+<tr>
+<td>中间空缺几项</td>
+<td>1. case地址表空缺位置如何处理</br>2. 何时生成小表</td>
+</tr>
+</tbody>
+</table>
+<div class="tag-plugin quot"><h3 class="content" id="case1-4" type="text"><a href="#case1-4" class="headerlink" title="case1-4"></a>case1-4</h3></div>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> n = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">switch</span> (n)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 1&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 2&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 3&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 4&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;default&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106190716870.png" alt="image-20231106190716870" /></p>
+<p><strong>地址表</strong></p>
+<p>编译器制作了一份case地址数组（或称为case地址表，海哥课中称为大表），4字节为1个元素，每个元素都是case语句块的起始地址。</p>
+<p>该例子中，4010AAh为这张表的起始地址，后面会用比例因子寻址<code>[edx*4+4010AAh]</code>来查表（这里将查询得到数组某个元素的过程称为查表）。</p>
+<table>
+<thead>
+<tr>
+<th>相对关系</th>
+<th>比例因子寻址</th>
+<th>地址表的内存地址</th>
+<th>项数</th>
+<th>地址表中的值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$==&gt;</td>
+<td>$+4*0</td>
+<td>004010AA</td>
+<td>第0项</td>
+<td>0040104E</td>
+<td>case1语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+4</td>
+<td>$+4*1</td>
+<td>004010AE</td>
+<td>第1项</td>
+<td>0040105D</td>
+<td>case2语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+8</td>
+<td>$+4*2</td>
+<td>004010B2</td>
+<td>第2项</td>
+<td>0040106C</td>
+<td>case3语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+C</td>
+<td>$+4*3</td>
+<td>004010B6</td>
+<td>第3项</td>
+<td>0040107B</td>
+<td>case4语句块的起始地址</td>
+</tr>
+</tbody>
+</table>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106191056053.png" alt="image-20231106191056053" /></p>
+<p><strong>流程详细分析</strong></p>
+<ol>
+<li>
+<p>对待考察的变量n作处理，使其可作为数组下标进行寻址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">0040102F   mov         eax,dword ptr [ebp-4]</span><br><span class="line">00401032   mov         dword ptr [ebp-8],eax</span><br><span class="line">00401035   mov         ecx,dword ptr [ebp-8]</span><br><span class="line"></span><br><span class="line">00401038   sub         ecx,1                    //对齐于数组下标</span><br></pre></td></tr></table></figure>
+<p>004010AA这个地址是需要的，指出地址表起始地址，这个起始地址同时也是第一项元素的地址。而case最小值不一定刚好是0，在这里例子中是从1开始，那么就要减去1，为的是从数组下标0开始。</p>
+<p>实际上，<u>sub减去的值是case的最小值</u>，这样就能减到0（例：后面的case101-104）。</p>
+<blockquote>
+<p>特殊情况：case最小值为0，就没有调整这一步了。</p>
+</blockquote>
+</li>
+<li>
+<p>待考察的变量n是否处于case范围里</p>
+<p>-1对齐后，case的最大值是3（4-1=3），最小值是0，范围是[0,3]。然后判断n是否&gt;3，如果&gt;3，那不在case范围内，直接跳到default/switch语句块结尾。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">0040103E   cmp         dword ptr [ebp-8],3</span><br><span class="line">00401042   ja          $L541+0Fh (0040108a)     //跳到default首地址</span><br></pre></td></tr></table></figure>
+<p>那如果&lt;case的最小值0呢？这里很妙，因为用的是ja无符号比较指令，当n是一个负数时，负数的补码，当成无符号数解释也会&gt;3。</p>
+<p>也就是说，这里的ja就能完成变量n和case范围两端对比的任务：</p>
+<ul>
+<li>当n&lt;0（case最小值），ja比较，会大于3</li>
+<li>当n&gt;3（case最大值），ja比较，会大于3</li>
+</ul>
+</li>
+<li>
+<p>保证了switch的参数值n在case的范围之内后，对case地址数组进行查表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">00401047   jmp         dword ptr [edx*4+4010AAh]</span><br></pre></td></tr></table></figure>
+<p>以<code>[edx*4+4010AAh]</code>来查表，得到要去向的case语句块的起始地址。</p>
+</li>
+</ol>
+<p>假设输入给switch的参数值为1，编译器减1调整到case地址数组的下标0后，<code>[edx*4+4010AAh]</code>变成了<code>0*4++4010AAh</code>，为表中第0项，即case1语句块的首地址。</p>
+<p>假设输入给switch的参数值为2，编译器减1调整到case地址数组的下标1后，<code>[edx*4+4010AAh]</code>变成了<code>1*4++4010AAh</code>，为表中第1项，即case2语句块的首地址。</p>
+<p>其余同理。</p>
+<table>
+<thead>
+<tr>
+<th>n</th>
+<th>-1调整后的数组下标</th>
+<th>是否处于case范围内</th>
+<th>edx*4+4010AAh的值</th>
+<th>表项</th>
+<th>表项的含义</th>
+<th>程序的执行流程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-1</td>
+<td>-2（-1-1=-2）</td>
+<td>补码FFFFFFFE，比3大，跳到default</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>n=-1，执行default</td>
+</tr>
+<tr>
+<td>0</td>
+<td>-1（0-1=-1）</td>
+<td>补码FFFFFFFF，比3大，跳到default</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>n=0，执行default</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>&lt;=3，继续执行。在case范围内</td>
+<td>0*4+4010AAh</td>
+<td>0040104E</td>
+<td>case1语句块的起始地址</td>
+<td>n=1，执行case1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>&lt;=3，继续执行。在case范围内</td>
+<td>1*4+4010AAh</td>
+<td>0040105D</td>
+<td>case2语句块的起始地址</td>
+<td>n=2，执行case2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>&lt;=3，继续执行。在case范围内</td>
+<td>2*4+4010AAh</td>
+<td>0040106C</td>
+<td>case3语句块的起始地址</td>
+<td>n=3，执行case3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+<td>&lt;=3，继续执行。在case范围内</td>
+<td>3*4+4010AAh</td>
+<td>0040107B</td>
+<td>case4语句块的起始地址</td>
+<td>n=4，执行case4</td>
+</tr>
+<tr>
+<td>5</td>
+<td>4</td>
+<td>比3大，跳到default</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>n=5，执行default</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>从这里可以看出switch比if…else语句高效的原因：</p>
+<p>编译器制作了一张大表，表项是各个case分支的起始地址。随后通过switch要考察的参数计算一个表达式，将表达式算出来结果后，这个结果是个地址，指向大表中的表项，随后跳到表项这个地址。</p>
+<p>也就是说，我只要把表达式结果算出来，就能得到要直接跳过去地址，而不是像if…else那样一个一个判断，有较多的比较次数。</p>
+<div class="tag-plugin quot"><h3 class="content" id="case101-104" type="text"><a href="#case101-104" class="headerlink" title="case101-104"></a>case101-104</h3></div>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> n = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">switch</span> (n)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">101</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 101&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">102</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 102&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">103</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 103&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">104</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 104&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;default&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">00401038   sub         ecx,65h</span><br></pre></td></tr></table></figure>
+<p>65h=101D，减去101（case最小值）后，就从0开始了。数组范围还是[0,3]</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106192636021.png" alt="image-20231106192636021" /></p>
+<p>假设输入给switch的参数值为101，编译器减101调整到case地址数组的下标0后，<code>[edx*4+4010AAh]</code>变成了<code>0*4++4010AAh</code>，为表中第0项，即<code>case101语句块的首地址</code>。</p>
+<p>假设输入给switch的参数值为102，编译器减101调整到case地址数组的下标1后，<code>[edx*4+4010AAh]</code>变成了<code>1*4++4010AAh</code>，为表中第1项，即<code>case102语句块的首地址</code>。</p>
+<p>其余同理。</p>
+<table>
+<thead>
+<tr>
+<th>n</th>
+<th>-101调整后的数组下标</th>
+<th>是否处于case范围内</th>
+<th>edx*4+4010AAh的值</th>
+<th>表项</th>
+<th>表项的含义</th>
+<th>程序的执行流程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-1</td>
+<td>-102（-1-101=-102）</td>
+<td>补码FFFFFF9A，比3大，跳到default</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>n=-1，执行default</td>
+</tr>
+<tr>
+<td>0</td>
+<td>-101（0-101=-101）</td>
+<td>补码FFFFFF9B，比3大，跳到default</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>n=0，执行default</td>
+</tr>
+<tr>
+<td>101</td>
+<td>0</td>
+<td>&lt;=3，继续执行。在case范围内</td>
+<td>0*4+4010AAh</td>
+<td>0040104E</td>
+<td>case101语句块的起始地址</td>
+<td>n=101，执行case101</td>
+</tr>
+<tr>
+<td>102</td>
+<td>1</td>
+<td>&lt;=3，继续执行。在case范围内</td>
+<td>1*4+4010AAh</td>
+<td>0040105D</td>
+<td>case102语句块的起始地址</td>
+<td>n=102，执行case102</td>
+</tr>
+<tr>
+<td>103</td>
+<td>2</td>
+<td>&lt;=3，继续执行。在case范围内</td>
+<td>2*4+4010AAh</td>
+<td>0040106C</td>
+<td>case103语句块的起始地址</td>
+<td>n=103，执行case103</td>
+</tr>
+<tr>
+<td>104</td>
+<td>3</td>
+<td>&lt;=3，继续执行。在case范围内</td>
+<td>3*4+4010AAh</td>
+<td>0040107B</td>
+<td>case104语句块的起始地址</td>
+<td>n=104，执行case104</td>
+</tr>
+<tr>
+<td>105</td>
+<td>4</td>
+<td>比3大，跳到default</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>n=105，执行default</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>当case的判定值存在<u>明显线性关系组合</u>，（与case判定值大小无关，不是说case 30000，这么大就不生成大表）就会生成大表。case判定值的大小无所谓，编译器会进行sub调整，最后依然可以从数组下标0开始。</p>
+<div class="tag-plugin quot"><h3 class="content" id="打乱顺序的case1-4" type="text"><a href="#打乱顺序的case1-4" class="headerlink" title="打乱顺序的case1-4"></a>打乱顺序的case1-4</h3></div>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> n = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">switch</span> (n)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 4&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 2&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 1&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 3&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;default&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106191520332.png" alt="image-20231106191520332" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106191353827.png" alt="image-20231106191353827" /></p>
+<p>只要case值存在线性关系，就会形成大表，而与case值的顺序无关。</p>
+<p>如果case值顺序是打乱的，编译器会在编译过程中对case地址表表项进行排序，如该例中case的顺序为4、2、1、3。那么在case地址表中，会将case语句块的首地址进行排序，将<code>case 1语句块首地址</code>放在case地址表的<code>第0项</code>上，<code>case 2语句块首地址</code>放在表中<code>第1项</code>，以此类推，将case语句块首地址变为一个<u>有序的表格</u>进行存放。</p>
+<table>
+<thead>
+<tr>
+<th>相对关系</th>
+<th>比例因子寻址</th>
+<th>地址表的内存地址</th>
+<th>项数</th>
+<th>对应代码中从上到下第几个case语句</th>
+<th>地址表中表项的值</th>
+<th>值的含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$==&gt;</td>
+<td>$+4*0</td>
+<td>004010AA</td>
+<td>第0项</td>
+<td>第3个case语句（case 1）</td>
+<td>0040106C</td>
+<td>case1语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+4</td>
+<td>$+4*1</td>
+<td>004010AE</td>
+<td>第1项</td>
+<td>第2个case语句（case 2）</td>
+<td>0040105D</td>
+<td>case2语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+8</td>
+<td>$+4*2</td>
+<td>004010B2</td>
+<td>第2项</td>
+<td>第4个case语句（case 3）</td>
+<td>0040107B</td>
+<td>case3语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+C</td>
+<td>$+4*3</td>
+<td>004010B6</td>
+<td>第3项</td>
+<td>第1个case语句（case 4）</td>
+<td>0040104E</td>
+<td>case4语句块的起始地址</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>和h2地址表（大表）下地址表那个表格相比，就只是“地址表中的值”这一列发生了变化。</p>
+<p>很好理解，查表时，要满足地址表第0项，为最小case值语句块起始地址；地址表第1项，为第二小case值语句块起始地址这种关系。而二进制文件中case语句块的地址高低是由这个case语句块在源码中是低行数还是高行数决定。</p>
+</blockquote>
+<div class="tag-plugin quot"><h3 class="content" id="中间空缺几项" type="text"><a href="#中间空缺几项" class="headerlink" title="中间空缺几项"></a>中间空缺几项</h3></div>
+<div class="tag-plugin tabs" align="center"id="tab_75"><div class="nav-tabs"><div class="tab active"><a href="#tab_75-1">缺一项 有default</a></div><div class="tab"><a href="#tab_75-2">缺一项 无default</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_75-1"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> n = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">switch</span> (n)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 1&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 2&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 3&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">5</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 5&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;default&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106193021807.png" alt="image-20231106193021807" /></p></div><div class="tab-pane" id="tab_75-2"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> n = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">switch</span> (n)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 1&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 2&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 3&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">5</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 5&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//default:</span></span><br><span class="line">        <span class="comment">//printf(&quot;default&quot;);</span></span><br><span class="line">        <span class="comment">//break;</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106193228631.png" alt="image-20231106193228631" /></p></div></div></div>
+<p>缺两项，有default</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> n = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">switch</span> (n)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 1&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 2&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 3&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">6</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 6&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;default&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106193504014.png" alt="image-20231106193504014" /></p>
+<p>为了达到线性有序，如果case值中间空缺几项，编译器会拿defult语句首地址/switch结束地址来填充。</p>
+<table>
+<thead>
+<tr>
+<th>地址表的内存地址</th>
+<th>项数</th>
+<th>地址表中的值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>004010AA</td>
+<td>第0项</td>
+<td>0040104E</td>
+<td>case1语句块的起始地址</td>
+</tr>
+<tr>
+<td>004010AE</td>
+<td>第1项</td>
+<td>0040105D</td>
+<td>case2语句块的起始地址</td>
+</tr>
+<tr>
+<td>004010B2</td>
+<td>第2项</td>
+<td>0040106C</td>
+<td>case3语句块的起始地址</td>
+</tr>
+<tr>
+<td>004010B6</td>
+<td>第3项</td>
+<td>0040108A</td>
+<td>default语句起始地址</td>
+</tr>
+<tr>
+<td>004010BA</td>
+<td>第4项</td>
+<td>0040108A</td>
+<td>default语句起始地址</td>
+</tr>
+<tr>
+<td>004010BE</td>
+<td>第5项</td>
+<td>0040107B</td>
+<td>case6语句块的起始地址</td>
+</tr>
+</tbody>
+</table>
+<p>假设输入给switch的参数值为4，编译器减1调整到case地址数组的下标0后，<code>[edx*4+4010AAh]</code>变成了<code>3*4+4010AAh=0040108A</code>，为表中第3项，即<code>defult语句首地址</code>。逻辑上，待考察参数3进入switch语句块中，没有case与之匹配，有default走default，没default结束switch，从程序执行流程上看，逻辑合理。</p>
+<table>
+<thead>
+<tr>
+<th>n</th>
+<th>-1调整后的数组下标</th>
+<th>是否处于case范围内</th>
+<th>edx*4+4010AAh的值</th>
+<th>表项</th>
+<th>表项的含义</th>
+<th>程序的执行流程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-1</td>
+<td>-2（-1-1=-2）</td>
+<td>补码FFFFFFFE，比5大，跳到default</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>n=-1，执行default</td>
+</tr>
+<tr>
+<td>0</td>
+<td>-1（0-1=-1）</td>
+<td>补码FFFFFFFF，比5大，跳到default</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>n=0，执行default</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>&lt;=5，继续执行。在case范围内</td>
+<td>0*4+4010AAh</td>
+<td>0040104E</td>
+<td>case1语句块的起始地址</td>
+<td>n=1，执行case1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>&lt;=5，继续执行。在case范围内</td>
+<td>1*4+4010AAh</td>
+<td>0040105D</td>
+<td>case2语句块的起始地址</td>
+<td>n=2，执行case2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>&lt;=5，继续执行。在case范围内</td>
+<td>2*4+4010AAh</td>
+<td>0040106C</td>
+<td>case3语句块的起始地址</td>
+<td>n=3，执行case3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+<td>&lt;=5，继续执行。在case范围内</td>
+<td>3*4+4010AAh</td>
+<td>0040107B</td>
+<td>case4语句块的起始地址</td>
+<td>n=4，执行case4</td>
+</tr>
+<tr>
+<td>5</td>
+<td>4</td>
+<td>&lt;=5，继续执行。在case范围内</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>n=5，执行default</td>
+</tr>
+<tr>
+<td>6</td>
+<td>5</td>
+<td>&lt;=5，继续执行。在case范围内</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td>6</td>
+<td>比5大，跳到default</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>间隙≤6会拿defult语句首地址/switch结束地址来补，浪费点内存空间，维持住高效的线性结构，但缺得多了也不好使，如果间隙&gt;6，这种填充方式会极大地浪费内存空间。那么，编译器怎么优化？采用<a href="#%E5%9C%B0%E5%9D%80%E8%A1%A8+%E7%B4%A2%E5%BC%95%E8%A1%A8%EF%BC%88%E5%A4%A7%E8%A1%A8+%E5%B0%8F%E8%A1%A8%EF%BC%89">大表+小表</a>的方式。</p>
+<h3 id="小结-2"><a class="markdownIt-Anchor" href="#小结-2"></a> 小结</h3>
+<p>大表switch结构识别的关键点：</p>
+<ol>
+<li>
+<p>获取某一个值进行调整（可能没调整这一步）</p>
+</li>
+<li>
+<p>跳转指令jcc进行范围检查</p>
+<ul>
+<li>如果不在这个范围，则跳走</li>
+<li>如果在这个范围，则不跳走，继续执行</li>
+</ul>
+</li>
+<li>
+<p>跳转指令后紧跟jmp指令，并且是相对比例因子寻址方式</p>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">;调整</span><br><span class="line">mov reg,mem                 ;取待考察的表达式结果</span><br><span class="line">...                         ;进行调整，对齐case地址表的0下标。有可能没有调整这一步</span><br><span class="line"></span><br><span class="line">;判断case范围</span><br><span class="line">...                         ;影响标志位的指令，进行范围检查</span><br><span class="line">jxx DEFAULT_ADDR            ;不在case范围，跳到default语句首地址或switch语句块结束地址</span><br><span class="line"></span><br><span class="line">;查表</span><br><span class="line">mov eax, [reg+xxxx]         ;[reg+xxxx]存的是调整后的值</span><br><span class="line">                            ;eax也可用其他寄存器替换，这里也可以是其他类型的运算</span><br><span class="line">jmp dword ptr [eax*4+xxxx]  ;地址xxxx为case地址表的首地址</span><br></pre></td></tr></table></figure>
+<p>default语句首地址/switch结束地址</p>
+<ul>
+<li>由范围检查jcc的地址确定</li>
+<li>地址表中重复的项</li>
+</ul>
+<p>case地址表</p>
+<ul>
+<li>起始地址：相对比例因子寻址方式中的基址</li>
+</ul>
+<p>case语句块</p>
+<ul>
+<li>
+<p>case的判定值</p>
+<p><u>case地址表是一个有序表，以下标为0开始</u>。用下标+反向调整（调整数组下标时相反的操作）得到case的标号值。比如，在switch语句块中是通过-1来调整数组下标，那么case地址表第0项对应的是case  1(0+1=1)。按此，依次还原后续case语句块。</p>
+</li>
+<li>
+<p>起始地址</p>
+<p>地址表中的表项就是case语句的起始地址</p>
+</li>
+<li>
+<p>结束地址</p>
+<p>两个case起始地址之间</p>
+</li>
+</ul>
+<h2 id="地址表索引表大表小表"><a class="markdownIt-Anchor" href="#地址表索引表大表小表"></a> 地址表+索引表（大表+小表）</h2>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> n = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">switch</span> (n)</span><br><span class="line">    &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 1&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 2&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 3&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">	<span class="comment">//case 9:</span></span><br><span class="line">        <span class="comment">//printf(&quot;case 10&quot;);</span></span><br><span class="line">        <span class="comment">//break;</span></span><br><span class="line">    <span class="keyword">case</span> <span class="number">10</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 10&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">11</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;case 11&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;default&quot;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106194729779.png" alt="image-20231106194729779" /></p>
+<p>编译器除了生成地址表（大表）外，还生成了一个索引表（小表）。</p>
+<p><strong>地址表</strong></p>
+<p>存放case语句首地址，default语句块首地址/switch结束地址。</p>
+<blockquote>
+<p>default语句块/switch结束地址只会保存一份，不会像有序线性地址表那样为了填补间隙而重复保存多次。</p>
+</blockquote>
+<p>地址表的个数：case语句块数量+1（default语句块首地址/switch结束地址）</p>
+<p>该例子中，40D831h为这张表的起始地址，后面会用比例因子寻址<code>[edx*4+40D831h]</code>来查表（这里将查询得到数组某个元素的过程称为查表）。</p>
+<table>
+<thead>
+<tr>
+<th>相对关系</th>
+<th>比例因子寻址</th>
+<th>地址表的内存地址</th>
+<th>项数</th>
+<th>地址表中的值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$==&gt;</td>
+<td>$+4*0</td>
+<td>0040D831</td>
+<td>第0项</td>
+<td>0040D7C6</td>
+<td>case1语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+4</td>
+<td>$+4*1</td>
+<td>0040D835</td>
+<td>第1项</td>
+<td>0040D7D5</td>
+<td>case2语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+8</td>
+<td>$+4*2</td>
+<td>0040D839</td>
+<td>第2项</td>
+<td>0040D7E4</td>
+<td>case3语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+C</td>
+<td>$+4*3</td>
+<td>0040D83D</td>
+<td>第3项</td>
+<td>0040D7F3</td>
+<td>case10语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+10</td>
+<td>$+4*4</td>
+<td>0040D841</td>
+<td>第4项</td>
+<td>0040D802</td>
+<td>case11语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+14</td>
+<td>$+4*5</td>
+<td>0040D845</td>
+<td>第5项</td>
+<td>0040D811</td>
+<td>default语句块首地址</td>
+</tr>
+</tbody>
+</table>
+<p><strong>索引表</strong></p>
+<p>每一项大小是1个字节，存放地址表的索引编号。</p>
+<p>索引表的个数：最大case值和最小case值的差。</p>
+<blockquote>
+<p>每一项大小是1个字节，00-FF，最多可以保存256项。也就是说，case值的总个数不能超过256个，要不用1个字节就没法表示了。</p>
+</blockquote>
+<p>该例子中，40D849h为这张表的起始地址，后面会用比例因子寻址<code>(0040d849)[eax]</code>来查表（这里将查询得到数组某个元素的过程称为查表）。</p>
+<blockquote>
+<p><code>(0040d849)[eax]</code>就是<code>[eax+0040d849]</code></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>相对关系</th>
+<th>比例因子寻址</th>
+<th>地址表的内存地址</th>
+<th>项数</th>
+<th>地址表中的值</th>
+<th>含义</th>
+<th>查地址表得到的是</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$==&gt;</td>
+<td>$+0*1</td>
+<td>0040D849</td>
+<td>第0项</td>
+<td>00</td>
+<td>第0项</td>
+<td>case1语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+1</td>
+<td>$+1*1</td>
+<td>0040D84A</td>
+<td>第1项</td>
+<td>01</td>
+<td>第1项</td>
+<td>case2语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+2</td>
+<td>$+2*1</td>
+<td>0040D84B</td>
+<td>第2项</td>
+<td>02</td>
+<td>第2项</td>
+<td>case3语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+3</td>
+<td>$+3*1</td>
+<td>0040D84C</td>
+<td>第3项</td>
+<td>05</td>
+<td>第5项</td>
+<td>default语句块首地址</td>
+</tr>
+<tr>
+<td>$+4</td>
+<td>$+4*1</td>
+<td>0040D84D</td>
+<td>第4项</td>
+<td>05</td>
+<td>第5项</td>
+<td>default语句块首地址</td>
+</tr>
+<tr>
+<td>$+5</td>
+<td>$+5*1</td>
+<td>0040D84E</td>
+<td>第5项</td>
+<td>05</td>
+<td>第5项</td>
+<td>default语句块首地址</td>
+</tr>
+<tr>
+<td>$+6</td>
+<td>$+6*1</td>
+<td>0040D84F</td>
+<td>第6项</td>
+<td>05</td>
+<td>第5项</td>
+<td>default语句块首地址</td>
+</tr>
+<tr>
+<td>$+7</td>
+<td>$+7*1</td>
+<td>0040D850</td>
+<td>第7项</td>
+<td>05</td>
+<td>第5项</td>
+<td>default语句块首地址</td>
+</tr>
+<tr>
+<td>$+8</td>
+<td>$+8*1</td>
+<td>0040D851</td>
+<td>第8项</td>
+<td>05</td>
+<td>第5项</td>
+<td>default语句块首地址</td>
+</tr>
+<tr>
+<td>$+9</td>
+<td>$+9*1</td>
+<td>0040D852</td>
+<td>第9项</td>
+<td>03</td>
+<td>第3项</td>
+<td>case10语句块的起始地址</td>
+</tr>
+<tr>
+<td>$+A</td>
+<td>$+A*1</td>
+<td>0040D853</td>
+<td>第10项</td>
+<td>04</td>
+<td>第4项</td>
+<td>case11语句块的起始地址</td>
+</tr>
+</tbody>
+</table>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/switch%E8%AF%AD%E5%8F%A5_C++_disassembly/image-20231106195327757.png" alt="image-20231106195327757" /></p>
+<p><strong>流程详细分析</strong></p>
+<ol>
+<li>
+<p>对待考察的变量n作处理，使其可作为数组下标进行寻址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">0040D79F   mov         eax,dword ptr [ebp-4]</span><br><span class="line">0040D7A2   mov         dword ptr [ebp-8],eax</span><br><span class="line">0040D7A5   mov         ecx,dword ptr [ebp-8]</span><br><span class="line"></span><br><span class="line">0040D7A8   sub         ecx,1                    //对齐于数组下标</span><br></pre></td></tr></table></figure>
+<p>与前面同，此处略</p>
+</li>
+<li>
+<p>待考察的变量n是否处于case范围</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0040D7AB   mov         dword ptr [ebp-8],ecx</span><br><span class="line">0040D7AE   cmp         dword ptr [ebp-8],0Ah</span><br><span class="line">0040D7B2   ja          $L543+0Fh (0040d811)     //跳到default首地址</span><br></pre></td></tr></table></figure>
+<p>与前面同，此处略</p>
+</li>
+<li>
+<p>保证了switch的参数值n在case的范围之内后，进行二次查表</p>
+<p>第一次查表，查索引表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0040D7B4   mov         eax,dword ptr [ebp-8]</span><br><span class="line">0040D7B7   xor         edx,edx</span><br><span class="line">0040D7B9   mov         dl,byte ptr  (0040d849)[eax]</span><br></pre></td></tr></table></figure>
+<p><code>(0040d849)[eax]</code>就是[eax+0040d849]，取的是byte类型，得到地址表的下标。</p>
+<p>第二次查表，查地址表</p>
+<p>再根据这个下标值，找到地址表中对应的case语句块首地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0040D7BF   jmp         dword ptr [edx*4+40D831h]</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>假设输入给switch的参数值为1，编译器减1调整到case地址数组的下标0后。第一次查表，查索引表，<code>(0040d849)[eax]</code>变成了<code>(0040d849)[0]</code>，为索引表中第0项，为<code>00</code>。第二次查表，查地址表，<code>[edx*4+40D831h]</code>变成了<code>[0*4+40D831h]</code>，为表中第0项，即case1语句块的起始地址。</p>
+<p>假设输入给switch的参数值为2，编译器减1调整到case地址数组的下标1后。第一次查表，查索引表，<code>(0040d849)[eax]</code>变成了<code>(0040d849)[1]</code>，为索引表中第1项，为<code>01</code>。第二次查表，查地址表，<code>[edx*4+40D831h]</code>变成了<code>[1*4+40D831h]</code>，为表中第1项，即case2语句块的起始地址。</p>
+<p>…</p>
+<table>
+<thead>
+<tr>
+<th>n</th>
+<th>-1调整后的数组下标</th>
+<th>是否处于case范围内</th>
+<th>(0040d849)[eax]的值</th>
+<th>索引表表项</th>
+<th>edx*4+40D831h的值</th>
+<th>地址表表项</th>
+<th>表项的含义</th>
+<th>程序的执行流程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-1</td>
+<td>-2（-1-1=-2）</td>
+<td>补码FFFFFFFE，比10大，跳到default</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td></td>
+<td>-</td>
+<td>n=-1，执行default</td>
+</tr>
+<tr>
+<td>0</td>
+<td>-1（0-1=-1）</td>
+<td>补码FFFFFFFF，比10大，跳到default</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td></td>
+<td>-</td>
+<td>n=0，执行default</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>&lt;=10，继续执行。在case范围内</td>
+<td>(0040d849)[0]</td>
+<td>00</td>
+<td>0*0+40D831h</td>
+<td>0040D7C6</td>
+<td>case1语句块的起始地址</td>
+<td>n=1，执行case1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>&lt;=10，继续执行。在case范围内</td>
+<td>(0040d849)[1]</td>
+<td>01</td>
+<td>0*1+40D831h</td>
+<td>0040D7D5</td>
+<td>case2语句块的起始地址</td>
+<td>n=2，执行case2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>&lt;=10，继续执行。在case范围内</td>
+<td>(0040d849)[2]</td>
+<td>02</td>
+<td>0*2+40D831h</td>
+<td>0040D7E4</td>
+<td>case3语句块的起始地址</td>
+<td>n=3，执行case3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+<td>&lt;=10，继续执行。在case范围内</td>
+<td>(0040d849)[3]</td>
+<td>05</td>
+<td>0*3+40D831h</td>
+<td>0040D811</td>
+<td>default语句块起始地址</td>
+<td>n=4，执行default</td>
+</tr>
+<tr>
+<td>5</td>
+<td>4</td>
+<td>&lt;=10，继续执行。在case范围内</td>
+<td>(0040d849)[4]</td>
+<td>05</td>
+<td>0*4+40D831h</td>
+<td>0040D811</td>
+<td>default语句块起始地址</td>
+<td>n=5，执行default</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>05</td>
+<td>0*5+40D831h</td>
+<td>0040D811</td>
+<td>default语句块起始地址</td>
+<td>n=…，执行default</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>05</td>
+<td>0*5+40D831h</td>
+<td>0040D811</td>
+<td>default语句块起始地址</td>
+<td>n=…，执行default</td>
+</tr>
+<tr>
+<td>10</td>
+<td>9</td>
+<td>&lt;=10，继续执行。在case范围内</td>
+<td>(0040d849)[9]</td>
+<td>03</td>
+<td>0*3+40D831h</td>
+<td>0040D7F3</td>
+<td>case10语句块的起始地址</td>
+<td>n=10，执行case10</td>
+</tr>
+<tr>
+<td>11</td>
+<td>10</td>
+<td>&lt;=10，继续执行。在case范围内</td>
+<td>(0040d849)[0Ah]</td>
+<td>04</td>
+<td>0*4h+40D831h</td>
+<td>0040D802</td>
+<td>case11语句块的起始地址</td>
+<td>n=11，执行case11</td>
+</tr>
+<tr>
+<td>12</td>
+<td>11</td>
+<td>比10大，跳到default</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td></td>
+<td>-</td>
+<td>n=12，执行default</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>可以看到，编译器多生成一个小表，小表中的每个表项大小1字节，先查小表得到索引号，然后查地址表得到要去往的地址。用小表1字节的空间，免去了用default语句块首地址/switch语句块的结束地址来连续填充大表间隙（每项占4字节），节省了内存空间。但这种方案执行时要比单一的大表多一次查表的过程，因此效率会有所下降。</p>
+<p>当case值个数&gt;小表能表示的256个后，用平衡二叉树。</p>
+<blockquote>
+<p>能否让小表中每个表项用2字节来表示呢？其实可以，但和制作单一的大表相比，其实节省下来的空间也不是很多。</p>
+</blockquote>
+<hr />
+<p>大表+小表占用的总字节数=地址表大小+索引表大小=<code>SUM*4字节</code>+<code>（MAX-MIN）*1字节</code></p>
+<p>地址表大小=SUM*4字节</p>
+<p>索引表大小=（MAX-MIN）*1字节</p>
+<p>其中，</p>
+<p>MAX表示最大的case值</p>
+<p>MIN表示最小的case值</p>
+<p>SUM表示case总数+1（包含default）</p>
+<hr />
+<h3 id="小结-3"><a class="markdownIt-Anchor" href="#小结-3"></a> 小结</h3>
+<p>结构识别：</p>
+<ol>
+<li>
+<p>获取某一个值进行调整（可能没调整这一步）</p>
+</li>
+<li>
+<p>跳转指令jcc进行范围检查</p>
+<ul>
+<li>如果不在这个范围，则跳走</li>
+<li>如果在这个范围，则不跳走，继续执行</li>
+</ul>
+</li>
+<li>
+<p>跳转指令后有二次查表的过程</p>
+<p>第一次查表代码，得到单字节数据；然后分析是否使用了第一次查表中获取的单字节数据作为下标，从而使用相对比例因子寻址方式进行第二次查表；最后检查基址指向的是否是地址表。</p>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">;调整</span><br><span class="line">mov reg,mem                     ;取出switch变量</span><br><span class="line">sub reg,1                       ;调整对齐到索引表下标0，有可能没有这一步</span><br><span class="line">mov mem,reg</span><br><span class="line"></span><br><span class="line">;下标检查</span><br><span class="line">...                             ;影响标记位的指令</span><br><span class="line">jxx xxxx                        ;超出范围则跳转到switch结尾或default</span><br><span class="line"></span><br><span class="line">;查表</span><br><span class="line">mov reg,[mem]                   ;取出switch变量</span><br><span class="line">xor eax,eax                     ;eax不是必须使用的，但之后的数组查询用到的寄存器一定是此处使用到的寄存器</span><br><span class="line">mov al,byte ptr (xxxx)[reg]     ;查索引表，得到地址表的下标</span><br><span class="line">jmp dword ptr [eax*4+xxxx]      ;查地址表，得到对应case块的首地址</span><br></pre></td></tr></table></figure>
+<p>索引表</p>
+<ul>
+<li>起始地址：从某个基址开始+偏移，取byte类型数据</li>
+</ul>
+<p>case地址表</p>
+<ul>
+<li>起始地址：相对比例因子寻址方式中的基址</li>
+</ul>
+<p>default语句首地址/switch结束地址</p>
+<ul>
+<li>由范围检查jcc的地址确定</li>
+<li>索引表中重复的项</li>
+</ul>
+<p>索引表中重复的项是switch的结束地址/default语句块的首地址的下标；</p>
+<p>独立的项，则不是。</p>
+<p>在多个case共用一个语句块时，索引表中也会出现相同标号。如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line"><span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">	xxxx;</span><br><span class="line">	<span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<p>由于case1中没有任何代码，当执行到它时，就会顺序向下，直到下一个case语句不为空为止。</p>
+<p>case语句块</p>
+<ul>
+<li>
+<p>case的判定值和对应语句块的地址</p>
+<p>结合索引表和地址表进行分析。<u>索引表中的下标是调整后的下标</u>，所以将索引表中的下标+反向调整（调整数组下标时相反的操作）就能得到case的标号值。通过索引表中的下标在地址表中找就可以找到对应case语句块的起始地址。</p>
+<p>例：</p>
+<p>索引表中第0项内容为<code>00</code>，在表中是一个独立的数据，说明不是switch的结束地址/default语句块的首地址下标，是case语句块下标。<code>00</code>对到地址表第0项，地址表内容是<code>0040D7C6</code>，表示case1语句块的起始地址。将索引表内容反向调整，就能得到case判定值：（0+1=1）1。</p>
+<p>索引表中第3项内容为<code>05</code>，在表中重复出现，说明是switch的结束地址/default语句块的首地址下标。<code>05</code>对到地址表第5项，地址表内容是<code>0040D811</code>，表示switch的结束地址/default语句块的首地址。</p>
+<table>
+<thead>
+<tr>
+<th>索引表项数</th>
+<th>索引表内容</th>
+<th>索引表内容重复出现or独立出现</th>
+<th>对应的地址表内容</th>
+<th>地址表内容含义</th>
+<th>反向调整得到case标号值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第0项</td>
+<td>00</td>
+<td>独立出现，说明是case语句块下标，而不是switch的结束地址/default语句块的首地址下标</td>
+<td>0040D7C6</td>
+<td>case1语句块的起始地址</td>
+<td>0+1=1</td>
+</tr>
+<tr>
+<td>第3项</td>
+<td>05</td>
+<td>重复出现，为switch的结束地址/default语句块的首地址下标</td>
+<td>0040D811</td>
+<td>default语句块首地址</td>
+<td>05+1=6</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>结束地址</p>
+<p>两个case起始地址之间</p>
+</li>
+</ul>
+<h2 id="二叉树"><a class="markdownIt-Anchor" href="#二叉树"></a> 二叉树</h2>
+<p>实际上，比较少见</p>
+<h2 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h2>
+<p>case分支数≤3，采用模拟if…else  if结构实现相同功能。</p>
+<p>case分支数&gt;3，且case判定值存在明显线性关系时：</p>
+<ul>
+<li>间隙≤6，大表</li>
+<li>间隙&gt;6
+<ul>
+<li>且case最大最小差值&lt;255时，大表+小表</li>
+<li>case最大最小差值&gt;255时，平衡二叉树</li>
+</ul>
+</li>
+</ul>
+<p>毫不连续的值，平衡二叉树（待查证）</p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html">分支语句</a></div><div class="item" id="next"></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

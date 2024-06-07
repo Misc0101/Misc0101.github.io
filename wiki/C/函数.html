@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>C：函数 - Misc010</title>
+
+  
+    <meta name="description" content="函数格式 C语言中函数语法格式1234返回类型 函数名(参数列表)&#123;&#125;  返回类型、函数名不能省略 参数列表可以省略  例1234int plus(int x,int y)&#123;    return 0;&#125; 函数名、参数名的命名规则:  只能以字母、数字、下划线组成，且第一个字母必须是字母或下划线 区分大小写 不能使用C语言的关链字   函数调用语法 汇编眼中">
+<meta property="og:type" content="website">
+<meta property="og:title" content="函数">
+<meta property="og:url" content="https://misc0101.github.io/wiki/C/%E5%87%BD%E6%95%B0.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="函数格式 C语言中函数语法格式1234返回类型 函数名(参数列表)&#123;&#125;  返回类型、函数名不能省略 参数列表可以省略  例1234int plus(int x,int y)&#123;    return 0;&#125; 函数名、参数名的命名规则:  只能以字母、数字、下划线组成，且第一个字母必须是字母或下划线 区分大小写 不能使用C语言的关链字   函数调用语法 汇编眼中">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231005164514819.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231005165421121.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231005212425389.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231008205445404.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231005210838961.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231005210053869.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231005210801973.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231005205756185.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231005210901026.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231005210251820.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231005210928896.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231005210442682.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20240208210813047.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20240208210907717.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20240208211627354.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231007154138087.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231013204913446.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231013205528497.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231013205627281.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231013205938995.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231014191100947.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231013212203186.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231014152153684.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231014153437501.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231014153728238.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231014154411727.png">
+<meta property="article:published_time" content="2023-10-02T08:39:58.000Z">
+<meta property="article:modified_time" content="2023-10-02T08:39:58.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E5%87%BD%E6%95%B0/image-20231005164514819.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><div class="main" ff="title">C</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/C/" placeholder="在/wiki/C/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">函数</span></div><div class="widget-body fs14"><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/C/%E5%87%BD%E6%95%B0.html#start"><span class="toc-text">函数</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E6%A0%BC%E5%BC%8F"><span class="toc-text"> 函数格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E8%AF%AD%E6%B3%95"><span class="toc-text"> 函数调用语法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%88%E5%B8%A7"><span class="toc-text"> 栈帧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E7%9A%84%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80"><span class="toc-text"> 函数的内存布局</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%83%E4%B9%A0"><span class="toc-text"> 练习</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A"><span class="toc-text"> 调用约定</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%83%E4%B9%A0-2"><span class="toc-text"> 练习</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%E4%B8%AA%E6%95%B0%E7%9A%84%E5%88%86%E6%9E%90"><span class="toc-text"> 函数参数个数的分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-text"> 问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E7%9A%84%E8%BF%94%E5%9B%9E%E5%80%BC"><span class="toc-text"> 函数的返回值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92"><span class="toc-text"> 参数传递</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E5%8F%82%E5%92%8C%E5%BD%A2%E5%8F%82"><span class="toc-text"> 实参和形参</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D"><span class="toc-text"> 局部变量的内存分配</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3.html"><span class="toc-text">函数的入口</span></a></div></div><div class="widget-header cap dis-select"><span class="name">基本数据类型</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%95%B4%E6%95%B0%E7%B1%BB%E5%9E%8B%E5%92%8C%E6%B5%AE%E7%82%B9%E7%B1%BB%E5%9E%8B.html"><span class="toc-text">整数类型和浮点类型</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%AD%97%E7%AC%A6%E5%92%8C%E5%AD%97%E7%AC%A6%E4%B8%B2.html"><span class="toc-text">字符和字符串</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%E5%92%8C%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F.html"><span class="toc-text">全局变量和局部变量</span></a></div></div><div class="widget-header cap dis-select"><span class="name">构造数据类型</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%95%B0%E7%BB%84.html"><span class="toc-text">数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%A4%9A%E7%BB%B4%E6%95%B0%E7%BB%84.html"><span class="toc-text">多维数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E7%BB%93%E6%9E%84%E4%BD%93.html"><span class="toc-text">结构体</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90.html"><span class="toc-text">字节对齐</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E7%BB%93%E6%9E%84%E4%BD%93%E6%95%B0%E7%BB%84.html"><span class="toc-text">结构体数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E8%81%94%E5%90%88%E4%BD%93.html"><span class="toc-text">联合体</span></a></div></div><div class="widget-header cap dis-select"><span class="name">指针数据类型</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%8C%87%E9%92%88%E7%89%B9%E5%BE%81%E6%8E%A2%E6%B5%8B.html"><span class="toc-text">指针特征探测</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%8F%96%E5%9D%80%E5%92%8C%E5%8F%96%E5%80%BC%E8%BF%90%E7%AE%97%E7%AC%A6.html"><span class="toc-text">取址&运算符和取值*运算符</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E7%94%A8%E6%8C%87%E9%92%88%E6%93%8D%E4%BD%9C%E6%95%B0%E7%BB%84.html"><span class="toc-text">用指针操作数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%8C%87%E9%92%88%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2.html"><span class="toc-text">指针与字符串</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%8C%87%E9%92%88%E6%95%B0%E7%BB%84.html"><span class="toc-text">指针数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E7%BB%93%E6%9E%84%E4%BD%93%E6%8C%87%E9%92%88.html"><span class="toc-text">结构体指针</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%A4%9A%E7%BA%A7%E6%8C%87%E9%92%88.html"><span class="toc-text">多级指针</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%95%B0%E7%BB%84%E6%8C%87%E9%92%88.html"><span class="toc-text">数组指针</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88.html"><span class="toc-text">函数指针</span></a></div></div><div class="widget-header cap dis-select"><span class="name">流程控制语句</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5.html"><span class="toc-text">分支语句</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%BE%AA%E7%8E%AF%E8%AF%AD%E5%8F%A5.html"><span class="toc-text">循环语句</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/Switch%E8%AF%AD%E5%8F%A5.html"><span class="toc-text">Switch语句</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E8%BF%90%E7%AE%97%E7%AC%A6%E5%92%8C%E8%A1%A8%E8%BE%BE%E5%BC%8F.html"><span class="toc-text">运算符和表达式</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/typedef.html"><span class="toc-text">typedef</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E9%A2%84%E5%A4%84%E7%90%86.html"><span class="toc-text">预处理</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E4%B8%8E%E9%87%8A%E6%94%BE.html"><span class="toc-text">内存分配与释放</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E9%9A%8F%E6%89%8B%E8%AE%B0%E4%B8%80%E4%BA%9B%E5%87%BD%E6%95%B0.html"><span class="toc-text">随手记一些函数</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><span class="title">汇编语言</span><span class="excerpt">x86汇编笔记：以滴水三期_汇编语言课程为框架，《汇编语言4th-王爽》和《汇编语言-基于x86处理器-第七版》为补充。</span></a><a class="item wiki" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><span class="title">C++</span><span class="excerpt">滴水三期_C++语言笔记，C++能做的C都能做，只不过如果使用C++，可以节省很多时间，因为编译器帮编程人员做了很多工作，让编程人员省事。学习的目标：相对于C，编译器替我们做了哪些工作。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="title">科学上网技术</span><span class="excerpt">从正常网络通信数据包通信过程出发，逐步推导到使用代理协议进行科学上网，随后依次介绍各代理协议ss、trojan、vmess、vless原理与节点搭建，还有相关的工具、技术、概念介绍。</span></a><a class="item wiki" href="/wiki/Thinking_in_C++/Pointers.html"><span class="title">Thinking in C++</span><span class="excerpt">《Thinking in C++ vol 1》笔记，知识内化后的输出，少部分是摘抄，少用的细节不做记录用时在查，参考视频：《面向对象程序设计_C++_翁恺老师》。</span></a><a class="item wiki" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><span class="title">Windows API编程</span><span class="excerpt">滴水三期_win32 api笔记，学习Windows API编程的困难并不在于函数参数参数众多或者英文不好这类表象原因，而是需要从Windows系统的整体知识架构出发来学习这些API，深入理解每个参数背后的含义和背景。如此，未来查阅MSDN时便不再像是看天书。</span></a><a class="item wiki" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><span class="title">数据的运算与表示</span><span class="excerpt">滴水三期_进制笔记，学习与理解进制、数据宽度、数的表示、位运算等概念。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/C/%E5%87%BD%E6%95%B0.html">C</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-10-02T08:39:58.000Z">2023-10-02</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>函数</span></h1>
+<h2 id="函数格式"><a class="markdownIt-Anchor" href="#函数格式"></a> 函数格式</h2>
+<figure class="highlight c"><figcaption><span>C语言中函数语法格式</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">返回类型 函数名(参数列表)</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>返回类型、函数名不能省略</li>
+<li>参数列表可以省略</li>
+</ol>
+<figure class="highlight c"><figcaption><span>例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">plus</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>函数名、参数名的命名规则:</p>
+<ol>
+<li>只能以字母、数字、下划线组成，且第一个字母必须是字母或下划线</li>
+<li>区分大小写</li>
+<li>不能使用C语言的关链字</li>
+</ol>
+<h2 id="函数调用语法"><a class="markdownIt-Anchor" href="#函数调用语法"></a> 函数调用语法</h2>
+<p>汇编眼中的函数调用</p>
+<div class="tag-plugin grid"  style="grid-template-columns: repeat(2, 1fr);"><div class="cell" style="">
+    <p>调用形式1</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">push 参数<span class="number">1</span></span><br><span class="line">push 参数<span class="number">2</span></span><br><span class="line">call 内存地址</span><br></pre></td></tr></table></figure>
+    </div>
+    <div class="cell" style="">
+    <p>调用形式2</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov ecx,参数<span class="number">1</span></span><br><span class="line">mov edx,参数<span class="number">2</span></span><br><span class="line">call 内存地址</span><br></pre></td></tr></table></figure>
+    </div>
+    </div>
+<p>C语言眼中的函数调用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">函数名(参数<span class="number">1</span>,参数<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>总结:函数名就是编译器起的内存地址的别名。</strong></p>
+<h2 id="栈帧"><a class="markdownIt-Anchor" href="#栈帧"></a> 栈帧</h2>
+<p>堆栈帧(stack frame)(或活动记录（activation record)）是一块堆栈保留区域，用于存放被传递的实际参数、子程序的返回值、局部变量以及被保存的寄存器。当A函数内调用B函数时，就会开辟被调函数B所需的栈空间，形成函数B的栈帧。当函数B调用结束时，会清除它所使用的栈空间，关闭栈帧，这一过程称为栈平衡。</p>
+<blockquote>
+<p>在上面的例子中，函数A是主调函数calling function，函数B是被调函数called function</p>
+</blockquote>
+<p>x86_debug汇编视角下函数固定的套路<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231005164514819.png" alt="image-20231005164514819" /></p>
+<h3 id="函数的内存布局"><a class="markdownIt-Anchor" href="#函数的内存布局"></a> 函数的内存布局</h3>
+<p>变量、参数、返回值等的内存布局</p>
+<p>EBP-4之上是局部变量区<br />
+EBP：原EBP的值<br />
+EBP+4：返回地址<br />
+EBP+8以下：参数</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231005165421121.png" alt="image-20231005165421121" /></p>
+<h3 id="练习"><a class="markdownIt-Anchor" href="#练习"></a> 练习</h3>
+<ol>
+<li>使用裸函数实现add函数，体会C语言的函数是如何转换成汇编语言的(就是上面说的那些汇编指令)</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y,<span class="type">int</span> z)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> a=<span class="number">2</span>;</span><br><span class="line">	<span class="type">int</span> b=<span class="number">3</span>;</span><br><span class="line">	<span class="type">int</span> c=<span class="number">4</span>;</span><br><span class="line">	<span class="keyword">return</span> x+y+z+a+b+c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>裸函数</span></summary><div class="body"><p>使用<code>__declspec(naked)</code>修饰函数后，编译器就不会替这个函数生成任何汇编指令，连ret都要自己使用内联汇编显式写出。</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">__declspec(naked) <span class="type">int</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span><br><span class="line">&#123;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		ret</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>如果连ret都不写，调用这个函数时会出错，因为走到了int 3</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231005212425389.png" alt="image-20231005212425389" /></p><p>注意，只是函数内部什么都不生成，但是call前后，压参，外平栈（如果是外平栈），这些还是有的。</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">__declspec(naked) <span class="type">int</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span><br><span class="line">&#123;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		ret</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	add(<span class="number">1</span>,<span class="number">2</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231008205445404.png" alt="image-20231008205445404" /></p></div></details></div>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p>注意：超过10以上的立即数前面加0x，表示十六进制。要不会被当成十进制</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">__declspec(naked) <span class="type">int</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y,<span class="type">int</span> z)</span></span><br><span class="line">&#123;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		push ebp</span><br><span class="line">	    mov ebp,esp</span><br><span class="line"></span><br><span class="line">		sub esp,<span class="number">0x40</span></span><br><span class="line"></span><br><span class="line">		push ebx</span><br><span class="line">		push esi</span><br><span class="line">		push edi</span><br><span class="line"></span><br><span class="line">		lea edi,dword ptr ss:[ebp<span class="number">-0x40</span>]</span><br><span class="line">		mov ecx,<span class="number">0x10</span></span><br><span class="line">		mov eax,<span class="number">0xCCCCCCCC</span></span><br><span class="line">		rep stosd</span><br><span class="line"></span><br><span class="line">		mov dword ptr [ebp<span class="number">-4</span>],<span class="number">2</span></span><br><span class="line">		mov dword ptr [ebp<span class="number">-8</span>],<span class="number">3</span></span><br><span class="line">		mov dword ptr [ebp<span class="number">-0xC</span>],<span class="number">4</span></span><br><span class="line">		</span><br><span class="line">		mov eax,dword ptr [ebp+<span class="number">8</span>]</span><br><span class="line">		add eax,dword ptr [ebp+<span class="number">0xC</span>]</span><br><span class="line">		add eax,dword ptr [ebp+<span class="number">0x10</span>]</span><br><span class="line">		add eax,dword ptr [ebp<span class="number">-4</span>]</span><br><span class="line">		add eax,dword ptr [ebp<span class="number">-8</span>]</span><br><span class="line">		add eax,dword ptr [ebp<span class="number">-0xC</span>]</span><br><span class="line"></span><br><span class="line">		pop edi</span><br><span class="line">		pop esi</span><br><span class="line">		pop ebx</span><br><span class="line"></span><br><span class="line">		mov esp,ebp</span><br><span class="line">		pop ebp</span><br><span class="line"></span><br><span class="line">		ret</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> result=add(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>,result);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></details></div>
+<h2 id="调用约定"><a class="markdownIt-Anchor" href="#调用约定"></a> 调用约定</h2>
+<blockquote>
+<p>参考链接🔗：<a target="_blank" rel="noopener" href="https://www.laruence.com/2008/04/01/116.html">关于调用约定(cdecl、fastcall、stcall、thiscall) 的一点知识</a></p>
+</blockquote>
+<p>调用约定就是告诉编译器怎么传递参数，怎么传递返回值，怎么平衡堆栈。<br />
+这里列出常见的调用约定，其他的比如naked裸函数，在上面的练习题已做补充说明。当然，调用约定远不止这几个，有时你会发现代码复杂时，编译器生成的不是我们这里讲的这些调用约定，这些要在平时的代码分析时积累经验。</p>
+<table>
+<thead>
+<tr>
+<th>调用约定</th>
+<th>参数传递方式</th>
+<th>谁负责平栈？</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cdecl</td>
+<td>从右向左压栈</td>
+<td>调用者calling function，外平栈</td>
+<td>C/C++、MFC的默认方式；</br>可变参数的函数</td>
+</tr>
+<tr>
+<td>stdcall</td>
+<td>从右向左压栈</td>
+<td>被调方called function，内平栈</td>
+<td>windows api调用约定</td>
+</tr>
+<tr>
+<td>fastcall</td>
+<td>函数第一个和第二个DWORD参数通过ecx和edx传递，其余参数按从右向左的顺序压栈</td>
+<td>如果参数超过2个，用到堆栈传参了，才需要平栈。</br>被调方called function，内平栈</td>
+<td>速度快。</br>但如果参数多，也用到堆栈传参，其实也加速不了多少</td>
+</tr>
+<tr>
+<td>thiscall</td>
+<td>从右向左入栈</br>如果参数个数确定, this指针通过ecx传递给被调用者, </br>如果参数个数不确定, this指针在所有参数压栈后被压入堆栈</td>
+<td>参数个数不定的, 调用者calling function清理堆栈 ，外平栈</br>参数个数确定的，被调方called function，清理堆栈，内平栈</td>
+<td>成员缺省调用约定</td>
+</tr>
+</tbody>
+</table>
+<p>O2选项优化时，外平栈的调用方式可以采用复写传播优化，提高效率。</p>
+</br>
+<p>以加法函数为例，看不同函数调用方式下汇编指令的差异</p>
+<div class="tag-plugin tabs" align="center"id="tab_3"><div class="nav-tabs"><div class="tab active"><a href="#tab_3-1">cdecl调用约定</a></div><div class="tab"><a href="#tab_3-2">stdcall调用约定</a></div><div class="tab"><a href="#tab_3-3">fastcall调用约定</a></div><div class="tab"><a href="#tab_3-4">thiscall调用约定</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_3-1"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y)</span>	<span class="comment">//不加修饰默认就是C调用约定</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> x+y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> __cdecl <span class="title function_">add</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y)</span>	<span class="comment">//明确指定用C调用约定</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> x+y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> x+y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	add(<span class="number">1</span>,<span class="number">2</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231005210838961.png" alt="image-20231005210838961" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231005210053869.png" alt="image-20231005210053869" /></p></div><div class="tab-pane" id="tab_3-2"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __stdcall <span class="title function_">add</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> x+y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	add(<span class="number">1</span>,<span class="number">2</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231005210801973.png" alt="image-20231005210801973" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231005205756185.png" alt="image-20231005205756185" /></p></div><div class="tab-pane" id="tab_3-3"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __fastcall <span class="title function_">add</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> x+y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	add(<span class="number">1</span>,<span class="number">2</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231005210901026.png" alt="image-20231005210901026" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231005210251820.png" alt="image-20231005210251820" /></p>
+<p>上面这个两个数相加的例子，因为传递参数只有2个，都用了寄存器来传递参数，没用到堆栈传参，所以不需要平栈。</p>
+<p>如果是4个参数，可以观察到内平栈。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __fastcall <span class="title function_">add</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y,<span class="type">int</span> z,<span class="type">int</span> a)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> x+y+z+a;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	add(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231005210928896.png" alt="image-20231005210928896" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231005210442682.png" alt="image-20231005210442682" /></p></div><div class="tab-pane" id="tab_3-4"><div class="tag-plugin tabs" align="center"id="tab_2"><div class="nav-tabs"><div class="tab active"><a href="#tab_2-1">参数个数确定</a></div><div class="tab"><a href="#tab_2-2">不定参数（参数个数不确定）</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_2-1"><p>thiscall是唯一一个不能明确指明的函数修饰, 因为thiscall不是关键字. 它是C++类成员函数缺省的调用约定。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">A</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> x + y;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    A a;</span><br><span class="line">    <span class="type">int</span> r = a.<span class="built_in">add</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20240208210813047.png" alt="image-20240208210813047" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20240208210907717.png" alt="image-20240208210907717" /></p></div><div class="tab-pane" id="tab_2-2"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdarg&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 成员函数，计算不定数量参数的和</span></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">sum</span><span class="params">(<span class="type">int</span> count, ...)</span> </span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="type">int</span> result = <span class="number">0</span>;</span><br><span class="line">        va_list args;</span><br><span class="line">        <span class="built_in">va_start</span>(args, count); <span class="comment">// 初始化args指向第一个不定参数</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; count; ++i) </span><br><span class="line">        &#123;</span><br><span class="line">            result += <span class="built_in">va_arg</span>(args, <span class="type">int</span>); <span class="comment">// 获取下一个int类型的参数</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">va_end</span>(args); <span class="comment">// 清理args</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    MyClass obj;</span><br><span class="line">    <span class="type">int</span> result = obj.<span class="built_in">sum</span>(<span class="number">4</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>);                <span class="comment">// 调用sum函数</span></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;The result is: &quot;</span> &lt;&lt; result &lt;&lt; std::endl;  <span class="comment">// 输出结果</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20240208211627354.png" alt="image-20240208211627354" /></p></div></div></div></div></div></div>
+<h3 id="练习-2"><a class="markdownIt-Anchor" href="#练习-2"></a> 练习</h3>
+<ol>
+<li>将CallingConvention.exe逆向成C语言</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __stdccall <span class="title function_">AddThreeNum</span><span class="params">(<span class="type">int</span> num1,<span class="type">int</span> num2,<span class="type">int</span> num3)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> num1+num2+num3;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> __cdecl <span class="title function_">AddTwoNum</span><span class="params">(<span class="type">int</span> num1,<span class="type">int</span> num2)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> num1+num2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> __fastcall <span class="title function_">func</span><span class="params">(<span class="type">int</span> num1,<span class="type">int</span> num2,<span class="type">int</span> num3,<span class="type">int</span> num4,<span class="type">int</span> num5)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> x=num1;                         <span class="comment">//1</span></span><br><span class="line">	<span class="type">int</span> y=num2;                         <span class="comment">//3</span></span><br><span class="line">	<span class="type">int</span> result1=AddThreeNum(num3,y,x);  <span class="comment">//8</span></span><br><span class="line">	<span class="type">int</span> result2=AddTwoNum(x,y);         <span class="comment">//4</span></span><br><span class="line">	<span class="keyword">return</span> AddTwoNum(result1,result2);  <span class="comment">//12</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc,<span class="type">char</span>* argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> result=func(<span class="number">1</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">6</span>,<span class="number">7</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>,result);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>放在VC++6.0中查看反汇编，和exe在OD中的汇编进行对比。除了有一些地方不一样，其余都一样。</p><p>不一样的地方：调用AddThreeNum函数时的x和y不是从[EBP-4]和[EBP-8]处取，编译器在给x和y赋值后，又让[ESP-C]=1,[ESP-0x10]=3，从这两个地方取参数传给函数。然后后续的变量位置从[ebp-0x14]开始向上使用。</p><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">004010A0   push        ebp</span><br><span class="line">004010A1   mov         ebp,esp</span><br><span class="line">004010A3   sub         esp,58h</span><br><span class="line">004010A6   push        ebx</span><br><span class="line">004010A7   push        esi</span><br><span class="line">004010A8   push        edi</span><br><span class="line">004010A9   push        ecx</span><br><span class="line">004010AA   lea         edi,[ebp-58h]</span><br><span class="line">004010AD   mov         ecx,16h</span><br><span class="line">004010B2   mov         eax,0CCCCCCCCh</span><br><span class="line">004010B7   rep stos    dword ptr [edi]</span><br><span class="line">004010B9   pop         ecx</span><br><span class="line">004010BA   mov         dword ptr [ebp-8],edx</span><br><span class="line">004010BD   mov         dword ptr [ebp-4],ecx</span><br><span class="line">18:       int x=num1;                         //1</span><br><span class="line"><span class="addition">+004010C0   mov         eax,dword ptr [ebp-4]</span></span><br><span class="line"><span class="addition">+004010C3   mov         dword ptr [ebp-0Ch],eax</span></span><br><span class="line">19:       int y=num2;                         //3</span><br><span class="line"><span class="addition">+004010C6   mov         ecx,dword ptr [ebp-8]</span></span><br><span class="line"><span class="addition">+004010C9   mov         dword ptr [ebp-10h],ecx</span></span><br><span class="line">20:       int result1=AddThreeNum(num3,y,x);  //8</span><br><span class="line"><span class="addition">+004010CC   mov         edx,dword ptr [ebp-0Ch]</span></span><br><span class="line">004010CF   push        edx</span><br><span class="line"><span class="addition">+004010D0   mov         eax,dword ptr [ebp-10h]</span></span><br><span class="line">004010D3   push        eax</span><br><span class="line">004010D4   mov         ecx,dword ptr [ebp+8]</span><br><span class="line">004010D7   push        ecx</span><br><span class="line">004010D8   call        @ILT+15(AddThreeNum) (00401014)</span><br><span class="line">004010DD   mov         dword ptr [ebp-14h],eax</span><br><span class="line">21:       int result2=AddTwoNum(x,y);         //4</span><br><span class="line"><span class="addition">+004010E0   mov         edx,dword ptr [ebp-10h]</span></span><br><span class="line">004010E3   push        edx</span><br><span class="line"><span class="addition">+004010E4   mov         eax,dword ptr [ebp-0Ch]</span></span><br><span class="line">004010E7   push        eax</span><br><span class="line">004010E8   call        @ILT+0(AddTwoNum) (00401005)</span><br><span class="line">004010ED   add         esp,8</span><br><span class="line">004010F0   mov         dword ptr [ebp-18h],eax</span><br><span class="line">22:       return AddTwoNum(result1,result2);  //12</span><br><span class="line">004010F3   mov         ecx,dword ptr [ebp-18h]</span><br><span class="line">004010F6   push        ecx</span><br><span class="line">004010F7   mov         edx,dword ptr [ebp-14h]</span><br><span class="line">004010FA   push        edx</span><br><span class="line">004010FB   call        @ILT+0(AddTwoNum) (00401005)</span><br><span class="line">00401100   add         esp,8</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231007154138087.png" alt="image-20231007154138087" /></p></div></details></div>
+<h2 id="函数参数个数的分析"><a class="markdownIt-Anchor" href="#函数参数个数的分析"></a> 函数参数个数的分析</h2>
+<blockquote>
+<p>滴水三期，P19，2015-01-28，33:48-44:45<br />
+这里讲得很好，可以多听</p>
+</blockquote>
+<p>通过前面的学习，我们判断函数参数个数的一般情况如下：</p>
+<ol>
+<li>
+<p>观察调用处的代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">push 3</span><br><span class="line">push 2</span><br><span class="line">push 1</span><br><span class="line">call 0040100f</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>继续观察平衡堆栈的代码</p>
+<p>外平栈</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">call 0040100f</span><br><span class="line">add esp,0Ch</span><br></pre></td></tr></table></figure>
+<p>内平栈</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ret 4/8/0xC/0x10</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>综合上面两步的观察情况来确定参数个数</p>
+</li>
+</ol>
+<h3 id="问题"><a class="markdownIt-Anchor" href="#问题"></a> 问题</h3>
+<ol>
+<li>
+<p>参数传递未必都是通过堆栈，还可能是通过寄存器传的</p>
+</li>
+<li>
+<p>函数调用处的代码看不到，比如可能是线程调的回调函数</p>
+<p>看不到这块代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">push ebx</span><br><span class="line">push eax</span><br><span class="line">mov ecx,dword ptr ds:[esi]</span><br><span class="line">mov edx,dword ptr ds:[edi]</span><br><span class="line">push 45</span><br><span class="line">push 33</span><br><span class="line">call 函数地址</span><br></pre></td></tr></table></figure>
+<p>那怎么分析？看函数内部。</p>
+</li>
+</ol>
+<p>下面说明分析步骤，假设看不到调用处的代码，只有如下的函数内部代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">00401050   push        ebp</span><br><span class="line">00401051   mov         ebp,esp</span><br><span class="line">00401053   sub         esp,48h</span><br><span class="line">00401056   push        ebx</span><br><span class="line">00401057   push        esi</span><br><span class="line">00401058   push        edi</span><br><span class="line">00401059   push        ecx</span><br><span class="line">0040105A   lea         edi,[ebp-48h]</span><br><span class="line">0040105D   mov         ecx,12h</span><br><span class="line">00401062   mov         eax,0CCCCCCCCh</span><br><span class="line">00401067   rep stos    dword ptr [edi]</span><br><span class="line">00401069   pop         ecx</span><br><span class="line">0040106A   mov         dword ptr [ebp-8],edx</span><br><span class="line">0040106D   mov         dword ptr [ebp-4],ecx</span><br><span class="line">00401070   mov         eax,dword ptr [ebp-4]</span><br><span class="line">00401073   add         eax,dword ptr [ebp-8]</span><br><span class="line">00401076   add         eax,dword ptr [ebp+8]</span><br><span class="line">00401079   mov         [g_x (00427958)],eax</span><br><span class="line">0040107E   pop         edi</span><br><span class="line">0040107F   pop         esi</span><br><span class="line">00401080   pop         ebx</span><br><span class="line">00401081   mov         esp,ebp</span><br><span class="line">00401083   pop         ebp</span><br><span class="line">00401084   ret         4</span><br></pre></td></tr></table></figure>
+<p>观察步骤：</p>
+<ol>
+<li>不考虑ebp、esp，只找给别人赋值的寄存器eax/ecx/edx/ebx/esi/edi</li>
+<li>找到以后追查其来源，如果，该寄存器中的值不是在函数内存赋值的，那一定是传进来的参数。</li>
+</ol>
+<p>公式一：寄存器 + ret  4 = 参数个数</p>
+<p>公式二：寄存器 + [ebp+8] +[ebp+0x] = 参数个数</p>
+<hr />
+<p>栈帧前面这段的指令套路不是一定的，debug或发布版会有差异。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">00401050   push        ebp</span><br><span class="line">00401051   mov         ebp,esp</span><br><span class="line">00401053   sub         esp,48h</span><br><span class="line">00401056   push        ebx</span><br><span class="line">00401057   push        esi</span><br><span class="line">00401058   push        edi</span><br><span class="line">00401059   push        ecx</span><br><span class="line">0040105A   lea         edi,[ebp-48h]</span><br><span class="line">0040105D   mov         ecx,12h</span><br><span class="line">00401062   mov         eax,0CCCCCCCCh</span><br><span class="line">00401067   rep stos    dword ptr [edi]</span><br><span class="line">00401069   pop         ecx</span><br></pre></td></tr></table></figure>
+<p>往下看，看到<u>函数内部用了edx寄存器给别人赋值</u></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0040106A   mov         dword ptr [ebp-8],edx</span><br></pre></td></tr></table></figure>
+<p>然后从这行代码往上看，看前面的代码，<u>没看到在函数内部有对edx有赋值</u>，那么edx一定是传进来的参数。</p>
+<p>ecx同理。</p>
+<p>由此，确定了由寄存器传递的参数个数，是2个。然后看堆栈平衡操作，看到</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">00401084   ret         4</span><br></pre></td></tr></table></figure>
+<p>所以堆栈传参个数是1个，加上寄存器传参，这个call函数一共3个参数。不过，在看了堆栈平衡操作的字节数后，可以在细致点，看函数内部使用到的堆栈参数[ebp+8]、[ebp+0x]来做二次确认。</p>
+<p><strong>总结</strong></p>
+<p>根据push个数（看不到也没关系）、平栈操作平了多少字节（有可能是用等价指令平栈）、函数内部用到了哪些参数，这些因素综合判断。</p>
+<p>错误的：</p>
+<ul>
+<li>call前有几个push并不说明这个函数就是几个参数，因为经过编译器优化后的代码可能先push了，但是是下一个call才用到。</li>
+</ul>
+<h2 id="函数的返回值"><a class="markdownIt-Anchor" href="#函数的返回值"></a> 函数的返回值</h2>
+<p>在基本数据类型与<code>sizeof(type)</code>≤4的自定义类型（浮点类型除外）情况下，如果函数有返回值，是用eax作为返回值。如果大小大于4字节，用eax和edx来传递返回值。</p>
+<table>
+<thead>
+<tr>
+<th>函数返回类型</th>
+<th>如何传递</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>char</td>
+<td>al</td>
+</tr>
+<tr>
+<td>short</td>
+<td>ax</td>
+</tr>
+<tr>
+<td>int</td>
+<td>eax</td>
+</tr>
+<tr>
+<td>大小＞4字节</td>
+<td>eax和edx。edx存储高位，eax存储高位</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>逆向经验之谈：单步步过一个call，观察eax变化。如果eax变了，说明这个call将一个数存到eax返回出来，然后紧接着分析这个eax存的东西代表什么含义</p>
+</blockquote>
+<div class="tag-plugin tabs" align="center"id="tab_4"><div class="nav-tabs"><div class="tab active"><a href="#tab_4-1">char类型的返回值</a></div><div class="tab"><a href="#tab_4-2">short类型的返回值</a></div><div class="tab"><a href="#tab_4-3">int类型的返回值</a></div><div class="tab"><a href="#tab_4-4">大小＞4字节类型的返回值</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_4-1"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span> <span class="title function_">func</span><span class="params">()</span></span><br><span class="line">&#123;	</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">12</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">char</span> result=func();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231013204913446.png" alt="image-20231013204913446" /></p></div><div class="tab-pane" id="tab_4-2"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">short</span> <span class="title function_">func</span><span class="params">()</span></span><br><span class="line">&#123;	</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">12</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">short</span> result=func();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>12这个常数就在硬编码中，offset的操作就是把0040103a这个地址的值取出，放入ax中</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231013205528497.png" alt="image-20231013205528497" /></p></div><div class="tab-pane" id="tab_4-3"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">func</span><span class="params">()</span></span><br><span class="line">&#123;	</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">12</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> result=func();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231013205627281.png" alt="image-20231013205627281" /></p></div><div class="tab-pane" id="tab_4-4"><p>用数组或结构体就能自定义大小的数据类型。这里以long  long类型演示当字节数&gt;4，eax存不下时，函数的返回值是如何返回的？</p>
+<blockquote>
+<p>long long类型在VC6中对应的是__int64</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line">__int64 <span class="title function_">func</span><span class="params">()</span></span><br><span class="line">&#123;	</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0x1234567890</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	__int64 result=func();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>高位：edx</p>
+<p>低位：eax</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231013205938995.png" alt="image-20231013205938995" /></p>
+<p>局部变量也是，用edx存高位，eax存低位</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231014191100947.png" alt="image-20231014191100947" /></p></div></div></div>
+<h2 id="参数传递"><a class="markdownIt-Anchor" href="#参数传递"></a> 参数传递</h2>
+<p>函数传递参数有两种方式：堆栈和寄存器。char和short类型还是通过4字节大小进行传参。</p>
+<p>本机尺寸：如果本机是32位的，那么对32位的数据支持最好；如果是64位的，那么对64位的支持最好。</p>
+<p>编译器遵守了本机尺寸这个规则，所以实际上char类型或者short类型的参数不但没有节省空间，反而浪费了多余的操作。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">func</span><span class="params">(<span class="type">char</span> x, <span class="type">char</span> y, <span class="type">char</span> z)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> r = x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> a = <span class="number">1</span>;</span><br><span class="line">    <span class="type">char</span> b = <span class="number">2</span>;</span><br><span class="line">    <span class="type">char</span> c = <span class="number">3</span>;</span><br><span class="line">    func(a, b, c);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231013212203186.png" alt="image-20231013212203186" /></p>
+<p>虽然按4字节传（可以看到堆栈传参是03  CC  CC  CC），但用的时候还是按1字节用，所以不会出现传多了，使用错误的情况。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231014152153684.png" alt="image-20231014152153684" /></p>
+<p>结论：整数类型的参数，一律使用int类型。</p>
+<blockquote>
+<p>海哥说不使用char和short类型，实际上并不会节省空间，而且效率慢。但从另一个方面讲，出于使用规范角度考虑，还是用char和short类型吧。</p>
+</blockquote>
+<h3 id="实参和形参"><a class="markdownIt-Anchor" href="#实参和形参"></a> 实参和形参</h3>
+<p>理解汇编的，就知道下面的Plus函数为什么没修改到main函数中的变量x。</p>
+<p>main函数中的x位于[ebp-4]，Plus函数的参数x在[ebp+8]。调用函数时，参数传递就是将上层函数的变量，或者表达式的值“复制一份”，传递给下层函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Plus</span><span class="params">(<span class="type">int</span> x)</span></span><br><span class="line">&#123;</span><br><span class="line">    x = x + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 入口函数</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> x = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    Plus(x);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, x);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="局部变量的内存分配"><a class="markdownIt-Anchor" href="#局部变量的内存分配"></a> 局部变量的内存分配</h2>
+<p>一个未定义局部变量的函数，VC++下编译器为该函数分配的默认缓冲区大小是40h（不同编译器这个值不一样）。每多一个类型的变量就在40h的基础上再加上这个类型大小的空间（char类型和short类型，按4字节分配。）</p>
+<div class="tag-plugin tabs" align="center"id="tab_5"><div class="nav-tabs"><div class="tab active"><a href="#tab_5-1">函数中未定义局部变量</a></div><div class="tab"><a href="#tab_5-2">函数中定义1个int类型变量</a></div><div class="tab"><a href="#tab_5-3">函数中定义2个char类型局部变量，2个short类型局部变量，那么缓冲区大小是？</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_5-1"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Function</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    Function();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231014153437501.png" alt="image-20231014153437501" /></p></div><div class="tab-pane" id="tab_5-2"><p>44h=默认40h+1个int类型大小的空间</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Function</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> x = <span class="number">10</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    Function();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231014153728238.png" alt="image-20231014153728238" /></p></div><div class="tab-pane" id="tab_5-3"><p>40h+4个4字节=50h</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Function</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> a = <span class="number">1</span>;</span><br><span class="line">    <span class="type">char</span> b = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">short</span> c = <span class="number">3</span>;</span><br><span class="line">    <span class="type">short</span> d = <span class="number">4</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    Function();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%87%BD%E6%95%B0/image-20231014154411727.png" alt="image-20231014154411727" /></p></div></div></div>
+<p><strong>总结</strong></p>
+<ol>
+<li>
+<p>小于32位的局部变量，空间在分配时，按32位分配。</p>
+</li>
+<li>
+<p>使用时按实际的宽度使用。</p>
+</li>
+<li>
+<p>不要定义char/short类型的局部变量。</p>
+</li>
+<li>
+<p>参数与局部变量没有本质区别，都是局部变量，都在栈中分配。实在要说，参数是函数调用前分配的值，局部变量是函数执行时分配的值。</p>
+</li>
+<li>
+<p>完全可以把参数当初局部变量使用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Function</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> z)</span></span><br><span class="line">&#123;</span><br><span class="line">    z = <span class="number">10</span>; <span class="comment">// 不管传进来的值，直接把参数当局部变量用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    Function(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/C/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3.html">函数的入口</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

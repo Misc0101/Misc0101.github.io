@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>数据的运算与表示：进制 - Misc010</title>
+
+  
+    <meta name="description" content="进制学习的障碍 学习其他进制，总以熟悉的十进制为依托进行学习，这种学习方法是错误的。其实没必要转，每一种进制都是完美，具有自己独立体系的。想学好进制首先要忘掉十进制，和进制间的转换！  定义 一进制的定义：由1个符号组成，分别是1，逢一进一 八进制的定义：由8个符号组成，分别是0，1，2，3，4，5，6，7，逢八进一 十进制的定义：由10个符号组成，分别是0，1，2，3，4，5，6，7，8，9，">
+<meta property="og:type" content="website">
+<meta property="og:title" content="进制">
+<meta property="og:url" content="https://misc0101.github.io/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="进制学习的障碍 学习其他进制，总以熟悉的十进制为依托进行学习，这种学习方法是错误的。其实没必要转，每一种进制都是完美，具有自己独立体系的。想学好进制首先要忘掉十进制，和进制间的转换！  定义 一进制的定义：由1个符号组成，分别是1，逢一进一 八进制的定义：由8个符号组成，分别是0，1，2，3，4，5，6，7，逢八进一 十进制的定义：由10个符号组成，分别是0，1，2，3，4，5，6，7，8，9，">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-08-20T02:58:30.000Z">
+<meta property="article:modified_time" content="2023-08-20T02:58:30.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><div class="main" ff="title">数据的运算与表示</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/representation_and_computation_of_data/" placeholder="在/wiki/representation_and_computation_of_data/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-body fs14"><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html#start"><span class="toc-text">进制</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%9A%84%E9%9A%9C%E7%A2%8D"><span class="toc-text"> 进制学习的障碍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-text"> 定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E5%88%B6%E7%9A%84%E4%B9%A6%E5%86%99"><span class="toc-text"> 进制的书写</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E8%BF%9B%E5%88%B6"><span class="toc-text"> 一进制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E8%BF%9B%E5%88%B6"><span class="toc-text"> 三进制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%83%E8%BF%9B%E5%88%B6"><span class="toc-text"> 七进制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E5%88%B6%E7%9A%84%E7%AC%A6%E5%8F%B7"><span class="toc-text"> 进制的符号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E5%88%B6%E7%9A%84%E8%BF%90%E7%AE%97"><span class="toc-text"> 进制的运算</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AB%E8%BF%9B%E5%88%B6%E8%BF%90%E7%AE%97"><span class="toc-text"> 八进制运算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text"> 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%83%E4%B9%A0"><span class="toc-text"> 练习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%9A%84%E7%AE%80%E5%86%99%E5%BD%A2%E5%BC%8F"><span class="toc-text"> 二进制的简写形式</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/representation_and_computation_of_data/%E6%95%B0%E6%8D%AE%E5%AE%BD%E5%BA%A6.html"><span class="toc-text">数据宽度</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/representation_and_computation_of_data/%E6%95%B0%E7%9A%84%E8%A1%A8%E7%A4%BA.html"><span class="toc-text">数的表示</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/representation_and_computation_of_data/%E4%BD%8D%E8%BF%90%E7%AE%97.html"><span class="toc-text">位运算</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/representation_and_computation_of_data/%E5%B0%8F%E7%BB%93.html"><span class="toc-text">小结</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><span class="title">汇编语言</span><span class="excerpt">x86汇编笔记：以滴水三期_汇编语言课程为框架，《汇编语言4th-王爽》和《汇编语言-基于x86处理器-第七版》为补充。</span></a><a class="item wiki" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><span class="title">C++</span><span class="excerpt">滴水三期_C++语言笔记，C++能做的C都能做，只不过如果使用C++，可以节省很多时间，因为编译器帮编程人员做了很多工作，让编程人员省事。学习的目标：相对于C，编译器替我们做了哪些工作。</span></a><a class="item wiki" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><span class="title">C</span><span class="excerpt">滴水三期_C语言笔记，以逆向角度看待和学习C语言，精彩点：堆栈图与指针。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="title">科学上网技术</span><span class="excerpt">从正常网络通信数据包通信过程出发，逐步推导到使用代理协议进行科学上网，随后依次介绍各代理协议ss、trojan、vmess、vless原理与节点搭建，还有相关的工具、技术、概念介绍。</span></a><a class="item wiki" href="/wiki/Thinking_in_C++/Pointers.html"><span class="title">Thinking in C++</span><span class="excerpt">《Thinking in C++ vol 1》笔记，知识内化后的输出，少部分是摘抄，少用的细节不做记录用时在查，参考视频：《面向对象程序设计_C++_翁恺老师》。</span></a><a class="item wiki" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><span class="title">Windows API编程</span><span class="excerpt">滴水三期_win32 api笔记，学习Windows API编程的困难并不在于函数参数参数众多或者英文不好这类表象原因，而是需要从Windows系统的整体知识架构出发来学习这些API，深入理解每个参数背后的含义和背景。如此，未来查阅MSDN时便不再像是看天书。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html">数据的运算与表示</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-08-20T02:58:30.000Z">2023-08-20</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>进制</span></h1>
+<h2 id="进制学习的障碍"><a class="markdownIt-Anchor" href="#进制学习的障碍"></a> 进制学习的障碍</h2>
+<p>学习其他进制，总以熟悉的十进制为依托进行学习，这种学习方法是错误的。其实没必要转，每一种进制都是完美，具有自己独立体系的。想学好进制首先要忘掉十进制，和进制间的转换！</p>
+<h2 id="定义"><a class="markdownIt-Anchor" href="#定义"></a> 定义</h2>
+<p>一进制的定义：由1个符号组成，分别是1，逢一进一<br />
+八进制的定义：由8个符号组成，分别是0，1，2，3，4，5，6，7，逢八进一<br />
+十进制的定义：由10个符号组成，分别是0，1，2，3，4，5，6，7，8，9，逢十进一</p>
+<p>N进制的定义：由N个符号组成，<u>这N个符号可以自由定义</u>，逢N进一</p>
+<h2 id="进制的书写"><a class="markdownIt-Anchor" href="#进制的书写"></a> 进制的书写</h2>
+<h3 id="一进制"><a class="markdownIt-Anchor" href="#一进制"></a> 一进制</h3>
+<p>一进制的定义：由1个符号组成，分别是1，逢一进一<br />
+1进制的1-20。古人用的结绳记事就是1进制，1个结代表1</p>
+<table>
+<thead>
+<tr>
+<th>用符号1表示</th>
+<th>用符号a表示</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</br>11</br>111</br>1111</br>11111</td>
+<td>a</br>aa</br>aaa</br>aaaa</br>aaaaa</td>
+</tr>
+</tbody>
+</table>
+<h3 id="三进制"><a class="markdownIt-Anchor" href="#三进制"></a> 三进制</h3>
+<p>三进制的定义：由3个符号组成，分别是0，1，2，逢3进一<br />
+3进制的0-20</p>
+<table>
+<thead>
+<tr>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10</td>
+<td>11</td>
+<td>12</td>
+</tr>
+<tr>
+<td>20</td>
+<td>21</td>
+<td>22</td>
+</tr>
+<tr>
+<td>100</td>
+<td>101</td>
+<td>102</td>
+</tr>
+<tr>
+<td>110</td>
+<td>111</td>
+<td>112</td>
+</tr>
+<tr>
+<td>120</td>
+<td>121</td>
+<td>122</td>
+</tr>
+<tr>
+<td>200</td>
+<td>201</td>
+<td>202</td>
+</tr>
+</tbody>
+</table>
+<p>0、1、2，三个数，逢3进一。逐位，查数，写出来</p>
+<h3 id="七进制"><a class="markdownIt-Anchor" href="#七进制"></a> 七进制</h3>
+<p>七进制的定义：由7个符号组成，分别是0，1，2，3，4，5，6，逢7进一</p>
+<table>
+<thead>
+<tr>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10</td>
+<td>11</td>
+<td>12</td>
+<td>13</td>
+<td>14</td>
+<td>15</td>
+<td>16</td>
+</tr>
+<tr>
+<td>20</td>
+<td>21</td>
+<td>22</td>
+<td>23</td>
+<td>24</td>
+<td>25</td>
+<td>26</td>
+</tr>
+</tbody>
+</table>
+<h2 id="进制的符号"><a class="markdownIt-Anchor" href="#进制的符号"></a> 进制的符号</h2>
+<p>深度理解进制，N进制规定了由N个符号组成，其实这N个符号可以由你自己来定</p>
+<p>用途：进制的加密</p>
+<p>十进制的定义:由十个符号组成，分别是0，1，3，2，8，7，6，9，4，5逢十进一。那么这种情况下，1+1=3</p>
+<p>十进制的定义:由十个符号组成,分别是A，S，B，L，K，7，6，V，9，5逢十进一。</p>
+<h2 id="进制的运算"><a class="markdownIt-Anchor" href="#进制的运算"></a> 进制的运算</h2>
+<p>本质就是查数，把数全部写出来，然后往后查。比如八进制</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>10</td>
+<td>11</td>
+<td>12</td>
+<td>13</td>
+<td>14</td>
+<td>15</td>
+<td>16</td>
+<td>17</td>
+</tr>
+<tr>
+<td>20</td>
+<td>21</td>
+<td>22</td>
+<td>23</td>
+<td>24</td>
+<td>25</td>
+<td>26</td>
+<td>27</td>
+</tr>
+<tr>
+<td>30</td>
+<td>31</td>
+<td>32</td>
+<td>33</td>
+<td>34</td>
+<td>35</td>
+<td>36</td>
+<td>37</td>
+</tr>
+<tr>
+<td>40</td>
+<td>41</td>
+<td>42</td>
+<td>43</td>
+<td>44</td>
+<td>45</td>
+<td>46</td>
+<td>47</td>
+</tr>
+<tr>
+<td>50</td>
+<td>51</td>
+<td>52</td>
+<td>53</td>
+<td>54</td>
+<td>55</td>
+<td>56</td>
+<td>57</td>
+</tr>
+<tr>
+<td>60</td>
+<td>61</td>
+<td>62</td>
+<td>63</td>
+<td>64</td>
+<td>65</td>
+<td>66</td>
+<td>67</td>
+</tr>
+<tr>
+<td>70</td>
+<td>71</td>
+<td>72</td>
+<td>73</td>
+<td>74</td>
+<td>75</td>
+<td>76</td>
+<td>77</td>
+</tr>
+<tr>
+<td>100</td>
+<td>101</td>
+<td>102</td>
+<td>103</td>
+<td>104</td>
+<td>105</td>
+<td>106</td>
+<td>107</td>
+</tr>
+<tr>
+<td>110</td>
+<td>111</td>
+<td>112</td>
+<td>113</td>
+<td>114</td>
+<td>115</td>
+<td>116</td>
+<td>117</td>
+</tr>
+</tbody>
+</table>
+<p>但如果数字一大就太麻烦了，所以先制作加法表，减法表，乘法表，除法表，然后查表</p>
+<h3 id="八进制运算"><a class="markdownIt-Anchor" href="#八进制运算"></a> 八进制运算</h3>
+<p>2+3=?  2×3=?  4×5=?</p>
+<p>277+333=?  276*54=?  236-54=?  234/4=?</p>
+<p>我们熟悉十进制是因为我们对于十进制的加法表，减法表，乘法表，除法表非常熟。对于八进制，如果有这四张表，我们也可以直接进行八进制的运算。</p>
+<p>这里做两张表就够了，加法表，加法和减法都用这张表；乘法表，乘法和除法都用这张表。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>10</td>
+<td>11</td>
+<td>12</td>
+<td>13</td>
+<td>14</td>
+<td>15</td>
+<td>16</td>
+<td>17</td>
+</tr>
+<tr>
+<td>20</td>
+<td>21</td>
+<td>22</td>
+<td>23</td>
+<td>24</td>
+<td>25</td>
+<td>26</td>
+<td>27</td>
+</tr>
+</tbody>
+</table>
+<p>加法表</p>
+<blockquote>
+<p>加几，就在上面的表移动几位。比如5+7，在上面表格5开始，向右移动7位，移1位6，移2位7，移3位10，移4位11，移5位12，移6位13，移7位14</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1+1=2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1+2=3</td>
+<td>2+2=4</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1+3=4</td>
+<td>2+3=5</td>
+<td>3+3=6</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1+4=5</td>
+<td>2+4=6</td>
+<td>3+4=7</td>
+<td>4+4=10</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1+5=6</td>
+<td>2+5=7</td>
+<td>3+5=10</td>
+<td>4+5=11</td>
+<td>5+5=12</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1+6=7</td>
+<td>2+6=10</td>
+<td>3+6=11</td>
+<td>4+6=12</td>
+<td>5+6=13</td>
+<td>6+6=14</td>
+<td></td>
+</tr>
+<tr>
+<td>1+7=10</td>
+<td>2+7=11</td>
+<td>3+7=12</td>
+<td>4+7=13</td>
+<td>5+7=14</td>
+<td>6+7=15</td>
+<td>7+7=16</td>
+</tr>
+</tbody>
+</table>
+<p>乘法表</p>
+<blockquote>
+<p>2*2就是2+2，查表，从2开始，向右移2位，得到4.然后算2×3时，在4的基础上再加2</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1*1=2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1*2=3</td>
+<td>2*2=4</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1*3=3</td>
+<td>2*3=6</td>
+<td>3*3=6</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1*4=4</td>
+<td>2*4=10</td>
+<td>3*4=11</td>
+<td>4*4=20</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1*5=5</td>
+<td>2*5=12</td>
+<td>3*5=14</td>
+<td>4*5=24</td>
+<td>5*5=31</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1*6=6</td>
+<td>2*6=14</td>
+<td>3*6=17</td>
+<td>4*6=30</td>
+<td>5*6=36</td>
+<td>6*6=44</td>
+<td></td>
+</tr>
+<tr>
+<td>1*7=7</td>
+<td>2*7=16</td>
+<td>3*7=22</td>
+<td>4*7=34</td>
+<td>5*7=43</td>
+<td>6*7=52</td>
+<td>7*7=61</td>
+</tr>
+</tbody>
+</table>
+<p>有了表之后，做题。根据表来做题：</p>
+<p>2+3=5  2×3=6  4×5=24</p>
+<p>277+333=?</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">277</span></span><br><span class="line">+<span class="number">333</span></span><br><span class="line">----</span><br><span class="line"> <span class="number">632</span> </span><br></pre></td></tr></table></figure>
+<p>236-54=</p>
+<blockquote>
+<p>加法表当减法表用，比如哪位+3=10，查一下，查出是5</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">236</span></span><br><span class="line">- <span class="number">54</span></span><br><span class="line">----</span><br><span class="line"> <span class="number">162</span></span><br></pre></td></tr></table></figure>
+<p>276*54=?</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">   <span class="number">276</span></span><br><span class="line">  × <span class="number">54</span></span><br><span class="line">------</span><br><span class="line">  <span class="number">1370</span></span><br><span class="line"> <span class="number">1666</span> </span><br><span class="line">------</span><br><span class="line"> <span class="number">20250</span></span><br></pre></td></tr></table></figure>
+<p>234/4=?</p>
+<blockquote>
+<p>4×几离23最近，是4，23-20=3，34，4×几是34，是7</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">   <span class="number">47</span></span><br><span class="line">  -----</span><br><span class="line"><span class="number">4</span>)<span class="number">234</span></span><br><span class="line">  <span class="number">20</span></span><br><span class="line">  -----</span><br><span class="line">   <span class="number">34</span></span><br><span class="line">   <span class="number">34</span></span><br><span class="line">  -----</span><br><span class="line">    <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<h3 id="小结"><a class="markdownIt-Anchor" href="#小结"></a> 小结</h3>
+<p>每种进制都是完美的，它自身就是一个完整的体系，可以直接做各种运算。</p>
+<h2 id="练习"><a class="markdownIt-Anchor" href="#练习"></a> 练习</h2>
+<ol>
+<li>编制7进制加法表，乘法表，并计算下面的结果:23456+54356=?  5621-654=?  234*65=?</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p>表</p><table><thead><tr><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td></tr><tr><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td></tr><tr><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td></tr><tr><td>30</td><td>31</td><td>32</td><td>33</td><td>34</td><td>35</td><td>36</td></tr><tr><td>40</td><td>41</td><td>42</td><td>43</td><td>44</td><td>45</td><td>46</td></tr><tr><td>50</td><td>51</td><td>52</td><td>53</td><td>54</td><td>55</td><td>56</td></tr></tbody></table><p>加法表</p><table><thead><tr><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td>1+1=2</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1+2=3</td><td>2+2=4</td><td></td><td></td><td></td><td></td></tr><tr><td>1+3=4</td><td>2+3=5</td><td>3+3=6</td><td></td><td></td><td></td></tr><tr><td>1+4=5</td><td>2+4=6</td><td>3+4=10</td><td>4+4=11</td><td></td><td></td></tr><tr><td>1+5=6</td><td>2+5=10</td><td>3+5=11</td><td>4+5=12</td><td>5+5=13</td><td></td></tr><tr><td>1+6=10</td><td>2+6=11</td><td>3+6=12</td><td>4+6=13</td><td>5+6=14</td><td>6+6=15</td></tr></tbody></table><p>乘法表</p><table><thead><tr><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td>1*1=2</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1*2=3</td><td>2*2=4</td><td></td><td></td><td></td><td></td></tr><tr><td>1*3=3</td><td>2*3=6</td><td>3*3=12</td><td></td><td></td><td></td></tr><tr><td>1*4=4</td><td>2*4=11</td><td>3*4=15</td><td>4*4=22</td><td></td><td></td></tr><tr><td>1*5=5</td><td>2*5=13</td><td>3*5=21</td><td>4*5=26</td><td>5*5=34</td><td></td></tr><tr><td>1*6=6</td><td>2*6=15</td><td>3*6=24</td><td>4*6=33</td><td>5*6=42</td><td>6*6=51</td></tr></tbody></table><p>有了表之后，做题。根据表来做题：</p><p>23456+54356=?</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">23456</span></span><br><span class="line">+<span class="number">54356</span></span><br><span class="line">------</span><br><span class="line"><span class="number">111145</span> </span><br></pre></td></tr></table></figure><p>5621-654=?</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">5621</span></span><br><span class="line">- <span class="number">654</span></span><br><span class="line">------</span><br><span class="line"> <span class="number">4634</span></span><br></pre></td></tr></table></figure><p>234*65=?</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">   <span class="number">234</span></span><br><span class="line">×   <span class="number">65</span></span><br><span class="line">------</span><br><span class="line">  <span class="number">1536</span></span><br><span class="line"> <span class="number">2103</span></span><br><span class="line">-------</span><br><span class="line"> <span class="number">22566</span></span><br></pre></td></tr></table></figure></div></details></div>
+<ol start="2">
+<li>编制16进制加法表，乘法表，并计算下面的结果:2D4E6+CF3A6=?  5FD1-E5A=?  2CA*A5=?</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p>表</p><table><thead><tr><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>A</td><td>B</td><td>C</td><td>D</td><td>E</td><td>F</td></tr><tr><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>1A</td><td>1B</td><td>1C</td><td>1D</td><td>1E</td><td>1F</td></tr><tr><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td><td>29</td><td>2A</td><td>2B</td><td>2C</td><td>2D</td><td>2E</td><td>2F</td></tr><tr><td>30</td><td>31</td><td>32</td><td>33</td><td>34</td><td>35</td><td>36</td><td>37</td><td>38</td><td>39</td><td>3A</td><td>3B</td><td>3C</td><td>3D</td><td>3E</td><td>3F</td></tr><tr><td>40</td><td>41</td><td>42</td><td>43</td><td>44</td><td>45</td><td>46</td><td>47</td><td>48</td><td>49</td><td>4A</td><td>4B</td><td>4C</td><td>4D</td><td>4E</td><td>4F</td></tr><tr><td>50</td><td>51</td><td>52</td><td>53</td><td>54</td><td>55</td><td>56</td><td>57</td><td>58</td><td>59</td><td>5A</td><td>5B</td><td>5C</td><td>5D</td><td>5E</td><td>5F</td></tr></tbody></table><p>加法表</p><table><thead><tr><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td>1+1=2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1+2=3</td><td>2+2=4</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1+3=4</td><td>2+3=5</td><td>3+3=6</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1+4=5</td><td>2+4=6</td><td>3+4=7</td><td>4+4=8</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1+5=6</td><td>2+5=7</td><td>3+5=8</td><td>4+5=9</td><td>5+5=A</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1+6=7</td><td>2+6=8</td><td>3+6=9</td><td>4+6=A</td><td>5+6=B</td><td>6+6=C</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1+7=8</td><td>2+7=9</td><td>3+7=A</td><td>4+7=B</td><td>5+7=C</td><td>6+7=D</td><td>7+7=E</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1+8=9</td><td>2+8=A</td><td>3+8=B</td><td>4+8=C</td><td>5+8=D</td><td>6+8=E</td><td>7+8=F</td><td>8+8=10</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1+9=A</td><td>2+9=B</td><td>3+9=C</td><td>4+9=D</td><td>5+9=E</td><td>6+9=F</td><td>7+9=10</td><td>8+9=11</td><td>9+9=12</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1+A=B</td><td>2+A=C</td><td>3+A=D</td><td>4+A=E</td><td>5+A=F</td><td>6+A=10</td><td>7+A=11</td><td>8+A=12</td><td>9+A=13</td><td>A+A=14</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1+B=C</td><td>2+B=D</td><td>3+B=E</td><td>4+B=F</td><td>5+B=10</td><td>6+B=11</td><td>7+B=12</td><td>8+B=13</td><td>9+B=14</td><td>A+B=15</td><td>B+B=16</td><td></td><td></td><td></td><td></td></tr><tr><td>1+C=D</td><td>2+C=E</td><td>3+C=F</td><td>4+C=10</td><td>5+C=11</td><td>6+C=12</td><td>7+C=13</td><td>8+C=14</td><td>9+C=15</td><td>A+C=16</td><td>B+C=17</td><td>C+C=18</td><td></td><td></td><td></td></tr><tr><td>1+D=E</td><td>2+D=F</td><td>3+D=10</td><td>4+D=11</td><td>5+D=12</td><td>6+D=13</td><td>7+D=14</td><td>8+D=15</td><td>9+D=16</td><td>A+D=17</td><td>B+D=18</td><td>C+D=19</td><td>D+D=1A</td><td></td><td></td></tr><tr><td>1+E=F</td><td>2+E=10</td><td>3+E=11</td><td>4+E=12</td><td>5+E=13</td><td>6+E=14</td><td>7+E=15</td><td>8+E=16</td><td>9+E=17</td><td>A+E=18</td><td>B+E=19</td><td>C+E=1A</td><td>D+E=1B</td><td>E+E=1C</td><td></td></tr><tr><td>1+F=10</td><td>2+F=11</td><td>3+F=12</td><td>4+F=13</td><td>5+F=14</td><td>6+F=15</td><td>7+F=16</td><td>8+F=17</td><td>9+F=18</td><td>A+F=19</td><td>B+F=1A</td><td>C+F=1B</td><td>D+F=1C</td><td>E+F=1D</td><td>E+F=1E</td></tr></tbody></table><p>乘法表</p><table><thead><tr><th>1*1=1</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody><tr><td>1*2=2</td><td>2*2=4</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1*3=3</td><td>2*3=6</td><td>3*3=9</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1*4=4</td><td>2*4=8</td><td>3*4=C</td><td>4*4=10</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1*5=5</td><td>2*5=A</td><td>3*5=F</td><td>4*5=14</td><td>5*5=19</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1*6=6</td><td>2*6=C</td><td>3*6=12</td><td>4*6=18</td><td>5*6=1E</td><td>6*6=24</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1*7=7</td><td>2*7=E</td><td>3*7=15</td><td>4*7=1C</td><td>5*7=23</td><td>6*7=2A</td><td>7*7=31</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1*8=8</td><td>2*8=10</td><td>3*8=18</td><td>4*8=20</td><td>5*8=28</td><td>6*8=30</td><td>7*8=38</td><td>8*8=40</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1*9=9</td><td>2*9=12</td><td>3*9=1B</td><td>4*9=24</td><td>5*9=2D</td><td>6*9=36</td><td>7*9=3F</td><td>8*9=48</td><td>9*9=51</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1*A=A</td><td>2*A=14</td><td>3*A=1E</td><td>4*A=28</td><td>5*A=32</td><td>6*A=3C</td><td>7*A=46</td><td>8*A=50</td><td>9*A=5A</td><td>A*A=64</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>1*B=B</td><td>2*B=16</td><td>3*B=21</td><td>4*B=2C</td><td>5*B=37</td><td>6*B=42</td><td>7*B=4D</td><td>8*B=58</td><td>9*B=63</td><td>A*B=6E</td><td>B*B=79</td><td></td><td></td><td></td><td></td></tr><tr><td>1*C=C</td><td>2*C=18</td><td>3*C=24</td><td>4*C=30</td><td>5*C=3C</td><td>6*C=48</td><td>7*C=54</td><td>8*C=60</td><td>9*C=6C</td><td>A*C=78</td><td>B*C=84</td><td>C*C=90</td><td></td><td></td><td></td></tr><tr><td>1*D=D</td><td>2*D=1A</td><td>3*D=27</td><td>4*D=34</td><td>5*D=41</td><td>6*D=4E</td><td>7*D=5B</td><td>8*D=68</td><td>9*D=75</td><td>A*D=82</td><td>B*D=8F</td><td>C*D=9C</td><td>D*D=A9</td><td></td><td></td></tr><tr><td>1*E=E</td><td>2*E=1C</td><td>3*E=2A</td><td>4*E=38</td><td>5*E=46</td><td>6*E=54</td><td>7*E=62</td><td>8*E=70</td><td>9*E=7E</td><td>A*E=8C</td><td>B*E=9A</td><td>C*E=A8</td><td>D*E=B6</td><td>E*E=C4</td><td></td></tr><tr><td>1*F=F</td><td>2*F=1E</td><td>3*F=2D</td><td>4*F=3C</td><td>5*F=4B</td><td>6*F=5A</td><td>7*F=69</td><td>8*F=78</td><td>9*F=87</td><td>A*F=96</td><td>B*F=A5</td><td>C*F=B4</td><td>D*F=C3</td><td>E*F=D2</td><td>F*F=E1</td></tr></tbody></table><p>有了表之后，做题。根据表来做题：</p><p>2D4E6+CF3A6=?</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">2</span>D4E6</span><br><span class="line">+CF3A6</span><br><span class="line">------</span><br><span class="line"> FC88C</span><br></pre></td></tr></table></figure><p>5FD1-E5A=?</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">5F</span>D1</span><br><span class="line">- E5A</span><br><span class="line">------</span><br><span class="line"> <span class="number">5177</span></span><br></pre></td></tr></table></figure><p>2CA*A5=?</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">   <span class="number">2</span>CA</span><br><span class="line">×   A5</span><br><span class="line">------</span><br><span class="line">   DF2</span><br><span class="line"> <span class="number">1B</span>E4</span><br><span class="line">-------</span><br><span class="line"> <span class="number">1</span>CC32</span><br></pre></td></tr></table></figure></div></details></div>
+<ol start="3">
+<li>9进制定义，由9个符号组成，分别是：2、9、1、7、6、5、4、8、3，逢9进1：计算:123 + 234 = ?</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p>写完第1行，写到3，如何写下一行？</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">3</span>+<span class="number">1</span></span><br><span class="line"></span><br><span class="line">表示<span class="number">3</span>往后查<span class="number">1</span>个数，是<span class="number">2</span></span><br><span class="line"><span class="number">92</span></span><br><span class="line"></span><br><span class="line">确定了第<span class="number">2</span>行的第一个数是什么，然后按竖列找规律写完那一行</span><br><span class="line"></span><br><span class="line">所以就是换行时要算一下，其他的数按规律来写</span><br></pre></td></tr></table></figure><table><thead><tr><th>第0个数</th><th>第1个数</th><th>第2个数</th><th>第3个数</th><th>第4个数</th><th>第5个数</th><th>第6个数</th><th>第7个数</th><th>第8个数</th></tr></thead><tbody><tr><td>2</td><td>9</td><td>1</td><td>7</td><td>6</td><td>5</td><td>4</td><td>8</td><td>3</td></tr><tr><td>92</td><td>99</td><td>91</td><td>97</td><td>96</td><td>95</td><td>94</td><td>98</td><td>93</td></tr><tr><td>12</td><td>19</td><td>11</td><td>17</td><td>16</td><td>15</td><td>14</td><td>18</td><td>13</td></tr><tr><td>72</td><td>79</td><td>71</td><td>77</td><td>76</td><td>75</td><td>74</td><td>78</td><td>73</td></tr><tr><td>62</td><td>69</td><td>61</td><td>67</td><td>66</td><td>65</td><td>64</td><td>68</td><td>63</td></tr><tr><td>52</td><td>59</td><td>51</td><td>57</td><td>56</td><td>55</td><td>54</td><td>58</td><td>53</td></tr><tr><td>42</td><td>49</td><td>41</td><td>47</td><td>46</td><td>45</td><td>44</td><td>48</td><td>43</td></tr><tr><td>82</td><td>89</td><td>81</td><td>87</td><td>86</td><td>85</td><td>84</td><td>88</td><td>83</td></tr><tr><td>32</td><td>39</td><td>31</td><td>37</td><td>36</td><td>35</td><td>34</td><td>38</td><td>33</td></tr><tr><td>922</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">   <span class="number">123</span></span><br><span class="line">+  <span class="number">234</span></span><br><span class="line">------</span><br><span class="line">   <span class="number">725</span></span><br></pre></td></tr></table></figure><p>最后一位：3+4，4是第6个数，所以将3往查6个数，3-&gt;2-&gt;9-&gt;1-&gt;7-&gt;6-&gt;5，是5；且进1位</p><p>倒数第二位：2+3，3是第8个数，所以将2往后走查8个数，是3，加上进位，再查1个数，所以是2；且进1位</p><p>倒数第三位：1+2，2是第0个数，所以将1往后走查0个数，是1，加上进位，再查1个数，所以是7。</p><p>结果：724</p></div></details></div>
+<ol start="4">
+<li>10进制定义，由10个符号组成，分别是：!、@、$、%、^、&amp;、*、A、B、C，逢10进1：计算：</li>
+</ol>
+<p>@$$B + %AC&amp; = ?</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><table><thead><tr><th>第0个数</th><th>第1个数</th><th>第2个数</th><th>第3个数</th><th>第4个数</th><th>第5个数</th><th>第6个数</th><th>第7个数</th><th>第8个数</th><th>第9个数</th></tr></thead><tbody><tr><td>!</td><td>@</td><td>$</td><td>%</td><td>^</td><td>&amp;</td><td>*</td><td>A</td><td>B</td><td>C</td></tr><tr><td>@!</td><td>@@</td><td>@$</td><td>@%</td><td>@^</td><td>@&amp;</td><td>@*</td><td>@A</td><td>@B</td><td>@C</td></tr><tr><td>$!</td><td>$@</td><td>$$</td><td>%</td><td>^</td><td>&amp;</td><td>*</td><td>A</td><td>B</td><td>C</td></tr><tr><td>%!</td><td>%@</td><td>%$</td><td>%%</td><td>^%</td><td>&amp;%</td><td>*%</td><td>A%</td><td>B%</td><td>C%</td></tr><tr><td>^!</td><td>^@</td><td>^$</td><td>^%</td><td>^^</td><td>^&amp;</td><td>^*</td><td>^A</td><td>^B</td><td>^C</td></tr><tr><td>&amp;!</td><td>&amp;@</td><td>&amp;$</td><td>&amp;%</td><td>&amp;^</td><td>&amp;&amp;</td><td>&amp;*</td><td>&amp;A</td><td>&amp;B</td><td>&amp;C</td></tr><tr><td>*!</td><td>*@</td><td>*$</td><td>*%</td><td>*^</td><td>*&amp;</td><td>**</td><td>*A</td><td>*B</td><td>*C</td></tr><tr><td>A!</td><td>A@</td><td>A$</td><td>A%</td><td>A^</td><td>A&amp;</td><td>A*</td><td>AA</td><td>AB</td><td>AC</td></tr><tr><td>B!</td><td>B@</td><td>B$</td><td>B%</td><td>B^</td><td>B&amp;</td><td>B*</td><td>BA</td><td>BB</td><td>BC</td></tr><tr><td>C!</td><td>C@</td><td>C$</td><td>C%</td><td>C^</td><td>C&amp;</td><td>C*</td><td>CA</td><td>CB</td><td>CC</td></tr></tbody></table><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">   @$$B</span><br><span class="line">+  %AC&amp;</span><br><span class="line">--------</span><br><span class="line">   &amp;!$%</span><br></pre></td></tr></table></figure><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">最后一位：B+&amp;，&amp;是第<span class="number">5</span>个数，所以将B往查<span class="number">5</span>个数，B-&gt;C-&gt;!-&gt;@-&gt;$-&gt;%，是%；且进<span class="number">1</span>位</span><br><span class="line"></span><br><span class="line">倒数第二位：$+C，C是第<span class="number">9</span>个数，所以将$往后走查<span class="number">9</span>个数，是@，加上进位，再查<span class="number">1</span>个数，所以是$；且进<span class="number">1</span>位</span><br><span class="line"></span><br><span class="line">倒数第三位：$+A，A是第<span class="number">7</span>个数，所以将@往后走查<span class="number">7</span>个数，是C，加上进位，再查<span class="number">1</span>个数，所以是!；且进<span class="number">1</span>位</span><br><span class="line"></span><br><span class="line">倒数第四位：@+%，%是第<span class="number">3</span>个数，所以将@往后走查<span class="number">3</span>个数，是^，加上进位，再查<span class="number">1</span>个数，所以是&amp;；无进位。</span><br><span class="line">    </span><br><span class="line">结果：&amp;!$%</span><br></pre></td></tr></table></figure></div></details></div>
+<p>小结：</p>
+<p>自定义符号的进制写表时，换行时将当前这个数字+1，这个1表示往后查1个数，算出下一行的第1个数。完了，找规律填完这一行。所以，只是换行时要算一下，其他的可以找规律写完。</p>
+<p>运算时，比如：x+y，<u>看y是代表第几个数，就将x往后查几个数</u>，得出结果，有进位做下一位运算时多查1个数。</p>
+<ol start="5">
+<li>根据上面的小结，编程实现一个函数，该函数能够输出任意进制的第N个数。<code>结果=fn(进制,第N个数)</code>。比如，fn(2,100)返回1100011，fn(8.100)返回143，fn(16,100)返回63。</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p>这是一个使用C语言编写的函数，该函数可以输出任意进制的第N个数。请注意，我们从0开始计数，所以第N个数实际上是N-1。</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span>* <span class="title function_">fn</span><span class="params">(<span class="type">int</span> base, <span class="type">int</span> n)</span> &#123;</span><br><span class="line">    <span class="type">char</span>* result = (<span class="type">char</span>*) <span class="built_in">malloc</span>(<span class="number">33</span>); <span class="comment">// 为结果分配内存，最大32位加上结束符&#x27;\0&#x27;</span></span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    n--; <span class="comment">// 从0开始计数</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        <span class="type">int</span> remainder = n % base;</span><br><span class="line">        <span class="keyword">if</span> (remainder &lt; <span class="number">10</span>) &#123;</span><br><span class="line">            result[i++] = <span class="string">&#x27;0&#x27;</span> + remainder;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            result[i++] = <span class="string">&#x27;A&#x27;</span> + (remainder - <span class="number">10</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        n /= base;</span><br><span class="line">    &#125; <span class="keyword">while</span> (n &gt; <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    result[i] = <span class="string">&#x27;\0&#x27;</span>; <span class="comment">// 添加结束符</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 反转字符串</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; i / <span class="number">2</span>; j++) &#123;</span><br><span class="line">        <span class="type">char</span> temp = result[j];</span><br><span class="line">        result[j] = result[i - j - <span class="number">1</span>];</span><br><span class="line">        result[i - j - <span class="number">1</span>] = temp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, fn(<span class="number">2</span>, <span class="number">100</span>));  <span class="comment">// 输出: 1100011</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, fn(<span class="number">8</span>, <span class="number">100</span>));  <span class="comment">// 输出: 143</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s\n&quot;</span>, fn(<span class="number">16</span>, <span class="number">100</span>)); <span class="comment">// 输出: 63</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>这个函数首先将数字转换为给定的基数，然后将结果存储在字符串中。然后，它反转字符串，因为我们是从最低有效位开始计算的。最后，它返回结果字符串。</p><p>请注意，这个函数假设你想要的是大写字母来表示大于9的数字（对于16进制）。如果你想要小写字母，你可以在代码中做适当的修改。</p></div></details></div>
+<h2 id="二进制的简写形式"><a class="markdownIt-Anchor" href="#二进制的简写形式"></a> 二进制的简写形式</h2>
+<p>可以理解为十六进制符号就是4位二进制数的符号替换，而不是逐位2的几次方+2的几次方算出来。</p>
+<p>对于二进制和十六进制之间的转换，要熟练。</p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/representation_and_computation_of_data/%E6%95%B0%E6%8D%AE%E5%AE%BD%E5%BA%A6.html">数据宽度</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

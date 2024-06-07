@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>那些有着异曲同工之处的计算机知识 - Misc010</title>
+
+  
+    <meta name="description" content="记录学习过程中那些有着异曲同工之处的A知识和B知识，不定期更新补充。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="那些有着异曲同工之处的计算机知识">
+<meta property="og:url" content="https://misc0101.github.io/posts/32e8f536.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="记录学习过程中那些有着异曲同工之处的A知识和B知识，不定期更新补充。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-04-22T16:50:49.000Z">
+<meta property="article:modified_time" content="2024-04-22T16:50:49.000Z">
+<meta property="article:author" content="Misc">
+<meta property="article:tag" content="知识共通性">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  <meta name="keywords" content="知识共通性">
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='post'>
+    
+
+  
+
+<header class="header"><div class="logo-wrap"><a class="title" href="/"><div class="main" ff="title">Misc010</div></a></div>
+
+<nav class="menu dis-select"><a class="nav-item active" href="/">文章</a><a class="nav-item" href="/wiki/">项目</a><a class="nav-item" href="/about/">关于</a></nav>
+</header>
+
+
+<div class="widgets">
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/blog/" placeholder="文章搜索"><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc single" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">本文目录</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#sql%E6%B3%A8%E5%85%A5-%E5%92%8C-%E6%95%B0%E6%8D%AE%E5%8C%BA%E6%89%A7%E8%A1%8C%E4%BB%A3%E7%A0%81"><span class="toc-text"> SQL注入  和  数据区执行代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#switch%E8%AF%AD%E5%8F%A5%E5%9C%B0%E5%9D%80%E8%A1%A8-%E5%92%8C-pe%E6%96%87%E4%BB%B6%E5%AF%BC%E5%87%BA%E5%BA%8F%E5%8F%B7%E8%B0%83%E6%95%B4"><span class="toc-text"> switch语句地址表  和  PE文件导出序号调整</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%AA%E8%A3%85%E4%B8%8E%E5%88%86%E6%B5%81%E6%8A%80%E6%9C%AFfallback%E6%8A%80%E6%9C%AF"><span class="toc-text"> 伪装与分流技术（fallback技术）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90"><span class="toc-text"> 字节对齐</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%91%E5%AE%9A%E6%9C%BA%E5%88%B6binding"><span class="toc-text"> 绑定机制（binding）</span></a></li></ol></div></div></widget>
+
+
+
+
+
+
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+
+      
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9F%A5%E8%AF%86/">计算机知识</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9F%A5%E8%AF%86/%E6%9D%82%E8%B0%88/">杂谈</a></div><div id="post-meta"><span class="author">发布于</span>
+    <span class="created"><time datetime="2024-04-22T16:50:49.000Z">2024-04-23</time></span>
+    
+    <span class="updated">，更新于&nbsp;<time datetime="2024-04-22T16:50:49.000Z">2024-04-23</time></span>
+    </div></div></div>
+
+<article class='md-text content post'>
+<h1 class="article-title"><span>那些有着异曲同工之处的计算机知识</span></h1>
+<p>记录学习过程中那些有着异曲同工之处的A知识和B知识，不定期更新补充。</p>
+<span id="more"></span>
+<h2 id="sql注入-和-数据区执行代码"><a class="markdownIt-Anchor" href="#sql注入-和-数据区执行代码"></a> SQL注入  和  数据区执行代码</h2>
+<p>搭建过<a href="/wiki/sql_injection_env/SQLite.html">SQL注入靶场环境</a>就会知道，如果服务器端的脚本语言，比如PHP代码没有对用户通过URL提交的参数作适当校验，这么参数中的数据就有可能被错误地当作代码执行（“数据被当成代码执行”），从而导致“SQL注入”。</p>
+<p>与此类似的是，在进程空间中的数据区执行代码（数据和代码本质都是一堆数）。解决数据区执行代码的措施之一，就是让让数据区没有可执行权限。类似到防止SQL注入上，就是使用参数化查询。参数化查询让用户输入的数据仅作为数据进行处理，而不会被解释或执行为代码。</p>
+<h2 id="switch语句地址表-和-pe文件导出序号调整"><a class="markdownIt-Anchor" href="#switch语句地址表-和-pe文件导出序号调整"></a> switch语句地址表  和  PE文件导出序号调整</h2>
+<p>当编译器处理Switch语句决定采用<a href="/wiki/C++_disassembly/switch%E8%AF%AD%E5%8F%A5_C++_disassembly.html#case100-104">地址表</a>优化时，那么不管case判定值的大小是多少，编译器都会进行下标调整，以便可以从数组的第一个下标（即0）开始访问。比如case101-case104，编译器会先将case值减去101，用调整后的下标再去地址表查表。<br />
+类似地，在使用Windows API的GetProcAddress函数<a href="/wiki/PE/%E5%AF%BC%E5%87%BA%E8%A1%A8.html#%E4%BB%A5%E5%BA%8F%E5%8F%B7%E6%9D%A5%E5%AF%BB%E6%89%BE">通过序号查询导出函数的地址</a>，调用过程也涉及下标的调整。具体情况是，传入的序号会首先减去一个基数（Base），用得到的结果作为新的下标去函数地址表中查表，得到导出函数地址。</p>
+<p>上述两种情况都进行了<strong>下标调整</strong>，原因是一样的：无论是switch的地址表还是PE文件的函数地址表，数组的起始序号都是从0开始。因此，进行适当的下标调整是必要的，以确保无论输入序号如何，数组访问都能正确地从0开始。</p>
+<h2 id="伪装与分流技术fallback技术"><a class="markdownIt-Anchor" href="#伪装与分流技术fallback技术"></a> 伪装与分流技术（fallback技术）</h2>
+<p>服务器的行为会根据接收的数据包类型进行调整，比如分流操作。这在X-rays中称为fallback技术。</p>
+<ol>
+<li>Trojan-server节点的分流策略<br />
+Trojan服务端节点根据接收的数据包做分流：
+<ul>
+<li>如果是有效的trojan数据包，进行代理功能</li>
+<li>如果不是有效的trojan数据包，服务器将断开连接或重定向到一个伪装的网页（防止GFW主动探测。如果GFW主动连接，将看到的是一个正常的网页）</li>
+</ul>
+</li>
+<li>Vmess  +  Nginx<br />
+在Vmess服务端节点前置一个Nginx服务器来实现类似的分流和伪造功能。Nginx作为反向代理，根据入站的数据流选择转发至vmess服务或伪造。</li>
+<li>C2服务器<br />
+在木马与其C2（命令与控制）服务器通信的场景，服务器同样可以采用这种分流技术。
+<ul>
+<li>如果是木马端回连C2服务器，则进行后续的指令和数据交换</li>
+<li>如果不是，服务端返回一个普通网页或其他非恶意内容，来误导探测者</li>
+</ul>
+</li>
+</ol>
+<h2 id="字节对齐"><a class="markdownIt-Anchor" href="#字节对齐"></a> 字节对齐</h2>
+<p>因为硬件设计的原因，通常情况下，如果数据的起始地址是硬件读写操作基本单位的整倍数，那么硬件在读写这些数据时效率更高，就不需要二次读写分散数据。</p>
+<p>字节对齐本质上就是数据的起始地址是某个数的整数倍，这个概念可以用别的说法来表达：</p>
+<ul>
+<li>数据的起始地址能整除对齐值</li>
+<li>这个数据块的总大小能整除对齐值</li>
+</ul>
+<p>字节对齐在计算机中广泛可见其身影：</p>
+<ol>
+<li><strong>结构体对齐规则</strong>：以便减少内存访问次数。</li>
+<li><strong>硬盘数据扇区对齐</strong>：机械硬盘读写数据的最小单元，扇区，是512字节（0x200），所以在早期操作系统版本中PE文件的文件对齐值为200h。现在随着存储容量上升价格下降，文件对齐值可以是1000h，以空间换时间，免去加载时候的拉伸过程。</li>
+<li><strong>PE文件的内存对齐</strong>：内存页以4kb为最小单位，所以PE文件的SectionAlignment通常设为1000h。</li>
+<li><strong>进程空间中模块与模块之间的对齐</strong>：各模块起始地址是64k的整数倍，即10000h。但笔者不清楚为什么模块与模块之间的对齐值是64k，可能就是设了一个较大尺寸。</li>
+</ol>
+<h2 id="绑定机制binding"><a class="markdownIt-Anchor" href="#绑定机制binding"></a> 绑定机制（binding）</h2>
+<p>绑定：<code>函数调用处</code>与<code>函数地址</code>关联起来的过程</p>
+<p>在C++编程中：</p>
+<ul>
+<li>非虚函数，早绑定，函数地址在程序编译时就确定了</li>
+<li>虚函数，晚绑定，函数地址在函数调用时才能确定</li>
+</ul>
+<p>早绑定，地址确定的，函数调用效率高；晚绑定，间接调用，有灵活性，但相对而言增加了调用开销。</p>
+<p>在PE文件的导入表这块：</p>
+<ul>
+<li>提前绑定：在PE文件加载前，提前把要外部函数地址固化到IAT表表项中</li>
+<li>运行时绑定：PE文件加载时，由加载器逐一将IAT表中的条目替换为实际的函数地址</li>
+</ul>
+<p>提前绑定，如果遇到dll未能按预期想法那样加载，还是需要重新替换IAT表。这也类似于指令流水线会提前预测，预测对了，执行效率高，预测失败就回退。</p>
+
+
+
+<div class="article-footer reveal fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/posts/3d7b63a8.html">【求助文】一些暂时没找到答案的计算机问题</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/posts/82675b27.html">C/C++ 预编译头</a></div></section></div>
+
+
+
+
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

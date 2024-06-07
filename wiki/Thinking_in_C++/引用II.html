@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Thinking in C++：引用II - Misc010</title>
+
+  
+    <meta name="description" content="References as class members   Declared without initial value 声明这个&amp;时没法给初始值，因为不清楚将来X的对象实例化时这个引用要和谁捆在一起。   Must be initialized using constructor initializer list 如果放在{}里写那是assignment赋值了m_y&#x3D;...; 1234">
+<meta property="og:type" content="website">
+<meta property="og:title" content="引用II">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Thinking_in_C++/%E5%BC%95%E7%94%A8II.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="References as class members   Declared without initial value 声明这个&amp;时没法给初始值，因为不清楚将来X的对象实例化时这个引用要和谁捆在一起。   Must be initialized using constructor initializer list 如果放在{}里写那是assignment赋值了m_y&#x3D;...; 1234">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-06T12:40:24.000Z">
+<meta property="article:modified_time" content="2024-03-06T12:40:24.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Thinking_in_C++/Pointers.html"><div class="main" ff="title">Thinking in C++</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Thinking_in_C++/" placeholder="在/wiki/Thinking_in_C++/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">Ch8 Constants</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/Pointers.html#start"><span class="toc-text">Pointers</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/Function_arguments&return_values.html"><span class="toc-text">Function arguments & return values</span></a></div></div><div class="widget-header cap dis-select"><span class="name">Ch10 Name Control</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/static.html"><span class="toc-text">static</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/static%EF%BC%88%E5%BA%9F%E5%BC%83%E8%8D%89%E7%A8%BF%EF%BC%89.html"><span class="toc-text">static（废弃草稿）</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/Namespaces.html"><span class="toc-text">Namespaces</span></a></div></div><div class="widget-header cap dis-select"><span class="name">Ch11 References&the Copy-Constructor</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/%E5%BC%95%E7%94%A8I-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5.html"><span class="toc-text">引用I-基础概念</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Thinking_in_C++/%E5%BC%95%E7%94%A8II.html"><span class="toc-text">引用II</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#references-as-class-members"><span class="toc-text"> References as class members</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#returning-references"><span class="toc-text"> Returning references</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#const-in-functions-arguments"><span class="toc-text"> const in Functions Arguments</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#const-reference-parameters"><span class="toc-text"> Const reference parameters</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#temporary-values-are-const"><span class="toc-text"> Temporary values are const</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#const-in-function-returns"><span class="toc-text"> const in Function returns</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Thinking_in_C++/%E6%8B%B7%E8%B4%9D%E6%9E%84%E9%80%A0I.html"><span class="toc-text">拷贝构造I</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><span class="title">汇编语言</span><span class="excerpt">x86汇编笔记：以滴水三期_汇编语言课程为框架，《汇编语言4th-王爽》和《汇编语言-基于x86处理器-第七版》为补充。</span></a><a class="item wiki" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><span class="title">C++</span><span class="excerpt">滴水三期_C++语言笔记，C++能做的C都能做，只不过如果使用C++，可以节省很多时间，因为编译器帮编程人员做了很多工作，让编程人员省事。学习的目标：相对于C，编译器替我们做了哪些工作。</span></a><a class="item wiki" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><span class="title">C</span><span class="excerpt">滴水三期_C语言笔记，以逆向角度看待和学习C语言，精彩点：堆栈图与指针。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="title">科学上网技术</span><span class="excerpt">从正常网络通信数据包通信过程出发，逐步推导到使用代理协议进行科学上网，随后依次介绍各代理协议ss、trojan、vmess、vless原理与节点搭建，还有相关的工具、技术、概念介绍。</span></a><a class="item wiki" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><span class="title">Windows API编程</span><span class="excerpt">滴水三期_win32 api笔记，学习Windows API编程的困难并不在于函数参数参数众多或者英文不好这类表象原因，而是需要从Windows系统的整体知识架构出发来学习这些API，深入理解每个参数背后的含义和背景。如此，未来查阅MSDN时便不再像是看天书。</span></a><a class="item wiki" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><span class="title">数据的运算与表示</span><span class="excerpt">滴水三期_进制笔记，学习与理解进制、数据宽度、数的表示、位运算等概念。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Thinking_in_C++/Pointers.html">Thinking in C++</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-03-06T12:40:24.000Z">2024-03-06</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>引用II</span></h1>
+<h2 id="references-as-class-members"><a class="markdownIt-Anchor" href="#references-as-class-members"></a> References as class members</h2>
+<ul>
+<li>
+<p>Declared without initial value<br />
+声明这个&amp;时没法给初始值，因为不清楚将来X的对象实例化时这个引用要和谁捆在一起。</p>
+</li>
+<li>
+<p><u>Must be</u> initialized using constructor initializer list<br />
+如果放在{}里写那是assignment赋值了<code>m_y=...;</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">X</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="type">int</span> &amp;m_y;</span><br><span class="line">    <span class="built_in">X</span>(<span class="type">int</span> &amp;a);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">X::<span class="built_in">X</span>(<span class="type">int</span> &amp;a) : <span class="built_in">m_y</span>(a) &#123;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="returning-references"><a class="markdownIt-Anchor" href="#returning-references"></a> Returning references</h2>
+<ul>
+<li>
+<p>Functions can return references</p>
+<ul>
+<li>But they better refer to non-local variables!不能返回函数里本地变量的值，函数调用完后你还留着那个垃圾值的地址干什么</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;assert.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">int</span> SIZE = <span class="number">32</span>;</span><br><span class="line"><span class="type">double</span> myarray[SIZE];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">double</span>&amp; <span class="title">subscript</span><span class="params">(<span class="type">const</span> <span class="type">int</span> i)</span>      <span class="comment">//函数返回类型是返回double类型引用</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> myarray[i];              <span class="comment">//返回的变量的lifetime需要比subscript函数长</span></span><br><span class="line">&#125;                 </span><br></pre></td></tr></table></figure>
+<p>return那里返回的是一个直接的变量，没有*号，没有其他符号。因为return出去的这个变量将来会在调用这个函数的地方会和另一个引用结合在一起，如</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">double</span> &amp;f = <span class="built_in">subscript</span>(<span class="number">2</span>);       <span class="comment">//即 double&amp; f=myarray[2]</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>Example</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">main</span>()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; SIZE; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        myarray[i] = i * <span class="number">0.5</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">double</span> value = <span class="built_in">subscript</span>(<span class="number">12</span>);   <span class="comment">//subscript返回了一个匿名的引用，然后把这个引用的值给了value变量</span></span><br><span class="line">                                    <span class="comment">// 其实就是myarray[12]的值赋给了value</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">subscript</span>(<span class="number">3</span>) = <span class="number">34.5</span>;            <span class="comment">// 做左值，其实就是myarray[3]=34.5</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="const-in-functions-arguments"><a class="markdownIt-Anchor" href="#const-in-functions-arguments"></a> const in Functions Arguments</h2>
+<ul>
+<li>
+<p>Pass by const value – don’t do it</p>
+</li>
+<li>
+<p>Passing by const reference</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Person</span>(<span class="type">const</span> string&amp; name, <span class="type">int</span> weight);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>
+<p>const qualifier protects from change，表示函数里don’t change the string object  对调用者的一种保证，表示函数内部不会修改调用者送进来的参数，由编译器检查</p>
+</li>
+<li>
+<p>more efficient to pass by reference(address)than to pass by value  因为by-value方式传递有大量的堆栈赋值开销，而引用和指针只要传一个地址</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="const-reference-parameters"><a class="markdownIt-Anchor" href="#const-reference-parameters"></a> Const reference parameters</h3>
+<p>如果你不想让参数被函数内部改变，就加上const</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// y is a constant! Can&#x27;t be modified.</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">(<span class="type">const</span> <span class="type">int</span>&amp; y, <span class="type">int</span>&amp; z)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    z = z * <span class="number">5</span>; <span class="comment">// ok</span></span><br><span class="line">    y += <span class="number">8</span>;    <span class="comment">// error!</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="temporary-values-are-const"><a class="markdownIt-Anchor" href="#temporary-values-are-const"></a> Temporary values are const</h3>
+<p>函数参数是&amp;时，不能传一个临时结果进来</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">(<span class="type">int</span> &amp;)</span></span>;</span><br><span class="line"><span class="built_in">func</span>(i * <span class="number">3</span>);        <span class="comment">// Generates warning or error !</span></span><br></pre></td></tr></table></figure>
+<p>有很多种解释来解释为什么不行，其中一种是：当编译器编译上面代码时会产生一个const的临时变量接收<code>i*3</code>的结果，临时变量是const的，所以不能传给<code>(int&amp;)</code>，不能access it</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">(<span class="type">int</span> &amp;)</span></span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> tmp@ = i * <span class="number">3</span>;</span><br><span class="line"><span class="built_in">func</span>(tmp@); <span class="comment">// Problem -- binding const ref to non-const argument !</span></span><br></pre></td></tr></table></figure>
+<p>给函数参数加上const，就没问题了，编译能过。<br />
+可以这样理解，<code>i*3</code>编译后临时结果的值交给了一个const的临时变量来存储，const 临时变量可以交给<code>const int&amp;</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">(<span class="type">const</span> <span class="type">int</span>&amp; i)</span>        <span class="comment">//表示函数里不会修改传进来的值</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; i &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> i = <span class="number">3</span>;</span><br><span class="line">    <span class="built_in">f</span>(i * <span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="const-in-function-returns"><a class="markdownIt-Anchor" href="#const-in-function-returns"></a> const in Function returns</h2>
+<p>return by const value</p>
+<ul>
+<li>for user defined types, it means “prevent use as an value”</li>
+<li>for built-in’s it means nothing</li>
+</ul>
+<p>表明返回的东西不能被修改</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> x = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span>&amp; <span class="title">h</span><span class="params">()</span>              <span class="comment">// 返回了一个引用类型，可以被修改，可以做左值</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">const</span> <span class="type">int</span>&amp; <span class="title">g</span><span class="params">()</span>        <span class="comment">// 返回的是一个常量引用返回的值不能再被修改</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">h</span>() = <span class="number">2</span>;            <span class="comment">// 返回的引用没有名字，匿名了，h()在这里表示是x的别名，这一行实际上就是 x = 2</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, x);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//g() = 4;           // error：表达式必须是可修改的左值</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr />
+<p>return by const pointer or reference</p>
+<ul>
+<li>depends on what you want your client to do with the return value</li>
+</ul>
+<hr />
+<p>这里应该搬到const一章</p>
+<p>视频中编译能过，俺用VC、g++过不了。报错：表达式必须是可修改的左值（估计编译器版本高了就编译不过）</p>
+<p>视频中想表达的意思是：f()返出来的临时变量因为没加const，可以做左值，然后那个<code>匿名对象.i</code>被赋成了10。但是我们没有任何形式可以访问到这个对象。本来想着编译能过的话，加上析构函数，看汇编能找到的，但是编译不过那就算了</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">A</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="type">int</span> i;</span><br><span class="line">    <span class="built_in">A</span>() : <span class="built_in">i</span>(<span class="number">0</span>) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">A <span class="title">f</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    A a;</span><br><span class="line">    <span class="keyword">return</span> a;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// f()没看懂参考g()就明白了</span></span><br><span class="line"><span class="comment">//  int g()</span></span><br><span class="line"><span class="comment">//  &#123;</span></span><br><span class="line"><span class="comment">//      int i=10;</span></span><br><span class="line"><span class="comment">//      return i;</span></span><br><span class="line"><span class="comment">//  &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    A a2;</span><br><span class="line">    a2.i = <span class="number">10</span>;</span><br><span class="line">    <span class="built_in">f</span>().i = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后在书上看到这段代码，编译是通过的</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">X</span> &#123;</span><br><span class="line">  <span class="type">int</span> i;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">X</span>(<span class="type">int</span> ii = <span class="number">0</span>);</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">modify</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">X::<span class="built_in">X</span>(<span class="type">int</span> ii) &#123; i = ii; &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">X::modify</span><span class="params">()</span> </span>&#123; i++; &#125;</span><br><span class="line"></span><br><span class="line"><span class="function">X <span class="title">f5</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">X</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">const</span> X <span class="title">f6</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">X</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f7</span><span class="params">(X&amp; x)</span> </span>&#123; <span class="comment">// Pass by non-const reference</span></span><br><span class="line">  x.<span class="built_in">modify</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">f5</span>() = <span class="built_in">X</span>(<span class="number">1</span>); <span class="comment">// OK -- non-const return value</span></span><br><span class="line">  <span class="built_in">f5</span>().<span class="built_in">modify</span>(); <span class="comment">// OK</span></span><br><span class="line"><span class="comment">//!  f7(f5()); // Causes warning or error</span></span><br><span class="line"><span class="comment">// Causes compile-time errors:</span></span><br><span class="line"><span class="comment">//!  f7(f5());</span></span><br><span class="line"><span class="comment">//!  f6() = X(1);</span></span><br><span class="line"><span class="comment">//!  f6().modify();</span></span><br><span class="line"><span class="comment">//!  f7(f6());</span></span><br><span class="line">&#125; <span class="comment">///:~</span></span><br></pre></td></tr></table></figure>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Thinking_in_C++/%E5%BC%95%E7%94%A8I-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5.html">引用I-基础概念</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/Thinking_in_C++/%E6%8B%B7%E8%B4%9D%E6%9E%84%E9%80%A0I.html">拷贝构造I</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Cobalt Strike-DNS Beacon使用解读 - Misc010</title>
+
+  
+    <meta name="description" content="Cobalt Strike中DNS Beacon功能使用方法，搭建内网环境实现上线，DNS Beacon通信流量工作原理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cobalt Strike-DNS Beacon使用解读">
+<meta property="og:url" content="https://misc0101.github.io/posts/1288e771.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="Cobalt Strike中DNS Beacon功能使用方法，搭建内网环境实现上线，DNS Beacon通信流量工作原理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/4.1.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/dns-beacon_new-listener_thumb_300_0.png">
+<meta property="og:image" content="https://bu.dusays.com/2022/10/24/63567d3e07da3.png">
+<meta property="og:image" content="https://bu.dusays.com/2022/10/24/63567d3e07da3.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913151905453.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913152113106.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913152126115.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913152200021.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913152236884.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913155212341.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913152335479.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913152636091.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913154955098.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913155700848.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913161734743.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913155910867.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913155925198.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913160348523.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/image-20230913160430222.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/dns-beacon_example.png">
+<meta property="article:published_time" content="2023-09-12T09:03:12.000Z">
+<meta property="article:modified_time" content="2023-09-12T09:03:12.000Z">
+<meta property="article:author" content="Misc">
+<meta property="article:tag" content="Cobalt Strike">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/DNS_beacon/4.1.png">
+  
+  
+  
+  <meta name="keywords" content="Cobalt Strike">
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='post'>
+    
+
+  
+
+<header class="header"><div class="logo-wrap"><a class="title" href="/"><div class="main" ff="title">Misc010</div></a></div>
+
+<nav class="menu dis-select"><a class="nav-item active" href="/">文章</a><a class="nav-item" href="/wiki/">项目</a><a class="nav-item" href="/about/">关于</a></nav>
+</header>
+
+
+<div class="widgets">
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/blog/" placeholder="文章搜索"><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc single" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">本文目录</span></div><div class="widget-body fs14"><div class="doc-tree active"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C"><span class="toc-text"> 实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAa%E8%AE%B0%E5%BD%95%E5%92%8Cns%E8%AE%B0%E5%BD%95"><span class="toc-text"> 创建A记录和NS记录</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#vps%E5%9F%9F%E5%90%8D%E6%96%B9%E6%A1%88"><span class="toc-text"> vps+域名方案</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%96%B9%E6%A1%88"><span class="toc-text"> 虚拟机方案</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8cs%E5%8F%8A%E9%9D%B6%E6%9C%BA%E4%B8%8A%E7%BA%BF"><span class="toc-text"> 启动cs及靶机上线</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#beacon%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B"><span class="toc-text"> Beacon工作过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E5%9B%9E%E9%A1%BE"><span class="toc-text"> 知识回顾</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E4%B8%ADbeacon%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90"><span class="toc-text"> 实验中Beacon工作过程分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text"> 参考</span></a></li></ol></div></div></widget>
+
+
+
+
+
+
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+
+      
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/%E6%B8%97%E9%80%8F%E5%B7%A5%E5%85%B7/">渗透工具</a></div><div id="post-meta"><span class="author">发布于</span>
+    <span class="created"><time datetime="2023-09-12T09:03:12.000Z">2023-09-12</time></span>
+    
+    <span class="updated">，更新于&nbsp;<time datetime="2023-09-12T09:03:12.000Z">2023-09-12</time></span>
+    </div></div></div>
+
+<article class='md-text content post'>
+<h1 class="article-title"><span>Cobalt Strike-DNS Beacon使用解读</span></h1>
+<p>The DNS Beacon is a favorite Cobalt Strike feature. This payload uses DNS requests to beacon back to you. <u>These DNS requests are lookups against domains that your Cobalt Strike team server is authoritative for.</u> <u>The DNS response tells Beacon to go to sleep or to connect to you to download tasks. The DNS response will also tell the Beacon how to download tasks from your team server.</u></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/4.1.png" alt="Cobalt Strike " /></p>
+<p>来看看<a target="_blank" rel="noopener" href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/listener-infrastructue_beacon-dns.htm#">文档</a>中写的如何创建DNS beacon的监听器。</p>
+<p>To create a DNS Beacon listener,select <code>Cobalt Strike -&gt; Listeners</code> on the main menu and press the <code>Add</code> button at the bottom of the Listeners tab display.Select <code>Beacon DNS</code> as the <code>Payload</code> type.</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/dns-beacon_new-listener_thumb_300_0.png" alt="img" /></p>
+<p><a target="_blank" rel="noopener" href="https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/listener-infrastructue_beacon-dns.htm#">Parameters</a></p>
+<p><strong>DNS Hosts</strong> - Press <strong>[+]</strong> to add one or more domains to beacon to. <u>Your Cobalt Strike team server system must be authoritative for the domains you specify. Create a DNS A record and point it to your Cobalt Strike team server. Use DNS NS records to delegate several domains or sub-domains to your Cobalt Strike team server’s A record.</u></p>
+<p><strong>DNS Host (Stager)</strong> - This configures the DNS Beacon’s TXT record stager. This stager is only used with Cobalt Strike features that require an explicit stager. <u>Your Cobalt Strike team server system must be authoritative for this domain as well.</u></p>
+<hr />
+<p>DNS Hosts字段填入一个或多个域名。</p>
+<ul>
+<li>这些域名都是NS记录，均指向teamserver（假设记为teamserverA）作为权威服务器。</li>
+</ul>
+<p>DNS Host(Stager)字段填入一个域名。</p>
+<ul>
+<li>
+<p>当生成的被控端程序是Stager时会用到这个域名，Stager运行后通过访问这个域名来下载stage</p>
+</li>
+<li>
+<p>这个域名也是NS记录，指向teamserver作为权威服务器。</p>
+<ul>
+<li>
+<p>这个teamserver可以是teamserverA，也可以是其他的teamserver，比如teamserverB。</p>
+</li>
+<li>
+<p>这个域名可以是DNS Hosts里填的其中某一个，也可以填和DNS Hosts不同的域名。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>估计看到这还是迷糊？下面，我们做实验，边做实验边讲解。</p>
+<h2 id="实验"><a class="markdownIt-Anchor" href="#实验"></a> 实验</h2>
+<h3 id="创建a记录和ns记录"><a class="markdownIt-Anchor" href="#创建a记录和ns记录"></a> 创建A记录和NS记录</h3>
+<h4 id="vps域名方案"><a class="markdownIt-Anchor" href="#vps域名方案"></a> vps+域名方案</h4>
+<p>按实战环境来讲的话，需要购买vps，因为要有公网ip，让靶机访问到你的攻击机。需要购买域名，对该域名上配置A记录和NS记录。比如，</p>
+<blockquote>
+<p>要购买能配置NS记录的域名</p>
+</blockquote>
+<p>一条A记录指向CS的IP地址，vpn.test.site =&gt; CS的IP地址</p>
+<p>几条NS记录指向刚刚A记录对应的域名（也可以只写一条）</p>
+<p>ns1.test.site =&gt; vpn.test.site<br />
+ns2.test.site =&gt; vpn.test.site<br />
+ns3.test.site =&gt; vpn.test.site</p>
+<p>或就只有一条</p>
+<p>ns1.test.site =&gt; vpn.test.site</p>
+<hr />
+<p>**注册登记机构（registrar）**是一个商业实体，它负责验证域名的唯一性，将域名输入DNS数据库。</p>
+<p>当你向域名注册商购买了一个域名，配置了这个域名的A记录和NS记录后，域名注册商会负责将你配的记录插入到DNS数据库中。有可能它自己是注册登记机构(registrar)，就能直接插入，也有可能它是交给第三方DNS托管公司负责。总之，当用户尝试访问该域名时，用户的请求可以被解析到正确的IP地址，从而正常访问网站，对于谁将这个域名的A记录和NS记录写入到哪个DNS服务器，是无感的。</p>
+<p>也就是说，你买了域名，配了这个域名的A记录和NS记录，然后就可以访问这个域名了，解析不出来的话再具体分析是什么情况，有可能买的不够贵，注册商写入的DNS服务器比较小众或写的DNS服务器比较少。</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>细节：域名解析有个TTL值</span></summary><div class="body"><p>据说这东西关系到解析域名要等多长时间，国内的很多厂商设置的最小值可以写60，godaddy最小值为600，建议先把这个东西写成平台允许的最小值，等到检验OK了再调大，一般调成600~900即可。</p></div></details></div>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.crisprx.top/archives/508">在博客看到可能出现的问题</a></p>
+<p>在使用<code>DNS Beacon</code>进行测试时发现域名没备案没办法解析到vps的IP上,如果要通过这种方式,最好使用备案的域名或者不需备案的域名等方式</p>
+</blockquote>
+<h4 id="虚拟机方案"><a class="markdownIt-Anchor" href="#虚拟机方案"></a> 虚拟机方案</h4>
+<p>如果不买vps和域名，也能做这个实验。给靶机设一个DNS服务器（相当于vps+域名方案中，靶机天然通过DNS服务器解析到域名），这个DNS服务器上有A记录和NS记录。因为我在windows server安装了DNS功能后，没找到NS记录在哪里设置，于是在网上找到了一个软件<a target="_blank" rel="noopener" href="https://simpledns.plus/">Simple DNS Plus</a>，安装这个软件后可以配A记录和NS记录，那么就由安装了这个软件的那台虚拟机充当DNS服务器。</p>
+<div class="tag-plugin quot"><p class="content" type="icon"><img class="icon prefix lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://bu.dusays.com/2022/10/24/63567d3e07da3.png" />虚拟机清单</p></div>
+<table>
+<thead>
+<tr>
+<th>虚拟机名称</th>
+<th>ip</th>
+<th>域名</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kali-linux-2023.3_client2</td>
+<td>192.168.242.130</td>
+<td><a target="_blank" rel="noopener" href="http://c2.test.com">c2.test.com</a></td>
+<td>teamserver和攻击机</td>
+</tr>
+<tr>
+<td>被控端A_Windows Server 2019 EN</td>
+<td>192.168.242.131</td>
+<td></td>
+<td>靶机</td>
+</tr>
+<tr>
+<td>DNS_Windows Server 2016 EN</td>
+<td>192.168.242.140</td>
+<td></td>
+<td>安装了Simple DNS Plus软件，充当DNS服务器</td>
+</tr>
+</tbody>
+</table>
+<div class="tag-plugin quot"><p class="content" type="icon"><img class="icon prefix lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://bu.dusays.com/2022/10/24/63567d3e07da3.png" />软件清单</p></div>
+<table>
+<thead>
+<tr>
+<th>软件名称</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cs4.5</td>
+<td></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://simpledns.plus/">Simple DNS Plus</a></td>
+<td>在一台虚拟机上安装该软件，创建A记录和NS记录</td>
+</tr>
+</tbody>
+</table>
+<p>安装Simple DNS Plus</p>
+<p>选一个符合<a target="_blank" rel="noopener" href="https://kb.simpledns.plus/help/a151-what-are-the-system-requirements-for-simple-dns-plus">安装要求</a>的系统安装该软件。Simple DNS <a target="_blank" rel="noopener" href="http://xn--Plus-894f49cu87bca231vv41dnlc3s2bga291v.NET">Plus安装时会联网下载安装.NET</a> Framework 4.8。如果需要离线安装，先用<a target="_blank" rel="noopener" href="https://support.microsoft.com/en-us/topic/microsoft-net-framework-4-8-offline-installer-for-windows-9d23f658-3b97-68ab-d013-aa3c3e7495e0">.NET 4.8的离线安装包</a>安装 .NET 4.8，然后再安装Simple DNS Plus。</p>
+<p>打开软件后，可以看到本地地址一列，udp53端口在被使用</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913151905453.png" alt="image-20230913151905453" /></p>
+<p><code>File -&gt; Edit DNS Records...</code>或点Records图标修改DNS记录</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913152113106.png" alt="image-20230913152113106" /></p>
+<p>正向区域</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913152126115.png" alt="image-20230913152126115" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913152200021.png" alt="image-20230913152200021" /></p>
+<p>Finish后，创建A记录和NS记录</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913152236884.png" alt="image-20230913152236884" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913155212341.png" alt="image-20230913155212341" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913152335479.png" alt="image-20230913152335479" /></p>
+<p>记得点保存</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913152636091.png" alt="image-20230913152636091" /></p>
+<p>一条A记录指向CS的IP地址，<a target="_blank" rel="noopener" href="http://c2.test.com">c2.test.com</a> =&gt; teamserver的IP地址192.168.242.130</p>
+<p>3条NS记录指向刚刚A记录对应的域名</p>
+<p><a target="_blank" rel="noopener" href="http://ns1.test.com">ns1.test.com</a> =&gt; <a target="_blank" rel="noopener" href="http://c2.test.com">c2.test.com</a><br />
+<a target="_blank" rel="noopener" href="http://ns2.test.com">ns2.test.com</a> =&gt; <a target="_blank" rel="noopener" href="http://c2.test.com">c2.test.com</a><br />
+<a target="_blank" rel="noopener" href="http://ns3.test.com">ns3.test.com</a> =&gt; <a target="_blank" rel="noopener" href="http://c2.test.com">c2.test.com</a></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=tTxPGMWFNOE">Configuracion de servidor DNS en windows con Simple DNS</a></p>
+</blockquote>
+<p>关闭防火墙</p>
+<p>在靶机上配置192.168.242.140为DNS服务器，用nslookup命令检验DNS解析是否正常</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913154955098.png" alt="image-20230913154955098" /></p>
+<h3 id="启动cs及靶机上线"><a class="markdownIt-Anchor" href="#启动cs及靶机上线"></a> 启动cs及靶机上线</h3>
+<p>用的4.5版本的cs，未带profile启动teamserver</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./teamserver <span class="number">192</span>.<span class="number">168</span>.<span class="number">242</span>.<span class="number">130</span> password</span><br></pre></td></tr></table></figure>
+<p>客户端连接teamserver，配置DNS Beacon</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913155700848.png" alt="image-20230913155700848" /></p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>关于DNS Host（Stager）处填A记录的问题</span></summary><div class="body"><p>在网上看到挺多的文章，这里写的是A记录。</p><p>在cs4.0版本的文档中的配图，这个字段和DNS Hosts填的都是NS记录。</p><p>本文最上面引用文档（4.7 | 202211210414 | November 2022）中对于DNS Beacon这个参数的解释说的也是NS记录。</p><p><strong>DNS Host (Stager)</strong> - This configures the DNS Beacon’s TXT record stager. This stager is only used with Cobalt Strike features that require an explicit stager. <u>Your Cobalt Strike team server system must be authoritative for this domain as well.</u></p><p>如果我们理解了beacon上线时解析域名的过程，通信流量封装在DNS请求中，由DNS服务器转发，通过NS记录，最终还是会找到teamserver。</p><p>只要我们配好了：1条A记录指向teamserver的IP，一条或多条NS记录指向A记录。</p></div></details></div>
+<p>如果53端口有冲突，关掉占用53端口的其他进程</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913161734743.png" alt="image-20230913161734743" /></p>
+<p>选的Stageless。如果选stager的话，被控机器要从CS服务器下载完stage的数据才会上线通信，因为dns协议每次传输的数据量很小，要等很长时间才上线。</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913155910867.png" alt="image-20230913155910867" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913155925198.png" alt="image-20230913155925198" /></p>
+<p>将生成的beacon投送到靶机执行</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913160348523.png" alt="image-20230913160348523" /></p>
+<p>此时，图标是个黑框。<u>DNS Beacon只有在有可用任务时才会checkin</u>。使用<code>checkin</code>命令来请求DNS Beacon在下次回连的时候check in。</p>
+<p>其实不执行 checkin 也可以。如果执行一个其他命令，比如whoami，它首先会自动check in，再执行其他命令。如果只输入checkin命令，就只返回来元数据</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">beacon&gt; </span><span class="language-bash"><span class="built_in">help</span> checkin</span></span><br><span class="line">Use: checkin</span><br><span class="line"></span><br><span class="line">Forces DNS Beacon to connect to you. During a checkin Beacon posts its host</span><br><span class="line">metadata and dumps logged keystrokes.</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/image-20230913160430222.png" alt="image-20230913160430222" /></p>
+<p>使用<code>mode</code>命令来改变当前Beacon的数据通道。DNS Beacon可以通过DNS TXT记录、DNS AAAA记录或DNS A记录下载任务。</p>
+<ul>
+<li>
+<p>mode dns是DNS A记录数据通道；</p>
+</li>
+<li>
+<p>mode dns6是DNS AAAA记录数据通道；</p>
+</li>
+<li>
+<p>mode dns-txt是DNS TXT记录数据通道。DNS TXT记录是默认的数据通道。</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">beacon&gt; </span><span class="language-bash"><span class="built_in">help</span> mode</span></span><br><span class="line">Use: mode [dns|dns6|dns-txt]</span><br><span class="line"></span><br><span class="line">Sets Beacon&#x27;s mode to exchange data with the end-user. This only has an effect</span><br><span class="line">on a DNS beacon.</span><br><span class="line"></span><br><span class="line">mode dns</span><br><span class="line">--------</span><br><span class="line">Get tasks with DNS A record requests. Use this option to communicate with DNS </span><br><span class="line">when TXT records are not an option. Sends data as DNS requests with data encoded</span><br><span class="line">inside of the hostname.</span><br><span class="line"></span><br><span class="line">mode dns6</span><br><span class="line">---------</span><br><span class="line">Get tasks with DNS AAAA record requests. Use this option to communicate with DNS </span><br><span class="line">when TXT records are not an option. Sends data as DNS requests with data encoded</span><br><span class="line">inside of the hostname.</span><br><span class="line"></span><br><span class="line">mode dns-txt</span><br><span class="line">------------</span><br><span class="line">Get tasks with DNS TXT record requests. This channel carries 189 bytes per </span><br><span class="line">request versus 4 bytes for a DNS A record request. Sends data with the same</span><br><span class="line">technique as the other DNS mode.</span><br></pre></td></tr></table></figure>
+<h2 id="beacon工作过程"><a class="markdownIt-Anchor" href="#beacon工作过程"></a> Beacon工作过程</h2>
+<h3 id="知识回顾"><a class="markdownIt-Anchor" href="#知识回顾"></a> 知识回顾</h3>
+<p>DNS数据库中的记录：</p>
+<p>A记录：主机名到IP地址的映射</p>
+<p>NS记录：域名解析服务器记录，将一个子域名指定某个域名服务器解析</p>
+<p>TXT记录：任意填写，可为空，一般做一些验证记录时会使用</p>
+<hr />
+<p>大致来说，有三种类型的DNS服务器：根DNS服务器、顶级域（Top-Level Domain,TLD）DNS服务器和权威DNS服务器。为了理解这3种类型的 DNS 服务器交互的方式，假定一个DNS客户要决定主机名  <a target="_blank" rel="noopener" href="http://www.amazon.com">www.amazon.com</a>  的IP地址。粗略说来，将发生下列事件。客户首先与根服务器之一联系，它将返回顶级域名com 的TLD服务器的IP地址。该客户则与这些TLD服务器之一联系，它将为amazon. com返回权威服务器的IP地址。最后，该客户与amazon. com权威服务器之一联系，它为主机名  <a target="_blank" rel="noopener" href="http://www.amazon.com">www.amazon.com</a>  返回其IP地址。</p>
+<hr />
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/DNS_beacon/dns-beacon_example.png" alt="dnscomms2" /></p>
+<ol>
+<li>目标主机要对域名1234.profiles.losenolove.com进行解析, 首先查本地缓存，如果没有。就查本地的hosts文件, 若没有，则向本地DNS服务器发送一个DNS查询报文。</li>
+<li>本地DNS服务器首先查询自己的本地缓存, 如果有，直接使用这个IP地址与teamserver进行通信。如果没有，则进行迭代查询。将步骤1的查询报文转发到根域名服务器发起询问, 根域名服务器注意到其.com前缀，向本地DNS服务器返回负责.com的TLD的IP地址列表。</li>
+<li>本地DNS服务器则再次向这些TLD服务器之一发送查询报文。.com的TLD注意到其losenolove.com前缀，向本地DNS服务器返回负责losenolove.com的中间DNS的IP地址列表。</li>
+<li>本地DNS服务器则再次向这些中间DNS服务器之一发送查询报文。losenolove.com这个中间DNS服务器<u>注意到其profiles.losenolove.com前缀，它查找与profiles.losenolove.com关联的NS记录，然后向本地DNS服务器返回权威DNS服务器malwarec2.losenolove.com的IP地址。</u></li>
+<li>最终，本地DNS服务器访问了malwarec2.losenolove.com服务器。</li>
+</ol>
+<ul>
+<li>正常过程：查询到了1234.profiles.losenolove.com的响应值, 随后malwarec2.losenolove.com服务器将响应值返回给本地DNS服务器, 本地DNS服务器再返回给目标主机。</li>
+<li>cs通信过程：DNS的响应报文中的内容，是teamserver与靶机通信的内容。</li>
+</ul>
+<blockquote>
+<p>之前看《计网》的示例都是A记录，这里要处理NS记录，思考有点转不过来：</p>
+<p>NS记录是域名系统（DNS）中的一种类型，它指定了负责特定域名的名称服务器。在这种情况下，profiles.losenolove.com是一个NS记录，指向负责处理该子域名查询的服务器。</p>
+<p>当DNS查询报文到达losenolove.com服务器后，它会查看查询的是哪个子域名。在这种情况下，<a target="_blank" rel="noopener" href="http://xn--profiles-nw7m438ex00afkejw1d6sbrv5m.losenolove.com">它看到查询的是profiles.losenolove.com</a>，所以它会查找与profiles.losenolove.com关联的NS记录。然后，它会将查询报文转发到NS记录指定的服务器，<a target="_blank" rel="noopener" href="http://xn--malwarec2-zz6ng03jbcza.losenolove.com">也就是malwarec2.losenolove.com</a>。</p>
+</blockquote>
+<h3 id="实验中beacon工作过程分析"><a class="markdownIt-Anchor" href="#实验中beacon工作过程分析"></a> 实验中Beacon工作过程分析</h3>
+<p>概括点来说，我们申请了NS记录，A记录。NS记录指向了A记录，A记录指出了ip地址。靶机的Beacon访问子域名，进入递归查询后，查到这些子域名由一个权威服务器负责解析，通过A记录中的ip去找这个权威服务器。</p>
+<p>这整个过程，就是靶机-&gt;Teamserver之间的通信。</p>
+<hr />
+<p>一条A记录指向CS的IP地址，<a target="_blank" rel="noopener" href="http://c2.test.com">c2.test.com</a> =&gt; teamserver的IP地址192.168.242.130</p>
+<p>3条NS记录指向刚刚A记录对应的域名</p>
+<p><a target="_blank" rel="noopener" href="http://ns1.test.com">ns1.test.com</a> =&gt; <a target="_blank" rel="noopener" href="http://c2.test.com">c2.test.com</a><br />
+<a target="_blank" rel="noopener" href="http://ns2.test.com">ns2.test.com</a> =&gt; <a target="_blank" rel="noopener" href="http://c2.test.com">c2.test.com</a><br />
+<a target="_blank" rel="noopener" href="http://ns3.test.com">ns3.test.com</a> =&gt; <a target="_blank" rel="noopener" href="http://c2.test.com">c2.test.com</a></p>
+<p>首先，计算机会检查它的本地DNS缓存，看是否有ns1.test.com的IP地址。如果有，它将直接使用这个IP地址。如果没有，它将向配置的DNS服务器发送查询请求。<br />
+在上述实验的配置中，我的虚拟机A已经设置了DNS服务器。所以，虚拟机A会向DNS服务器发送一个查询请求，询问ns1.test.com的IP地址。<br />
+DNS服务器接收到查询请求后，会查看它的DNS记录。在我的设置中，ns1.test.com是一个NS记录，<a target="_blank" rel="noopener" href="http://xn--c2-yn6cj6z4wj.test.com">它指向c2.test.com</a>。然后，虚拟机A会查找c2.test.com的A记录，找到对应的IP地址192.168.242.130。<br />
+DNS服务器将这个IP地址返回给虚拟机A，虚拟机A就知道了ns1.test.com的IP地址，可以进行下一步的网络通信。</p>
+<p>因为我们在cs上开了dns监听器，cs接收到DNS查询报文后，返回响应报文。</p>
+<p>靶机，就在这样的情况下，和cs开始通信了。DNS 响应告诉Beacon休眠或是连接到团队服务器来下载任务。DNS响应也告诉Beacon如何从团队服务器下载任务。</p>
+<h2 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h2>
+<table>
+<thead>
+<tr>
+<th>链接</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.cnblogs.com/henry666/p/16905617.html">内网渗透神器CobaltStrike之DNS Beacon(四) _</a></td>
+<td>DNS Beacon使用演示</td>
+</tr>
+<tr>
+<td>《A-TEAM 团队的 CS 4.0 用户手册》</td>
+<td>汉化使用手册</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://youtu.be/leXoZpiBvGQ?si=eTuUCyglXzE4kHPh">DNS Beacon (Cobalt Strike 4.0)</a></td>
+<td>cs4.0 DNS Beacon演示视频</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/256032.html">CS上线之DNS隧道踩坑记</a></td>
+<td>一些细节</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://rioasmara.com/2023/03/18/cobaltstrike-dns-beacon-lab-setup/">COBALTSTRIKE DNS BEACON LAB SETUP</a></td>
+<td>虚拟机方案的参考文章，但是配了A记录</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7488">cobaltstrike dns beacon知多少</a></td>
+<td>原理</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7938#toc-8">踩坑记录-DNS Beacon</a></td>
+<td>DNS Beacon上线后报文分析</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.crisprx.top/archives/508">初探Cobalt Strike–Beacon(一)</a></td>
+<td>源码分析</td>
+</tr>
+</tbody>
+</table>
+
+
+
+<div class="article-footer reveal fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/posts/2ee0f961.html">GMT UTC 时区 CST ISO 夏令时 时间戳 NTP</a></div><div class="item" id="next"><div class="note">较早文章</div><a href="/posts/8eabe7df.html">代理穿透与反向代理</a></div></section></div>
+
+
+
+
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

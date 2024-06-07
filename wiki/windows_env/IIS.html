@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Windows下的环境搭建：IIS - Misc010</title>
+
+  
+    <meta name="description" content="安装IIS 不需要server版 控制面板-程序和功能-启用或关闭Windows功能  不同系统版本勾选的不一样，不需要连网，安装完成后按照提示重启 安装好后可以搜到IIS  然后可以用浏览器访问装了IIS的这台电脑ip:80   日志    日志的显示可能有延迟  What is IIS  chatGPT4 待再次组织整理  Q：什么是IIS，IIS的应用场景是什么，在该场景中数据的交互过程是">
+<meta property="og:type" content="website">
+<meta property="og:title" content="IIS">
+<meta property="og:url" content="https://misc0101.github.io/wiki/windows_env/IIS.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="安装IIS 不需要server版 控制面板-程序和功能-启用或关闭Windows功能  不同系统版本勾选的不一样，不需要连网，安装完成后按照提示重启 安装好后可以搜到IIS  然后可以用浏览器访问装了IIS的这台电脑ip:80   日志    日志的显示可能有延迟  What is IIS  chatGPT4 待再次组织整理  Q：什么是IIS，IIS的应用场景是什么，在该场景中数据的交互过程是">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/IIS/image-20230926112307402.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/IIS/image-20230926112406075.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/IIS/image-20230926112813094.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/IIS/image-20230926112439810.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/IIS/image-20230926112515147.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/IIS/image-20230926112703698.png">
+<meta property="article:published_time" content="2023-09-26T03:00:43.000Z">
+<meta property="article:modified_time" content="2023-09-26T03:00:43.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/IIS/image-20230926112307402.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/windows_env/%E5%9F%9F%E7%8E%AF%E5%A2%83.html"><div class="main" ff="title">Windows下的环境搭建</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/windows_env/" placeholder="在/wiki/windows_env/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/windows_env/%E5%9F%9F%E7%8E%AF%E5%A2%83.html#start"><span class="toc-text">域环境</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/windows_env/Exchange%E9%82%AE%E7%AE%B1%E6%9C%8D%E5%8A%A1%E5%99%A8.html"><span class="toc-text">Exchange邮箱服务器</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/windows_env/IIS.html"><span class="toc-text">IIS</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85iis"><span class="toc-text"> 安装IIS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97"><span class="toc-text"> 日志</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#what-is-iis"><span class="toc-text"> What is IIS</span></a></li></ol></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：环境搭建</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/SIEM_env_building/Arcisght.html"><span class="title">SIEM环境搭建</span><span class="excerpt">目前包含：Splunk、Arcisght Recon。</span></a><a class="item wiki" href="/wiki/linux_env/chrony%E6%97%B6%E9%97%B4%E6%9C%8D%E5%8A%A1%E5%99%A8.html"><span class="title">Linux下的环境搭建</span><span class="excerpt">目前包含：chrony时间服务器。</span></a><a class="item wiki" href="/wiki/network_security_devices_env/Sophos_Firewall.html"><span class="title">安全设备类环境搭建</span><span class="excerpt">目前包含：Sophos Firewall，SonicWALL SMA设备，Juniper SRX设备，FortiGate VM，Cisco ACS，Cisco ISE。</span></a><a class="item wiki" href="/wiki/proxy_server_building/squid%E8%AE%A4%E8%AF%81%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA.html"><span class="title">代理服务器搭建</span><span class="excerpt">目前包含：squid透明/认证代理服务器，TMG代理服务器。</span></a><a class="item wiki" href="/wiki/sql_injection_env/SQLite.html"><span class="title">SQL注入靶场环境搭建</span><span class="excerpt">目前包含：Oracle、PostgreSQL、Microsoft Access、SQLite。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/windows_env/%E5%9F%9F%E7%8E%AF%E5%A2%83.html">Windows下的环境搭建</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-09-26T03:00:43.000Z">2023-09-26</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>IIS</span></h1>
+<h2 id="安装iis"><a class="markdownIt-Anchor" href="#安装iis"></a> 安装IIS</h2>
+<p>不需要server版</p>
+<p>控制面板-程序和功能-启用或关闭Windows功能</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/IIS/image-20230926112307402.png" alt="image-20230926112307402" /></p>
+<p>不同系统版本勾选的不一样，不需要连网，安装完成后按照提示重启</p>
+<p>安装好后可以搜到IIS</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/IIS/image-20230926112406075.png" alt="image-20230926112406075" /></p>
+<p>然后可以用浏览器访问装了IIS的这台电脑ip:80</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/IIS/image-20230926112813094.png" alt="image-20230926112813094" /></p>
+<h3 id="日志"><a class="markdownIt-Anchor" href="#日志"></a> 日志</h3>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/IIS/image-20230926112439810.png" alt="image-20230926112439810" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/IIS/image-20230926112515147.png" alt="image-20230926112515147" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/IIS/image-20230926112703698.png" alt="image-20230926112703698" /></p>
+<p>日志的显示可能有延迟</p>
+<h2 id="what-is-iis"><a class="markdownIt-Anchor" href="#what-is-iis"></a> What is IIS</h2>
+<blockquote>
+<p>chatGPT4</p>
+<p>待再次组织整理</p>
+</blockquote>
+<p>Q：什么是IIS，IIS的应用场景是什么，在该场景中数据的交互过程是怎样的。为什么会诞生IIS，IIS解决了哪些问题</p>
+<p>A：</p>
+<p>IIS（Internet Information Services，互联网信息服务）是一个用于Windows服务器操作系统的Web服务器和应用程序服务器。它最初是为了扩展Windows NT 3.51的网络功能而设计的。IIS提供了一种创建、配置和管理Web站点、应用程序和服务的方式，它支持HTTP、HTTPS、FTP、FTPS、SMTP等协议。</p>
+<p>IIS的应用场景主要包括：</p>
+<ol>
+<li>托管Web站点：可以为企业或个人创建、发布和维护Web站点，提供信息、服务或产品。</li>
+<li>提供Web应用程序支持：通过IIS，<a target="_blank" rel="noopener" href="http://xn--ASP-xi9dop07v9ft02a1mqvb211nxg1e.NET">开发者可以构建基于ASP.NET</a>、PHP等编程语言的Web应用程序，并运行在服务器上。</li>
+<li>创建和管理Web服务：IIS支持基于SOAP、RESTful等协议的Web服务，用于在不同平台和设备之间交换数据。</li>
+</ol>
+<p>在IIS的应用场景中，数据交互的过程大致如下：</p>
+<ol>
+<li>客户端（通常是Web浏览器）向服务器发送请求。</li>
+<li>服务器接收到请求后，根据请求的URL，通过IIS进行路由和处理。</li>
+<li>如果请求需要运行服务器端代码（例如ASP.NET或PHP），IIS会将请求传递给相应的处理程序（如.NET运行时或PHP解释器）。</li>
+<li>服务器端代码执行完成后，IIS将处理结果（通常是HTML、CSS、JavaScript等静态文件）返回给客户端。</li>
+<li>客户端浏览器解析和渲染收到的内容，显示给用户。</li>
+</ol>
+<p>IIS的诞生和发展解决了以下问题：</p>
+<ol>
+<li>提供了一个集成的、易于管理的Web服务器和应用程序服务器平台，使得在Windows服务器上部署Web应用变得更加简单。</li>
+<li>提高了性能和稳定性：IIS不断优化，以提高对大量并发请求的处理能力和对系统资源的有效利用。</li>
+<li>提供了安全性：IIS包含了多种安全措施，如SSL/TLS支持、身份验证和访问控制，以保护服务器和应用程序。</li>
+<li>支持多种编程语言和平台：<a target="_blank" rel="noopener" href="http://xn--IISASP-yt9i33jyvh8r6ay77cpi1am15a.NET">IIS允许开发者使用ASP.NET</a>、PHP等编程语言开发Web应用，提高了开发灵活性。</li>
+</ol>
+<p>总之，IIS是一个功能丰富、性能稳定的Web服务器和应用程序服务器，它在Web站点托管、Web应用程序和Web服务方面有广泛的应用。</p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/windows_env/Exchange%E9%82%AE%E7%AE%B1%E6%9C%8D%E5%8A%A1%E5%99%A8.html">Exchange邮箱服务器</a></div><div class="item" id="next"></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

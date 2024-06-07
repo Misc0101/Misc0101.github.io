@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>Protected_Mode：页目录表基址 - Misc010</title>
+
+  
+    <meta name="description" content="前言 在上一节课课后题中我们提到过，如果系统要保证某个线性地址是有效的, 那么必须为其填充正确的PDE与PTE，如果我们想填充PDE与PTE那么必须能够访问PDT与PTT,那么存在2个问题: 1、一定已经有“人&quot;为我们访问PDT与PTT挂好了PDE与PTE,我们只有找到这个线性地址就可以了。 2、这个为我们挂好PDE与PTE的“人&quot;是谁? 答案当我们申请一块内存时，怎么去PDT">
+<meta property="og:type" content="website">
+<meta property="og:title" content="页目录表基址">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Protected_Mode/%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%9F%BA%E5%9D%80.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="前言 在上一节课课后题中我们提到过，如果系统要保证某个线性地址是有效的, 那么必须为其填充正确的PDE与PTE，如果我们想填充PDE与PTE那么必须能够访问PDT与PTT,那么存在2个问题: 1、一定已经有“人&quot;为我们访问PDT与PTT挂好了PDE与PTE,我们只有找到这个线性地址就可以了。 2、这个为我们挂好PDE与PTE的“人&quot;是谁? 答案当我们申请一块内存时，怎么去PDT">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://bu.dusays.com/2022/10/24/63567d3e07da3.png">
+<meta property="og:image" content="https://bu.dusays.com/2022/10/24/63567d3e07da3.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%9F%BA%E5%9D%80/867232_Z72BW8AZDRC2DNF.jpg">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%9F%BA%E5%9D%80/o_2110160704311-8.png">
+<meta property="article:published_time" content="2023-08-19T07:38:55.000Z">
+<meta property="article:modified_time" content="2023-08-19T07:38:55.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://bu.dusays.com/2022/10/24/63567d3e07da3.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><div class="main" ff="title">Protected_Mode</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Protected_Mode/" placeholder="在/wiki/Protected_Mode/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">段</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html#start"><span class="toc-text">段寄存器</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90.html"><span class="toc-text">段描述符与段选择子</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E6%9D%83%E9%99%90%E6%A3%80%E6%9F%A5.html"><span class="toc-text">段权限检查</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E6%AE%B5%E9%97%B4%E8%B7%B3%E8%BD%AC.html"><span class="toc-text">段间跳转</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%B7%A8%E6%AE%B5%E8%B7%B3%E8%BD%AC.html"><span class="toc-text">跨段跳转</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%B0%83%E7%94%A8%E9%97%A8.html"><span class="toc-text">调用门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%B8%AD%E6%96%AD%E9%97%A8.html"><span class="toc-text">中断门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%99%B7%E9%98%B1%E9%97%A8.html"><span class="toc-text">陷阱门</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%BB%BB%E5%8A%A1%E6%AE%B5.html"><span class="toc-text">任务段</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E4%BB%BB%E5%8A%A1%E9%97%A8.html"><span class="toc-text">任务门</span></a></div></div><div class="widget-header cap dis-select"><span class="name">页</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/10-10-12%E5%88%86%E9%A1%B5.html"><span class="toc-text">10-10-12分页</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%88%9D%E6%AD%A5%E6%84%9F%E5%8F%97.html"><span class="toc-text">PDE、PTE初步感受</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7.html"><span class="toc-text">PDE、PTE属性</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Protected_Mode/%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%9F%BA%E5%9D%80.html"><span class="toc-text">页目录表基址</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%EF%BC%88PDE%EF%BC%89%E5%9F%BA%E5%9D%80"><span class="toc-text">页目录表（PDE）基址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%83%E4%B9%A0+%E6%80%9D%E8%80%83"><span class="toc-text">练习+思考</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E9%A1%B5%E8%A1%A8%E5%9F%BA%E5%9D%80.html"><span class="toc-text">页表基址</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/2-9-9-12%E5%88%86%E9%A1%B5.html"><span class="toc-text">2-9-9-12分页</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Protected_Mode/%E8%8D%89%E7%A8%BF%E6%9C%AC.html"><span class="toc-text">草稿本</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/PE/Overview_PE.html"><span class="title">PE</span><span class="excerpt">滴水三期_PE文件笔记(To finish...)。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html">Protected_Mode</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-08-19T07:38:55.000Z">2023-08-19</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>页目录表基址</span></h1>
+<div class="tag-plugin quot"><h2 class="content" id="前言" type="text"><a href="#前言" class="headerlink" title="前言"></a>前言</h2></div>
+<p>在上一节课课后题中我们提到过，如果系统要保证某个线性地址是有效的,<br />
+那么必须为其填充正确的PDE与PTE，如果我们想填充PDE与PTE那么必须能够访问PDT与PTT,那么存在2个问题:<br />
+1、一定已经有“人&quot;为我们访问PDT与PTT挂好了PDE与PTE,我们只有找到这个线性地址就可以了。</p>
+<p>2、这个为我们挂好PDE与PTE的“人&quot;是谁?</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p>当我们申请一块内存时，怎么去PDT和PTT挂上相应的PDE和PTE？PDT和PTT是物理地址，给物理地址的话，我们和操作系统如何访问？因为程序使用的都是线性地址，无法直接使用物理地址。那么我们想到读写PDT和PTT表，填上PDE和PTE必须用到线性地址。</p><p>所以CPU给我们准备了线性地址0xC0300000，通过这个线性地址，就可以找到PDT表头的物理地址；线性地址0xC0000000，通过这个线性地址，就可以找到PTT表头的物理地址</p></div></details></div>
+<div class="tag-plugin quot"><h2 class="content" id="页目录表（PDE）基址" type="text"><a href="#页目录表（PDE）基址" class="headerlink" title="页目录表（PDE）基址"></a>页目录表（PDE）基址</h2></div>
+<p>0xC0300000</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">线性地址<span class="number">0xC0300000</span>拆分</span><br><span class="line"><span class="number">1100000000</span>,<span class="number">300</span>         <span class="comment">//10    ;400*4=C00</span></span><br><span class="line"><span class="number">1100000000</span>,<span class="number">300</span>         <span class="comment">//10    ;400*4=C00</span></span><br><span class="line"><span class="number">000</span>                    <span class="comment">//12</span></span><br></pre></td></tr></table></figure>
+<p>以notepad进程为例，windbg下断，查CR3，是109df000</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PROCESS <span class="number">85</span>fb2da0  SessionId: <span class="number">0</span>  Cid: <span class="number">00</span>b8    Peb: <span class="number">7</span>ffd6000  ParentCid: <span class="number">0714</span></span><br><span class="line"><span class="function">    DirBase: 109<span class="title">df000</span>  <span class="title">ObjectTable</span>: <span class="title">e220e6f0</span>  <span class="title">HandleCount</span>:  44.</span></span><br><span class="line"><span class="function">    <span class="title">Image</span>: <span class="title">notepad.exe</span></span></span><br></pre></td></tr></table></figure>
+<div class="tag-plugin quot"><p class="content" type="icon"><img class="icon prefix lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://bu.dusays.com/2022/10/24/63567d3e07da3.png" />CR3->PDT表</p></div>
+<p>A.CR3指向的是PDT表<br />
+查看CR3处的数据得到的就是PDT表</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !dd <span class="number">109</span>df000</span><br><span class="line">#<span class="number">109</span>df000 <span class="number">10801067</span> <span class="number">10</span>c26067 <span class="number">10876067</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df010 <span class="number">10934067</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df020 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df030 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df040 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df050 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df060 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df070 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br></pre></td></tr></table></figure>
+<hr />
+<div class="tag-plugin quot"><p class="content" type="icon"><img class="icon prefix lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://bu.dusays.com/2022/10/24/63567d3e07da3.png" />CR3->PDE->PTE->物理页的方式找0xC0300000的物理页</p></div>
+<p>按之前学的CR3+第一个10×4–&gt;PDE，PDE+第二个10×4–&gt;PTE，PDE+12位–&gt;物理页，来找一遍<br />
+a.CR3+线性地址0xC0300000拆分后第1个10位*4<br />
+得到PDE是109df063</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !dd <span class="number">109</span>df000+C00</span><br><span class="line">#<span class="number">109</span>dfc00 <span class="number">109</span>df063 <span class="number">109</span>a0063 <span class="number">00000000</span> <span class="number">06</span>a50163</span><br><span class="line">#<span class="number">109</span>dfc10 <span class="number">06</span>a51163 <span class="number">06</span>a52163 <span class="number">06</span>a53163 <span class="number">06</span>a54163</span><br><span class="line">#<span class="number">109</span>dfc20 <span class="number">06</span>a55163 <span class="number">06</span>a56163 <span class="number">06</span>a57163 <span class="number">06</span>a58163</span><br><span class="line">#<span class="number">109</span>dfc30 <span class="number">06</span>a59163 <span class="number">06</span>a5a163 <span class="number">06</span>a5b163 <span class="number">06</span>a5c163</span><br><span class="line">#<span class="number">109</span>dfc40 <span class="number">06</span>a5d163 <span class="number">06</span>a5e163 <span class="number">06</span>a5f163 <span class="number">06</span>a60163</span><br><span class="line">#<span class="number">109</span>dfc50 <span class="number">06</span>a61163 <span class="number">06</span>a62163 <span class="number">06</span>a63163 <span class="number">06</span>a64163</span><br><span class="line">#<span class="number">109</span>dfc60 <span class="number">06</span>a65163 <span class="number">06</span>a66163 <span class="number">06</span>a67163 <span class="number">06</span>a68163</span><br><span class="line">#<span class="number">109</span>dfc70 <span class="number">06</span>a29163 <span class="number">06</span>a2a163 <span class="number">06</span>a2b163 <span class="number">06</span>a2c163</span><br></pre></td></tr></table></figure>
+<p>b.PDE+线性地址0xC0300000拆分后第2个10位*4<br />
+得到PTE是109df063</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !dd <span class="number">109</span>df000+C00</span><br><span class="line">#<span class="number">109</span>dfc00 <span class="number">109</span>df063 <span class="number">109</span>a0063 <span class="number">00000000</span> <span class="number">06</span>a50163</span><br><span class="line">#<span class="number">109</span>dfc10 <span class="number">06</span>a51163 <span class="number">06</span>a52163 <span class="number">06</span>a53163 <span class="number">06</span>a54163</span><br><span class="line">#<span class="number">109</span>dfc20 <span class="number">06</span>a55163 <span class="number">06</span>a56163 <span class="number">06</span>a57163 <span class="number">06</span>a58163</span><br><span class="line">#<span class="number">109</span>dfc30 <span class="number">06</span>a59163 <span class="number">06</span>a5a163 <span class="number">06</span>a5b163 <span class="number">06</span>a5c163</span><br><span class="line">#<span class="number">109</span>dfc40 <span class="number">06</span>a5d163 <span class="number">06</span>a5e163 <span class="number">06</span>a5f163 <span class="number">06</span>a60163</span><br><span class="line">#<span class="number">109</span>dfc50 <span class="number">06</span>a61163 <span class="number">06</span>a62163 <span class="number">06</span>a63163 <span class="number">06</span>a64163</span><br><span class="line">#<span class="number">109</span>dfc60 <span class="number">06</span>a65163 <span class="number">06</span>a66163 <span class="number">06</span>a67163 <span class="number">06</span>a68163</span><br><span class="line">#<span class="number">109</span>dfc70 <span class="number">06</span>a29163 <span class="number">06</span>a2a163 <span class="number">06</span>a2b163 <span class="number">06</span>a2c163</span><br></pre></td></tr></table></figure>
+<p>c.PTE+线性地址0xC0300000拆分后12位<br />
+得到物理页</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !dd <span class="number">109</span>df000+<span class="number">000</span></span><br><span class="line">#<span class="number">109</span>df000 <span class="number">10801067</span> <span class="number">10</span>c26067 <span class="number">10876067</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df010 <span class="number">10934067</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df020 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df030 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df040 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df050 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df060 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line">#<span class="number">109</span>df070 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br></pre></td></tr></table></figure>
+<hr />
+<p>观察A输出的内容（CR3指向PDT表）  和  通过步骤abc输出的内容（线性地址0xC0300000对应的物理页），得出结论：</p>
+<ul>
+<li>PDT表是一张物理页</li>
+<li>线性地址0xC0300000找到的物理页是PDT表</li>
+</ul>
+<p>观察步骤a（查PDE项）和步骤b（查PTE项）输出的内容，得出结论：</p>
+<ul>
+<li>PDT表，本身也是页表</li>
+</ul>
+<div class="tag-plugin quot"><h2 class="content" id="小结" type="text"><a href="#小结" class="headerlink" title="小结"></a>小结</h2></div>
+<ul>
+<li>其实不存在页目录表（PDT），页目录表（PDT）就是页表（PTT）中特殊的一张表。</li>
+<li>这张表是张物理页，既充当了页目录表（PDT），也充当了页表（PTT）。</li>
+<li>从充当了页表（PTT）的角度看，它是一张特殊的页表（PTT），因为每一项PTE没有指向物理页，而是指向其他页表（PTT），有一项指向自己表头。</li>
+<li>通过线性地址0xC0300000找到的物理页就是页目录表（PDT）。</li>
+</ul>
+<p>如果我们要访问第N个PDE，公式：0xC0300000+N*4</p>
+</br>
+<p>根据上面的推导，我们修正一下之前CR3-&gt;PDT-&gt;PTT-&gt;物理页寻址的这张图：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%9F%BA%E5%9D%80/867232_Z72BW8AZDRC2DNF.jpg" alt="image-20210413101806515" /></p>
+<p>修正为：</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%9F%BA%E5%9D%80/o_2110160704311-8.png" alt="img" /></p>
+<div class="tag-plugin quot"><h2 class="content" id="练习+思考" type="text"><a href="#练习+思考" class="headerlink" title="练习+思考"></a>练习+思考</h2></div>
+<p>通过上面的学习，我们知道了线性地址0xC0300000指向了PDT表，然后用公式0xC0300000+N*4能去改任意的PDE项。如果我们想要给线性地址0挂上物理页，我们可以通过下面这行指令进行修改（伪码）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov dword ptr ds:[0xC0300000],0x10101010</span><br></pre></td></tr></table></figure>
+<p>然后，怎么修改PTE？</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p>思维误区，windbg中通过PDE项查出来的PTT表内容，依旧是物理地址，无法在程序中使用。</p><p>也就是说，仅有线性地址0xC0300000只能动PDE，但是没法修改PTE。所以还需要1个线性地址，通过这个线性地址，可以修改到PTE项。</p></div></details></div>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Protected_Mode/PDE%E3%80%81PTE%E5%B1%9E%E6%80%A7.html">PDE、PTE属性</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/Protected_Mode/%E9%A1%B5%E8%A1%A8%E5%9F%BA%E5%9D%80.html">页表基址</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

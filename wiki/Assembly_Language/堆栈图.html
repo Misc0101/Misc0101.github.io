@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>汇编语言：堆栈图 - Misc010</title>
+
+  
+    <meta name="description" content="函数 计算机的函数，是一个固定的一个程序段，或称其为一个子程序，它在可以实现固定运算功能的同时还带有一入口和一个出口，所谓的入口，就是函数所带的各个参数，我们可以通过这个入口，把函数的参数值代入子程序，供计算机处理，所谓出口，就是指函数的计算结果,也称为返回值，在计算机求得之后，由出口带回给调用它的程序。  有一个入口和一个出口，入口可以带参，也可以不带参；出口返回时可以带参，也可以不带参。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="堆栈图">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Assembly_Language/%E5%A0%86%E6%A0%88%E5%9B%BE.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="函数 计算机的函数，是一个固定的一个程序段，或称其为一个子程序，它在可以实现固定运算功能的同时还带有一入口和一个出口，所谓的入口，就是函数所带的各个参数，我们可以通过这个入口，把函数的参数值代入子程序，供计算机处理，所谓出口，就是指函数的计算结果,也称为返回值，在计算机求得之后，由出口带回给调用它的程序。  有一个入口和一个出口，入口可以带参，也可以不带参；出口返回时可以带参，也可以不带参。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230929152000050.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230929160747922.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230929170103023.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230930113007386.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230930111325782.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/%E5%A0%86%E6%A0%88%E5%9B%BE%E4%BD%9C%E4%B8%9A_%E5%87%BD%E6%95%B0%E5%B5%8C%E5%A5%97_%E4%B8%8A.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230930180452102.png">
+<meta property="article:published_time" content="2023-09-29T03:52:15.000Z">
+<meta property="article:modified_time" content="2023-09-29T03:52:15.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230929152000050.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><div class="main" ff="title">汇编语言</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Assembly_Language/" placeholder="在/wiki/Assembly_Language/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html#start"><span class="toc-text">通用寄存器_内存读写</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Assembly_Language/%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4.html"><span class="toc-text">汇编指令</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Assembly_Language/%E8%BF%87%E7%A8%8B.html"><span class="toc-text">过程</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Assembly_Language/%E6%A0%87%E5%BF%97%E5%AF%84%E5%AD%98%E5%99%A8%E5%92%8CJCC%E6%8C%87%E4%BB%A4.html"><span class="toc-text">标志寄存器和JCC指令</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Assembly_Language/%E5%A0%86%E6%A0%88%E5%9B%BE.html"><span class="toc-text">堆栈图</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0"><span class="toc-text"> 函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B1%87%E7%BC%96%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0"><span class="toc-text"> 汇编中的函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3"><span class="toc-text"> 函数的入口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E7%9A%84%E5%87%BA%E5%8F%A3"><span class="toc-text"> 函数的出口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#windows%E5%A0%86%E6%A0%88%E7%9A%84%E7%89%B9%E7%82%B9"><span class="toc-text"> Windows堆栈的特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%BB%E5%A0%86%E6%A0%88%E5%9B%BE%E7%BB%83%E4%B9%A0"><span class="toc-text"> 画堆栈图练习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0-2"><span class="toc-text"> 函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%B5%8C%E5%A5%97"><span class="toc-text"> 函数嵌套</span></a></li></ol></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Assembly_Language/%E5%B0%8F%E7%BB%93_assembly.html"><span class="toc-text">小结</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><span class="title">C++</span><span class="excerpt">滴水三期_C++语言笔记，C++能做的C都能做，只不过如果使用C++，可以节省很多时间，因为编译器帮编程人员做了很多工作，让编程人员省事。学习的目标：相对于C，编译器替我们做了哪些工作。</span></a><a class="item wiki" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><span class="title">C</span><span class="excerpt">滴水三期_C语言笔记，以逆向角度看待和学习C语言，精彩点：堆栈图与指针。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="title">科学上网技术</span><span class="excerpt">从正常网络通信数据包通信过程出发，逐步推导到使用代理协议进行科学上网，随后依次介绍各代理协议ss、trojan、vmess、vless原理与节点搭建，还有相关的工具、技术、概念介绍。</span></a><a class="item wiki" href="/wiki/Thinking_in_C++/Pointers.html"><span class="title">Thinking in C++</span><span class="excerpt">《Thinking in C++ vol 1》笔记，知识内化后的输出，少部分是摘抄，少用的细节不做记录用时在查，参考视频：《面向对象程序设计_C++_翁恺老师》。</span></a><a class="item wiki" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><span class="title">Windows API编程</span><span class="excerpt">滴水三期_win32 api笔记，学习Windows API编程的困难并不在于函数参数参数众多或者英文不好这类表象原因，而是需要从Windows系统的整体知识架构出发来学习这些API，深入理解每个参数背后的含义和背景。如此，未来查阅MSDN时便不再像是看天书。</span></a><a class="item wiki" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><span class="title">数据的运算与表示</span><span class="excerpt">滴水三期_进制笔记，学习与理解进制、数据宽度、数的表示、位运算等概念。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html">汇编语言</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-09-29T03:52:15.000Z">2023-09-29</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>堆栈图</span></h1>
+<h2 id="函数"><a class="markdownIt-Anchor" href="#函数"></a> 函数</h2>
+<p>计算机的函数，是一个<strong>固定的一个程序段</strong>，或称其为一个<strong>子程序</strong>，它在可以实现<strong>固定运算功能</strong>的同时还带有一<strong>入口</strong>和一个<strong>出口</strong>，所谓的入口，就是函数所带的各个<strong>参数</strong>，我们可以通过这个入口，把函数的参数值代入子程序，供计算机处理，所谓出口，就是指函数的计算结果,也称为返回值，在计算机求得之后，由出口带回给调用它的程序。</p>
+<blockquote>
+<p>有一个入口和一个出口，入口可以带参，也可以不带参；出口返回时可以带参，也可以不带参。</p>
+</blockquote>
+<hr />
+<h3 id="汇编中的函数"><a class="markdownIt-Anchor" href="#汇编中的函数"></a> 汇编中的函数</h3>
+<p>函数的特征和结构如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">PUSH EBP                        ;提升堆栈，为函数执行提供空间</span><br><span class="line">MOV EBP,ESP</span><br><span class="line">SUB ESP,40</span><br><span class="line"></span><br><span class="line">PUSH EBX                        ;保留现场：函数在执行的时候会用到一些寄存器，但这些寄存器中的值很可能会被后面的</span><br><span class="line">PUSH ESI                        ;程序用到，所以要先存储到内存中</span><br><span class="line">PUSH EDI</span><br><span class="line"></span><br><span class="line">LEA EDI,DWORD PTR SS:[EBP-40]   ;向分配的空间填充数据</span><br><span class="line">MOV ECX,10                      ;这里是别的函数留下的数据</span><br><span class="line">MOV EAX,CCCCCCCC                ;防止eip跑到这将数据当成代码执行，填充0xCC，对应Unicode烫，int3，eip指向这执行会停下来</span><br><span class="line">REP STOS DWORD PTR ES:[EDI]</span><br><span class="line"></span><br><span class="line">MOV EAX,DWORD PTR SS:[EBP+8]    ;该函数的功能</span><br><span class="line">ADD EAX,DWORD PTR SS:[EBP+C]</span><br><span class="line"></span><br><span class="line">POP EDI                         ;恢复现场：将之前保留的寄存器的值恢复</span><br><span class="line">POP ESI</span><br><span class="line">POP EBX</span><br><span class="line"></span><br><span class="line">MOV ESP,EBP                     ;降低堆栈</span><br><span class="line"></span><br><span class="line">POP EBP                         ;恢复栈底</span><br><span class="line"></span><br><span class="line">RETN                            ;函数执行完毕，返回到调用处</span><br></pre></td></tr></table></figure>
+<h3 id="函数的入口"><a class="markdownIt-Anchor" href="#函数的入口"></a> 函数的入口</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PUSH 2              ;函数的参数</span><br><span class="line">PUSH 1</span><br><span class="line"></span><br><span class="line">CALL 0040100A       ;调用函数</span><br></pre></td></tr></table></figure>
+<p>思考：此处我们是通过寄存器将需要的数据传递给函数的，还可以有其他的方式吗？</p>
+<p>堆栈</p>
+<h3 id="函数的出口"><a class="markdownIt-Anchor" href="#函数的出口"></a> 函数的出口</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MOV EAX,DWORD PTR SS:[EBP+8]    ;上面的这个函数将计算结果存储到EAX中</span><br><span class="line">ADD EAX,DWORD PTR SS:[EBP+C]    ;我们称为返回值</span><br></pre></td></tr></table></figure>
+<p>思考：函数的计算结果除了放在寄存器中，还可以放在什么地方？</p>
+<p>内存。</p>
+<h3 id="windows堆栈的特点"><a class="markdownIt-Anchor" href="#windows堆栈的特点"></a> Windows堆栈的特点</h3>
+<ul>
+<li>先进后出</li>
+<li>向低地址扩展</li>
+</ul>
+<h2 id="画堆栈图练习"><a class="markdownIt-Anchor" href="#画堆栈图练习"></a> 画堆栈图练习</h2>
+<h3 id="函数-2"><a class="markdownIt-Anchor" href="#函数-2"></a> 函数</h3>
+<p>第1题：0x401174</p>
+<p>调用前寄存器情况：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EAX</td>
+<td>00000003</td>
+</tr>
+<tr>
+<td>ECX</td>
+<td>00000000</td>
+</tr>
+<tr>
+<td>EDX</td>
+<td>007713C0</td>
+</tr>
+<tr>
+<td>EBX</td>
+<td>003AB000</td>
+</tr>
+<tr>
+<td>ESP</td>
+<td>0019FEE4</td>
+</tr>
+<tr>
+<td>EBP</td>
+<td>0019FF30</td>
+</tr>
+<tr>
+<td>ESI</td>
+<td>00401220</td>
+</tr>
+<tr>
+<td>EDI</td>
+<td>0019FF30</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">00401174  |.  6A 04         PUSH 4</span><br><span class="line">00401176  |.  6A 03         PUSH 3</span><br><span class="line">00401178  |.  6A 02         PUSH 2</span><br><span class="line">0040117A  |.  E8 9AFEFFFF   CALL HelloWor.00401019</span><br><span class="line">0040117F  |.  83C4 0C       ADD ESP,0C</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">00401019   $ /E9 52000000   JMP HelloWor.00401070</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">00401070  /&gt; \55            PUSH EBP</span><br><span class="line">00401071  |.  8BEC          MOV EBP,ESP</span><br><span class="line">00401073  |.  83EC 40       SUB ESP,40</span><br><span class="line">00401076  |.  53            PUSH EBX</span><br><span class="line">00401077  |.  56            PUSH ESI</span><br><span class="line">00401078  |.  57            PUSH EDI</span><br><span class="line">00401079  |.  8D7D C0       LEA EDI,DWORD PTR SS:[EBP-40]</span><br><span class="line">0040107C  |.  B9 10000000   MOV ECX,10</span><br><span class="line">00401081  |.  B8 CCCCCCCC   MOV EAX,CCCCCCCC</span><br><span class="line">00401086  |.  F3:AB         REP STOS DWORD PTR ES:[EDI]</span><br><span class="line">00401088  |.  8B45 08       MOV EAX,DWORD PTR SS:[EBP+8]</span><br><span class="line">0040108B  |.  0345 0C       ADD EAX,DWORD PTR SS:[EBP+C]</span><br><span class="line">0040108E  |.  2B45 10       SUB EAX,DWORD PTR SS:[EBP+10]</span><br><span class="line">00401091  |.  5F            POP EDI</span><br><span class="line">00401092  |.  5E            POP ESI</span><br><span class="line">00401093  |.  5B            POP EBX</span><br><span class="line">00401094  |.  8BE5          MOV ESP,EBP</span><br><span class="line">00401096  |.  5D            POP EBP</span><br><span class="line">00401097  \.  C3            RETN</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230929152000050.png" alt="image-20230929152000050" /></p>
+<p>第2题：0x401182</p>
+<p>调用前寄存器情况：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EAX</td>
+<td>00000001</td>
+</tr>
+<tr>
+<td>ECX</td>
+<td>00000000</td>
+</tr>
+<tr>
+<td>EDX</td>
+<td>007713C0</td>
+</tr>
+<tr>
+<td>EBX</td>
+<td>003AB000</td>
+</tr>
+<tr>
+<td>ESP</td>
+<td>0019FEE4</td>
+</tr>
+<tr>
+<td>EBP</td>
+<td>0019FF30</td>
+</tr>
+<tr>
+<td>ESI</td>
+<td>00401220</td>
+</tr>
+<tr>
+<td>EDI</td>
+<td>0019FF30</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">00401182  |.  6A 06         PUSH 6</span><br><span class="line">00401184  |.  6A 05         PUSH 5</span><br><span class="line">00401186  |.  E8 7AFEFFFF   CALL HelloWor.00401005</span><br><span class="line">0040118B  |.  83C4 08       ADD ESP,8</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">00401005   $ /E9 A6000000   JMP HelloWor.004010B0</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">004010B0  /&gt; \55            PUSH EBP</span><br><span class="line">004010B1  |.  8BEC          MOV EBP,ESP</span><br><span class="line">004010B3  |.  83EC 48       SUB ESP,48</span><br><span class="line">004010B6  |.  53            PUSH EBX</span><br><span class="line">004010B7  |.  56            PUSH ESI</span><br><span class="line">004010B8  |.  57            PUSH EDI</span><br><span class="line">004010B9  |.  8D7D B8       LEA EDI,DWORD PTR SS:[EBP-48]</span><br><span class="line">004010BC  |.  B9 12000000   MOV ECX,12</span><br><span class="line">004010C1  |.  B8 CCCCCCCC   MOV EAX,CCCCCCCC</span><br><span class="line">004010C6  |.  F3:AB         REP STOS DWORD PTR ES:[EDI]</span><br><span class="line">004010C8  |.  C745 FC 0A000&gt;MOV DWORD PTR SS:[EBP-4],0A</span><br><span class="line">004010CF  |.  C745 F8 05000&gt;MOV DWORD PTR SS:[EBP-8],5</span><br><span class="line">004010D6  |.  8B45 08       MOV EAX,DWORD PTR SS:[EBP+8]</span><br><span class="line">004010D9  |.  0345 0C       ADD EAX,DWORD PTR SS:[EBP+C]</span><br><span class="line">004010DC  |.  2B45 F8       SUB EAX,DWORD PTR SS:[EBP-8]</span><br><span class="line">004010DF  |.  0345 FC       ADD EAX,DWORD PTR SS:[EBP-4]</span><br><span class="line">004010E2  |.  5F            POP EDI</span><br><span class="line">004010E3  |.  5E            POP ESI</span><br><span class="line">004010E4  |.  5B            POP EBX</span><br><span class="line">004010E5  |.  8BE5          MOV ESP,EBP</span><br><span class="line">004010E7  |.  5D            POP EBP</span><br><span class="line">004010E8  \.  C3            RETN</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230929160747922.png" alt="image-20230929160747922" /></p>
+<p>第三题：0x40118E</p>
+<p>调用前寄存器情况：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EAX</td>
+<td>00000010</td>
+</tr>
+<tr>
+<td>ECX</td>
+<td>00000000</td>
+</tr>
+<tr>
+<td>EDX</td>
+<td>007713C0</td>
+</tr>
+<tr>
+<td>EBX</td>
+<td>003AB000</td>
+</tr>
+<tr>
+<td>ESP</td>
+<td>0019FEE4</td>
+</tr>
+<tr>
+<td>EBP</td>
+<td>0019FF30</td>
+</tr>
+<tr>
+<td>ESI</td>
+<td>00401220</td>
+</tr>
+<tr>
+<td>EDI</td>
+<td>0019FF30</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">0040118E  |.  6A 09         PUSH 9</span><br><span class="line">00401190  |.  6A 0C         PUSH 0C</span><br><span class="line">00401192  |.  6A 05         PUSH 5</span><br><span class="line">00401194  |.  E8 85FEFFFF   CALL HelloWor.0040101E</span><br><span class="line">00401199  |.  83C4 0C       ADD ESP,0C</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0040101E   $ /E9 DD000000   JMP HelloWor.00401100</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">00401100  /&gt; \55            PUSH EBP</span><br><span class="line">00401101  |.  8BEC          MOV EBP,ESP</span><br><span class="line">00401103  |.  83EC 40       SUB ESP,40</span><br><span class="line">00401106  |.  53            PUSH EBX</span><br><span class="line">00401107  |.  56            PUSH ESI</span><br><span class="line">00401108  |.  57            PUSH EDI</span><br><span class="line">00401109  |.  8D7D C0       LEA EDI,DWORD PTR SS:[EBP-40]</span><br><span class="line">0040110C  |.  B9 10000000   MOV ECX,10</span><br><span class="line">00401111  |.  B8 CCCCCCCC   MOV EAX,CCCCCCCC</span><br><span class="line">00401116  |.  F3:AB         REP STOS DWORD PTR ES:[EDI]</span><br><span class="line">00401118  |.  8B45 08       MOV EAX,DWORD PTR SS:[EBP+8]</span><br><span class="line">0040111B  |.  3B45 0C       CMP EAX,DWORD PTR SS:[EBP+C]</span><br><span class="line">0040111E  |.  7E 12         JLE SHORT HelloWor.00401132</span><br><span class="line">00401120  |.  8B4D 08       MOV ECX,DWORD PTR SS:[EBP+8]</span><br><span class="line">00401123  |.  3B4D 10       CMP ECX,DWORD PTR SS:[EBP+10]</span><br><span class="line">00401126  |.  7E 05         JLE SHORT HelloWor.0040112D</span><br><span class="line">00401128  |.  8B45 08       MOV EAX,DWORD PTR SS:[EBP+8]</span><br><span class="line">0040112B  |.  EB 15         JMP SHORT HelloWor.00401142</span><br><span class="line">0040112D  |&gt;  8B45 10       MOV EAX,DWORD PTR SS:[EBP+10]</span><br><span class="line">00401130  |.  EB 10         JMP SHORT HelloWor.00401142</span><br><span class="line">00401132  |&gt;  8B55 0C       MOV EDX,DWORD PTR SS:[EBP+C]</span><br><span class="line">00401135  |.  3B55 10       CMP EDX,DWORD PTR SS:[EBP+10]</span><br><span class="line">00401138  |.  7E 05         JLE SHORT HelloWor.0040113F</span><br><span class="line">0040113A  |.  8B45 0C       MOV EAX,DWORD PTR SS:[EBP+C]</span><br><span class="line">0040113D  |.  EB 03         JMP SHORT HelloWor.00401142</span><br><span class="line">0040113F  |&gt;  8B45 10       MOV EAX,DWORD PTR SS:[EBP+10]</span><br><span class="line">00401142  |&gt;  5F            POP EDI</span><br><span class="line">00401143  |.  5E            POP ESI</span><br><span class="line">00401144  |.  5B            POP EBX</span><br><span class="line">00401145  |.  8BE5          MOV ESP,EBP</span><br><span class="line">00401147  |.  5D            POP EBP</span><br><span class="line">00401148  \.  C3            RETN</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230929170103023.png" alt="image-20230929170103023" /></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">00401118  |.  8B45 08       MOV EAX,DWORD PTR SS:[EBP+8]</span><br><span class="line">0040111B  |.  3B45 0C       CMP EAX,DWORD PTR SS:[EBP+C]</span><br><span class="line">0040111E  |.  7E 12         JLE SHORT HelloWor.00401132</span><br><span class="line">                            ;参数1和参数2比大小</span><br><span class="line">                                ;参数1&gt;参数2，顺序执行继续比较</span><br><span class="line">                                ;参数1&lt;=参数2，跳00401132继续比较</span><br><span class="line">00401120  |.  8B4D 08       MOV ECX,DWORD PTR SS:[EBP+8]</span><br><span class="line">00401123  |.  3B4D 10       CMP ECX,DWORD PTR SS:[EBP+10]</span><br><span class="line">00401126  |.  7E 05         JLE SHORT HelloWor.0040112D</span><br><span class="line">                            ;参数1和参数3比大小</span><br><span class="line">                                ;参数1&gt;参数3，顺序执行赋值结束调用</span><br><span class="line">                                ;参数1&lt;=参数3，跳0040112D赋值结束调用</span><br><span class="line">00401128  |.  8B45 08       MOV EAX,DWORD PTR SS:[EBP+8]</span><br><span class="line">0040112B  |.  EB 15         JMP SHORT HelloWor.00401142</span><br><span class="line">                            ;EAX=参数1，结束调用</span><br><span class="line">0040112D  |&gt;  8B45 10       MOV EAX,DWORD PTR SS:[EBP+10]</span><br><span class="line">00401130  |.  EB 10         JMP SHORT HelloWor.00401142</span><br><span class="line">                            ;EAX=参数3，结束调用</span><br><span class="line">00401132  |&gt;  8B55 0C       MOV EDX,DWORD PTR SS:[EBP+C]</span><br><span class="line">00401135  |.  3B55 10       CMP EDX,DWORD PTR SS:[EBP+10]</span><br><span class="line">00401138  |.  7E 05         JLE SHORT HelloWor.0040113F</span><br><span class="line">                            ;参数2和参数3比大小</span><br><span class="line">                                ;参数2&gt;参数3，顺序执行赋值结束调用</span><br><span class="line">                                ;参数2&lt;=参数3，跳0040113F赋值结束调用</span><br><span class="line">0040113A  |.  8B45 0C       MOV EAX,DWORD PTR SS:[EBP+C]</span><br><span class="line">0040113D  |.  EB 03         JMP SHORT HelloWor.00401142</span><br><span class="line">                            ;EAX=参数2，结束调用</span><br><span class="line">0040113F  |&gt;  8B45 10       MOV EAX,DWORD PTR SS:[EBP+10]</span><br><span class="line">                            ;EAX=参数3</span><br><span class="line">00401142  |&gt;  5F            POP EDI</span><br></pre></td></tr></table></figure>
+<p>函数接收3个参数，返回最大值</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b,<span class="type">int</span> c)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> result;</span><br><span class="line">    <span class="keyword">if</span>(a&gt;b)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(a&gt;c)</span><br><span class="line">        &#123;</span><br><span class="line">            result=a;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            result=c;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(b&gt;c)</span><br><span class="line">        &#123;</span><br><span class="line">            result=b;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            result=c;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="函数嵌套"><a class="markdownIt-Anchor" href="#函数嵌套"></a> 函数嵌套</h3>
+<p>Stack.exe，从0040D518开始画，画到0040D527</p>
+<p>调用前寄存器情况：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EAX</td>
+<td>CCCCCCCC</td>
+</tr>
+<tr>
+<td>ECX</td>
+<td>00000000</td>
+</tr>
+<tr>
+<td>EDX</td>
+<td>00AC13B0</td>
+</tr>
+<tr>
+<td>EBX</td>
+<td>00388000</td>
+</tr>
+<tr>
+<td>ESP</td>
+<td>0019FEDC</td>
+</tr>
+<tr>
+<td>EBP</td>
+<td>0019FF30</td>
+</tr>
+<tr>
+<td>ESI</td>
+<td>004010F0</td>
+</tr>
+<tr>
+<td>EDI</td>
+<td>0019FF30</td>
+</tr>
+</tbody>
+</table>
+<div class="tag-plugin tabs" align="center"id="tab_1"><div class="nav-tabs"><div class="tab active"><a href="#tab_1-1">最外层</a></div><div class="tab"><a href="#tab_1-2">第一层函数0040100F</a></div><div class="tab"><a href="#tab_1-3">第二层函数00401019</a></div><div class="tab"><a href="#tab_1-4">第三层函数00401014</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_1-1"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">0040D518  |.  6A 07         PUSH 7</span><br><span class="line">0040D51A  |.  6A 06         PUSH 6</span><br><span class="line">0040D51C  |.  6A 05         PUSH 5</span><br><span class="line">0040D51E  |.  6A 04         PUSH 4</span><br><span class="line">0040D520  |.  6A 03         PUSH 3</span><br><span class="line">0040D522  |.  E8 E83AFFFF   CALL Stack.0040100F</span><br><span class="line">0040D527  |.  83C4 14       ADD ESP,14</span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_1-2"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0040100F   $ /E9 8CC40000   JMP Stack.0040D4A0</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">0040D4A0  /&gt; \55            PUSH EBP</span><br><span class="line">0040D4A1  |.  8BEC          MOV EBP,ESP</span><br><span class="line">0040D4A3  |.  83EC 4C       SUB ESP,4C</span><br><span class="line">0040D4A6  |.  53            PUSH EBX</span><br><span class="line">0040D4A7  |.  56            PUSH ESI</span><br><span class="line">0040D4A8  |.  57            PUSH EDI</span><br><span class="line">0040D4A9  |.  8D7D B4       LEA EDI,DWORD PTR SS:[EBP-4C]</span><br><span class="line">0040D4AC  |.  B9 13000000   MOV ECX,13</span><br><span class="line">0040D4B1  |.  B8 CCCCCCCC   MOV EAX,CCCCCCCC</span><br><span class="line">0040D4B6  |.  F3:AB         REP STOS DWORD PTR ES:[EDI]</span><br><span class="line">0040D4B8  |.  C745 FC 02000&gt;MOV DWORD PTR SS:[EBP-4],2</span><br><span class="line">0040D4BF  |.  C745 F8 03000&gt;MOV DWORD PTR SS:[EBP-8],3</span><br><span class="line">0040D4C6  |.  8B45 14       MOV EAX,DWORD PTR SS:[EBP+14]</span><br><span class="line">0040D4C9  |.  50            PUSH EAX</span><br><span class="line">0040D4CA  |.  8B4D 10       MOV ECX,DWORD PTR SS:[EBP+10]</span><br><span class="line">0040D4CD  |.  51            PUSH ECX</span><br><span class="line">0040D4CE  |.  8B55 0C       MOV EDX,DWORD PTR SS:[EBP+C]</span><br><span class="line">0040D4D1  |.  52            PUSH EDX</span><br><span class="line">0040D4D2  |.  8B45 08       MOV EAX,DWORD PTR SS:[EBP+8]</span><br><span class="line">0040D4D5  |.  50            PUSH EAX</span><br><span class="line">0040D4D6  |.  E8 3E3BFFFF   CALL Stack.00401019</span><br><span class="line">0040D4DB  |.  83C4 10       ADD ESP,10</span><br><span class="line">0040D4DE  |.  8945 F4       MOV DWORD PTR SS:[EBP-C],EAX</span><br><span class="line">0040D4E1  |.  8B45 FC       MOV EAX,DWORD PTR SS:[EBP-4]</span><br><span class="line">0040D4E4  |.  0345 F8       ADD EAX,DWORD PTR SS:[EBP-8]</span><br><span class="line">0040D4E7  |.  0345 18       ADD EAX,DWORD PTR SS:[EBP+18]</span><br><span class="line">0040D4EA  |.  0345 F4       ADD EAX,DWORD PTR SS:[EBP-C]</span><br><span class="line">0040D4ED  |.  5F            POP EDI</span><br><span class="line">0040D4EE  |.  5E            POP ESI</span><br><span class="line">0040D4EF  |.  5B            POP EBX</span><br><span class="line">0040D4F0  |.  83C4 4C       ADD ESP,4C</span><br><span class="line">0040D4F3  |.  3BEC          CMP EBP,ESP</span><br><span class="line">0040D4F5  |.  E8 B63BFFFF   CALL Stack.004010B0</span><br><span class="line">0040D4FA  |.  8BE5          MOV ESP,EBP</span><br><span class="line">0040D4FC  |.  5D            POP EBP</span><br><span class="line">0040D4FD  \.  C3            RETN</span><br></pre></td></tr></table></figure>
+<p><code>MOV ESP,EBP</code>之前这三行代码是编译器加的，编译器会在debug版自动加上这三行，用来检验堆栈是否平衡。因为它觉得你在一个call里又调用了一个call，准备返回时堆栈会不会不平衡。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0040D4F0  |.  83C4 4C       ADD ESP,4C</span><br><span class="line">0040D4F3  |.  3BEC          CMP EBP,ESP</span><br><span class="line">0040D4F5  |.  E8 B63BFFFF   CALL Stack.004010B0</span><br></pre></td></tr></table></figure>
+<p>因为我们没对堆栈作其他操作，堆栈是平衡的，ESP-4C后和EBP相等，ZF=1。<code>CALL 004010B0</code>后。JNZ不跳转，走RETN退出；如果不平衡，即ZF=0，JNZ跳转到004010B3，004010B3部分是出错提示。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">004010B0  /$ /75 01         JNZ SHORT Stack.004010B3</span><br><span class="line">004010B2  |. |C3            RETN</span><br><span class="line">004010B3  |&gt; \55            PUSH EBP</span><br><span class="line">004010B4  |.  8BEC          MOV EBP,ESP</span><br><span class="line">004010B6  |.  83EC 00       SUB ESP,0</span><br><span class="line">004010B9  |.  50            PUSH EAX</span><br><span class="line">004010BA  |.  52            PUSH EDX</span><br><span class="line">004010BB  |.  53            PUSH EBX</span><br><span class="line">004010BC  |.  56            PUSH ESI</span><br><span class="line">004010BD  |.  57            PUSH EDI</span><br><span class="line">004010BE  |.  68 30204200   PUSH Stack.00422030                  ; /Arg5 = 00422030 ASCII &quot;The value of ESP was not properly saved across a function call.  This is usually a result of calling a function declared with one calling convention with a function pointer declared with a different calling convention. &quot;</span><br><span class="line">004010C3  |.  68 2C204200   PUSH Stack.0042202C                  ; |Arg4 = 0042202C</span><br><span class="line">004010C8  |.  6A 2A         PUSH 2A                              ; |Arg3 = 0000002A</span><br><span class="line">004010CA  |.  68 1C204200   PUSH Stack.0042201C                  ; |Arg2 = 0042201C ASCII &quot;i386\chkesp.c&quot;</span><br><span class="line">004010CF  |.  6A 01         PUSH 1                               ; |Arg1 = 00000001</span><br><span class="line">004010D1  |.  E8 BA020000   CALL Stack.00401390                  ; \Stack.00401390</span><br><span class="line">004010D6  |.  83C4 14       ADD ESP,14</span><br><span class="line">004010D9  |.  83F8 01       CMP EAX,1</span><br><span class="line">004010DC  |.  75 01         JNZ SHORT Stack.004010DF</span><br><span class="line">004010DE  |.  CC            INT3</span><br><span class="line">004010DF  |&gt;  5F            POP EDI</span><br><span class="line">004010E0  |.  5E            POP ESI</span><br><span class="line">004010E1  |.  5B            POP EBX</span><br><span class="line">004010E2  |.  5A            POP EDX</span><br><span class="line">004010E3  |.  58            POP EAX</span><br><span class="line">004010E4  |.  8BE5          MOV ESP,EBP</span><br><span class="line">004010E6  |.  5D            POP EBP</span><br><span class="line">004010E7  \.  C3            RETN</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230930113007386.png" alt="image-20230930113007386" /></p></div><div class="tab-pane" id="tab_1-3"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">00401019   $ /E9 42000000   JMP Stack.00401060</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">00401060  /&gt; \55            PUSH EBP</span><br><span class="line">00401061  |.  8BEC          MOV EBP,ESP</span><br><span class="line">00401063  |.  83EC 48       SUB ESP,48</span><br><span class="line">00401066  |.  53            PUSH EBX</span><br><span class="line">00401067  |.  56            PUSH ESI</span><br><span class="line">00401068  |.  57            PUSH EDI</span><br><span class="line">00401069  |.  8D7D B8       LEA EDI,DWORD PTR SS:[EBP-48]</span><br><span class="line">0040106C  |.  B9 12000000   MOV ECX,12</span><br><span class="line">00401071  |.  B8 CCCCCCCC   MOV EAX,CCCCCCCC</span><br><span class="line">00401076  |.  F3:AB         REP STOS DWORD PTR ES:[EDI]</span><br><span class="line">00401078  |.  C745 FC 02000&gt;MOV DWORD PTR SS:[EBP-4],2</span><br><span class="line">0040107F  |.  8B45 10       MOV EAX,DWORD PTR SS:[EBP+10]</span><br><span class="line">00401082  |.  50            PUSH EAX</span><br><span class="line">00401083  |.  8B4D 0C       MOV ECX,DWORD PTR SS:[EBP+C]</span><br><span class="line">00401086  |.  51            PUSH ECX</span><br><span class="line">00401087  |.  8B55 08       MOV EDX,DWORD PTR SS:[EBP+8]</span><br><span class="line">0040108A  |.  52            PUSH EDX</span><br><span class="line">0040108B  |.  E8 84FFFFFF   CALL Stack.00401014</span><br><span class="line">00401090  |.  83C4 0C       ADD ESP,0C</span><br><span class="line">00401093  |.  8945 F8       MOV DWORD PTR SS:[EBP-8],EAX</span><br><span class="line">00401096  |.  8B45 FC       MOV EAX,DWORD PTR SS:[EBP-4]</span><br><span class="line">00401099  |.  0345 F8       ADD EAX,DWORD PTR SS:[EBP-8]</span><br><span class="line">0040109C  |.  0345 14       ADD EAX,DWORD PTR SS:[EBP+14]</span><br><span class="line">0040109F  |.  5F            POP EDI</span><br><span class="line">004010A0  |.  5E            POP ESI</span><br><span class="line">004010A1  |.  5B            POP EBX</span><br><span class="line">004010A2  |.  83C4 48       ADD ESP,48</span><br><span class="line">004010A5  |.  3BEC          CMP EBP,ESP</span><br><span class="line">004010A7  |.  E8 04000000   CALL Stack.004010B0</span><br><span class="line">004010AC  |.  8BE5          MOV ESP,EBP</span><br><span class="line">004010AE  |.  5D            POP EBP</span><br><span class="line">004010AF  \.  C3            RETN</span><br></pre></td></tr></table></figure>
+<p><code>MOV ESP,EBP</code>之前这三行代码是编译器加的，编译器会在debug版自动加上这三行，用来检验堆栈是否平衡。因为它觉得你在一个call里又调用了一个call，准备返回时堆栈会不会不平衡。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">004010A2  |.  83C4 48       ADD ESP,48</span><br><span class="line">004010A5  |.  3BEC          CMP EBP,ESP</span><br><span class="line">004010A7  |.  E8 04000000   CALL Stack.004010B0</span><br></pre></td></tr></table></figure>
+<p>因为我们没对堆栈作其他操作，堆栈是平衡的，ESP-48后和EBP相等，ZF=1。<code>CALL 004010B0</code>后。JNZ不跳转，走RETN退出；如果不平衡，即ZF=0，JNZ跳转到004010B3，004010B3部分是出错提示。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">004010B0  /$ /75 01         JNZ SHORT Stack.004010B3</span><br><span class="line">004010B2  |. |C3            RETN</span><br><span class="line">004010B3  |&gt; \55            PUSH EBP</span><br><span class="line">004010B4  |.  8BEC          MOV EBP,ESP</span><br><span class="line">004010B6  |.  83EC 00       SUB ESP,0</span><br><span class="line">004010B9  |.  50            PUSH EAX</span><br><span class="line">004010BA  |.  52            PUSH EDX</span><br><span class="line">004010BB  |.  53            PUSH EBX</span><br><span class="line">004010BC  |.  56            PUSH ESI</span><br><span class="line">004010BD  |.  57            PUSH EDI</span><br><span class="line">004010BE  |.  68 30204200   PUSH Stack.00422030                  ; /Arg5 = 00422030 ASCII &quot;The value of ESP was not properly saved across a function call.  This is usually a result of calling a function declared with one calling convention with a function pointer declared with a different calling convention. &quot;</span><br><span class="line">004010C3  |.  68 2C204200   PUSH Stack.0042202C                  ; |Arg4 = 0042202C</span><br><span class="line">004010C8  |.  6A 2A         PUSH 2A                              ; |Arg3 = 0000002A</span><br><span class="line">004010CA  |.  68 1C204200   PUSH Stack.0042201C                  ; |Arg2 = 0042201C ASCII &quot;i386\chkesp.c&quot;</span><br><span class="line">004010CF  |.  6A 01         PUSH 1                               ; |Arg1 = 00000001</span><br><span class="line">004010D1  |.  E8 BA020000   CALL Stack.00401390                  ; \Stack.00401390</span><br><span class="line">004010D6  |.  83C4 14       ADD ESP,14</span><br><span class="line">004010D9  |.  83F8 01       CMP EAX,1</span><br><span class="line">004010DC  |.  75 01         JNZ SHORT Stack.004010DF</span><br><span class="line">004010DE  |.  CC            INT3</span><br><span class="line">004010DF  |&gt;  5F            POP EDI</span><br><span class="line">004010E0  |.  5E            POP ESI</span><br><span class="line">004010E1  |.  5B            POP EBX</span><br><span class="line">004010E2  |.  5A            POP EDX</span><br><span class="line">004010E3  |.  58            POP EAX</span><br><span class="line">004010E4  |.  8BE5          MOV ESP,EBP</span><br><span class="line">004010E6  |.  5D            POP EBP</span><br><span class="line">004010E7  \.  C3            RETN</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230930111325782.png" alt="image-20230930111325782" /></p></div><div class="tab-pane" id="tab_1-4"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">00401014   $ /E9 07000000   JMP Stack.00401020</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">00401020  /&gt; \55            PUSH EBP</span><br><span class="line">00401021  |.  8BEC          MOV EBP,ESP</span><br><span class="line">00401023  |.  83EC 40       SUB ESP,40</span><br><span class="line">00401026  |.  53            PUSH EBX</span><br><span class="line">00401027  |.  56            PUSH ESI</span><br><span class="line">00401028  |.  57            PUSH EDI</span><br><span class="line">00401029  |.  8D7D C0       LEA EDI,DWORD PTR SS:[EBP-40]</span><br><span class="line">0040102C  |.  B9 10000000   MOV ECX,10</span><br><span class="line">00401031  |.  B8 CCCCCCCC   MOV EAX,CCCCCCCC</span><br><span class="line">00401036  |.  F3:AB         REP STOS DWORD PTR ES:[EDI]</span><br><span class="line">00401038  |.  8B45 08       MOV EAX,DWORD PTR SS:[EBP+8]</span><br><span class="line">0040103B  |.  0345 0C       ADD EAX,DWORD PTR SS:[EBP+C]</span><br><span class="line">0040103E  |.  0345 10       ADD EAX,DWORD PTR SS:[EBP+10]</span><br><span class="line">00401041  |.  5F            POP EDI</span><br><span class="line">00401042  |.  5E            POP ESI</span><br><span class="line">00401043  |.  5B            POP EBX</span><br><span class="line">00401044  |.  8BE5          MOV ESP,EBP</span><br><span class="line">00401046  |.  5D            POP EBP</span><br><span class="line">00401047  \.  C3            RETN</span><br></pre></td></tr></table></figure></div></div></div>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/%E5%A0%86%E6%A0%88%E5%9B%BE%E4%BD%9C%E4%B8%9A_%E5%87%BD%E6%95%B0%E5%B5%8C%E5%A5%97_%E4%B8%8A.png" alt="堆栈图作业_函数嵌套_上" /></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%A0%86%E6%A0%88%E5%9B%BE/image-20230930180452102.png" alt="image-20230930180452102" /></p>
+<p>函数功能：一系列整数加法操作</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">fun3</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b,<span class="type">int</span> c)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> a+b+c;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">fun2</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b,<span class="type">int</span> c,<span class="type">int</span> d)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> x=<span class="number">2</span>;</span><br><span class="line">    <span class="type">int</span> y=fun3(a,b,c);</span><br><span class="line">    <span class="keyword">return</span> x+y+d;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">fun1</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b,<span class="type">int</span> c,<span class="type">int</span> d,<span class="type">int</span> e)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> x=<span class="number">2</span>;</span><br><span class="line">    <span class="type">int</span> y=<span class="number">3</span>;</span><br><span class="line">    <span class="type">int</span> z=fun2(a,b,c,d);</span><br><span class="line">    <span class="keyword">return</span> x+y+e+z;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> result=fun1(<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Assembly_Language/%E6%A0%87%E5%BF%97%E5%AF%84%E5%AD%98%E5%99%A8%E5%92%8CJCC%E6%8C%87%E4%BB%A4.html">标志寄存器和JCC指令</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/Assembly_Language/%E5%B0%8F%E7%BB%93_assembly.html">小结</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

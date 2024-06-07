@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>PE：新增节 - Misc010</title>
+
+  
+    <meta name="description" content="前言 扩大节的问题：  添加的东西和原有的数据混在一起 最后一个节原来是一些只读的数据，如果新加的是代码，还要改节属性   步骤   判断现有的节表后是否有足够的空间新添加一个节表 最后一个节表的后面还要有1个全为0的节表（40个字节）收尾。  虽然没有这个“空节表”或这个空节表里的值不全为0，exe也能正常运行。但最好还是遵守这个规定，windows很多结构体都是以一个全零结构体收尾作为结束标">
+<meta property="og:type" content="website">
+<meta property="og:title" content="新增节">
+<meta property="og:url" content="https://misc0101.github.io/wiki/PE/%E6%96%B0%E5%A2%9E%E8%8A%82.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="前言 扩大节的问题：  添加的东西和原有的数据混在一起 最后一个节原来是一些只读的数据，如果新加的是代码，还要改节属性   步骤   判断现有的节表后是否有足够的空间新添加一个节表 最后一个节表的后面还要有1个全为0的节表（40个字节）收尾。  虽然没有这个“空节表”或这个空节表里的值不全为0，exe也能正常运行。但最好还是遵守这个规定，windows很多结构体都是以一个全零结构体收尾作为结束标">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%96%B0%E5%A2%9E%E8%8A%82/image-20240412180935775.png">
+<meta property="article:published_time" content="2024-02-07T12:54:42.000Z">
+<meta property="article:modified_time" content="2024-02-07T12:54:42.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E6%96%B0%E5%A2%9E%E8%8A%82/image-20240412180935775.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/PE/Overview_PE.html"><div class="main" ff="title">PE</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/PE/" placeholder="在/wiki/PE/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">基本概念</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/Overview_PE.html#start"><span class="toc-text">Overview</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5_PE.html"><span class="toc-text">一些概念</span></a></div></div><div class="widget-header cap dis-select"><span class="name">字段解读</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/DOS%E9%83%A8%E5%88%86.html"><span class="toc-text">DOS部分</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/PE%E5%A4%B4.html"><span class="toc-text">PE头</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E8%8A%82%E8%A1%A8.html"><span class="toc-text">节表</span></a></div></div><div class="widget-header cap dis-select"><span class="name">练习和项目</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BB%83%E4%B9%A0_PE.html"><span class="toc-text">练习</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BC%96%E7%A8%8B%E7%BB%83%E4%B9%A0_PE.html"><span class="toc-text">编程练习</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/PE%E8%A7%A3%E6%9E%90%E5%99%A8.html"><span class="toc-text">PE解析器</span></a></div></div><div class="widget-header cap dis-select"><span class="name">节操作</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%A9%BA%E7%99%BD%E5%8C%BA%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81.html"><span class="toc-text">空白区添加代码</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E6%89%A9%E5%A4%A7%E8%8A%82.html"><span class="toc-text">扩大节</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/PE/%E6%96%B0%E5%A2%9E%E8%8A%82.html"><span class="toc-text">新增节</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text"> 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4"><span class="toc-text"> 步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E7%A8%8B%E5%AE%9E%E7%8E%B0"><span class="toc-text"> 编程实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-text"> 测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#alignup%E5%87%BD%E6%95%B0%E9%80%BB%E8%BE%91"><span class="toc-text"> AlignUp函数逻辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A4%E8%A7%A3%E9%87%8A"><span class="toc-text"> 步骤解释</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-text"> 示例</span></a></li></ol></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%90%88%E5%B9%B6%E8%8A%82.html"><span class="toc-text">合并节</span></a></div></div><div class="widget-header cap dis-select"><span class="name">数据目录表</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E5%92%8C%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93.html"><span class="toc-text">静态链接库和动态链接库</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%AF%BC%E5%87%BA%E8%A1%A8.html"><span class="toc-text">导出表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8.html"><span class="toc-text">重定位表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E5%AF%BC%E5%85%A5%E8%A1%A8.html"><span class="toc-text">导入表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%BB%91%E5%AE%9A%E5%AF%BC%E5%85%A5%E8%A1%A8.html"><span class="toc-text">绑定导入表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E8%B5%84%E6%BA%90%E8%A1%A8.html"><span class="toc-text">资源表</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/%E7%A7%BB%E5%8A%A8%E5%90%84%E7%A7%8D%E8%A1%A8.html"><span class="toc-text">移动各种表</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/PE/To_Learn_List.html"><span class="toc-text">To Learn List</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%AF%BC%E5%85%A5%E8%A1%A8%E6%B3%A8%E5%85%A5.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><span class="title">Protected_Mode</span><span class="excerpt">滴水三期_保护模式笔记。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/PE/Overview_PE.html">PE</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-02-07T12:54:42.000Z">2024-02-07</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>新增节</span></h1>
+<h2 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h2>
+<p>扩大节的问题：</p>
+<ol>
+<li>添加的东西和原有的数据混在一起</li>
+<li>最后一个节原来是一些只读的数据，如果新加的是代码，还要改节属性</li>
+</ol>
+<h2 id="步骤"><a class="markdownIt-Anchor" href="#步骤"></a> 步骤</h2>
+<ol>
+<li>
+<p>判断现有的节表后是否有足够的空间新添加一个节表<br />
+最后一个节表的后面还要有1个全为0的节表（40个字节）收尾。</p>
+<blockquote>
+<p>虽然没有这个“空节表”或这个空节表里的值不全为0，exe也能正常运行。但最好还是遵守这个规定，windows很多结构体都是以一个全零结构体收尾作为结束标记</p>
+</blockquote>
+<p>所以判断条件是判断<strong>剩余空间是否≥（要新增节的数量+1）* 40字节</strong>，其中，剩余空间=SizeOfHeaders-DOS部分-PE标识-标准PE头-扩展PE头-现有节表占的空间。例：打算新增1个节，那么剩余空间就要至少剩80个字节，40个字节放新增加的节表，另外40个字节作为收尾的全0节表。<br />
+比如winxp下的notepad，编译器在节表后掺了一堆东西，这堆东西可能有用，也可能没用，为了保险我们不去覆盖这些数据。<u>空间不够可以将整个NT头上移，占用DOS Stub数据的空间，然后改e_lfanew字段。</u>如果这种办法也不行（极少情况），只能扩大节了。</p>
+</li>
+<li>
+<p>在节表中新增一个成员，填写各个字段（可以对着抄.text节的节表的字段）</p>
+<ul>
+<li>
+<p>Name：节的名字，随便起</p>
+</li>
+<li>
+<p><strong>Misc.VirtualSize</strong>（内存中的大小，也是对齐前的大小）：直接按对齐后写，不用想实际用到多少。比如可能只用到20个字节，这里直接按对齐SectionAlighment（0x1000）后填，比如0x1000。</p>
+</li>
+<li>
+<p><strong>VirtualAddress</strong>：两种计算方式</p>
+<ol>
+<li>
+<p>计算方式一：节表中最后一个节的VirtualAddress+max{VirtualSize，SizeOfRawData}。如果是VirtualSize&gt;SizeOfRawData，要取VirtualSize按内存对齐后的值<br />
+例：倒数第二个节和最后一个节节表部分字段如下：</p>
+<table>
+<thead>
+<tr>
+<th>节</th>
+<th>字段</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>最后一个节</td>
+<td>VirtualSize</td>
+<td>5FD8</td>
+</tr>
+<tr>
+<td></td>
+<td>VirtualAddress</td>
+<td>23000</td>
+</tr>
+<tr>
+<td></td>
+<td>SizeOfRawData</td>
+<td>4000</td>
+</tr>
+<tr>
+<td></td>
+<td>PointerToRawData</td>
+<td>23000</td>
+</tr>
+</tbody>
+</table>
+<p>VirtualSize(5FD8)&gt;SizeOfRawData(4000)，新添加的节要从VirtualAddress（23000）+VirtualSize按SectionAlignment对齐后的大小（6000h）=29000h开始放</p>
+<blockquote>
+<p>不过一般情况下最后一个节不是数据区，只有这个节因为含有初始化数据才会导致VirtualSize&gt;SizeOfRawData</p>
+</blockquote>
+</li>
+<li>
+<p>计算方式二：SizeOfImage</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>SizeOfRawData</strong>（文件中的大小，这个值也是按文件对齐后的大小）：这个值要按文件对齐。比如VirtualAddress写了0x1000，即使文件对齐值是200h，这里也写0x1000。</p>
+<blockquote>
+<p>总之，Misc.VirtualSize和SizeOfRawData都按对齐后写比较方便。</p>
+</blockquote>
+</li>
+<li>
+<p><strong>PointerToRawData</strong>：节表中最后一个节的PointerToRawData+SizeOfRawData</p>
+</li>
+<li>
+<p><code>PointerToRelocations</code>：没啥用，填0</p>
+</li>
+<li>
+<p><code>PointerToLinenumbers</code>：没啥用，填0</p>
+</li>
+<li>
+<p><code>NumberOfRelocations</code>：没啥用，填0</p>
+</li>
+<li>
+<p><code>NumberOfLinenumbers</code>：没啥用，填0</p>
+</li>
+<li>
+<p><strong>Characteristics</strong>：看是否需要这个节增加可执行属性</p>
+</li>
+</ul>
+</li>
+<li>
+<p>更新PE头中节的数量</p>
+</li>
+<li>
+<p>更新SizeOfImage的大小<br />
+原SizeOfImage+新增节.VirtualSize按内存对齐后的值</p>
+</li>
+<li>
+<p>在原有数据的最后，新增一个节的数据(内存对齐的整数倍)</p>
+</li>
+</ol>
+<hr />
+<p>笔记参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Edimade/article/details/124540973">滴水三期：day33.1-新增节、扩大节-添加代码</a></p>
+<h2 id="编程实现"><a class="markdownIt-Anchor" href="#编程实现"></a> 编程实现</h2>
+<p>因为ImageBuffer的空间是事先申请好的指定大小，没法在尾巴追加。所以在ImageBuffer上操作1-4步，然后新申请大小为<code>原SizeOfImage+扩大的字节数</code>大小的NewImageBuffer，然后将ImageBuffer依次拷到NewImageBuffer。通过这样的方式在尾巴“新增节数据”。</p>
+<ol start="0">
+<li>
+<p>代码是在ImageBuffer上操作，先获取ImageBuffer上相关的PE头指针</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">PEHeaders ImagePEHeaders&#123; <span class="literal">nullptr</span> &#125;;</span><br><span class="line"><span class="keyword">if</span> (!<span class="built_in">ExtractPEPointersFromBuffer</span>(m_lpImageBuffer, ImagePEHeaders))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [!] (In %s)  Extract the PE Pointers of ImageBuffer failed\n&quot;</span>, __func__);</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;   [+] Extract the PE Pointers of ImageBuffer successfully.\n&quot;</span>);</span><br><span class="line"><span class="keyword">if</span> (!ImagePEHeaders.DosHdr || !ImagePEHeaders.NtHdr ||              <span class="comment">// 检查所有PEHeaders成员是否有效，避免编译器警告</span></span><br><span class="line">    !ImagePEHeaders.PeHdr || !ImagePEHeaders.OptionalPeHdr ||</span><br><span class="line">    !ImagePEHeaders.SecHdr)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [!] One or more PE Header pointers are invalid\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>判断现有的节表后是否有足够的空间新添加一个节表<br />
+判断条件1：剩余空间=SizeOfHeaders-DOS总大小（DOS MZ+Dos Stub）-NT头总大小（NT头+标准PE头+扩展PE头）-节表总大小 是否 &gt;  80。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1、判断现有的节表后是否有足够的空间新添加一个节表</span></span><br><span class="line"><span class="comment">// 计算各个部分的大小</span></span><br><span class="line">DWORD SizeDos = ImagePEHeaders.DosHdr-&gt;e_lfanew;                                                    <span class="comment">// DOS头的大小（DOS MZ+DOS Stub）</span></span><br><span class="line">DWORD SizeNtHdr = <span class="built_in">sizeof</span>(ImagePEHeaders.NtHdr-&gt;Signature) + IMAGE_SIZEOF_FILE_HEADER </span><br><span class="line">                     + ImagePEHeaders.PeHdr-&gt;SizeOfOptionalHeader;                                  <span class="comment">//NT头的总大小</span></span><br><span class="line">DWORD SizeSectionHeaders = ImagePEHeaders.PeHdr-&gt;NumberOfSections * <span class="built_in">sizeof</span>(IMAGE_SECTION_HEADER);   <span class="comment">//节表的总大小</span></span><br><span class="line">   </span><br><span class="line">DWORD dwAvailableSpace = ImagePEHeaders.OptionalPeHdr-&gt;SizeOfHeaders</span><br><span class="line">    - SizeDos</span><br><span class="line">    - SizeNtHdr</span><br><span class="line">    - SizeSectionHeaders;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;   [+] Available space after the last section header: %lu bytes\n&quot;</span>, dwAvailableSpace);</span><br></pre></td></tr></table></figure>
+<p>空间够就新增节表信息。<br />
+剩余空间不够时，要利用Dos Stub的空间，这会出现两种情况。情况一：即使NT头上移完全占用Dos Stub全部的空间，可用空间也不够80字节。<br />
+代码实现：实在没法新增节，那么就退出函数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//dwAvailableSpace + SizeDosStub 的空间 &lt;80，即使上移NT头，空间也不够</span></span><br><span class="line">DWORD SizeDosStub = ImagePEHeaders.DosHdr-&gt;e_lfanew - <span class="built_in">sizeof</span>(IMAGE_DOS_HEADER);                     <span class="comment">//DOS Stub块大小</span></span><br><span class="line"><span class="keyword">if</span> (dwAvailableSpace + SizeDosStub &lt; <span class="number">80</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [!] Not enough space to add a new section header even after potential NT header shift. Required: 80 bytes, available: %lu bytes.\n&quot;</span>, dwAvailableSpace + SizeDosStub);</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的判断条件1即使满足（剩余空间&gt;80字节），也不能就开始新加节表，比如winxp下的notepad剩余空间是有的，但编译器在节表后加了一堆数据，我们没办法证明这些数据没有用，所以保险做法是不覆盖。在这种情况下，即使剩余空间&gt;80字节，但因为编译器插入了数据，也算作没有足够的空间新添一个节表。所以当条件1满足时，还要继续加上判断条件2：后面的80字节是否有编译器插入的数据。具体代码就是判断是否节表后的空间是否只包含零。</p>
+<blockquote>
+<p>也遇到过节表结尾的不是全0节表，会有两个40。这种情况没法再进行分类，也进行NT头上移处理</p>
+</blockquote>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%96%B0%E5%A2%9E%E8%8A%82/image-20240412180935775.png" alt="image-20240412180935775" /></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 检查现有节表后的80字节是否全为0，是否有数据</span></span><br><span class="line">BYTE zeroData[<span class="number">80</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">BYTE* checkSpace = (BYTE*)ImagePEHeaders.NtHdr + SizeNtHdr + SizeSectionHeaders;</span><br><span class="line"><span class="type">bool</span> isDataClean = <span class="built_in">memcmp</span>(checkSpace, zeroData, <span class="number">80</span>) == <span class="number">0</span>; </span><br></pre></td></tr></table></figure>
+<p>情况二：通过NT头上移能获得足够的空间。<br />
+具体代码：提示输出说空间不够，询问用户是否进行NT头上移操作，用户输入非法的话要重新输入</p>
+<ul>
+<li>用户输入小写y、大写Y，回车就进行</li>
+<li>用户输入小写n、大写N，就不进行，退出函数</li>
+</ul>
+<figure class="highlight cpp"><figcaption><span>空间不够，询问用户是否上移NT头（带非法输入检查）</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (dwAvailableSpace &lt; <span class="number">80</span> || !isDataClean)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [!] Not enough space to add a new section header. Required: 80 bytes. \n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [*] Do you want to shift the NT Headers upwards to make space? [Y/n]: &quot;</span>);</span><br><span class="line">    <span class="type">char</span> cResponse;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">scanf_s</span>(<span class="string">&quot; %c&quot;</span>, &amp;cResponse, <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (cResponse == <span class="string">&#x27;\n&#x27;</span> || cResponse == <span class="string">&#x27;Y&#x27;</span> || cResponse == <span class="string">&#x27;y&#x27;</span>) </span><br><span class="line">        &#123;</span><br><span class="line">            cResponse = <span class="string">&#x27;Y&#x27;</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (cResponse == <span class="string">&#x27;N&#x27;</span> || cResponse == <span class="string">&#x27;n&#x27;</span>) </span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;   Operation cancelled by user.\n&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> FALSE;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> </span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;   Invalid input. Please enter Y (yes) or N (no): &quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">   </span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>算Dos Stub大小并输出这个值。让用户能知道移动的字节数范围[80 - dwAvailableSpace，DosStub块大小]，让用户输要上移多少字节。如果输入非法，要求重输</p>
+<figure class="highlight cpp"><figcaption><span>输出显示能上移NT头的范围并让用户选择上移多少字节（有非法输入检查）</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 能将NT头上移多少</span></span><br><span class="line">DWORD SizeDosStub = ImagePEHeaders.DosHdr-&gt;e_lfanew - <span class="built_in">sizeof</span>(IMAGE_DOS_HEADER);</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;   Maximum shift size available: %lu bytes\n&quot;</span>, SizeDosStub);</span><br><span class="line"></span><br><span class="line">DWORD dwShiftSize;</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   Enter the number of bytes to shift NT Headers (up to %lu bytes, minimum required: %lu): &quot;</span>, SizeDosStub, <span class="number">80</span> - dwAvailableSpace);</span><br><span class="line">    <span class="built_in">scanf_s</span>(<span class="string">&quot;%lu&quot;</span>, &amp;dwShiftSize);</span><br><span class="line">    <span class="keyword">if</span> (dwShiftSize &lt; <span class="number">80</span> - dwAvailableSpace || dwShiftSize &gt; SizeDosStub) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;   Invalid shift size. Please enter a value within the valid range.\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+<p><strong>上移NT头</strong><br />
+用memcpy从NT头起拷（NT头总大小+节表大小）大小到（NT头-上移字节数）；<br />
+将原节表后shiftSize的字节都置0，因为原来的数据变垃圾数据了，置0（原节表末尾往前算dwShiftSize的字节数置为0）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//上移NT头</span></span><br><span class="line"><span class="built_in">memcpy</span>((LPBYTE)ImagePEHeaders.NtHdr - dwShiftSize, ImagePEHeaders.NtHdr, SizeNtHdr + SizeSectionHeaders);</span><br><span class="line"><span class="built_in">memset</span>((LPBYTE)ImagePEHeaders.NtHdr + SizeNtHdr + SizeSectionHeaders - dwShiftSize, <span class="number">0</span>, dwShiftSize); <span class="comment">// Clear the old area</span></span><br></pre></td></tr></table></figure>
+<p>修改e_lfanew指向新的NT头起始位置</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ImagePEHeaders.DosHdr-&gt;e_lfanew -= dwShiftSize; <span class="comment">// Update the e_lfanew to point to the new NT header start</span></span><br></pre></td></tr></table></figure>
+<p>上移NT头的操作完毕后，要重新获取PE相关的头指针，因为NT头有变化。后面要用到这些PE头来新增成员</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Re-extract pointers due to NT header movement</span></span><br><span class="line"><span class="built_in">ExtractPEPointersFromBuffer</span>(m_lpImageBuffer, ImagePEHeaders);</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>完整代码</span></summary><div class="body"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1、判断现有的节表后是否有足够的空间新添加一个节表</span></span><br><span class="line"><span class="comment">// 计算各个部分的大小</span></span><br><span class="line">DWORD SizeDos = ImagePEHeaders.DosHdr-&gt;e_lfanew;                                                    <span class="comment">// DOS头的大小（DOS MZ+DOS Stub）</span></span><br><span class="line">DWORD SizeNtHdr = <span class="built_in">sizeof</span>(ImagePEHeaders.NtHdr-&gt;Signature) + IMAGE_SIZEOF_FILE_HEADER </span><br><span class="line">                     + ImagePEHeaders.PeHdr-&gt;SizeOfOptionalHeader;                                  <span class="comment">//NT头的总大小</span></span><br><span class="line">DWORD SizeSectionHeaders = ImagePEHeaders.PeHdr-&gt;NumberOfSections * <span class="built_in">sizeof</span>(IMAGE_SECTION_HEADER);   <span class="comment">//节表的总大小</span></span><br><span class="line">   </span><br><span class="line">DWORD dwAvailableSpace = ImagePEHeaders.OptionalPeHdr-&gt;SizeOfHeaders</span><br><span class="line">    - SizeDos</span><br><span class="line">    - SizeNtHdr</span><br><span class="line">    - SizeSectionHeaders;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;   [+] Available space after the last section header: %lu bytes\n&quot;</span>, dwAvailableSpace);</span><br><span class="line">   </span><br><span class="line"><span class="comment">//dwAvailableSpace + SizeDosStub 的空间 &lt;80，即使上移NT头，空间也不够</span></span><br><span class="line">DWORD SizeDosStub = ImagePEHeaders.DosHdr-&gt;e_lfanew - <span class="built_in">sizeof</span>(IMAGE_DOS_HEADER);                     <span class="comment">//DOS Stub块大小</span></span><br><span class="line"><span class="keyword">if</span> (dwAvailableSpace + SizeDosStub &lt; <span class="number">80</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [!] Not enough space to add a new section header even after potential NT header shift. Required: 80 bytes, available: %lu bytes.\n&quot;</span>, dwAvailableSpace + SizeDosStub);</span><br><span class="line">    <span class="keyword">return</span> FALSE;</span><br><span class="line">&#125;</span><br><span class="line">   </span><br><span class="line"><span class="comment">// 检查现有节表后的80字节是否全为0，是否有数据</span></span><br><span class="line">BYTE zeroData[<span class="number">80</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">BYTE* checkSpace = (BYTE*)ImagePEHeaders.NtHdr + SizeNtHdr + SizeSectionHeaders;</span><br><span class="line"><span class="type">bool</span> isDataClean = <span class="built_in">memcmp</span>(checkSpace, zeroData, <span class="number">80</span>) == <span class="number">0</span>; </span><br><span class="line">   </span><br><span class="line"><span class="keyword">if</span> (dwAvailableSpace &lt; <span class="number">80</span> || !isDataClean)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [!] Not enough space to add a new section header. Required: 80 bytes. \n&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [*] Do you want to shift the NT Headers upwards to make space? [Y/n]: &quot;</span>);</span><br><span class="line">    <span class="type">char</span> cResponse;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">scanf_s</span>(<span class="string">&quot; %c&quot;</span>, &amp;cResponse, <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (cResponse == <span class="string">&#x27;\n&#x27;</span> || cResponse == <span class="string">&#x27;Y&#x27;</span> || cResponse == <span class="string">&#x27;y&#x27;</span>) </span><br><span class="line">        &#123;</span><br><span class="line">            cResponse = <span class="string">&#x27;Y&#x27;</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (cResponse == <span class="string">&#x27;N&#x27;</span> || cResponse == <span class="string">&#x27;n&#x27;</span>) </span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;   Operation cancelled by user.\n&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> FALSE;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> </span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;   Invalid input. Please enter Y (yes) or N (no): &quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 能将NT头上移多少</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   Maximum shift size available: %lu bytes\n&quot;</span>, SizeDosStub);</span><br><span class="line">    </span><br><span class="line">    DWORD dwShiftSize;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;   Enter the number of bytes to shift NT Headers (up to %lu bytes, minimum required: %lu): &quot;</span>, SizeDosStub, <span class="number">80</span> - dwAvailableSpace);</span><br><span class="line">        <span class="built_in">scanf_s</span>(<span class="string">&quot;%lu&quot;</span>, &amp;dwShiftSize);</span><br><span class="line">        <span class="keyword">if</span> (dwShiftSize &lt; <span class="number">80</span> - dwAvailableSpace || dwShiftSize &gt; SizeDosStub) </span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;   Invalid shift size. Please enter a value within the valid range.\n&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> </span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br><span class="line">   </span><br><span class="line">    <span class="comment">//上移NT头</span></span><br><span class="line">    <span class="built_in">memcpy</span>((LPBYTE)ImagePEHeaders.NtHdr - dwShiftSize, ImagePEHeaders.NtHdr, SizeNtHdr + SizeSectionHeaders);</span><br><span class="line">    <span class="built_in">memset</span>((LPBYTE)ImagePEHeaders.NtHdr + SizeNtHdr + SizeSectionHeaders - dwShiftSize, <span class="number">0</span>, dwShiftSize); <span class="comment">// Clear the old area</span></span><br><span class="line">   </span><br><span class="line">    <span class="comment">// Update the e_lfanew to point to the new NT header start</span></span><br><span class="line">    ImagePEHeaders.DosHdr-&gt;e_lfanew -= dwShiftSize; </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   NT Headers have been shifted up by %lu bytes.\n&quot;</span>, dwShiftSize);</span><br><span class="line">   </span><br><span class="line">    <span class="comment">// Re-extract pointers due to NT header movement</span></span><br><span class="line">    <span class="built_in">ExtractPEPointersFromBuffer</span>(m_lpImageBuffer, ImagePEHeaders);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></details></div>
+</li>
+<li>
+<p>在节表中新增一个成员，填写各个字段</p>
+<div class="tag-plugin tabs" align="center"id="tab_115"><div class="nav-tabs"><div class="tab active"><a href="#tab_115-1">VirtualSize和SizeOfRawData都写成0x1000</a></div><div class="tab"><a href="#tab_115-2">严谨点</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_115-1"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//2、在节表中新增一个成员，填写各个字段</span></span><br><span class="line">PIMAGE_SECTION_HEADER pSecHdrToLastSection = ImagePEHeaders.SecHdr + (ImagePEHeaders.PeHdr-&gt;NumberOfSections - <span class="number">1</span>);<span class="comment">//最后一个节表</span></span><br><span class="line">   </span><br><span class="line">IMAGE_SECTION_HEADER NewSectionTable = &#123; <span class="number">0</span> &#125;;                                   <span class="comment">//不重要的那些字段已为0了</span></span><br><span class="line"><span class="built_in">memcpy</span>(NewSectionTable.Name, <span class="string">&quot;.NewSec&quot;</span>, <span class="number">8</span>);                                          <span class="comment">// 注意：最多8个字符，不含NULL终止符</span></span><br><span class="line">                                                                                <span class="comment">//NewSectionTable.Name = &quot;.NewSec&quot;;</span></span><br><span class="line">NewSectionTable.Misc.VirtualSize = <span class="number">0x1000</span>;                                      <span class="comment">//新增0x1000大小</span></span><br><span class="line">NewSectionTable.VirtualAddress = ImagePEHeaders.OptionalPeHdr-&gt;SizeOfImage;</span><br><span class="line"><span class="comment">//NewSectionTable.VirtualAddress = pSecHdrToLastSection-&gt;                       //计算方法二，需要计算对齐值函数,,To do</span></span><br><span class="line">NewSectionTable.SizeOfRawData = <span class="number">0x1000</span>;                                          <span class="comment">//新增0x1000大小</span></span><br><span class="line">NewSectionTable.PointerToRawData = pSecHdrToLastSection-&gt;PointerToRawData + pSecHdrToLastSection-&gt;SizeOfRawData;</span><br><span class="line">NewSectionTable.Characteristics = IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE | IMAGE_SCN_CNT_CODE; <span class="comment">//该块包含执行代码，可读、可写、可执行</span></span><br><span class="line">   </span><br><span class="line">PIMAGE_SECTION_HEADER pNewSection = ImagePEHeaders.SecHdr + ImagePEHeaders.PeHdr-&gt;NumberOfSections;</span><br><span class="line"><span class="built_in">memcpy</span>(pNewSection, &amp;NewSectionTable, <span class="built_in">sizeof</span>(IMAGE_SECTION_HEADER));    <span class="comment">//将新增的节表追加到最后一个节表后面</span></span><br><span class="line"><span class="built_in">memcpy</span>(pNewSection + <span class="number">1</span>, <span class="number">0</span>, <span class="built_in">sizeof</span>(IMAGE_SECTION_HEADER));               <span class="comment">//再添加一个全为0的节表收尾，作为结束标志</span></span><br></pre></td></tr></table></figure></div><div class="tab-pane" id="tab_115-2"><p>假设函数接收一个参数DWORD类型的参数dwSectionSizeInFile，表示新增节的实际大小<br />
+那么VirtualSize和SizeOfRawData会变为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NewSectionTable.Misc.VirtualSize = dwNewSectionSize;                         <span class="comment">//实际的大小</span></span><br><span class="line">   </span><br><span class="line">NewSectionTable.SizeOfRawData = <span class="built_in">AlignUp</span>(dwNewSectionSize, ImagePEHeaders.OptionalPeHdr-&gt;FileAlignment);    <span class="comment">//按FileAlignment对齐后的大小 </span></span><br></pre></td></tr></table></figure>
+<p>更新SizeOfImage会变为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ImagePEHeaders.OptionalPeHdr-&gt;SizeOfImage += <span class="built_in">AlignUp</span>(newSectionSize, ImagePEHeaders.OptionalPeHdr-&gt;SectionAlignment);</span><br></pre></td></tr></table></figure>
+<p>AlignUp函数是计算一个数离一个对齐值最近的数是多少</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// This function aligns a given size up </span></span><br><span class="line"><span class="comment">// to the nearest multiple of the alignment value.</span></span><br><span class="line"><span class="function">DWORD <span class="title">AlignUp</span><span class="params">(DWORD dwSize, DWORD dwAlignment)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> (dwSize + dwAlignment - <span class="number">1</span>) &amp; ~(dwAlignment - <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></div></div>
+</li>
+<li>
+<p>更新节表数量</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 3. 更新节表数量</span></span><br><span class="line">++ImagePEHeaders.PeHdr-&gt;NumberOfSections;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>更新SizeOfImage的大小</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//4. 更新SizeOfImage的大小</span></span><br><span class="line">ImagePEHeaders.OptionalPeHdr-&gt;SizeOfImage += NewSectionTable.Misc.VirtualSize;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>完整代码</span></summary><div class="body"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">PEManipulator::AddANewSection</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PEHeaders ImagePEHeaders&#123; <span class="literal">nullptr</span> &#125;;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">ExtractPEPointersFromBuffer</span>(m_lpImageBuffer, ImagePEHeaders))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;   [!] (In %s)  Extract the PE Pointers of ImageBuffer failed\n&quot;</span>, __func__);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [+] Extract the PE Pointers of ImageBuffer successfully.\n&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!ImagePEHeaders.DosHdr || !ImagePEHeaders.NtHdr ||              <span class="comment">// 检查所有PEHeaders成员是否有效，避免编译器警告</span></span><br><span class="line">        !ImagePEHeaders.PeHdr || !ImagePEHeaders.OptionalPeHdr ||</span><br><span class="line">        !ImagePEHeaders.SecHdr)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;   [!] One or more PE Header pointers are invalid\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//1、判断现有的节表后是否有足够的空间新添加一个节表</span></span><br><span class="line">    <span class="comment">// 计算各个部分的大小</span></span><br><span class="line">    DWORD SizeDos = ImagePEHeaders.DosHdr-&gt;e_lfanew;                                                    <span class="comment">// DOS头的大小（DOS MZ+DOS Stub）</span></span><br><span class="line">    DWORD SizeNtHdr = <span class="built_in">sizeof</span>(ImagePEHeaders.NtHdr-&gt;Signature) + IMAGE_SIZEOF_FILE_HEADER </span><br><span class="line">                         + ImagePEHeaders.PeHdr-&gt;SizeOfOptionalHeader;                                  <span class="comment">//NT头的总大小</span></span><br><span class="line">    DWORD SizeSectionHeaders = ImagePEHeaders.PeHdr-&gt;NumberOfSections * <span class="built_in">sizeof</span>(IMAGE_SECTION_HEADER);   <span class="comment">//节表的总大小</span></span><br><span class="line"></span><br><span class="line">    DWORD dwAvailableSpace = ImagePEHeaders.OptionalPeHdr-&gt;SizeOfHeaders</span><br><span class="line">        - SizeDos</span><br><span class="line">        - SizeNtHdr</span><br><span class="line">        - SizeSectionHeaders;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [+] Available space after the last section header: %lu bytes\n&quot;</span>, dwAvailableSpace);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//dwAvailableSpace + SizeDosStub 的空间 &lt;80，即使上移NT头，空间也不够</span></span><br><span class="line">    DWORD SizeDosStub = ImagePEHeaders.DosHdr-&gt;e_lfanew - <span class="built_in">sizeof</span>(IMAGE_DOS_HEADER);                     <span class="comment">//DOS Stub块大小</span></span><br><span class="line">    <span class="keyword">if</span> (dwAvailableSpace + SizeDosStub &lt; <span class="number">80</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;   [!] Not enough space to add a new section header even after potential NT header shift. Required: 80 bytes, available: %lu bytes.\n&quot;</span>, dwAvailableSpace + SizeDosStub);</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查现有节表后的80字节是否全为0，是否有数据</span></span><br><span class="line">    BYTE zeroData[<span class="number">80</span>] = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">    BYTE* checkSpace = (BYTE*)ImagePEHeaders.NtHdr + SizeNtHdr + SizeSectionHeaders;</span><br><span class="line">    <span class="type">bool</span> isDataClean = <span class="built_in">memcmp</span>(checkSpace, zeroData, <span class="number">80</span>) == <span class="number">0</span>; </span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (dwAvailableSpace &lt; <span class="number">80</span> || !isDataClean)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;   [!] Not enough space to add a new section header. Required: 80 bytes. \n&quot;</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;   [*] Do you want to shift the NT Headers upwards to make space? [Y/n]: &quot;</span>);</span><br><span class="line">        <span class="type">char</span> cResponse;</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) </span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">scanf_s</span>(<span class="string">&quot; %c&quot;</span>, &amp;cResponse, <span class="number">1</span>);</span><br><span class="line">            <span class="keyword">if</span> (cResponse == <span class="string">&#x27;\n&#x27;</span> || cResponse == <span class="string">&#x27;Y&#x27;</span> || cResponse == <span class="string">&#x27;y&#x27;</span>) </span><br><span class="line">            &#123;</span><br><span class="line">                cResponse = <span class="string">&#x27;Y&#x27;</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (cResponse == <span class="string">&#x27;N&#x27;</span> || cResponse == <span class="string">&#x27;n&#x27;</span>) </span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;   Operation cancelled by user.\n&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> FALSE;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> </span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;   Invalid input. Please enter Y (yes) or N (no): &quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 能将NT头上移多少</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;   Maximum shift size available: %lu bytes\n&quot;</span>, SizeDosStub);</span><br><span class="line">        </span><br><span class="line">        DWORD dwShiftSize;</span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;   Enter the number of bytes to shift NT Headers (up to %lu bytes, minimum required: %lu): &quot;</span>, SizeDosStub, <span class="number">80</span> - dwAvailableSpace);</span><br><span class="line">            <span class="built_in">scanf_s</span>(<span class="string">&quot;%lu&quot;</span>, &amp;dwShiftSize);</span><br><span class="line">            <span class="keyword">if</span> (dwShiftSize &lt; <span class="number">80</span> - dwAvailableSpace || dwShiftSize &gt; SizeDosStub) </span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;   Invalid shift size. Please enter a value within the valid range.\n&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> </span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//上移NT头</span></span><br><span class="line">        <span class="built_in">memcpy</span>((LPBYTE)ImagePEHeaders.NtHdr - dwShiftSize, ImagePEHeaders.NtHdr, SizeNtHdr + SizeSectionHeaders);</span><br><span class="line">        <span class="built_in">memset</span>((LPBYTE)ImagePEHeaders.NtHdr + SizeNtHdr + SizeSectionHeaders - dwShiftSize, <span class="number">0</span>, dwShiftSize); <span class="comment">// Clear the old area</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// Update the e_lfanew to point to the new NT header start</span></span><br><span class="line">        ImagePEHeaders.DosHdr-&gt;e_lfanew -= dwShiftSize; </span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;   NT Headers have been shifted up by %lu bytes.\n&quot;</span>, dwShiftSize);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Re-extract pointers due to NT header movement</span></span><br><span class="line">        <span class="built_in">ExtractPEPointersFromBuffer</span>(m_lpImageBuffer, ImagePEHeaders);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//2、在节表中新增一个成员，填写各个字段</span></span><br><span class="line">    PIMAGE_SECTION_HEADER pSecHdrToLastSection = ImagePEHeaders.SecHdr + (ImagePEHeaders.PeHdr-&gt;NumberOfSections - <span class="number">1</span>);<span class="comment">//最后一个节表</span></span><br><span class="line"></span><br><span class="line">    IMAGE_SECTION_HEADER NewSectionTable = &#123; <span class="number">0</span> &#125;;                                   <span class="comment">//不重要的那些字段已为0了</span></span><br><span class="line">    <span class="built_in">memcpy</span>(NewSectionTable.Name, <span class="string">&quot;.NewSec&quot;</span>, <span class="number">8</span>);                                          <span class="comment">// 注意：最多8个字符，不含NULL终止符</span></span><br><span class="line">                                                                                    <span class="comment">//NewSectionTable.Name = &quot;.NewSec&quot;;</span></span><br><span class="line">    NewSectionTable.Misc.VirtualSize = <span class="number">0x1000</span>;                                      <span class="comment">//新增0x1000大小</span></span><br><span class="line">    NewSectionTable.VirtualAddress = ImagePEHeaders.OptionalPeHdr-&gt;SizeOfImage;</span><br><span class="line">    <span class="comment">//NewSectionTable.VirtualAddress = pSecHdrToLastSection-&gt;                       //计算方法二，需要计算对齐值函数,,To do</span></span><br><span class="line">    NewSectionTable.SizeOfRawData = <span class="number">0x1000</span>;                                          <span class="comment">//新增0x1000大小</span></span><br><span class="line">    NewSectionTable.PointerToRawData = pSecHdrToLastSection-&gt;PointerToRawData + pSecHdrToLastSection-&gt;SizeOfRawData;</span><br><span class="line">    NewSectionTable.Characteristics = IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE | IMAGE_SCN_CNT_CODE; <span class="comment">//该块包含执行代码，可读、可写、可执行</span></span><br><span class="line"></span><br><span class="line">    PIMAGE_SECTION_HEADER pNewSection = ImagePEHeaders.SecHdr + ImagePEHeaders.PeHdr-&gt;NumberOfSections;</span><br><span class="line">    <span class="built_in">memcpy</span>(pNewSection, &amp;NewSectionTable, <span class="built_in">sizeof</span>(IMAGE_SECTION_HEADER));    <span class="comment">//将新增的节表追加到最后一个节表后面</span></span><br><span class="line">    <span class="built_in">memcpy</span>(pNewSection + <span class="number">1</span>, <span class="number">0</span>, <span class="built_in">sizeof</span>(IMAGE_SECTION_HEADER));               <span class="comment">//再添加一个全为0的节表收尾，作为结束标志</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 更新节表数量</span></span><br><span class="line">    ++ImagePEHeaders.PeHdr-&gt;NumberOfSections;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//4. 更新SizeOfImage的大小</span></span><br><span class="line">    ImagePEHeaders.OptionalPeHdr-&gt;SizeOfImage += NewSectionTable.Misc.VirtualSize;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;   [+] A new section has been added successfully.\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div></details></div>
+<h2 id="测试"><a class="markdownIt-Anchor" href="#测试"></a> 测试</h2>
+<p>File-&gt;FileBuffer-&gt;ImageBuffer，在ImageBuffer上新增节表信息，ImageBuffer-&gt;NewImageBuffer-&gt;NewFileBuffer-&gt;存盘</p>
+<p>感觉不用那么麻烦，新增一块原SizeOfImage+新的大小，整块对拷，然后改。但也有问题，如果没法改的话，已经申请NewImageBuffer了。</p>
+<p>在ImageBuffer上加代码会比较方便。如果仅仅是新增节，可以在FileBuffer上修改相关的信息，然后新增一个Buffer，从FileBuffer拷过去，再存盘即可。</p>
+<ul>
+<li><code>fflush(stdout);</code> 确保在用户看到输入提示之前没有输出缓存的延迟。</li>
+<li><code>scanf(&quot; %c&quot;, &amp;cResponse);</code> 尝试读取一个字符，前面的空格用于忽略任何前导空白字符，包括之前的回车。</li>
+<li>如果<code>scanf</code>因用户只按回车而没有读到字符，<code>result</code>将是0。此时可以设置<code>cResponse</code>为’Y’来模拟默认选择。</li>
+<li>使用<code>fflush(stdin);</code>在每次循环迭代后清空标准输入，这防止之前的错误输入影响到后续的读取（注意：<code>fflush(stdin);</code>在一些环境中是未定义行为，但在很多编译器上可以正常工作）。如果你的环境中<code>fflush(stdin);</code>是未定义的，你可能需要找到替代方法来清除输入缓冲区。</li>
+<li>循环持续直到输入被确认为有效。</li>
+<li><code>scanf_s</code> 要求指定每个接收缓冲区的大小，对于单个字符，我们使用<code>1</code>作为大小。</li>
+<li><code>while (getchar() != '\n');</code> 用来清空输入缓冲区，确保所有之前的错误输入都被清除，这避免了使用<code>fflush(stdin);</code>的不确定性。</li>
+</ul>
+<p>AlignUP函数解释：</p>
+<p>AlignUp函数的实现主要是利用位操作来确保一个给定的数值按照指定的对齐单位向上对齐。下面是函数的解释和逐步说明：</p>
+<h3 id="alignup函数逻辑"><a class="markdownIt-Anchor" href="#alignup函数逻辑"></a> AlignUp函数逻辑</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DWORD <span class="title function_">AlignUp</span><span class="params">(DWORD size, DWORD alignment)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> (size + alignment - <span class="number">1</span>) &amp; ~(alignment - <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="步骤解释"><a class="markdownIt-Anchor" href="#步骤解释"></a> 步骤解释</h3>
+<ol>
+<li>
+<p><strong><code>size + alignment - 1</code></strong>：</p>
+<ul>
+<li>这一步的目的是确保在计算对齐的过程中，如果<code>size</code>已经是<code>alignment</code>的倍数，它保持不变；如果不是，它会被增加到下一个<code>alignment</code>的倍数。</li>
+<li>例如，如果<code>size</code>是1023（<code>0x3FF</code>），且<code>alignment</code>是1024（<code>0x400</code>），那么<code>size + alignment - 1</code>的结果是<code>0x3FF + 0x3FF = 0x7FE</code>。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>alignment - 1</code></strong>：</p>
+<ul>
+<li>这个表达式生成一个掩码，该掩码的所有低位都是1，直到<code>alignment</code>的位宽。例如，对于1024 (<code>0x400</code>)，<code>alignment - 1</code>就是<code>0x3FF</code>（即二进制的<code>1111111111</code>）。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>~(alignment - 1)</code></strong>：</p>
+<ul>
+<li>对<code>alignment - 1</code>取反得到的掩码在低位是0，在高位是1。继续使用1024作为例子，结果将是<code>FFFFFC00</code>（对于32位操作）。这个掩码用于将任何数清零到最接近的更大的<code>alignment</code>倍数。</li>
+</ul>
+</li>
+<li>
+<p><strong>使用掩码 <code>&amp;</code></strong>：</p>
+<ul>
+<li>将<code>size + alignment - 1</code>的结果与上述掩码进行与操作（<code>&amp;</code>），结果将是最接近的大于等于<code>size</code>的<code>alignment</code>的倍数。这是通过将<code>size + alignment - 1</code>的低位清零实现的。</li>
+</ul>
+</li>
+</ol>
+<h3 id="示例"><a class="markdownIt-Anchor" href="#示例"></a> 示例</h3>
+<ul>
+<li>假设<code>size = 1025</code> (<code>0x401</code>) 和 <code>alignment = 1024</code> (<code>0x400</code>)：
+<ul>
+<li><code>size + alignment - 1</code> = <code>1025 + 1023</code> = <code>2048</code> (<code>0x800</code>)</li>
+<li><code>~(alignment - 1)</code> = <code>~(1023)</code> = <code>FFFFFC00</code></li>
+<li><code>(size + alignment - 1) &amp; ~(alignment - 1)</code> = <code>0x800 &amp; FFFFFC00</code> = <code>0x800</code></li>
+</ul>
+</li>
+</ul>
+<p>所以，如果你传入<code>1025</code>为<code>size</code>和<code>1024</code>为<code>alignment</code>，<code>AlignUp</code>将返回<code>2048</code>，这是大于<code>1025</code>的最小的<code>1024</code>的倍数。</p>
+<p>希望这样的解释有助于理解<code>AlignUp</code>函数的内部逻辑！如果还有其他问题，请继续提问。</p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/PE/%E6%89%A9%E5%A4%A7%E8%8A%82.html">扩大节</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/PE/%E5%90%88%E5%B9%B6%E8%8A%82.html">合并节</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

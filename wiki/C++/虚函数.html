@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>C++：虚函数 - Misc010</title>
+
+  
+    <meta name="description" content="直接调用和间接调用 12345678910111213141516171819202122232425262728293031323334#include &lt;stdio.h&gt;class Base			&#123;			public:			    void Function_1()			    &#123;			        printf(&quot;Function_1...\n&amp;">
+<meta property="og:type" content="website">
+<meta property="og:title" content="虚函数">
+<meta property="og:url" content="https://misc0101.github.io/wiki/C++/%E8%99%9A%E5%87%BD%E6%95%B0.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="直接调用和间接调用 12345678910111213141516171819202122232425262728293031323334#include &lt;stdio.h&gt;class Base			&#123;			public:			    void Function_1()			    &#123;			        printf(&quot;Function_1...\n&amp;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228101949260.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228102023471.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228102059559.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228102831920.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228103011203.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228103103286.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228103515499.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228104022676.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228144841863.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228150112365.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228151456401.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228153816541.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228154233055.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228154859357.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228155228963.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228180531164.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228175939392.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228180943178.png">
+<meta property="article:published_time" content="2024-02-28T02:05:21.000Z">
+<meta property="article:modified_time" content="2024-02-28T02:05:21.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228101949260.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><div class="main" ff="title">C++</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/C++/" placeholder="在/wiki/C++/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">封装/隐藏实现</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html#start"><span class="toc-text">封装和this指针</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E5%92%8C%E6%9E%90%E6%9E%84%E5%87%BD%E6%95%B0.html"><span class="toc-text">构造函数和析构函数</span></a></div></div><div class="widget-header cap dis-select"><span class="name">继承</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E7%BB%A7%E6%89%BF.html"><span class="toc-text">继承</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E7%B1%BB%E6%88%90%E5%91%98%E7%9A%84%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6.html"><span class="toc-text">类成员的访问控制</span></a></div></div><div class="widget-header cap dis-select"><span class="name">基本概念-I</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E5%9C%A8%E5%A0%86%E4%B8%AD%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1.html"><span class="toc-text">在堆中创建对象</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B.html"><span class="toc-text">引用类型</span></a></div></div><div class="widget-header cap dis-select"><span class="name">多态</span></div><div class="widget-body fs14"><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/C++/%E8%99%9A%E5%87%BD%E6%95%B0.html"><span class="toc-text">虚函数</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B4%E6%8E%A5%E8%B0%83%E7%94%A8%E5%92%8C%E9%97%B4%E6%8E%A5%E8%B0%83%E7%94%A8"><span class="toc-text"> 直接调用和间接调用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E7%9A%84%E5%A4%A7%E5%B0%8F"><span class="toc-text"> 类的大小</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%81%E6%98%8E%E6%95%B0%E7%BB%84%E4%B8%AD%E5%AD%98%E7%9A%84%E6%98%AF%E5%87%BD%E6%95%B0%E5%9C%B0%E5%9D%80"><span class="toc-text"> 证明数组中存的是函数地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%84%E6%83%85%E5%86%B5%E4%B8%8B%E8%99%9A%E8%A1%A8%E5%86%85%E5%AE%B9%E6%8E%A2%E6%B5%8B"><span class="toc-text"> 各情况下虚表内容探测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E7%BB%A7%E6%89%BF"><span class="toc-text"> 无继承</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%95%E7%BB%A7%E6%89%BF%E6%97%A0%E5%87%BD%E6%95%B0%E8%A6%86%E7%9B%96"><span class="toc-text"> 单继承+无函数覆盖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%95%E7%BB%A7%E6%89%BF%E6%9C%89%E5%87%BD%E6%95%B0%E8%A6%86%E7%9B%96"><span class="toc-text"> 单继承+有函数覆盖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E7%BB%A7%E6%89%BF%E6%97%A0%E5%87%BD%E6%95%B0%E8%A6%86%E7%9B%96"><span class="toc-text"> 多继承+无函数覆盖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E7%BB%A7%E6%89%BF%E6%9C%89%E5%87%BD%E6%95%B0%E8%A6%86%E7%9B%96"><span class="toc-text"> 多继承+有函数覆盖</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1"><span class="toc-text"> 例1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B2"><span class="toc-text"> 例2</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B3"><span class="toc-text"> 例3</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E6%97%A0%E5%87%BD%E6%95%B0%E8%A6%86%E7%9B%96"><span class="toc-text"> 多重继承+无函数覆盖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E9%87%8D%E7%BB%A7%E6%89%BF%E6%9C%89%E5%87%BD%E6%95%B0%E8%A6%86%E7%9B%96"><span class="toc-text"> 多重继承+有函数覆盖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text"> 小结</span></a></li></ol></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E5%A4%9A%E6%80%81.html"><span class="toc-text">多态</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/OOP%E4%B8%89%E5%A4%A7%E7%89%B9%E5%BE%81.html"><span class="toc-text">OOP三大特征</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E8%99%9A%E8%A1%A8.html"><span class="toc-text">虚表（简化版文章）</span></a></div></div><div class="widget-header cap dis-select"><span class="name">基本概念-II</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E5%8F%8B%E5%85%83.html"><span class="toc-text">友元</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E8%BF%90%E7%AE%97%E7%AC%A6%E9%87%8D%E8%BD%BD.html"><span class="toc-text">运算符重载</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E5%AF%B9%E8%B1%A1%E6%8B%B7%E8%B4%9D-%E6%8B%B7%E8%B4%9D%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0.html"><span class="toc-text">对象拷贝-拷贝构造函数</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E5%AF%B9%E8%B1%A1%E6%8B%B7%E8%B4%9D-%E9%87%8D%E8%BD%BD%E8%B5%8B%E5%80%BC%E8%BF%90%E7%AE%97%E7%AC%A6.html"><span class="toc-text">对象拷贝-重载赋值运算符</span></a></div></div><div class="widget-header cap dis-select"><span class="name">模板</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E6%A8%A1%E6%9D%BF.html"><span class="toc-text">模板</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E5%86%85%E9%83%A8%E7%B1%BB%EF%BC%88%E5%B5%8C%E5%A5%97%E7%B1%BB%EF%BC%89.html"><span class="toc-text">内部类（嵌套类）</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E8%BF%90%E7%AE%97%E7%AC%A6.html"><span class="toc-text">强制类型转换运算符</span></a></div></div><div class="widget-header cap dis-select"><span class="name">总结</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C++/%E5%B0%8F%E7%BB%93_C++.html"><span class="toc-text">小结</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><span class="title">汇编语言</span><span class="excerpt">x86汇编笔记：以滴水三期_汇编语言课程为框架，《汇编语言4th-王爽》和《汇编语言-基于x86处理器-第七版》为补充。</span></a><a class="item wiki" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><span class="title">C</span><span class="excerpt">滴水三期_C语言笔记，以逆向角度看待和学习C语言，精彩点：堆栈图与指针。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="title">科学上网技术</span><span class="excerpt">从正常网络通信数据包通信过程出发，逐步推导到使用代理协议进行科学上网，随后依次介绍各代理协议ss、trojan、vmess、vless原理与节点搭建，还有相关的工具、技术、概念介绍。</span></a><a class="item wiki" href="/wiki/Thinking_in_C++/Pointers.html"><span class="title">Thinking in C++</span><span class="excerpt">《Thinking in C++ vol 1》笔记，知识内化后的输出，少部分是摘抄，少用的细节不做记录用时在查，参考视频：《面向对象程序设计_C++_翁恺老师》。</span></a><a class="item wiki" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><span class="title">Windows API编程</span><span class="excerpt">滴水三期_win32 api笔记，学习Windows API编程的困难并不在于函数参数参数众多或者英文不好这类表象原因，而是需要从Windows系统的整体知识架构出发来学习这些API，深入理解每个参数背后的含义和背景。如此，未来查阅MSDN时便不再像是看天书。</span></a><a class="item wiki" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><span class="title">数据的运算与表示</span><span class="excerpt">滴水三期_进制笔记，学习与理解进制、数据宽度、数的表示、位运算等概念。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html">C++</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-02-28T02:05:21.000Z">2024-02-28</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>虚函数</span></h1>
+<h2 id="直接调用和间接调用"><a class="markdownIt-Anchor" href="#直接调用和间接调用"></a> 直接调用和间接调用</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>			</span><br><span class="line">&#123;			</span><br><span class="line"><span class="keyword">public</span>:			</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Function_1</span><span class="params">()</span>			</span></span><br><span class="line"><span class="function">    </span>&#123;			</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_1...\n&quot;</span>);			</span><br><span class="line">    &#125;			</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_2</span><span class="params">()</span>			</span></span><br><span class="line"><span class="function">    </span>&#123;			</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_2...\n&quot;</span>);			</span><br><span class="line">    &#125;			</span><br><span class="line">&#125;;			</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//value</span></span><br><span class="line">    Base b;</span><br><span class="line">    b.<span class="built_in">Function_1</span>();</span><br><span class="line">    b.<span class="built_in">Function_2</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">//pointer</span></span><br><span class="line">    Base* pb=&amp;b;</span><br><span class="line">    pb-&gt;<span class="built_in">Function_1</span>();</span><br><span class="line">    pb-&gt;<span class="built_in">Function_2</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">//reference</span></span><br><span class="line">    Base&amp; f=b;</span><br><span class="line">    f.<span class="built_in">Function_1</span>();</span><br><span class="line">    f.<span class="built_in">Function_2</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin tabs" align="center"id="tab_67"><div class="nav-tabs"><div class="tab active"><a href="#tab_67-1">by value</a></div><div class="tab"><a href="#tab_67-2">by pointer</a></div><div class="tab"><a href="#tab_67-3">by reference</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_67-1"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228101949260.png" alt="image-20240228101949260" /></p></div><div class="tab-pane" id="tab_67-2"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228102023471.png" alt="image-20240228102023471" /></p></div><div class="tab-pane" id="tab_67-3"><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228102059559.png" alt="image-20240228102059559" /></p></div></div></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>普通成员函数</th>
+<th>virtual函数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>by value</td>
+<td>直接call，E8 Call</td>
+<td>直接call，E8 Call</td>
+</tr>
+<tr>
+<td>by pointer</td>
+<td>直接call，E8 Call</td>
+<td>间接call，FF Call</td>
+</tr>
+<tr>
+<td>by reference</td>
+<td>直接call，E8 Call</td>
+<td>间接call，FF Call</td>
+</tr>
+</tbody>
+</table>
+<p><strong>小结</strong></p>
+<ul>
+<li>通过对象调用时，virtual函数与普通成员函数都是直接调用，E8 Call</li>
+<li>通过指针/引用调用时，virtual函数是间接call，FF Call</li>
+</ul>
+<p>只有通过指针/引用且调用的是虚函数，才是间接调用，FF Call</p>
+<h2 id="类的大小"><a class="markdownIt-Anchor" href="#类的大小"></a> 类的大小</h2>
+<div class="tag-plugin tabs" align="center"id="tab_68"><div class="nav-tabs"><div class="tab active"><a href="#tab_68-1">类中无虚函数</a></div><div class="tab"><a href="#tab_68-2">类中有一个虚函数</a></div><div class="tab"><a href="#tab_68-3">类中有两个虚函数</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_68-1"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Base</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        x = <span class="number">1</span>;</span><br><span class="line">        y = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Function_1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_1...\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Function_2</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_2...\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Base b;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%x\n&quot;</span>, <span class="built_in">sizeof</span>(b));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228102831920.png" alt="image-20240228102831920" /></p></div><div class="tab-pane" id="tab_68-2"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Base</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        x = <span class="number">1</span>;</span><br><span class="line">        y = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Function_1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_1...\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_2</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_2...\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Base b;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%x\n&quot;</span>, <span class="built_in">sizeof</span>(b));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228103011203.png" alt="image-20240228103011203" /></p></div><div class="tab-pane" id="tab_68-3"><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Base</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        x = <span class="number">1</span>;</span><br><span class="line">        y = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_1...\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_2</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_2...\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Base b;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%x\n&quot;</span>, <span class="built_in">sizeof</span>(b));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228103103286.png" alt="image-20240228103103286" /></p></div></div></div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>大小</th>
+<th>是谁</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>类中无虚函数</td>
+<td>8</td>
+<td>x，y</td>
+</tr>
+<tr>
+<td>类中有一个虚函数</td>
+<td>0xC</td>
+<td>4字节+x，y</td>
+</tr>
+<tr>
+<td>类中有两个虚函数</td>
+<td>0xC</td>
+<td>4字节+x，y</td>
+</tr>
+</tbody>
+</table>
+<p>当类中有虚函数后（有1个和有100个的情况一样），对象起始位置多了一个4字节的值，这个值是一个地址，该地址指向一张表，里面存储了所有虚函数的地址。</p>
+<p>以<code>类中有两个虚函数</code>为例，在Memory窗口看这个地址指向的数组中的值</p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228103515499.png" alt="image-20240228103515499" /></p>
+<blockquote>
+<p>这个地址称为虚函数地址表指针，vpointer，vptr</p>
+<p>这个数组被称为虚函数地址表（简称虚表），virtualtable，vtable</p>
+</blockquote>
+<h2 id="证明数组中存的是函数地址"><a class="markdownIt-Anchor" href="#证明数组中存的是函数地址"></a> 证明数组中存的是函数地址</h2>
+<p>如果存的是函数地址，说明可以用函数指针来调用。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Base</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        x = <span class="number">1</span>;</span><br><span class="line">        y = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_1...\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_2</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_2...\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_3</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_3...\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Base base;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//对象的前四个字节就是虚函数表地址		</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;b 的虚函数表地址为：%x\n&quot;</span>,*(<span class="type">int</span>*)&amp;base);		</span><br><span class="line"></span><br><span class="line">	<span class="comment">//通过函数指针调用函数，验证正确性				</span></span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">void</span><span class="params">(*pFunction)</span><span class="params">(<span class="type">void</span>)</span></span>;						</span><br><span class="line">	pFunction pFn;							</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;<span class="number">3</span>;i++)				</span><br><span class="line">	&#123;				</span><br><span class="line">		<span class="type">int</span> temp = *((<span class="type">int</span>*)(*(<span class="type">int</span>*)&amp;base)+i);			</span><br><span class="line">		pFn = (pFunction)temp;			</span><br><span class="line">		<span class="built_in">pFn</span>();			</span><br><span class="line">	&#125;	</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&amp;Base                           <span class="comment">//Base对象的地址，类型是Base*</span></span><br><span class="line">(DWORD*)&amp;Base                   <span class="comment">//Base对象的地址，强转为DWORD*指针类型</span></span><br><span class="line">*(DWORD*)&amp;Base                  <span class="comment">//vptr的值；对DWORD*类型取值，DWORD是4字节，所以从Base对象地址处开始取4字节</span></span><br><span class="line"></span><br><span class="line">(DWORD*)(*(DWORD*)&amp;base)        <span class="comment">//将vptr的值强转为DWORD*指针类型</span></span><br><span class="line">(DWORD*)(*(DWORD*)&amp;base) + i    <span class="comment">//指针+i个DWORD字节，就是虚表第i项</span></span><br><span class="line"></span><br><span class="line">*((DWORD*)(*(DWORD*)&amp;base))     <span class="comment">//加*取值，取出以vptr为地址处的值，即虚表项第一项的值（第一个虚函数地址）</span></span><br><span class="line">*((DWORD*)(*(DWORD*)&amp;base) + i) <span class="comment">//加*取值，取出虚表第i项的值</span></span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228104022676.png" alt="image-20240228104022676" /></p>
+<table border="1">
+  <tr>
+    <th>所属类</th>
+    <th>地址</th>
+    <th>成员变量</th>
+  </tr>
+  <tr>
+    <td rowspan="3">Base</td>
+    <td>0x0012FF68</td>
+    <td>vptr=0x00422e94</td>
+  </tr>
+  <tr>
+    <td>0x0012FF6C</td>
+    <td>x=1</td>
+  </tr>
+  <tr>
+    <td>0x0012FF70</td>
+    <td>y=2</td>
+  </tr>
+</table>
+<table border="1">
+  <tr>
+    <th>虚表</th>
+    <th>地址</th>
+    <th>值</th>
+    <th>内容</th>
+  </tr>
+  <tr>
+    <td rowspan="3">"vptr-><br>"<br>"</td>
+    <td>0x00422E94</td>
+    <td>0x0040101E</td>
+    <td>Base::Function_1函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422E98</td>
+    <td>0x00401019</td>
+    <td>Base::Function_2函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422E9C</td>
+    <td>0x00401023</td>
+    <td>Base::Function_3函数地址</td>
+  </tr>
+</table>
+<h2 id="各情况下虚表内容探测"><a class="markdownIt-Anchor" href="#各情况下虚表内容探测"></a> 各情况下虚表内容探测</h2>
+<h3 id="无继承"><a class="markdownIt-Anchor" href="#无继承"></a> 无继承</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Base</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        x = <span class="number">1</span>;</span><br><span class="line">        y = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_1 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_2</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_2 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_3</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function_3 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Base base;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对象的前四个字节就是虚函数表地址</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;b 的虚函数表地址为：%x\n&quot;</span>, *(DWORD *)&amp;base);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过函数指针调用函数，验证正确性</span></span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*pFunction)</span><span class="params">(<span class="type">void</span>)</span></span>;</span><br><span class="line">    pFunction pFn;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> temp = *((DWORD*)(*(DWORD*)&amp;base) + i);</span><br><span class="line">        pFn = (pFunction)temp;</span><br><span class="line">        <span class="built_in">pFn</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228144841863.png" alt="image-20240228144841863" /></p>
+<p>Base类：</p>
+<ul>
+<li>变量：x，y</li>
+<li>函数
+<ul>
+<li>虚函数Function_1</li>
+<li>虚函数Function_2</li>
+<li>虚函数Function_3</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>&#123;...&#125;;</span><br></pre></td></tr></table></figure>
+<table border="1">
+  <tr>
+    <th>所属类</th>
+    <th>地址</th>
+    <th>成员变量</th>
+  </tr>
+  <tr>
+    <td rowspan="3">Base</td>
+    <td>0x0012FF74</td>
+    <td>vptr=0x00422038</td>
+  </tr>
+  <tr>
+    <td>0x0012FF78</td>
+    <td>x=1</td>
+  </tr>
+  <tr>
+    <td>0x0012FF7C</td>
+    <td>y=2</td>
+  </tr>
+</table>
+<table border="1">
+  <tr>
+    <th>虚表</th>
+    <th>地址</th>
+    <th>值</th>
+    <th>内容</th>
+  </tr>
+  <tr>
+    <td rowspan="3">"vptr-><br>"<br>"</td>
+    <td>0x00422038</td>
+    <td>0x00401014</td>
+    <td>Base::Function_1函数地址</td>
+  </tr>
+  <tr>
+    <td>0x0042203C</td>
+    <td>0x00401005</td>
+    <td>Base::Function_2函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422040</td>
+    <td>0x0040100a</td>
+    <td>Base::Function_3函数地址</td>
+  </tr>
+</table>
+<h3 id="单继承无函数覆盖"><a class="markdownIt-Anchor" href="#单继承无函数覆盖"></a> 单继承+无函数覆盖</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Base</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        x = <span class="number">1</span>;</span><br><span class="line">        y = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Function_1 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_2</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Function_2 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_3</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Function_3 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Sub</span>:<span class="keyword">public</span> Base				</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> z;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Sub</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        z = <span class="number">3</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_4</span><span class="params">()</span>				</span></span><br><span class="line"><span class="function">    </span>&#123;				</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Sub::Function_4 called ... \n&quot;</span>);				</span><br><span class="line">    &#125;				</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_5</span><span class="params">()</span>				</span></span><br><span class="line"><span class="function">    </span>&#123;				</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Sub::Function_5 called ... \n&quot;</span>);				</span><br><span class="line">    &#125;				</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_6</span><span class="params">()</span>				</span></span><br><span class="line"><span class="function">    </span>&#123;				</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Sub::Function_6 called ... \n&quot;</span>);				</span><br><span class="line">    &#125;				</span><br><span class="line">&#125;;				</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Sub sub;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对象的前四个字节就是虚函数表地址</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Sub 的虚函数表地址为：%x\n&quot;</span>, *(DWORD*)&amp;sub);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过函数指针调用函数，验证正确性</span></span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*pFunction)</span><span class="params">(<span class="type">void</span>)</span></span>;</span><br><span class="line">    pFunction pFn;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">6</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> temp = *((DWORD*)(*(DWORD*)&amp;sub) + i);</span><br><span class="line">        pFn = (pFunction)temp;</span><br><span class="line">        <span class="built_in">pFn</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228150112365.png" alt="image-20240228150112365" /></p>
+<blockquote>
+<p>sub对象的vtable是有6项，变量监视窗口估计只显示了父类Base的，所以只显示了3项</p>
+</blockquote>
+<p>Base类：</p>
+<ul>
+<li>变量：x，y</li>
+<li>函数
+<ul>
+<li>虚函数Function_1</li>
+<li>虚函数Function_2</li>
+<li>虚函数Function_3</li>
+</ul>
+</li>
+</ul>
+<p>Sub类：</p>
+<ul>
+<li>变量：z</li>
+<li>函数
+<ul>
+<li>虚函数Function_4</li>
+<li>虚函数Function_5</li>
+<li>虚函数Function_6</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>&#123;...&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Sub</span>:<span class="keyword">public</span> Base&#123;...&#125;;</span><br></pre></td></tr></table></figure>
+<table border="1">
+  <tr>
+    <th>所属类</th>
+    <th>地址</th>
+    <th>成员变量</th>
+  </tr>
+  <tr>
+    <td rowspan="3">Base</td>
+    <td>0x0012FF68</td>
+    <td>vptr=0x0042303C</td>
+  </tr>
+  <tr>
+    <td>0x0012FF6C</td>
+    <td>x=1</td>
+  </tr>
+  <tr>
+    <td>0x0012FF70</td>
+    <td>y=2</td>
+  </tr>
+  <tr>
+    <td>Sub</td>
+    <td>0x0012FF74</td>
+    <td>z=3</td>
+  </tr>
+</table>
+<table border="1">
+  <tr>
+    <th>虚表</th>
+    <th>地址</th>
+    <th>值</th>
+    <th>内容</th>
+  </tr>
+  <tr>
+    <td rowspan="6">"vptr-><br><br><br><br><br><br><br><br><br></td>
+    <td>0x0042303C</td>
+    <td>0x00401028</td>
+    <td>Base::Function_1函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00423040</td>
+    <td>0x0040100F</td>
+    <td>Base::Function_2函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00423044</td>
+    <td>0x00401019</td>
+    <td>Base::Function_3函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00423048</td>
+    <td>0x00401023</td>
+    <td>Sub::Function_4函数地址</td>
+  </tr>
+  <tr>
+    <td>0x0042304C</td>
+    <td>0x00401005</td>
+    <td>Sub::Function_5函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00423050</td>
+    <td>0x00401014</td>
+    <td>Sub::Function_6函数地址</td>
+  </tr>
+</table>
+<h3 id="单继承有函数覆盖"><a class="markdownIt-Anchor" href="#单继承有函数覆盖"></a> 单继承+有函数覆盖</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Base</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        x = <span class="number">1</span>;</span><br><span class="line">        y = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Function_1 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_2</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Function_2 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_3</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Function_3 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Sub</span>:<span class="keyword">public</span> Base				</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> z;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Sub</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        z = <span class="number">3</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_1</span><span class="params">()</span>				</span></span><br><span class="line"><span class="function">    </span>&#123;				</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Sub::Function_1 called ... \n&quot;</span>);				</span><br><span class="line">    &#125;				</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_2</span><span class="params">()</span>				</span></span><br><span class="line"><span class="function">    </span>&#123;				</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Sub::Function_2 called ... \n&quot;</span>);				</span><br><span class="line">    &#125;				</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Function_6</span><span class="params">()</span>				</span></span><br><span class="line"><span class="function">    </span>&#123;				</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Sub::Function_6 called ... \n&quot;</span>);				</span><br><span class="line">    &#125;				</span><br><span class="line">&#125;;				</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Sub sub;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对象的前四个字节就是虚函数表地址</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Sub 的虚函数表地址为：%x\n&quot;</span>, *(DWORD*)&amp;sub);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过函数指针调用函数，验证正确性</span></span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*pFunction)</span><span class="params">(<span class="type">void</span>)</span></span>;</span><br><span class="line">    pFunction pFn;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">6</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> temp = *((DWORD*)(*(DWORD*)&amp;sub) + i);</span><br><span class="line">        <span class="keyword">if</span>(!temp)                   <span class="comment">//读虚表内容读多了，就break，结束当前整个循环结构</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        pFn = (pFunction)temp;</span><br><span class="line">        <span class="built_in">pFn</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228151456401.png" alt="image-20240228151456401" /></p>
+<p>Base类：</p>
+<ul>
+<li>变量：x，y</li>
+<li>函数
+<ul>
+<li>虚函数Function_1</li>
+<li>虚函数Function_2</li>
+<li>虚函数Function_3</li>
+</ul>
+</li>
+</ul>
+<p>Sub类：</p>
+<ul>
+<li>变量：z</li>
+<li>函数
+<ul>
+<li>虚函数Function_1，override</li>
+<li>虚函数Function_2，override</li>
+<li>虚函数Function_6</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>&#123;...&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Sub</span>:<span class="keyword">public</span> Base&#123;...&#125;;</span><br></pre></td></tr></table></figure>
+<table border="1">
+  <tr>
+    <th>所属类</th>
+    <th>地址</th>
+    <th>成员变量</th>
+  </tr>
+  <tr>
+    <td rowspan="3">Base</td>
+    <td>0x0012FF68</td>
+    <td>vptr=0x0042303C</td>
+  </tr>
+  <tr>
+    <td>0x0012FF6C</td>
+    <td>x=1</td>
+  </tr>
+  <tr>
+    <td>0x0012FF70</td>
+    <td>y=2</td>
+  </tr>
+  <tr>
+    <td>Sub</td>
+    <td>0x0012FF74</td>
+    <td>z=3</td>
+  </tr>
+</table>
+<table border="1">
+  <tr>
+    <th>虚表</th>
+    <th>地址</th>
+    <th>值</th>
+    <th>内容</th>
+  </tr>
+  <tr>
+    <td rowspan="4">"vptr-><br><br><br><br><br><br></td>
+    <td>0x0042303C</td>
+    <td>0x00401023</td>
+    <td>Sub::Function_1函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00423040</td>
+    <td>0x00401014</td>
+    <td>Sub::Function_2函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00423044</td>
+    <td>0x00401019</td>
+    <td>Base::Function_3函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00423048</td>
+    <td>0x0040100F</td>
+    <td>Sub::Function_6函数地址</td>
+  </tr>
+</table>
+<h3 id="多继承无函数覆盖"><a class="markdownIt-Anchor" href="#多继承无函数覆盖"></a> 多继承+无函数覆盖</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>						</span><br><span class="line">&#123;			</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> a;</span><br><span class="line">    <span class="type">int</span> b;			</span><br><span class="line"><span class="keyword">public</span>:		</span><br><span class="line">    <span class="built_in">Base</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        a = <span class="number">1</span>;</span><br><span class="line">        b = <span class="number">2</span>;</span><br><span class="line">    &#125;		</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_1</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Fn_1 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_2</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Fn_2 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">&#125;;					</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span>:<span class="keyword">public</span> Base				</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> c;			</span><br><span class="line">						</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Derived</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        c = <span class="number">3</span>;  </span><br><span class="line">    &#125;			</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_3</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Derived::Fn_3 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_4</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Derived::Fn_4 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">&#125;;				</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SubDerived</span>:<span class="keyword">public</span> Derived					</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> d;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">SubDerived</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        d = <span class="number">4</span>;  </span><br><span class="line">    &#125;							</span><br><span class="line">					</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_5</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;SubDerived::Fn_5 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_6</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;SubDerived::Fn_6 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">&#125;;						</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span>						</span></span><br><span class="line"><span class="function"></span>&#123;						</span><br><span class="line">    <span class="comment">//查看 subderived 的虚函数表					</span></span><br><span class="line">    SubDerived subderived;						</span><br><span class="line">                        </span><br><span class="line">    <span class="comment">//观察大小					</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%x\n&quot;</span>,<span class="built_in">sizeof</span>(subderived));			<span class="comment">//有1个虚表	</span></span><br><span class="line">    <span class="comment">//对象的前四个字节是虚函数表地址				</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;subderived 的虚函数表地址为：%x\n&quot;</span>,*(DWORD*)&amp;subderived);	              </span><br><span class="line">    </span><br><span class="line">    <span class="comment">//通过函数指针调用函数，验证正确性					</span></span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">void</span><span class="params">(*pFunction)</span><span class="params">(<span class="type">void</span>)</span></span>;						                         	                </span><br><span class="line">    pFunction pFn;					            </span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;<span class="number">6</span>;i++)					</span><br><span class="line">    &#123;					</span><br><span class="line">        <span class="type">int</span> temp = *((DWORD*)(*(DWORD*)&amp;subderived)+i);				</span><br><span class="line">        <span class="keyword">if</span>(!temp)			                    <span class="comment">//读虚表内容读多了，就break，结束当前整个循环结构	</span></span><br><span class="line">        &#123;				</span><br><span class="line">            <span class="keyword">break</span>;			</span><br><span class="line">        &#125;				</span><br><span class="line">        pFn = (pFunction)temp;				</span><br><span class="line">        <span class="built_in">pFn</span>();				</span><br><span class="line">    &#125;					</span><br><span class="line">                                           </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;					</span><br><span class="line">&#125;						</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228153816541.png" alt="image-20240228153816541" /></p>
+<p>Base类：</p>
+<ul>
+<li>变量：a,b</li>
+<li>函数
+<ul>
+<li>虚函数Fn_1</li>
+<li>虚函数Fn_2</li>
+</ul>
+</li>
+</ul>
+<p>Derived类：</p>
+<ul>
+<li>变量：c</li>
+<li>函数
+<ul>
+<li>虚函数Fn_3</li>
+<li>虚函数Fn_4</li>
+</ul>
+</li>
+</ul>
+<p>SubDerived类：</p>
+<ul>
+<li>变量：d</li>
+<li>函数
+<ul>
+<li>虚函数Fn_5</li>
+<li>虚函数Fn_6</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>&#123;...&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span>:<span class="keyword">public</span> Base;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SubDerived</span>:<span class="keyword">public</span> Derived&#123;...&#125;;</span><br></pre></td></tr></table></figure>
+<table border="1">
+  <tr>
+    <th>所属类</th>
+    <th>地址</th>
+    <th>成员变量</th>
+  </tr>
+  <tr>
+    <td rowspan="3">Base</td>
+    <td>0x0012FF68</td>
+    <td>vptr=0042201C</td>
+  </tr>
+  <tr>
+    <td>0x0012FF6C</td>
+    <td>a=1</td>
+  </tr>
+  <tr>
+    <td>0x0012FF70</td>
+    <td>b=2</td>
+  </tr>
+  <tr>
+    <td>Derived</td>
+    <td>0x0012FF74</td>
+    <td>c=3</td>
+  </tr>
+  <tr>
+    <td>SubDerived</td>
+    <td>0x0012FF78</td>
+    <td>d=4</td>
+  </tr>
+</table>
+<table border="1">
+  <tr>
+    <th>虚表</th>
+    <th>地址</th>
+    <th>值</th>
+    <th>内容</th>
+  </tr>
+  <tr>
+    <td rowspan="6">"vptr-><br><br><br><br><br><br><br><br><br><br></td>
+    <td>0x0042201C</td>
+    <td>0x00401032</td>
+    <td>Base::Fn_1函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422020</td>
+    <td>0x0040104B</td>
+    <td>Base::Fn_2函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422024</td>
+    <td>0x00401055</td>
+    <td>Derived::Fn_3函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422028</td>
+    <td>0x0040103C</td>
+    <td>Derived::Fn_4函数地址</td>
+  </tr>
+  <tr>
+    <td>0x0042202C</td>
+    <td>0x00401037</td>
+    <td>SubDerived::Fn_5函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422030</td>
+    <td>0x00401041</td>
+    <td>SubDerived::Fn_6函数地址</td>
+  </tr>
+</table>
+<h3 id="多继承有函数覆盖"><a class="markdownIt-Anchor" href="#多继承有函数覆盖"></a> 多继承+有函数覆盖</h3>
+<h4 id="例1"><a class="markdownIt-Anchor" href="#例1"></a> 例1</h4>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>						</span><br><span class="line">&#123;			</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> a;</span><br><span class="line">    <span class="type">int</span> b;			</span><br><span class="line"><span class="keyword">public</span>:		</span><br><span class="line">    <span class="built_in">Base</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        a = <span class="number">1</span>;</span><br><span class="line">        b = <span class="number">2</span>;</span><br><span class="line">    &#125;		</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_1</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Fn_1 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_2</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Fn_2 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">&#125;;					</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span>:<span class="keyword">public</span> Base				</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> c;			</span><br><span class="line">						</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Derived</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        c = <span class="number">3</span>;  </span><br><span class="line">    &#125;			</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_1</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Derived::Fn_1 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_3</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Derived::Fn_3 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">&#125;;				</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SubDerived</span>:<span class="keyword">public</span> Derived					</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> d;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">SubDerived</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        d = <span class="number">4</span>;  </span><br><span class="line">    &#125;							</span><br><span class="line">					</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_5</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;SubDerived::Fn_5 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;											</span><br><span class="line">&#125;;						</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span>						</span></span><br><span class="line"><span class="function"></span>&#123;						</span><br><span class="line">    <span class="comment">//查看 subderived 的虚函数表					</span></span><br><span class="line">    SubDerived subderived;						</span><br><span class="line">                        </span><br><span class="line">    <span class="comment">//观察大小					</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>,<span class="built_in">sizeof</span>(subderived));			<span class="comment">//有1个虚表	</span></span><br><span class="line">    <span class="comment">//对象的前四个字节是虚函数表地址				</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;subderived 的虚函数表地址为：%x\n&quot;</span>,*(DWORD*)&amp;subderived);	              </span><br><span class="line">    </span><br><span class="line">    <span class="comment">//通过函数指针调用函数，验证正确性					</span></span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">void</span><span class="params">(*pFunction)</span><span class="params">(<span class="type">void</span>)</span></span>;						                         	                </span><br><span class="line">    pFunction pFn;					            </span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;<span class="number">6</span>;i++)					</span><br><span class="line">    &#123;					</span><br><span class="line">        <span class="type">int</span> temp = *((DWORD*)(*(DWORD*)&amp;subderived)+i);				</span><br><span class="line">        <span class="keyword">if</span>(!temp)			                    <span class="comment">//读虚表内容读多了，就break，结束当前整个循环结构	</span></span><br><span class="line">        &#123;				</span><br><span class="line">            <span class="keyword">break</span>;			</span><br><span class="line">        &#125;				</span><br><span class="line">        pFn = (pFunction)temp;				</span><br><span class="line">        <span class="built_in">pFn</span>();				</span><br><span class="line">    &#125;					</span><br><span class="line">                                           </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;					</span><br><span class="line">&#125;						</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228154233055.png" alt="image-20240228154233055" /></p>
+<p>Base类：</p>
+<ul>
+<li>变量：a,b</li>
+<li>函数
+<ul>
+<li>虚函数Fn_1</li>
+<li>虚函数Fn_2</li>
+</ul>
+</li>
+</ul>
+<p>Derived类：</p>
+<ul>
+<li>变量：c</li>
+<li>函数
+<ul>
+<li>虚函数Fn_1，override</li>
+<li>虚函数Fn_3，override</li>
+</ul>
+</li>
+</ul>
+<p>SubDerived类：</p>
+<ul>
+<li>变量：d</li>
+<li>函数
+<ul>
+<li>虚函数Fn_5</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>&#123;...&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span>:<span class="keyword">public</span> Base;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SubDerived</span>:<span class="keyword">public</span> Derived&#123;...&#125;;</span><br></pre></td></tr></table></figure>
+<table border="1">
+  <tr>
+    <th>所属类</th>
+    <th>地址</th>
+    <th>成员变量</th>
+  </tr>
+  <tr>
+    <td rowspan="3">Base</td>
+    <td>0x0012FF68</td>
+    <td>vptr=0042201C</td>
+  </tr>
+  <tr>
+    <td>0x0012FF6C</td>
+    <td>a=1</td>
+  </tr>
+  <tr>
+    <td>0x0012FF70</td>
+    <td>b=2</td>
+  </tr>
+  <tr>
+    <td>Derived</td>
+    <td>0x0012FF74</td>
+    <td>c=3</td>
+  </tr>
+  <tr>
+    <td>SubDerived</td>
+    <td>0x0012FF78</td>
+    <td>d=4</td>
+  </tr>
+</table>
+<table border="1">
+  <tr>
+    <th>虚表1</th>
+    <th>地址</th>
+    <th>值</th>
+    <th>内容</th>
+  </tr>
+  <tr>
+    <td rowspan="4">"vptr1-><br><br><br><br>"</td>
+    <td>0x0042201C</td>
+    <td>0x0040105A</td>
+    <td>Derived::Fn_1函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422020</td>
+    <td>0x0040104B</td>
+    <td>Base::Fn_2函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422024</td>
+    <td>0x00401055</td>
+    <td>Derived::Fn_3函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422028</td>
+    <td>0x00401037</td>
+    <td>SubDerived::Fn_5函数地址</td>
+  </tr>
+</table>
+<h4 id="例2"><a class="markdownIt-Anchor" href="#例2"></a> 例2</h4>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>						</span><br><span class="line">&#123;			</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> a;</span><br><span class="line">    <span class="type">int</span> b;			</span><br><span class="line"><span class="keyword">public</span>:		</span><br><span class="line">    <span class="built_in">Base</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        a = <span class="number">1</span>;</span><br><span class="line">        b = <span class="number">2</span>;</span><br><span class="line">    &#125;		</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_1</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Fn_1 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_2</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Fn_2 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">&#125;;					</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span>:<span class="keyword">public</span> Base				</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> c;			</span><br><span class="line">						</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Derived</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        c = <span class="number">3</span>;  </span><br><span class="line">    &#125;			</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_1</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Derived::Fn_1 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_3</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Derived::Fn_3 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">&#125;;				</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SubDerived</span>:<span class="keyword">public</span> Derived					</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> d;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">SubDerived</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        d = <span class="number">4</span>;  </span><br><span class="line">    &#125;							</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_1</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;SubDerived::Fn_1 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_5</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;SubDerived::Fn_5 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;											</span><br><span class="line">&#125;;						</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span>						</span></span><br><span class="line"><span class="function"></span>&#123;						</span><br><span class="line">    <span class="comment">//查看 subderived 的虚函数表					</span></span><br><span class="line">    SubDerived subderived;						</span><br><span class="line">                        </span><br><span class="line">    <span class="comment">//观察大小					</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>,<span class="built_in">sizeof</span>(subderived));			<span class="comment">//有1个虚表	</span></span><br><span class="line">    <span class="comment">//对象的前四个字节是虚函数表地址				</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;subderived 的虚函数表地址为：%x\n&quot;</span>,*(DWORD*)&amp;subderived);	              </span><br><span class="line">    </span><br><span class="line">    <span class="comment">//通过函数指针调用函数，验证正确性					</span></span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">void</span><span class="params">(*pFunction)</span><span class="params">(<span class="type">void</span>)</span></span>;						                         	                </span><br><span class="line">    pFunction pFn;					            </span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;<span class="number">6</span>;i++)					</span><br><span class="line">    &#123;					</span><br><span class="line">        <span class="type">int</span> temp = *((DWORD*)(*(DWORD*)&amp;subderived)+i);				</span><br><span class="line">        <span class="keyword">if</span>(!temp)			                    <span class="comment">//读虚表内容读多了，就break，结束当前整个循环结构	</span></span><br><span class="line">        &#123;				</span><br><span class="line">            <span class="keyword">break</span>;			</span><br><span class="line">        &#125;				</span><br><span class="line">        pFn = (pFunction)temp;				</span><br><span class="line">        <span class="built_in">pFn</span>();				</span><br><span class="line">    &#125;					</span><br><span class="line">                                           </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;					</span><br><span class="line">&#125;						</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228154859357.png" alt="image-20240228154859357" /></p>
+<p>Base类：</p>
+<ul>
+<li>变量：a,b</li>
+<li>函数
+<ul>
+<li>虚函数Fn_1</li>
+<li>虚函数Fn_2</li>
+</ul>
+</li>
+</ul>
+<p>Derived类：</p>
+<ul>
+<li>变量：c</li>
+<li>函数
+<ul>
+<li>虚函数Fn_1，override</li>
+<li>虚函数Fn_3</li>
+</ul>
+</li>
+</ul>
+<p>SubDerived类：</p>
+<ul>
+<li>变量：d</li>
+<li>函数
+<ul>
+<li>虚函数Fn_1，override</li>
+<li>虚函数Fn_5</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>&#123;...&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span>:<span class="keyword">public</span> Base;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SubDerived</span>:<span class="keyword">public</span> Derived&#123;...&#125;;</span><br></pre></td></tr></table></figure>
+<table border="1">
+  <tr>
+    <th>所属类</th>
+    <th>地址</th>
+    <th>成员变量</th>
+  </tr>
+  <tr>
+    <td rowspan="3">Base</td>
+    <td>0x0012FF68</td>
+    <td>vptr=0x00422048</td>
+  </tr>
+  <tr>
+    <td>0x0012FF6C</td>
+    <td>a=1</td>
+  </tr>
+  <tr>
+    <td>0x0012FF70</td>
+    <td>b=2</td>
+  </tr>
+  <tr>
+    <td>Derived</td>
+    <td>0x0012FF74</td>
+    <td>c=3</td>
+  </tr>
+  <tr>
+    <td>SubDerived</td>
+    <td>0x0012FF78</td>
+    <td>d=4</td>
+  </tr>
+</table>
+<table border="1">
+  <tr>
+    <th>虚表1</th>
+    <th>地址</th>
+    <th>值</th>
+    <th>内容</th>
+  </tr>
+  <tr>
+    <td rowspan="4">"vptr1-><br><br><br><br>"</td>
+    <td>0x00422048</td>
+    <td>0x00401019</td>
+    <td>SubDerived::Fn_1函数地址</td>
+  </tr>
+  <tr>
+    <td>0x0042204C</td>
+    <td>0x0040101E</td>
+    <td>Base::Fn_2函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422050</td>
+    <td>0x00401032</td>
+    <td>Derived::Fn_3函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422054</td>
+    <td>0x0040100A</td>
+    <td>SubDerived::Fn_5函数地址</td>
+  </tr>
+</table>
+<h4 id="例3"><a class="markdownIt-Anchor" href="#例3"></a> 例3</h4>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>						</span><br><span class="line">&#123;			</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> a;</span><br><span class="line">    <span class="type">int</span> b;			</span><br><span class="line"><span class="keyword">public</span>:		</span><br><span class="line">    <span class="built_in">Base</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        a = <span class="number">1</span>;</span><br><span class="line">        b = <span class="number">2</span>;</span><br><span class="line">    &#125;		</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_1</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Fn_1 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_2</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base::Fn_2 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">&#125;;					</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span>:<span class="keyword">public</span> Base				</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> c;			</span><br><span class="line">						</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Derived</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        c = <span class="number">3</span>;  </span><br><span class="line">    &#125;			</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_3</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Derived::Fn_3 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">&#125;;				</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SubDerived</span>:<span class="keyword">public</span> Derived					</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> d;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">SubDerived</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        d = <span class="number">4</span>;  </span><br><span class="line">    &#125;							</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_1</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;SubDerived::Fn_1 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;						</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_3</span><span class="params">()</span>						</span></span><br><span class="line"><span class="function">    </span>&#123;						</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;SubDerived::Fn_3 called ... \n&quot;</span>);						</span><br><span class="line">    &#125;											</span><br><span class="line">&#125;;						</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span>						</span></span><br><span class="line"><span class="function"></span>&#123;						</span><br><span class="line">    <span class="comment">//查看 subderived 的虚函数表					</span></span><br><span class="line">    SubDerived subderived;						</span><br><span class="line">                        </span><br><span class="line">    <span class="comment">//观察大小					</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>,<span class="built_in">sizeof</span>(subderived));			<span class="comment">//有1个虚表	</span></span><br><span class="line">    <span class="comment">//对象的前四个字节是虚函数表地址				</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;subderived 的虚函数表地址为：%x\n&quot;</span>,*(DWORD*)&amp;subderived);	              </span><br><span class="line">    </span><br><span class="line">    <span class="comment">//通过函数指针调用函数，验证正确性					</span></span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">void</span><span class="params">(*pFunction)</span><span class="params">(<span class="type">void</span>)</span></span>;						                         	                </span><br><span class="line">    pFunction pFn;					            </span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;<span class="number">6</span>;i++)					</span><br><span class="line">    &#123;					</span><br><span class="line">        <span class="type">int</span> temp = *((DWORD*)(*(DWORD*)&amp;subderived)+i);				</span><br><span class="line">        <span class="keyword">if</span>(!temp)			                    <span class="comment">//读虚表内容读多了，就break，结束当前整个循环结构	</span></span><br><span class="line">        &#123;				</span><br><span class="line">            <span class="keyword">break</span>;			</span><br><span class="line">        &#125;				</span><br><span class="line">        pFn = (pFunction)temp;				</span><br><span class="line">        <span class="built_in">pFn</span>();				</span><br><span class="line">    &#125;					</span><br><span class="line">                                           </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;					</span><br><span class="line">&#125;						</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228155228963.png" alt="image-20240228155228963" /></p>
+<p>Base类：</p>
+<ul>
+<li>变量：a,b</li>
+<li>函数
+<ul>
+<li>虚函数Fn_1</li>
+<li>虚函数Fn_2</li>
+</ul>
+</li>
+</ul>
+<p>Derived类：</p>
+<ul>
+<li>变量：c</li>
+<li>函数
+<ul>
+<li>虚函数Fn_3</li>
+</ul>
+</li>
+</ul>
+<p>SubDerived类：</p>
+<ul>
+<li>变量：d</li>
+<li>函数
+<ul>
+<li>虚函数Fn_1，override</li>
+<li>虚函数Fn_3，override</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span>&#123;...&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span>:<span class="keyword">public</span> Base;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SubDerived</span>:<span class="keyword">public</span> Derived&#123;...&#125;;</span><br></pre></td></tr></table></figure>
+<table border="1">
+  <tr>
+    <th>所属类</th>
+    <th>地址</th>
+    <th>成员变量</th>
+  </tr>
+  <tr>
+    <td rowspan="3">Base</td>
+    <td>0x0012FF68</td>
+    <td>vptr=0x00422048</td>
+  </tr>
+  <tr>
+    <td>0x0012FF6C</td>
+    <td>a=1</td>
+  </tr>
+  <tr>
+    <td>0x0012FF70</td>
+    <td>b=2</td>
+  </tr>
+  <tr>
+    <td>Derived</td>
+    <td>0x0012FF74</td>
+    <td>c=3</td>
+  </tr>
+  <tr>
+    <td>SubDerived</td>
+    <td>0x0012FF78</td>
+    <td>d=4</td>
+  </tr>
+</table>
+<table border="1">
+  <tr>
+    <th>虚表1</th>
+    <th>地址</th>
+    <th>值</th>
+    <th>内容</th>
+  </tr>
+  <tr>
+    <td rowspan="3">"vptr1-><br><br><br><br>"</td>
+    <td>0x00422048</td>
+    <td>0x00401019</td>
+    <td>SubDerived::Fn_1函数地址</td>
+  </tr>
+  <tr>
+    <td>0x0042204C</td>
+    <td>0x0040101E</td>
+    <td>Base::Fn_2函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422050</td>
+    <td>0x00401037</td>
+    <td>SubDerived::Fn_3函数地址</td>
+  </tr>
+</table>
+<h3 id="多重继承无函数覆盖"><a class="markdownIt-Anchor" href="#多重继承无函数覆盖"></a> 多重继承+无函数覆盖</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base1</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> a;</span><br><span class="line">    <span class="type">int</span> b;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Base1</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        a = <span class="number">1</span>;</span><br><span class="line">        b = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base1::Fn_1 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_2</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base1::Fn_2 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base2</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> c;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Base2</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        c = <span class="number">3</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_3</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base2::Fn_3 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_4</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base2::Fn_4 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">public</span> Base1, <span class="keyword">public</span> Base2</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> d;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Derived</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        d = <span class="number">4</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_5</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Derived::Fn_5 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_6</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Derived::Fn_6 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 查看 derived 的虚函数表</span></span><br><span class="line">    Derived derived;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 观察大小</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, <span class="built_in">sizeof</span>(derived)); <span class="comment">// 有2个虚表</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过函数指针调用函数，验证正确性</span></span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*pFunction)</span><span class="params">(<span class="type">void</span>)</span></span>;</span><br><span class="line">    pFunction pFn;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 第1个虚表</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;subderived 的虚函数表地址为：%x\n&quot;</span>, *(DWORD*)&amp;derived); <span class="comment">// 对象的第1个虚表地址</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">6</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> temp = *((DWORD*)(*(DWORD*)&amp;derived) + i);</span><br><span class="line">        <span class="keyword">if</span> (!temp) <span class="comment">// 读虚表内容读多了，就break，跳出本次循环</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        pFn = (pFunction)temp;</span><br><span class="line">        <span class="built_in">pFn</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, <span class="built_in">sizeof</span>(Base1)); <span class="comment">// 观察Base1的大小，因为找第2个虚表要跳过Base1占的内存空间</span></span><br><span class="line">    <span class="comment">// 第2个虚表</span></span><br><span class="line">    DWORD vptr2 = (DWORD)&amp;derived + <span class="built_in">sizeof</span>(Base1);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;subderived 的虚函数表地址为：%x\n&quot;</span>, *(DWORD*)vptr2); <span class="comment">// 对象的第2个虚表地址</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; <span class="number">2</span>; j++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> temp = *((DWORD*)(*(DWORD*)vptr2) + j);</span><br><span class="line">        <span class="keyword">if</span> (!temp) <span class="comment">// 读虚表内容读多了，就break，结束当前整个循环结构</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        pFn = (pFunction)temp;</span><br><span class="line">        <span class="built_in">pFn</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228180531164.png" alt="image-20240228180531164" /></p>
+<p>Base1类：</p>
+<ul>
+<li>变量：a,b</li>
+<li>函数
+<ul>
+<li>虚函数Fn_1</li>
+<li>虚函数Fn_2</li>
+</ul>
+</li>
+</ul>
+<p>Base2类：</p>
+<ul>
+<li>变量：c</li>
+<li>函数
+<ul>
+<li>虚函数Fn_3</li>
+<li>虚函数Fn_4</li>
+</ul>
+</li>
+</ul>
+<p>SubDerived类：</p>
+<ul>
+<li>变量：d</li>
+<li>函数
+<ul>
+<li>虚函数Fn_5</li>
+<li>虚函数Fn_6</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base1</span>&#123;...&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base2</span>&#123;...&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">public</span> Base1, <span class="keyword">public</span> Base2&#123;...&#125;;</span><br></pre></td></tr></table></figure>
+<table border="1">
+  <tr>
+    <th>所属类</th>
+    <th>地址</th>
+    <th>成员变量</th>
+  </tr>
+  <tr>
+    <td rowspan="3">Base1</td>
+    <td>0x0012FF68</td>
+    <td>vptr1=0x0042205C</td>
+  </tr>
+  <tr>
+    <td>0x0012FF6C</td>
+    <td>a=1</td>
+  </tr>
+  <tr>
+    <td>0x0012FF70</td>
+    <td>b=2</td>
+  </tr>
+  <tr>
+    <td rowspan="2">Base2</td>
+    <td>0x0012FF74</td>
+    <td>vptr2=0x00422110</td>
+  </tr>
+  <tr>
+    <td>0x0012FF78</td>
+    <td>c=3</td>
+  </tr>
+  <tr>
+    <td>Derived</td>
+    <td>0x0012FF7C</td>
+    <td>d=4</td>
+  </tr>
+</table>
+<table border="1">
+  <tr>
+    <th>虚表1</th>
+    <th>地址</th>
+    <th>值</th>
+    <th>内容</th>
+  </tr>
+  <tr>
+    <td rowspan="4">"vptr1-><br><br><br><br></td>
+    <td>0x0042205C</td>
+    <td>0x00401050</td>
+    <td>Base1::Fn_1函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422060</td>
+    <td>0x0040105F</td>
+    <td>Base1::Fn_2函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422064</td>
+    <td>0x0040104B</td>
+    <td>Derived::Fn_5函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422068</td>
+    <td>0x0040106E</td>
+    <td>Derived::Fn_6函数地址</td>
+  </tr>
+</table>
+<table border="1">
+  <tr>
+    <th>虚表2</th>
+    <th>地址</th>
+    <th>值</th>
+    <th>内容</th>
+  </tr>
+  <tr>
+    <td rowspan="2">"vptr2-><br>"</td>
+    <td>0x00422110</td>
+    <td>0x00401055</td>
+    <td>Base2::Fn_3函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422114</td>
+    <td>0x0040105A</td>
+    <td>Base2::Fn_4函数地址</td>
+  </tr>
+</table>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>实验时遇到的代码运行问题</span></summary><div class="body"><p>这段防止读过头的代码只能保证读过了之后值为0的情况准，不为0的话，还是传给pFn，准备调用，会报0xC0000005。</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!temp) <span class="comment">// 读虚表内容读多了，就break，结束当前整个循环结构</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228175939392.png" alt="image-20240228175939392" /></p></div></details></div>
+<h3 id="多重继承有函数覆盖"><a class="markdownIt-Anchor" href="#多重继承有函数覆盖"></a> 多重继承+有函数覆盖</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base1</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> a;</span><br><span class="line">    <span class="type">int</span> b;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Base1</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        a = <span class="number">1</span>;</span><br><span class="line">        b = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base1::Fn_1 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_2</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base1::Fn_2 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base2</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> c;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Base2</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        c = <span class="number">3</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_3</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base2::Fn_3 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_4</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Base2::Fn_4 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">public</span> Base1, <span class="keyword">public</span> Base2</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> d;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Derived</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        d = <span class="number">4</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Derived::Fn_1 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_3</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Derived::Fn_3 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Fn_5</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Derived::Fn_5 called ... \n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 查看 derived 的虚函数表</span></span><br><span class="line">    Derived derived;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 观察大小</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, <span class="built_in">sizeof</span>(derived)); <span class="comment">// 有2个虚表</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过函数指针调用函数，验证正确性</span></span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*pFunction)</span><span class="params">(<span class="type">void</span>)</span></span>;</span><br><span class="line">    pFunction pFn;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 第1个虚表</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;subderived 的虚函数表地址为：%x\n&quot;</span>, *(DWORD*)&amp;derived); <span class="comment">// 对象的第1个虚表地址</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">6</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> temp = *((DWORD*)(*(DWORD*)&amp;derived) + i);</span><br><span class="line">        <span class="keyword">if</span> (!temp) <span class="comment">// 读虚表内容读多了，就break，跳出本次循环</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        pFn = (pFunction)temp;</span><br><span class="line">        <span class="built_in">pFn</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, <span class="built_in">sizeof</span>(Base1)); <span class="comment">// 观察Base1的大小，因为找第2个虚表要跳过Base1占的内存空间</span></span><br><span class="line">    <span class="comment">// 第2个虚表</span></span><br><span class="line">    DWORD vptr2 = (DWORD)&amp;derived + <span class="built_in">sizeof</span>(Base1);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;subderived 的虚函数表地址为：%x\n&quot;</span>, *(DWORD*)vptr2); <span class="comment">// 对象的第2个虚表地址</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; <span class="number">2</span>; j++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> temp = *((DWORD*)(*(DWORD*)vptr2) + j);</span><br><span class="line">        <span class="keyword">if</span> (!temp) <span class="comment">// 读虚表内容读多了，就break，结束当前整个循环结构</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        pFn = (pFunction)temp;</span><br><span class="line">        <span class="built_in">pFn</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E8%99%9A%E5%87%BD%E6%95%B0/image-20240228180943178.png" alt="image-20240228180943178" /></p>
+<p>Base1类：</p>
+<ul>
+<li>变量：a,b</li>
+<li>函数
+<ul>
+<li>虚函数Fn_1</li>
+<li>虚函数Fn_2</li>
+</ul>
+</li>
+</ul>
+<p>Base2类：</p>
+<ul>
+<li>变量：c</li>
+<li>函数
+<ul>
+<li>虚函数Fn_3</li>
+<li>虚函数Fn_4</li>
+</ul>
+</li>
+</ul>
+<p>类：</p>
+<ul>
+<li>变量：d</li>
+<li>函数
+<ul>
+<li>虚函数Fn_1，override</li>
+<li>虚函数Fn_3，override</li>
+<li>虚函数Fn_5</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base1</span>&#123;...&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base2</span>&#123;...&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">public</span> Base1, <span class="keyword">public</span> Base2&#123;...&#125;;</span><br></pre></td></tr></table></figure>
+<table border="1">
+  <tr>
+    <th>所属类</th>
+    <th>地址</th>
+    <th>成员变量</th>
+  </tr>
+  <tr>
+    <td rowspan="3">Base1</td>
+    <td>0x0012FF68</td>
+    <td>vptr1=0x0042205C</td>
+  </tr>
+  <tr>
+    <td>0x0012FF6C</td>
+    <td>a=1</td>
+  </tr>
+  <tr>
+    <td>0x0012FF70</td>
+    <td>b=2</td>
+  </tr>
+  <tr>
+    <td rowspan="2">Base2</td>
+    <td>0x0012FF74</td>
+    <td>vptr2=0x00422110</td>
+  </tr>
+  <tr>
+    <td>0x0012FF78</td>
+    <td>c=3</td>
+  </tr>
+  <tr>
+    <td>Derived</td>
+    <td>0x0012FF7C</td>
+    <td>d=4</td>
+  </tr>
+</table>
+<table border="1">
+  <tr>
+    <th>虚表1</th>
+    <th>地址</th>
+    <th>值</th>
+    <th>内容</th>
+  </tr>
+  <tr>
+    <td rowspan="3">"vptr1-><br>"<br>"</td>
+    <td>0x0042205C</td>
+    <td>0x00401064</td>
+    <td>Derived::Fn_1函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422060</td>
+    <td>0x0040105F</td>
+    <td>Base1::Fn_2函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422064</td>
+    <td>0x0040104B</td>
+    <td>Derived::Fn_5函数地址</td>
+  </tr>
+</table>
+<table border="1">
+  <tr>
+    <th>虚表2</th>
+    <th>地址</th>
+    <th>值</th>
+    <th>内容</th>
+  </tr>
+  <tr>
+    <td rowspan="2">"vptr2-><br>"</td>
+    <td>0x00422110</td>
+    <td>0x00401069</td>
+    <td>Derived::Fn_3函数地址</td>
+  </tr>
+  <tr>
+    <td>0x00422114</td>
+    <td>0x0040105A</td>
+    <td>Base2::Fn_4函数地址</td>
+  </tr>
+</table>
+<h3 id="小结"><a class="markdownIt-Anchor" href="#小结"></a> 小结</h3>
+<p>带有虚函数的类，其对象起始处是vptr，然后才是成员变量。vptr指向vtable，vtable中依次存放类中虚函数的函数地址（虚函数在类中写的先后顺序），有几个虚函数，虚表中就有几个地址。</p>
+<ul>
+<li>如果子类没有对基类声明的虚函数进行重写（override），那么表项中的是父类的虚函数地址。</li>
+<li>如果重写了，这一项则是子类重写的函数地址。</li>
+</ul>
+<hr />
+<p>对于多重继承，虚表的个数=继承父类的个数。内存布局先是第一个父类的内存，然后是第二个父类的内存，…，最后才是子类的。</p>
+<ul>
+<li>子类新增的虚函数函数地址是在<strong>第一个虚表</strong>中。</li>
+<li>override了父类哪个的虚函数就在哪个表中，没有override就仍是父类的。</li>
+</ul>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>为什么要多个虚表？</span></summary><div class="body"><p>还是以前面的为例，Derived类同时继承了Base1和Base2类，Base1类和Base2类都有自己的虚表，然后Derived类为什么要有两个虚表？</p><p>答：因为要确保多态能正确工作。</p><p>在这个继承关系下的upcasting：</p><ul><li>可以用Base1类型的指针/引用来访问访问Derived对象</li><li>可以用Base2类型的指针/引用来访问访问Derived对象</li></ul><p>要确保使用<code>Base1类型的指针/引用</code>和<code>Base2类型的指针/引用</code>访问<code>Derived对象</code>时，可以正确地调用虚函数：</p><ul><li>当通过<code>Base1</code>类型的引用/指针调用虚函数时，需要使用<code>Base1</code>的虚表来确定要调用的虚函数</li><li>通过<code>Base2</code>类型的引用/指针调用虚函数时，，需要使用<code>Base2</code>的虚表来确定要调用的虚函数</li></ul><p>如果不设计成两个虚表，当虚函数重写，或，多态调时调用的哪个函数你知道吗</p></div></details></div>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/C++/%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B.html">引用类型</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/C++/%E5%A4%9A%E6%80%81.html">多态</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>科学上网技术：相关概念 - Misc010</title>
+
+  
+    <meta name="description" content="相关概念 代理协议：ss、trojan、vmess、vless VMess协议：VMess是由V2Ray-core开发团队设计的一种代理协议，它是V2Ray软件的一部分。V2Ray是一个功能强大的网络工具，支持多种代理协议，帮助用户构建自己的代理来绕过网络限制。github上的About是：“A platform for building proxies to bypass network re">
+<meta property="og:type" content="website">
+<meta property="og:title" content="相关概念">
+<meta property="og:url" content="https://misc0101.github.io/wiki/Proxy_Protocols/%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="相关概念 代理协议：ss、trojan、vmess、vless VMess协议：VMess是由V2Ray-core开发团队设计的一种代理协议，它是V2Ray软件的一部分。V2Ray是一个功能强大的网络工具，支持多种代理协议，帮助用户构建自己的代理来绕过网络限制。github上的About是：“A platform for building proxies to bypass network re">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF/image-20240119152104511.png">
+<meta property="article:published_time" content="2024-01-19T07:05:30.000Z">
+<meta property="article:modified_time" content="2024-01-19T07:05:30.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF/image-20240119152104511.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><div class="main" ff="title">科学上网技术</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/Proxy_Protocols/" placeholder="在/wiki/Proxy_Protocols/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">序</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html#start"><span class="toc-text">前置知识</span></a></div></div><div class="widget-header cap dis-select"><span class="name">shadowsocks</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Proxy_Protocols/shadowsocks%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA.html"><span class="toc-text">shadowsocks原理与节点搭建</span></a></div></div><div class="widget-header cap dis-select"><span class="name">trojan</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Proxy_Protocols/trojan%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA.html"><span class="toc-text">trojan原理与节点搭建</span></a></div></div><div class="widget-header cap dis-select"><span class="name">vmess</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/Proxy_Protocols/vmess%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA.html"><span class="toc-text">vmess原理与节点搭建</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/Proxy_Protocols/%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="toc-text">相关概念</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="toc-text"> 相关概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v2rayn"><span class="toc-text"> v2rayN</span></a></li></ol></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><span class="title">汇编语言</span><span class="excerpt">x86汇编笔记：以滴水三期_汇编语言课程为框架，《汇编语言4th-王爽》和《汇编语言-基于x86处理器-第七版》为补充。</span></a><a class="item wiki" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><span class="title">C++</span><span class="excerpt">滴水三期_C++语言笔记，C++能做的C都能做，只不过如果使用C++，可以节省很多时间，因为编译器帮编程人员做了很多工作，让编程人员省事。学习的目标：相对于C，编译器替我们做了哪些工作。</span></a><a class="item wiki" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><span class="title">C</span><span class="excerpt">滴水三期_C语言笔记，以逆向角度看待和学习C语言，精彩点：堆栈图与指针。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Thinking_in_C++/Pointers.html"><span class="title">Thinking in C++</span><span class="excerpt">《Thinking in C++ vol 1》笔记，知识内化后的输出，少部分是摘抄，少用的细节不做记录用时在查，参考视频：《面向对象程序设计_C++_翁恺老师》。</span></a><a class="item wiki" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><span class="title">Windows API编程</span><span class="excerpt">滴水三期_win32 api笔记，学习Windows API编程的困难并不在于函数参数参数众多或者英文不好这类表象原因，而是需要从Windows系统的整体知识架构出发来学习这些API，深入理解每个参数背后的含义和背景。如此，未来查阅MSDN时便不再像是看天书。</span></a><a class="item wiki" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><span class="title">数据的运算与表示</span><span class="excerpt">滴水三期_进制笔记，学习与理解进制、数据宽度、数的表示、位运算等概念。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html">科学上网技术</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-01-19T07:05:30.000Z">2024-01-19</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>相关概念</span></h1>
+<h2 id="相关概念"><a class="markdownIt-Anchor" href="#相关概念"></a> 相关概念</h2>
+<p><strong>代理协议</strong>：ss、trojan、vmess、vless</p>
+<p><strong>VMess协议</strong>：VMess是由V2Ray-core开发团队设计的一种代理协议，它是V2Ray软件的一部分。V2Ray是一个功能强大的网络工具，支持多种代理协议，帮助用户构建自己的代理来绕过网络限制。github上的About是：“A platform for building proxies to bypass network restrictions”。</p>
+<p><strong>V2Ray和Project V</strong>：Projece V是一个网络工具的集合，github上的介绍是“Project V is a set of network tools that help you to build your own computer network.”。其中，V2Ray是Project V的核心工具。V2Ray项目最初托管在GitHub上的链接v2ray的<a target="_blank" rel="noopener" href="https://github.com/v2ray/v2ray-core">v2ray-core</a>，但在项目创始人Victoria Raymond失联后，由于其他维护者没有完整的项目权限，于是大家创建了新的社区：<a target="_blank" rel="noopener" href="https://www.v2fly.org/">V2Fly</a>，项目的维护和更新转移到了新的社区V2Fly，相应的GitHub仓库也更新为V2Fly的<a target="_blank" rel="noopener" href="https://github.com/v2fly/v2ray-core">v2ray-core</a>。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>原始地址</th>
+<th>迁移后的新地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>v2ray-core</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/v2ray/v2ray-core">https://github.com/v2ray/v2ray-core</a></td>
+<td><a target="_blank" rel="noopener" href="https://github.com/v2fly/v2ray-core">https://github.com/v2fly/v2ray-core</a></td>
+</tr>
+<tr>
+<td>Projext V</td>
+<td><a target="_blank" rel="noopener" href="https://www.v2ray.com/index.html">https://www.v2ray.com/index.html</a></td>
+<td><a target="_blank" rel="noopener" href="https://www.v2fly.org/">https://www.v2fly.org/</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>XTLS协议</strong>：XTLS是V2Ray团队成员rprx为解决TLS in TLS的特征问题而发明的。但由于<a target="_blank" rel="noopener" href="https://github.com/XTLS/Go/issues/9">License问题</a>，XTLS从V2Ray中移除，并且rprx独立出来创建了xray，xray和v2ray一样，也是一个网络平台工具，支持多种代理协议，但只有xray支持XTLS。</p>
+<p><strong>Project X</strong>：与Project V相对应，Project X是围绕XRay工具的集合。</p>
+<table>
+<thead>
+<tr>
+<th>网络工具集合</th>
+<th>集合里边的核心网络工具</th>
+<th>内核</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://www.v2fly.org/">Project V</a></td>
+<td>V2Ray</td>
+<td>v2ray-core</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://xtls.github.io/">Project X</a></td>
+<td>XRay</td>
+<td>xray core</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.chengxiaobai.com/essays/v2ray-trojan-xray">V2Ray、Trojan、XRay</a></p>
+</blockquote>
+<p><strong>代理软件客户端工具</strong>：v2RayN、clash。都是GUI界面，GUI只是方面用户操作，实际上通过调用内核功能来实现科学上网功能。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/2dust/v2rayN">v2rayN</a></p>
+<p>A GUI client for Windows, support <a target="_blank" rel="noopener" href="https://github.com/XTLS/Xray-core">Xray core</a> and <a target="_blank" rel="noopener" href="https://github.com/v2fly/v2ray-core">v2fly core</a> and <a target="_blank" rel="noopener" href="https://github.com/2dust/v2rayN/wiki/List-of-supported-cores">others</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/p4gefau1t/trojan-go">Trojan-Go</a>是使用Go实现的Trojan，在功能上是Trojan的超集。它新增了很多功能：多路复用、自定义路由、CDN 转发等等，但是最底层协议还是原版Trojan。</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/2dust/v2rayN">v2rayN</a></td>
+<td>代理客户端软件</br>能对节点测速（测试真连接）</br>但ss节点无法使用plugin</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/shadowsocks/v2ray-plugin">GitHub - shadowsocks/v2ray-plugin: A SIP003 plugin based on v2ray</a></td>
+<td>shadowsocks插件，对ss流量进行伪装</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/shadowsocks/shadowsocks-windows">GitHub - shadowsocks/shadowsocks-windows: A C# port of shadowsocks</a></td>
+<td>Shadowsocks for Windows客户端软件</td>
+</tr>
+</tbody>
+</table>
+<h2 id="v2rayn"><a class="markdownIt-Anchor" href="#v2rayn"></a> v2rayN</h2>
+<p>要下带Core的文件，要不添加节点后会报错<a target="_blank" rel="noopener" href="https://github.com/2dust/v2rayN/issues/3710">“运行Core失败，请看日志”</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/2dust/v2rayN/wiki/Release-files-introduction">下载文件说明</a></p>
+<p>windows x64</p>
+<ul>
+<li>v2rayN-With-Core.zip 包含所有Core文件，如您第一次请下载此包</li>
+<li>v2rayN.zip不包含Core文件</li>
+<li>zz-v2rayN-With-Core-SelfContained.7z，包含所有Core文件；独立包，不需要下载安装[Microsoft .NET 6.0 Desktop Runtime]</li>
+</ul>
+<p>选中节点，右键</p>
+<ul>
+<li>
+<p>测试服务器延迟Ping</p>
+<ul>
+<li>ICMP协议测网络延迟</li>
+</ul>
+</li>
+<li>
+<p>测试服务器延迟Tcping</p>
+<ul>
+<li>TCP协议测网络延迟，通过建立TCP连接到服务器的特定端口（通常是HTTP的80端口或HTTPS的443端口），来测量建立连接的时间</li>
+</ul>
+</li>
+<li>
+<p>测试服务器真连接延迟（用vps作为代理往谷歌发送请求，模拟真实使用的延迟），用这个选项看能否使用代理服务器进行代理上网</p>
+<ul>
+<li>实际建立一个完整的连接并可能进行一些数据交换，以更准确地模拟在实际使用中的延迟。这可能包括建立连接、进行握手、发送一些数据包等过程</li>
+</ul>
+</li>
+</ul>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF/image-20240119152104511.png" alt="image-20240119152104511" /></p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/Proxy_Protocols/vmess%E5%8E%9F%E7%90%86%E4%B8%8E%E8%8A%82%E7%82%B9%E6%90%AD%E5%BB%BA.html">vmess原理与节点搭建</a></div><div class="item" id="next"></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

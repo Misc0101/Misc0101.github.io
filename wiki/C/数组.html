@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>C：数组 - Misc010</title>
+
+  
+    <meta name="description" content="定义 数组的本质：一组相同类型的变量，为了方便读写，采用的一种表示形式。 数组定义的语法格式如下： 1数据类型 变量名[整型常量表达式]; 为什么不能是变量？VC++debug版下编译器默认为一个函数分配的缓冲区大小是40h，每在函数里多声明一个变量，就会再40h的基础上加上声明的这个变量大小。如果声明数组时[]里用的是变量，变量的话没法确定，编译时就会出错。因为编译时需要转成汇编，在汇编代码中">
+<meta property="og:type" content="website">
+<meta property="og:title" content="数组">
+<meta property="og:url" content="https://misc0101.github.io/wiki/C/%E6%95%B0%E7%BB%84.html">
+<meta property="og:site_name" content="Misc010">
+<meta property="og:description" content="定义 数组的本质：一组相同类型的变量，为了方便读写，采用的一种表示形式。 数组定义的语法格式如下： 1数据类型 变量名[整型常量表达式]; 为什么不能是变量？VC++debug版下编译器默认为一个函数分配的缓冲区大小是40h，每在函数里多声明一个变量，就会再40h的基础上加上声明的这个变量大小。如果声明数组时[]里用的是变量，变量的话没法确定，编译时就会出错。因为编译时需要转成汇编，在汇编代码中">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%95%B0%E7%BB%84/image-20231014162749728.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%95%B0%E7%BB%84/image-20231014205251174.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%95%B0%E7%BB%84/image-20231014163642656.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%95%B0%E7%BB%84/image-20231014164218264.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%95%B0%E7%BB%84/image-20231014164409560.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%95%B0%E7%BB%84/image-20231014164903405.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E6%95%B0%E7%BB%84/image-20231014165243094.png">
+<meta property="article:published_time" content="2023-10-14T08:03:03.000Z">
+<meta property="article:modified_time" content="2023-10-14T08:03:03.000Z">
+<meta property="article:author" content="Misc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E6%95%B0%E7%BB%84/image-20231014162749728.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/C/%E5%87%BD%E6%95%B0.html"><div class="main" ff="title">C</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/C/" placeholder="在/wiki/C/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-header cap dis-select"><span class="name">函数</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%87%BD%E6%95%B0.html#start"><span class="toc-text">函数</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%87%BD%E6%95%B0%E7%9A%84%E5%85%A5%E5%8F%A3.html"><span class="toc-text">函数的入口</span></a></div></div><div class="widget-header cap dis-select"><span class="name">基本数据类型</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%95%B4%E6%95%B0%E7%B1%BB%E5%9E%8B%E5%92%8C%E6%B5%AE%E7%82%B9%E7%B1%BB%E5%9E%8B.html"><span class="toc-text">整数类型和浮点类型</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%AD%97%E7%AC%A6%E5%92%8C%E5%AD%97%E7%AC%A6%E4%B8%B2.html"><span class="toc-text">字符和字符串</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%E5%92%8C%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F.html"><span class="toc-text">全局变量和局部变量</span></a></div></div><div class="widget-header cap dis-select"><span class="name">构造数据类型</span></div><div class="widget-body fs14"><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/C/%E6%95%B0%E7%BB%84.html"><span class="toc-text">数组</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-text"> 定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D"><span class="toc-text"> 内存分配</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%90%E5%91%98%E5%9C%B0%E5%9D%80%E9%AB%98%E4%BD%8E"><span class="toc-text"> 成员地址高低</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E5%99%A8%E4%B8%BA%E6%95%B0%E7%BB%84%E5%88%86%E9%85%8D%E7%9A%84%E5%A4%A7%E5%B0%8F"><span class="toc-text"> 编译器为数组分配的大小</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E7%BB%84%E7%9A%84%E8%AE%BF%E9%97%AE"><span class="toc-text"> 数组的访问</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E7%BB%84%E8%BE%B9%E7%95%8C"><span class="toc-text"> 数组边界</span></a></li></ol></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%A4%9A%E7%BB%B4%E6%95%B0%E7%BB%84.html"><span class="toc-text">多维数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E7%BB%93%E6%9E%84%E4%BD%93.html"><span class="toc-text">结构体</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90.html"><span class="toc-text">字节对齐</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E7%BB%93%E6%9E%84%E4%BD%93%E6%95%B0%E7%BB%84.html"><span class="toc-text">结构体数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E8%81%94%E5%90%88%E4%BD%93.html"><span class="toc-text">联合体</span></a></div></div><div class="widget-header cap dis-select"><span class="name">指针数据类型</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%8C%87%E9%92%88%E7%89%B9%E5%BE%81%E6%8E%A2%E6%B5%8B.html"><span class="toc-text">指针特征探测</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%8F%96%E5%9D%80%E5%92%8C%E5%8F%96%E5%80%BC%E8%BF%90%E7%AE%97%E7%AC%A6.html"><span class="toc-text">取址&运算符和取值*运算符</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E7%94%A8%E6%8C%87%E9%92%88%E6%93%8D%E4%BD%9C%E6%95%B0%E7%BB%84.html"><span class="toc-text">用指针操作数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%8C%87%E9%92%88%E4%B8%8E%E5%AD%97%E7%AC%A6%E4%B8%B2.html"><span class="toc-text">指针与字符串</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%8C%87%E9%92%88%E6%95%B0%E7%BB%84.html"><span class="toc-text">指针数组</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E7%BB%93%E6%9E%84%E4%BD%93%E6%8C%87%E9%92%88.html"><span class="toc-text">结构体指针</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%A4%9A%E7%BA%A7%E6%8C%87%E9%92%88.html"><span class="toc-text">多级指针</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E6%95%B0%E7%BB%84%E6%8C%87%E9%92%88.html"><span class="toc-text">数组指针</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88.html"><span class="toc-text">函数指针</span></a></div></div><div class="widget-header cap dis-select"><span class="name">流程控制语句</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5.html"><span class="toc-text">分支语句</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%BE%AA%E7%8E%AF%E8%AF%AD%E5%8F%A5.html"><span class="toc-text">循环语句</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/Switch%E8%AF%AD%E5%8F%A5.html"><span class="toc-text">Switch语句</span></a></div></div><div class="widget-header cap dis-select"><span class="name">其他</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E8%BF%90%E7%AE%97%E7%AC%A6%E5%92%8C%E8%A1%A8%E8%BE%BE%E5%BC%8F.html"><span class="toc-text">运算符和表达式</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/typedef.html"><span class="toc-text">typedef</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E9%A2%84%E5%A4%84%E7%90%86.html"><span class="toc-text">预处理</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E4%B8%8E%E9%87%8A%E6%94%BE.html"><span class="toc-text">内存分配与释放</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/C/%E9%9A%8F%E6%89%8B%E8%AE%B0%E4%B8%80%E4%BA%9B%E5%87%BD%E6%95%B0.html"><span class="toc-text">随手记一些函数</span></a></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：计算机基础</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/Assembly_Language/%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8_%E5%86%85%E5%AD%98%E8%AF%BB%E5%86%99.html"><span class="title">汇编语言</span><span class="excerpt">x86汇编笔记：以滴水三期_汇编语言课程为框架，《汇编语言4th-王爽》和《汇编语言-基于x86处理器-第七版》为补充。</span></a><a class="item wiki" href="/wiki/C++/%E5%B0%81%E8%A3%85%E5%92%8Cthis%E6%8C%87%E9%92%88.html"><span class="title">C++</span><span class="excerpt">滴水三期_C++语言笔记，C++能做的C都能做，只不过如果使用C++，可以节省很多时间，因为编译器帮编程人员做了很多工作，让编程人员省事。学习的目标：相对于C，编译器替我们做了哪些工作。</span></a><a class="item wiki" href="/wiki/Modern_C++/%E7%B1%BB.html"><span class="title">Modern C++</span><span class="excerpt">C++98及其之前的C++ 特性称之为traditional C++（传统C++），C++11/14/17/20被称为Modern C++（现代 C++ ）。补充从传统C++“升级”到现代C++的知识。</span></a><a class="item wiki" href="/wiki/Proxy_Protocols/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF.html"><span class="title">科学上网技术</span><span class="excerpt">从正常网络通信数据包通信过程出发，逐步推导到使用代理协议进行科学上网，随后依次介绍各代理协议ss、trojan、vmess、vless原理与节点搭建，还有相关的工具、技术、概念介绍。</span></a><a class="item wiki" href="/wiki/Thinking_in_C++/Pointers.html"><span class="title">Thinking in C++</span><span class="excerpt">《Thinking in C++ vol 1》笔记，知识内化后的输出，少部分是摘抄，少用的细节不做记录用时在查，参考视频：《面向对象程序设计_C++_翁恺老师》。</span></a><a class="item wiki" href="/wiki/Windows_API/%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81.html"><span class="title">Windows API编程</span><span class="excerpt">滴水三期_win32 api笔记，学习Windows API编程的困难并不在于函数参数参数众多或者英文不好这类表象原因，而是需要从Windows系统的整体知识架构出发来学习这些API，深入理解每个参数背后的含义和背景。如此，未来查阅MSDN时便不再像是看天书。</span></a><a class="item wiki" href="/wiki/representation_and_computation_of_data/%E8%BF%9B%E5%88%B6.html"><span class="title">数据的运算与表示</span><span class="excerpt">滴水三期_进制笔记，学习与理解进制、数据宽度、数的表示、位运算等概念。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/C/%E5%87%BD%E6%95%B0.html">C</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2023-10-14T08:03:03.000Z">2023-10-14</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>数组</span></h1>
+<h2 id="定义"><a class="markdownIt-Anchor" href="#定义"></a> 定义</h2>
+<p>数组的本质：一组<code>相同类型</code>的变量，为了方便读写，采用的一种表示形式。</p>
+<p>数组定义的语法格式如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">数据类型 变量名[整型常量表达式];</span><br></pre></td></tr></table></figure>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>为什么不能是变量？</span></summary><div class="body"><p>VC++debug版下编译器默认为一个函数分配的缓冲区大小是40h，每在函数里多声明一个变量，就会再40h的基础上加上声明的这个变量大小。如果声明数组时[]里用的是变量，变量的话没法确定，编译时就会出错。因为编译时需要转成汇编，在汇编代码中需要知道分配多大的缓冲区空间（<code>sub  esp  xxh</code>），否则没法确定汇编代码，就更不要谈后续生成exe了。</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> age[<span class="number">10</span>];</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%95%B0%E7%BB%84/image-20231014162749728.png" alt="image-20231014162749728" /></p><blockquote><p>C99标准支持变长数组（variable-length array，VLA），C11放弃了这一特性，把VLA设定为可选。</p></blockquote></div></details></div>
+<h2 id="内存分配"><a class="markdownIt-Anchor" href="#内存分配"></a> 内存分配</h2>
+<h3 id="成员地址高低"><a class="markdownIt-Anchor" href="#成员地址高低"></a> 成员地址高低</h3>
+<div class="tag-plugin tabs" align="center"id="tab_20"><div class="nav-tabs"><div class="tab active"><a href="#tab_20-1">普通变量的内存布局</a></div><div class="tab"><a href="#tab_20-2">数组的内存布局</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_20-1"><p>按声明的顺序，从高地址到低地址（[ebp-4]-&gt;[ebp-8]-&gt;…）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> v_1=<span class="number">1</span>;</span><br><span class="line">    <span class="type">int</span> v_2=<span class="number">2</span>;</span><br><span class="line">    <span class="type">int</span> v_3=<span class="number">3</span>;</span><br><span class="line">    <span class="type">int</span> v_4=<span class="number">4</span>;</span><br><span class="line">    <span class="type">int</span> v_5=<span class="number">5</span>;</span><br><span class="line">    <span class="type">int</span> v_6=<span class="number">6</span>;</span><br><span class="line">    <span class="type">int</span> v_7=<span class="number">7</span>;</span><br><span class="line">    <span class="type">int</span> v_8=<span class="number">8</span>;</span><br><span class="line">    <span class="type">int</span> v_9=<span class="number">9</span>;</span><br><span class="line">    <span class="type">int</span> v_10=<span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%95%B0%E7%BB%84/image-20231014205251174.png" alt="image-20231014205251174" /></p></div><div class="tab-pane" id="tab_20-2"><p>第1个成员地址最低，其余成员地址从低到高依次分配。</p>
+<blockquote>
+<p>其实这样排也能理解，因为数组使用，都从下标小的开始使用。</p>
+<p>age[0]对应的是[ebp-28h]，age[1]对应的是[ebp-24h]…</p>
+<p>age[0]-&gt;age[1]-&gt;age[2]-&gt;…这样，也是从低地址到高地址</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> age[<span class="number">10</span>]=&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>&#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%95%B0%E7%BB%84/image-20231014163642656.png" alt="image-20231014163642656" /></p></div></div></div>
+<h3 id="编译器为数组分配的大小"><a class="markdownIt-Anchor" href="#编译器为数组分配的大小"></a> 编译器为数组分配的大小</h3>
+<p>如果定义char/short/int类型的数组，ESP会减少多少？为什么？</p>
+<div class="tag-plugin tabs" align="center"id="tab_21"><div class="nav-tabs"><div class="tab active"><a href="#tab_21-1">char x[10]</a></div><div class="tab"><a href="#tab_21-2">short age[10]</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_21-1"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">char</span> x[<span class="number">10</span>];</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%95%B0%E7%BB%84/image-20231014164218264.png" alt="image-20231014164218264" /></p>
+<p>4Ch-40h=Ch，12个字节。我们声明的是10个char类型，为什么分配了12个字节？</p>
+<p>这涉及本机尺寸的概念，在32位机器下，对4字节的支持最好。10不是4的倍数，所以多分配了2字节，凑成12字节，这是一种以空间换时间的做法，在运行效率和内存分配之间做的取舍。</p></div><div class="tab-pane" id="tab_21-2"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">short</span> x[<span class="number">10</span>];</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%95%B0%E7%BB%84/image-20231014164409560.png" alt="image-20231014164409560" /></p>
+<p>54h-40h=14h=20D，20个字节。声明了10个short类型，10×2=20字节，刚好是4字节的倍数。</p></div></div></div>
+<p>其实也很好理解，如果还是像参数和局部变量那样，每个char和short类型的变量都给4字节，当1个数组非常大时，空间浪费就很大。所以数组下的char和short类型并没有像参数和局部变量那样每个分配4字节。</p>
+<p><strong>结论：根据声明的总大小，按4字节的倍数进行分配。</strong></p>
+<h2 id="数组的访问"><a class="markdownIt-Anchor" href="#数组的访问"></a> 数组的访问</h2>
+<p>无论多么复杂的表达式，在我们眼中就是一个值。下面形式对数组的访问都是可以的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">Add</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> x+y;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Function</span><span class="params">()</span>			</span><br><span class="line">&#123;			</span><br><span class="line">    <span class="type">int</span> arr[<span class="number">10</span>] = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>&#125;;		</span><br><span class="line">            </span><br><span class="line">    <span class="type">int</span> x = <span class="number">1</span>;		</span><br><span class="line">    <span class="type">int</span> y = <span class="number">2</span>;		</span><br><span class="line">    <span class="type">int</span> r ;		</span><br><span class="line">            </span><br><span class="line">    r = arr[<span class="number">1</span>];		</span><br><span class="line">    r = arr[x];	</span><br><span class="line">    r = arr[x+y];	</span><br><span class="line">    r = arr[x*<span class="number">2</span>+y];</span><br><span class="line">    r = arr[arr[<span class="number">1</span>]+arr[<span class="number">2</span>]];	</span><br><span class="line">    r = arr[Add(<span class="number">1</span>,<span class="number">2</span>)];		</span><br><span class="line">		</span><br><span class="line">&#125;		</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    Function();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;	</span><br><span class="line">			</span><br></pre></td></tr></table></figure>
+<p>练习：找出上面代码中对变量r赋值过程的反汇编代码。目的：弄清数组在内存中的寻址方式</p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">Function:</span><br><span class="line">0040DE60 55                   push        ebp</span><br><span class="line">0040DE61 8B EC                mov         ebp,esp</span><br><span class="line">0040DE63 83 EC 74             sub         esp,74h</span><br><span class="line">0040DE66 53                   push        ebx</span><br><span class="line">0040DE67 56                   push        esi</span><br><span class="line">0040DE68 57                   push        edi</span><br><span class="line">0040DE69 8D 7D 8C             lea         edi,[ebp-74h]</span><br><span class="line">0040DE6C B9 1D 00 00 00       mov         ecx,1Dh</span><br><span class="line">0040DE71 B8 CC CC CC CC       mov         eax,0CCCCCCCCh</span><br><span class="line">0040DE76 F3 AB                rep stos    dword ptr [edi]</span><br><span class="line">;    int arr[10] = &#123;1,2,3,4,5,6,7,8,9,10&#125;;	</span><br><span class="line">0040DE78 C7 45 D8 01 00 00 00 mov         dword ptr [ebp-28h],1     ;arr[0]</span><br><span class="line">0040DE7F C7 45 DC 02 00 00 00 mov         dword ptr [ebp-24h],2     ;arr[1]</span><br><span class="line">0040DE86 C7 45 E0 03 00 00 00 mov         dword ptr [ebp-20h],3     ;arr[2]</span><br><span class="line">0040DE8D C7 45 E4 04 00 00 00 mov         dword ptr [ebp-1Ch],4     ;arr[3]</span><br><span class="line">0040DE94 C7 45 E8 05 00 00 00 mov         dword ptr [ebp-18h],5     ;arr[4]</span><br><span class="line">0040DE9B C7 45 EC 06 00 00 00 mov         dword ptr [ebp-14h],6     ;arr[5]</span><br><span class="line">0040DEA2 C7 45 F0 07 00 00 00 mov         dword ptr [ebp-10h],7     ;arr[6]</span><br><span class="line">0040DEA9 C7 45 F4 08 00 00 00 mov         dword ptr [ebp-0Ch],8     ;arr[7]</span><br><span class="line">0040DEB0 C7 45 F8 09 00 00 00 mov         dword ptr [ebp-8],9       ;arr[8]</span><br><span class="line">0040DEB7 C7 45 FC 0A 00 00 00 mov         dword ptr [ebp-4],0Ah     ;arr[9]</span><br><span class="line">;    int x=1;	  </span><br><span class="line">0040DEBE C7 45 D4 01 00 00 00 mov         dword ptr [ebp-2Ch],1</span><br><span class="line">;    int y=2;</span><br><span class="line">0040DEC5 C7 45 D0 02 00 00 00 mov         dword ptr [ebp-30h],2</span><br></pre></td></tr></table></figure><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">;    int r;</span><br><span class="line"></span><br><span class="line">;    r=arr[1];</span><br><span class="line">0040DECC 8B 45 DC             mov         eax,dword ptr [ebp-24h]</span><br><span class="line">0040DECF 89 45 CC             mov         dword ptr [ebp-34h],eax</span><br></pre></td></tr></table></figure><p>ecx=1，[ebp+ecx*4-28h]=[ebp+0xC-28h]=[ebp+0xC-28h]=[ebp-28h]=1</p><p>int类型，所以是×4。如果是short类型，×2。如果是char类型，×1。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">;    r=arr[x];</span><br><span class="line">0040DED2 8B 4D D4             mov         ecx,dword ptr [ebp-2Ch]</span><br><span class="line">0040DED5 8B 54 8D D8          mov         edx,dword ptr [ebp+ecx*4-28h]</span><br><span class="line">0040DED9 89 55 CC             mov         dword ptr [ebp-34h],edx</span><br></pre></td></tr></table></figure><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">;    r=arr[x+y];</span><br><span class="line">0040DEDC 8B 45 D4             mov         eax,dword ptr [ebp-2Ch]</span><br><span class="line">0040DEDF 03 45 D0             add         eax,dword ptr [ebp-30h]</span><br><span class="line">0040DEE2 8B 4C 85 D8          mov         ecx,dword ptr [ebp+eax*4-28h]</span><br><span class="line">0040DEE6 89 4D CC             mov         dword ptr [ebp-34h],ecx</span><br></pre></td></tr></table></figure><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">;    r=arr[2*x+y];</span><br><span class="line">0040DEE9 8B 55 D4             mov         edx,dword ptr [ebp-2Ch]</span><br><span class="line">0040DEEC 8B 45 D0             mov         eax,dword ptr [ebp-30h]</span><br><span class="line">0040DEEF 8D 0C 50             lea         ecx,[eax+edx*2]</span><br><span class="line">0040DEF2 8B 54 8D D8          mov         edx,dword ptr [ebp+ecx*4-28h]</span><br><span class="line">0040DEF6 89 55 CC             mov         dword ptr [ebp-34h],edx</span><br></pre></td></tr></table></figure><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">;    r=arr[arr[1]+arr[2]];      </span><br><span class="line">0040DEF9 8B 45 DC             mov         eax,dword ptr [ebp-24h]</span><br><span class="line">0040DEFC 03 45 E0             add         eax,dword ptr [ebp-20h]</span><br><span class="line">0040DEFF 8B 4C 85 D8          mov         ecx,dword ptr [ebp+eax*4-28h]</span><br><span class="line">0040DF03 89 4D CC             mov         dword ptr [ebp-34h],ecx</span><br></pre></td></tr></table></figure><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">;;    r=arr[Add(1,2)];  </span><br><span class="line">0040DF06 6A 02                push        2</span><br><span class="line">0040DF08 6A 01                push        1</span><br><span class="line">0040DF0A E8 19 31 FF FF       call        @ILT+35(func) (00401028)</span><br><span class="line">0040DF0F 83 C4 08             add         esp,8</span><br><span class="line">0040DF12 8B 54 85 D8          mov         edx,dword ptr [ebp+eax*4-28h]</span><br><span class="line">0040DF16 89 55 CC             mov         dword ptr [ebp-34h],edx</span><br></pre></td></tr></table></figure></div></details></div>
+<h3 id="数组边界"><a class="markdownIt-Anchor" href="#数组边界"></a> 数组边界</h3>
+<p>编译器不会检查数组边界。编译不会有错，但读取的数据不可控。</p>
+<p><strong>缓冲区溢出</strong></p>
+<p>下面代码的Attack()为什么会被调用？</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">Attack</span><span class="params">()</span>			</span><br><span class="line">&#123;			</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Attack!&quot;</span>);		</span><br><span class="line">			</span><br><span class="line">	getchar();		</span><br><span class="line">&#125;			</span><br><span class="line"><span class="type">void</span> <span class="title function_">Fun</span><span class="params">()</span>			</span><br><span class="line">&#123;			</span><br><span class="line">	<span class="type">int</span> arr[<span class="number">5</span>] = &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;;		</span><br><span class="line">			</span><br><span class="line">	arr[<span class="number">6</span>] = (<span class="type">int</span>)Attack;		</span><br><span class="line">&#125;			</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">    Fun();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%95%B0%E7%BB%84/image-20231014164903405.png" alt="image-20231014164903405" /></p>
+<div class="tag-plugin colorful folders" ><details class="folder" index="0"><summary><span>答案</span></summary><div class="body"><p>下面这行代码的解释：函数名和变量名都是内存地址的别名。下面这行就是将Attack函数的地址转为int类型后赋值给变量arr[6]。</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arr[<span class="number">6</span>] = (<span class="type">int</span>)Attack;	</span><br></pre></td></tr></table></figure><p>数组正常边界是arr[0]-arr[4]，用arr[6]修改了[ebp+4]（返回地址）。所以，Fun结束调用返回时，返回到了Attack函数。</p><p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E6%95%B0%E7%BB%84/image-20231014165243094.png" alt="image-20231014165243094" /></p></div></details></div>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/C/%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%E5%92%8C%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F.html">全局变量和局部变量</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/C/%E5%A4%9A%E7%BB%B4%E6%95%B0%E7%BB%84.html">多维数组</a></div></section></div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>
