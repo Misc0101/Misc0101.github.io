@@ -139,9 +139,9 @@ IP+端口：定位互联网中的某一台电脑中的某一个服务（进程�
 </tr>
 </tbody>
 </table>
-<div class="tag-plugin tabs" align="center"id="tab_186"><div class="nav-tabs"><div class="tab active"><a href="#tab_186-1">简略版</a></div><div class="tab"><a href="#tab_186-2">详细版</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_186-1"><p>数据包由用户A发送，在公网上跳发，到达服务器A。<br />
+<div class="tag-plugin tabs" align="center"id="tab_56"><div class="nav-tabs"><div class="tab active"><a href="#tab_56-1">简略版</a></div><div class="tab"><a href="#tab_56-2">详细版</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_56-1"><p>数据包由用户A发送，在公网上跳发，到达服务器A。<br />
 服务器A的响应数据包，返回过程和发送过程类似，只不过是方向相反。</p>
-<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF/image-20240118153140170.png" alt="image-20240118153140170" /></p></div><div class="tab-pane" id="tab_186-2"><p>用户A希望访问服务器A上的网页，他在浏览器中输入了相应的URL（假设服务器A的ip地址已知，这里就不提DNS解析过程了）。在这个过程中，用户A的计算机会生成一个请求数据包。这个数据包首先在应用层被创建，然后依次通过传输层、网络层、数据链路层和物理层进行封装，每一层都会添加相应的头信息，以确保数据包能够正确地传输和识别。这个数据包经由交换机，路由器在公网中传输，最终到达目标服务器A。<br />
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86_%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%8A%80%E6%9C%AF/image-20240118153140170.png" alt="image-20240118153140170" /></p></div><div class="tab-pane" id="tab_56-2"><p>用户A希望访问服务器A上的网页，他在浏览器中输入了相应的URL（假设服务器A的ip地址已知，这里就不提DNS解析过程了）。在这个过程中，用户A的计算机会生成一个请求数据包。这个数据包首先在应用层被创建，然后依次通过传输层、网络层、数据链路层和物理层进行封装，每一层都会添加相应的头信息，以确保数据包能够正确地传输和识别。这个数据包经由交换机，路由器在公网中传输，最终到达目标服务器A。<br />
 服务器A收到请求后，会按照相反的顺序，从物理层开始逐层解开数据包，直到应用层，从而能够理解和处理请求。<br />
 响应数据包的路径与请求来时的路径相同，但是方向相反，即从服务器A发出，经过相同的网络层次，最终回到用户A的计算机。</p>
 <blockquote>
