@@ -17,14 +17,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="theme-color" content="#f8f8f8">
   
-  <title>Windows下的环境搭建：IIS - Misc010</title>
+  <title>Windows下的环境搭建：IIS - Misc0101</title>
 
   
     <meta name="description" content="安装IIS 不需要server版 控制面板-程序和功能-启用或关闭Windows功能  不同系统版本勾选的不一样，不需要连网，安装完成后按照提示重启 安装好后可以搜到IIS  然后可以用浏览器访问装了IIS的这台电脑ip:80   日志    日志的显示可能有延迟  What is IIS  chatGPT4 待再次组织整理  Q：什么是IIS，IIS的应用场景是什么，在该场景中数据的交互过程是">
 <meta property="og:type" content="website">
 <meta property="og:title" content="IIS">
 <meta property="og:url" content="https://misc0101.github.io/wiki/windows_env/IIS.html">
-<meta property="og:site_name" content="Misc010">
+<meta property="og:site_name" content="Misc0101">
 <meta property="og:description" content="安装IIS 不需要server版 控制面板-程序和功能-启用或关闭Windows功能  不同系统版本勾选的不一样，不需要连网，安装完成后按照提示重启 安装好后可以搜到IIS  然后可以用浏览器访问装了IIS的这台电脑ip:80   日志    日志的显示可能有延迟  What is IIS  chatGPT4 待再次组织整理  Q：什么是IIS，IIS的应用场景是什么，在该场景中数据的交互过程是">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://misc0101.github.io/Typora_images/IIS/image-20230926112307402.png">
@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://misc0101.github.io/Typora_images/IIS/image-20230926112703698.png">
 <meta property="article:published_time" content="2023-09-26T03:00:43.000Z">
 <meta property="article:modified_time" content="2023-09-26T03:00:43.000Z">
-<meta property="article:author" content="Misc">
+<meta property="article:author" content="Misc0101">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://misc0101.github.io/Typora_images/IIS/image-20230926112307402.png">
   
@@ -81,7 +81,7 @@
 
 <widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/windows_env/%E5%9F%9F%E7%8E%AF%E5%A2%83.html#start"><span class="toc-text">域环境</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/windows_env/Exchange%E9%82%AE%E7%AE%B1%E6%9C%8D%E5%8A%A1%E5%99%A8.html"><span class="toc-text">Exchange邮箱服务器</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/windows_env/IIS.html"><span class="toc-text">IIS</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85iis"><span class="toc-text"> 安装IIS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97"><span class="toc-text"> 日志</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#what-is-iis"><span class="toc-text"> What is IIS</span></a></li></ol></div></div></widget>
 
-<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：环境搭建</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/SIEM_env_building/Arcisght.html"><span class="title">SIEM环境搭建</span><span class="excerpt">目前包含：Splunk、Arcisght Recon。</span></a><a class="item wiki" href="/wiki/linux_env/chrony%E6%97%B6%E9%97%B4%E6%9C%8D%E5%8A%A1%E5%99%A8.html"><span class="title">Linux下的环境搭建</span><span class="excerpt">目前包含：chrony时间服务器。</span></a><a class="item wiki" href="/wiki/proxy_server_building/squid%E8%AE%A4%E8%AF%81%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA.html"><span class="title">代理服务器搭建</span><span class="excerpt">目前包含：squid透明/认证代理服务器，TMG代理服务器。</span></a><a class="item wiki" href="/wiki/network_security_devices_env/Sophos_Firewall.html"><span class="title">安全设备类环境搭建</span><span class="excerpt">目前包含：Sophos Firewall，SonicWALL SMA设备，Juniper SRX设备，FortiGate VM，Cisco ACS，Cisco ISE。</span></a><a class="item wiki" href="/wiki/sql_injection_env/SQLite.html"><span class="title">SQL注入靶场环境搭建</span><span class="excerpt">目前包含：Oracle、PostgreSQL、Microsoft Access、SQLite。</span></a></div></widget>
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：环境搭建</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/SIEM_env_building/Arcisght.html"><span class="title">SIEM环境搭建</span><span class="excerpt">目前包含：Splunk、Arcisght Recon。</span></a><a class="item wiki" href="/wiki/linux_env/chrony%E6%97%B6%E9%97%B4%E6%9C%8D%E5%8A%A1%E5%99%A8.html"><span class="title">Linux下的环境搭建</span><span class="excerpt">目前包含：chrony时间服务器。</span></a><a class="item wiki" href="/wiki/network_security_devices_env/Sophos_Firewall.html"><span class="title">安全设备类环境搭建</span><span class="excerpt">目前包含：Sophos Firewall，SonicWALL SMA设备，Juniper SRX设备，FortiGate VM，Cisco ACS，Cisco ISE。</span></a><a class="item wiki" href="/wiki/proxy_server_building/squid%E8%AE%A4%E8%AF%81%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA.html"><span class="title">代理服务器搭建</span><span class="excerpt">目前包含：squid透明/认证代理服务器，TMG代理服务器。</span></a><a class="item wiki" href="/wiki/sql_injection_env/SQLite.html"><span class="title">SQL注入靶场环境搭建</span><span class="excerpt">目前包含：Oracle、PostgreSQL、Microsoft Access、SQLite。</span></a></div></widget>
 </div>
 
 
@@ -160,7 +160,7 @@
 
 
       
-<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc0101</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
 本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
 </div></footer>
 
