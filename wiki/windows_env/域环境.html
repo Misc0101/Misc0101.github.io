@@ -113,7 +113,7 @@
 <li>Administrator强密码</li>
 <li>将当前机器设置为静态IP，DNS首选服务器设置为<code>127.0.0.1</code></li>
 </ul>
-<div class="tag-plugin tabs" align="center"id="tab_253"><div class="nav-tabs"><div class="tab active"><a href="#tab_253-1">powershell方式安装</a></div><div class="tab"><a href="#tab_253-2">手动方式安装</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_253-1"><table>
+<div class="tag-plugin tabs" align="center"id="tab_250"><div class="nav-tabs"><div class="tab active"><a href="#tab_250-1">powershell方式安装</a></div><div class="tab"><a href="#tab_250-2">手动方式安装</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_250-1"><table>
 <thead>
 <tr>
 <th>参考链接🔗</th>
@@ -197,7 +197,7 @@
 </li>
 </ul>
 </li>
-</ol></div><div class="tab-pane" id="tab_253-2"><table>
+</ol></div><div class="tab-pane" id="tab_250-2"><table>
 <thead>
 <tr>
 <th>参考链接🔗</th>
@@ -264,6 +264,17 @@
 <div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/windows_env/Exchange%E9%82%AE%E7%AE%B1%E6%9C%8D%E5%8A%A1%E5%99%A8.html">Exchange邮箱服务器</a></div></section></div>
 
 
+
+  <div class='related-wrap md-text reveal' id="comments">
+    <section class='header cmt-title cap theme'>
+      快来参与讨论吧
+    </section>
+    <section class='body cmt-body twikoo'>
+      
+
+<div id="twikoo_container"><svg class="loading" style="vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2709"><path d="M832 512c0-176-144-320-320-320V128c211.2 0 384 172.8 384 384h-64zM192 512c0 176 144 320 320 320v64C300.8 896 128 723.2 128 512h64z" p-id="2710"></path></svg></div>
+    </section>
+  </div>
 
 
       
@@ -439,6 +450,27 @@
 
 
 <!-- optional -->
+
+  <script>
+    function load_twikoo() {
+        if (!document.querySelectorAll("#twikoo_container")[0]) return;
+        stellar.loadScript('https://gcore.jsdelivr.net/npm/twikoo@1.6.8/dist/twikoo.all.min.js', {defer: true}).then(function () {
+            const el = document.getElementById("twikoo_container");
+            var path = el.getAttribute('comment_id');
+            if (!path) {
+                path = decodeURI(window.location.pathname);
+            }
+            twikoo.init(Object.assign({"js":"https://gcore.jsdelivr.net/npm/twikoo@1.6.8/dist/twikoo.all.min.js","envId":"https://twikooblogcomment-tkkws-projects-20e4cf59.vercel.app"}, {
+                el: '#twikoo_container',
+                path: path,
+            }));
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', (event) => {
+        load_twikoo();
+    });
+</script>
 
 
 

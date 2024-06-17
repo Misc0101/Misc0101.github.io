@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0" theme-name="Stellar" theme-version="1.25.0">
+  
+  <meta name="generator" content="Hexo 7.1.1">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>x86指令格式：前缀指令 - Misc0101</title>
+
+  
+    <meta name="description" content="123  可选  CPU如何知道这条指令中前面的字节试前缀指令还OpCode？根据这个指令的值得知的。比如55（push ebp），就是Opcode，而不是前缀指令。比如是66，就是前缀指令。前缀指令就那么几个。 在OD中为了方便用户观察，前缀指令后会跟一个冒号： 例166: EC   前缀指令分4组。一条x86指令中最多有4个前缀指令，每组只能出现1个字节   没有顺序要求 12F0:65:6">
+<meta property="og:type" content="website">
+<meta property="og:title" content="前缀指令">
+<meta property="og:url" content="https://misc0101.github.io/wiki/x86InstructionSet/%E5%89%8D%E7%BC%80%E6%8C%87%E4%BB%A4.html">
+<meta property="og:site_name" content="Misc0101">
+<meta property="og:description" content="123  可选  CPU如何知道这条指令中前面的字节试前缀指令还OpCode？根据这个指令的值得知的。比如55（push ebp），就是Opcode，而不是前缀指令。比如是66，就是前缀指令。前缀指令就那么几个。 在OD中为了方便用户观察，前缀指令后会跟一个冒号： 例166: EC   前缀指令分4组。一条x86指令中最多有4个前缀指令，每组只能出现1个字节   没有顺序要求 12F0:65:6">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%89%8D%E7%BC%80%E6%8C%87%E4%BB%A4/image-20240616143626459.png">
+<meta property="og:image" content="https://misc0101.github.io/Typora_images/%E5%89%8D%E7%BC%80%E6%8C%87%E4%BB%A4/image-20240616165138065.png">
+<meta property="article:published_time" content="2024-06-14T02:49:51.000Z">
+<meta property="article:modified_time" content="2024-06-14T02:49:51.000Z">
+<meta property="article:author" content="Misc0101">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://misc0101.github.io/Typora_images/%E5%89%8D%E7%BC%80%E6%8C%87%E4%BB%A4/image-20240616143626459.png">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1.2em" height="1.2em" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/x86InstructionSet/%E5%BC%95%E8%A8%80_x86%E6%8C%87%E4%BB%A4%E6%A0%BC%E5%BC%8F.html"><div class="main" ff="title">x86指令格式</div></a></div></widget>
+<widget class="widget-wrapper search"><div class="widget-body"><div class="search-wrapper" id="search-wrapper"><form class="search-form"><input type="text" class="search-input" id="search-input" data-filter="/wiki/x86InstructionSet/" placeholder="在/wiki/x86InstructionSet/中搜索..."><svg t="1705074644177" class="icon search-icon" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div></div></widget>
+
+
+<widget class="widget-wrapper toc multi" id="data-toc" collapse="false"><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/x86InstructionSet/%E5%BC%95%E8%A8%80_x86%E6%8C%87%E4%BB%A4%E6%A0%BC%E5%BC%8F.html#start"><span class="toc-text">引言</span></a></div><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/x86InstructionSet/%E5%89%8D%E7%BC%80%E6%8C%87%E4%BB%A4.html"><span class="toc-text">前缀指令</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#123"><span class="toc-text"> 123</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC1%E7%BB%84"><span class="toc-text"> 第1组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC2%E7%BB%84"><span class="toc-text"> 第2组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC3%E7%BB%84"><span class="toc-text"> 第3组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC4%E7%BB%84"><span class="toc-text"> 第4组</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E9%95%BF%E6%8C%87%E4%BB%A4_%E4%BF%AE%E6%94%B9erx"><span class="toc-text"> 定长指令_修改ERX</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E9%95%BF%E6%8C%87%E4%BB%A4_%E4%BF%AE%E6%94%B9eip"><span class="toc-text"> 定长指令_修改EIP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%85%E6%95%B4%E7%90%86%E7%9A%84"><span class="toc-text"> 待整理的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E9%95%BF%E6%8C%87%E4%BB%A4_%E4%BF%AE%E6%94%B9erx-2"><span class="toc-text"> 定长指令_修改ERX</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pushpop-50-5f%E7%B3%BB%E5%88%97"><span class="toc-text"> push&#x2F;pop 50-5F系列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#incdec-40-4f%E7%B3%BB%E5%88%97"><span class="toc-text"> inc&#x2F;dec 40-4F系列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mov-%E9%80%9A%E7%94%A8%E5%AF%84%E5%AD%98%E5%99%A8%E7%AB%8B%E5%8D%B3%E6%95%B0-b0-bf%E7%B3%BB%E5%88%97"><span class="toc-text"> mov 通用寄存器，立即数 B0-BF系列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xchg-90-97%E7%B3%BB%E5%88%97"><span class="toc-text"> xchg 90-97系列</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E9%95%BF%E6%8C%87%E4%BB%A4_%E4%BF%AE%E6%94%B9eip-2"><span class="toc-text"> 定长指令_修改EIP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jcc%E6%AE%B5%E5%86%85%E7%9F%AD%E8%BD%AC%E7%A7%BB-70-7f%E7%B3%BB%E5%88%97"><span class="toc-text"> jcc段内短转移 70-7F系列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jcc%E6%AE%B5%E5%86%85%E8%BF%91%E8%BD%AC%E7%A7%BB-0x0f-0x80-0x0f-0x8f%E7%B3%BB%E5%88%97"><span class="toc-text"> jcc段内近转移 0x0F 0x80 - 0x0F 0x8F系列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96"><span class="toc-text"> 其他</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%98%E9%95%BF%E6%8C%87%E4%BB%A4"><span class="toc-text"> 变长指令</span></a></li></ol></div></div></widget>
+
+<widget class="widget-wrapper related"><div class="widget-header cap theme dis-select"><span class="name">更多：安全技术</span></div><div class="widget-body related-posts"><a class="item wiki" href="/wiki/C++_disassembly/%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5_C++_disassembly.html"><span class="title">C++反汇编</span><span class="excerpt">C++反汇编，总结版（To finish...）。</span></a><a class="item wiki" href="/wiki/Hook/%E7%9B%AE%E5%BD%95.html"><span class="title">Hook专题</span><span class="excerpt">Hook技术专题。</span></a><a class="item wiki" href="/wiki/Injection/%E5%BC%95%E8%A8%80_%E6%B3%A8%E5%85%A5%E6%8A%80%E6%9C%AF%E4%B8%93%E9%A2%98.html"><span class="title">注入技术专题</span><span class="excerpt">注入的本质是将自己的数据放到目标进程空间中执行，没有一种注入技术是通杀无敌的。学习各种注入技术，在学习操作方法以外，还要深入了解其背后原理。万一哪天自己融会贯通发明了一种全新的注入技术呢？</span></a><a class="item wiki" href="/wiki/PE/Overview_PE.html"><span class="title">PE</span><span class="excerpt">滴水三期_PE文件笔记(To finish...)。</span></a><a class="item wiki" href="/wiki/Protected_Mode/%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8.html"><span class="title">Protected_Mode</span><span class="excerpt">滴水三期_保护模式笔记。</span></a><a class="item wiki" href="/wiki/cryptography/DES.html"><span class="title">密码学</span><span class="excerpt">一些加密算法原理和流程细节，目前包含：对称加密DES、AES、SM4、ZUC；非对称RSA和ElGamal。</span></a><a class="item wiki" href="/wiki/vuln_reproduction/%E7%9B%AE%E5%BD%95_%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0.html"><span class="title">漏洞复现</span><span class="excerpt">漏洞复现。</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+  
+
+
+
+
+
+      
+
+
+<div class="bread-nav fs12"><div class="left"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/x86InstructionSet/%E5%BC%95%E8%A8%80_x86%E6%8C%87%E4%BB%A4%E6%A0%BC%E5%BC%8F.html">x86指令格式</a></div><div id="post-meta">
+    <span>更新于&nbsp;<time datetime="2024-06-14T02:49:51.000Z">2024-06-14</time></span>
+    </div></div></div>
+
+<article class='md-text content wiki'>
+<h1 class="article-title"><span>前缀指令</span></h1>
+<h2 id="123"><a class="markdownIt-Anchor" href="#123"></a> 123</h2>
+<ol>
+<li>可选</li>
+</ol>
+<p>CPU如何知道这条指令中前面的字节试前缀指令还OpCode？根据这个指令的值得知的。比如55（push ebp），就是Opcode，而不是前缀指令。比如是66，就是前缀指令。前缀指令就那么几个。</p>
+<p>在OD中为了方便用户观察，前缀指令后会跟一个冒号：</p>
+<figure class="highlight plaintext"><figcaption><span>例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">66: EC</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>
+<p>前缀指令分4组。一条x86指令中最多有4个前缀指令，每组只能出现1个字节</p>
+</li>
+<li>
+<p>没有顺序要求</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">F0:65:66:67</span><br><span class="line">67:66:65:F0</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="第1组"><a class="markdownIt-Anchor" href="#第1组"></a> 第1组</h3>
+<p>LOCK前缀指令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LOCK            F0          ; 锁地址总线，当有一个CPU（核）访问该地址总线时，其他核不能访问，该指令用于做互斥控制（？）</span><br></pre></td></tr></table></figure>
+<p>REPEAT前缀指令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">REPNE/REPNZ     F2          ;ZF不为0时重复执行</span><br><span class="line">REP/REPZ        F3          ; ZF为1时重复执行</span><br></pre></td></tr></table></figure>
+<h3 id="第2组"><a class="markdownIt-Anchor" href="#第2组"></a> 第2组</h3>
+<p>段前缀指令，表明使用哪个段寄存器进行寻址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">2E              ; CS 段前缀</span><br><span class="line">36              ; SS 段前缀</span><br><span class="line">3E              ; DS 段前缀</span><br><span class="line">26              ; ES 段前缀</span><br><span class="line">64              ; FS 段前缀</span><br><span class="line">65              ; GS 段前缀</span><br></pre></td></tr></table></figure>
+<ol>
+<li>默认用DS段寄存器寻址（指令前面不会显式写3E）</li>
+<li>操作数中涉及ESP和EBP的操作默认使用SS段寄存器</li>
+</ol>
+<h3 id="第3组"><a class="markdownIt-Anchor" href="#第3组"></a> 第3组</h3>
+<p>操作数宽度前缀指令，改变操作数宽度</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">66              ; 用于改变操作数默认宽度</span><br><span class="line">                ; 如果目前CPU是16位模式，会将操作数宽度改变为32</span><br><span class="line">                ; 如果目前CPU是32位模式，会将操作数宽度改变为16</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><figcaption><span>例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">55      push ebp            ;在CPU为32位模式下，操作数默认宽度是32</span><br><span class="line">66:55   push bp             ;加上66，将操作数宽度改为了16位</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>这里的宽度之所以是32位是因为当前CPU的模式是32位的</strong>，想要知道当前CPU模式就需要涉及段寄存器的知识，这里我们简单了解下（后续课程深入了解），在段寄存器CS中有一个属性位称之为DB位，当DB位为1的时候当前CPU处于32位模式，为0的时候就表示当前CPU处于16位模式。在这里，CPU是32位模式，所以操作数默认的宽度是32。</p>
+<p>（上面是摘抄的，后续进行确定）</p>
+<p>cs中的db位？</p>
+</blockquote>
+<blockquote>
+<p>x64构架的cpu使用cs段寄存器来确定cpu的运行模式。在32位进程中，cs=0x23；在64位进程中，cs=0x33。当cs被更改后，cpu的运行模式便会发生转变。</p>
+</blockquote>
+<h3 id="第4组"><a class="markdownIt-Anchor" href="#第4组"></a> 第4组</h3>
+<p>地址宽度前缀指令，改变默认的寻址方式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">67              ; 用于改变寻址方式</span><br><span class="line">                ; 如果目前CPU是16位模式，会将寻址方式改变为32位的寻址方式</span><br><span class="line">                ; 如果目前CPU是32位模式，会将寻址方式改变为16位的寻址方式</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">8965 E8		    mov dword ptr ss:[ebp-18],esp</span><br><span class="line">67:8965 E8      mov dword ptr ds:[di+FFE0],esp</span><br></pre></td></tr></table></figure>
+<hr />
+<hr />
+<hr />
+<p>OpCode</p>
+<p>OpCode决定是否有ModR/M，ModR/M决定是否有SIB</p>
+<p>OpCode能决定整条指令是定长还是变长指令</p>
+<ul>
+<li>50开头，定长指令</li>
+<li>比如00开头，那仅凭OpCode没法确定指令长度，即变长指令</li>
+</ul>
+<p>OpCode后没有MoR/M，就是定长指令</p>
+<p>有的话，是变长指令</p>
+<p>那张主表中有大写的E和G，表明后面跟着MoR/M，就是变长指令</p>
+<p>在A.2.4.1 One-Byte Opcode Instructions点Table A-2会跳到一张表</p>
+<p>这张表是主表，用于区分指令是定长还是变长</p>
+<p>5行,push</p>
+<p>50，push eax</p>
+<p>51，push ecx</p>
+<p>Zz表示法</p>
+<p>含义：</p>
+<p>A.2 KEY TO ABBREVIATIONS</p>
+<p>A.2.1 Codes for Addressing Method</p>
+<p>A.2.2 Codes for Operand Type</p>
+<h2 id="定长指令_修改erx"><a class="markdownIt-Anchor" href="#定长指令_修改erx"></a> 定长指令_修改ERX</h2>
+<p>50-57 push OD右边寄存器从上到下</p>
+<p>58-xx pop OD右边寄存器从上到下</p>
+<p>0-7，寄存器的顺序固定住了</p>
+<p>rAx，可以是rax，eax，ax</p>
+<p>eAx，eax，ax</p>
+<p>主表4那一行，32位是上面一行；CPU如果是64位，是下面一行（不同CPU模式时含义不同）</p>
+<p>INC上面的i64，表明这个指令在64位是无效的</p>
+<p>定长指令：一旦OpCode确定了，指令的长度就确定了。而不是定长就是整个指令宽度为1</p>
+<p>xchg eax,eax，和没交换一样，废话，于是弄成其他含义了，nop</p>
+<p>花指令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">90</span><br><span class="line">0000		;正常情况下jmp到这里</span><br><span class="line">0000</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">B0    		    ;改为B0，为在它后面补几个字节</span><br><span class="line"></span><br><span class="line">变成</span><br><span class="line">B0 00</span><br><span class="line">00 00</span><br></pre></td></tr></table></figure>
+<p>还原，假设是jmp到 E8地址，看过去，那里看是E7，下一条指令是E9。没有E8，就是被加花了，改为90改回去</p>
+<p>d64，说明这个指令后面跟的操作数的宽度默认是64位，不支持32位</p>
+<h2 id="定长指令_修改eip"><a class="markdownIt-Anchor" href="#定长指令_修改eip"></a> 定长指令_修改EIP</h2>
+<p>jcc定长指令</p>
+<p>short，1个字节</p>
+<p>1个字节，00-7F，向上跳</p>
+<p>80-FF，向下跳</p>
+<p>07:47</p>
+<h2 id="待整理的"><a class="markdownIt-Anchor" href="#待整理的"></a> 待整理的</h2>
+<p>由6部分组成</p>
+<p>常识：每一条指令，最短1字节，最长15字节</p>
+<h2 id="定长指令_修改erx-2"><a class="markdownIt-Anchor" href="#定长指令_修改erx-2"></a> 定长指令_修改ERX</h2>
+<h3 id="pushpop-50-5f系列"><a class="markdownIt-Anchor" href="#pushpop-50-5f系列"></a> push/pop 50-5F系列</h3>
+<p>0-7，8-F寄存器顺序就是OD右边从上到下显示的寄存器的顺序</p>
+<figure class="highlight plaintext"><figcaption><span>50-57 push通用寄存器</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0x50 	PUSH EAX</span><br><span class="line">0x51 	PUSH ECX</span><br><span class="line">0x52 	PUSH EDX</span><br><span class="line">0x53 	PUSH EBX</span><br><span class="line">0x54 	PUSH ESP</span><br><span class="line">0x55 	PUSH EBP</span><br><span class="line">0x56 	PUSH ESI</span><br><span class="line">0x57 	PUSH EDI</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><figcaption><span>58-5F pop通用寄存器</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0x58	POP EAX</span><br><span class="line">0x59	POP ECX</span><br><span class="line">0x5A	POP EDX</span><br><span class="line">0x5B 	POP EBX</span><br><span class="line">0x5C 	POP ESP</span><br><span class="line">0x5D 	POP EBP</span><br><span class="line">0x5E	POP ESI</span><br><span class="line">0x5F 	POP EDI</span><br></pre></td></tr></table></figure>
+<h3 id="incdec-40-4f系列"><a class="markdownIt-Anchor" href="#incdec-40-4f系列"></a> inc/dec 40-4F系列</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x40 - 0x47		INC ERX</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x48 - 0x4F		DEC ERX</span><br></pre></td></tr></table></figure>
+<h3 id="mov-通用寄存器立即数-b0-bf系列"><a class="markdownIt-Anchor" href="#mov-通用寄存器立即数-b0-bf系列"></a> mov 通用寄存器，立即数 B0-BF系列</h3>
+<p>Ib：byte大小的立即数（Immediate data），范围00-FF</p>
+<figure class="highlight plaintext"><figcaption><span>MOV immediate byte into byte register</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0xB0 	MOV AL,Ib</span><br><span class="line">0xB1 	MOV CL,Ib</span><br><span class="line">0xB2 	MOV DL,Ib</span><br><span class="line">0xB3 	MOV BL,Ib</span><br><span class="line">0xB4 	MOV AH,Ib</span><br><span class="line">0xB5 	MOV CH,Ib</span><br><span class="line">0xB6 	MOV DH,Ib</span><br><span class="line">0xB7 	MOV BH,Ib</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><figcaption><span>例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">B0 00 	MOV AL,00           ;给al赋值00</span><br><span class="line">B1 8F	MOV CL,8F           ;给cl赋值8F</span><br></pre></td></tr></table></figure>
+<hr />
+<p>r：既可以是EAX，也可以是AX</p>
+<p>在CPU为32位的模式下，加前缀指令后，B8就是将立即数赋值给16位的通用寄存器</p>
+<figure class="highlight plaintext"><figcaption><span>MOV immediate word or double into word, double, or quad register</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0xB8 	MOV rAX,Iv</span><br><span class="line">0xB9 	MOV rCX,Iv</span><br><span class="line">0xBA 	MOV rDX,Iv</span><br><span class="line">0xBB 	MOV rBX,Iv</span><br><span class="line">0xBC 	MOV rSP,Iv</span><br><span class="line">0xBD 	MOV rBP,Iv</span><br><span class="line">0xBE 	MOV rSI,Iv</span><br><span class="line">0xBF 	MOV rDI,Iv</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><figcaption><span>例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">B8 00000000 	MOV EAX,00000000           ;给EAX赋值00000000</span><br><span class="line">B9 12345678	    MOV ECX,12345678           ;给ECX赋值12345678</span><br></pre></td></tr></table></figure>
+<h3 id="xchg-90-97系列"><a class="markdownIt-Anchor" href="#xchg-90-97系列"></a> xchg 90-97系列</h3>
+<figure class="highlight plaintext"><figcaption><span>XCHG word, double-word or quad-word register with rAX</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">0x91 	XCHG EAX,ECX</span><br><span class="line">0x92 	XCHG EAX,EDX</span><br><span class="line">0x93 	XCHG EAX,EBX</span><br><span class="line">0x94 	XCHG EAX,ESP</span><br><span class="line">0x95 	XCHG EAX,EBP</span><br><span class="line">0x96 	XCHG EAX,ESI</span><br><span class="line">0x97 	XCHG EAX,EDI</span><br></pre></td></tr></table></figure>
+<p>0x90，eax和eax交换，废话。于是0x90设计为nop，啥也不做</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0x90 	XCHG EAX,EAX    ;eax和eax交换，废话</span><br><span class="line"></span><br><span class="line">0X90    nop             ;啥也不做</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Intel对于0号寄存器eax有特殊的照顾，比如这里的xchg左边操作数都是eax。</p>
+</blockquote>
+<p>定长指令的意思，OpCode出现了，长度就确定了</p>
+<p>OpCode能确定指令的长度-&gt;定长指令</p>
+<h2 id="定长指令_修改eip-2"><a class="markdownIt-Anchor" href="#定长指令_修改eip-2"></a> 定长指令_修改EIP</h2>
+<h3 id="jcc段内短转移-70-7f系列"><a class="markdownIt-Anchor" href="#jcc段内短转移-70-7f系列"></a> jcc段内短转移 70-7F系列</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Jcc Jb（byte字节的偏移）</span><br></pre></td></tr></table></figure>
+<p>后面跟1个字节立即数的偏移。这个偏移当成有符号看</p>
+<ul>
+<li>00-7F，正数，向下/前（高地址）跳</li>
+<li>80-FF，负数，向上/后（低地址）跳</li>
+</ul>
+<p>跳转到的地址=当前指令的地址+当前指令长度+Ib</p>
+<blockquote>
+<p>基于下面两个公式算出来的：</p>
+<ul>
+<li>下一条指令的地址=当前指令地址+当前指令长度</li>
+<li>要跳转的地址=下一条指令的地址+偏移量</li>
+</ul>
+</blockquote>
+<figure class="highlight plaintext"><figcaption><span>Short-displacement jump on condition</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">0x70  	JO</span><br><span class="line">0x71	JNO</span><br><span class="line">0x72	JB/JNAE/JC</span><br><span class="line">0x73	JNB/JAE/JNC</span><br><span class="line">0x74	JZ/JE</span><br><span class="line">0x75	JNZ/JNE</span><br><span class="line">0x76	JBE/JNA</span><br><span class="line">0x77	JNBE/JA</span><br><span class="line">0x78	JS</span><br><span class="line">0x79	JNS</span><br><span class="line">0x7A	JP/JPE</span><br><span class="line">0x7B	JNP/JPO</span><br><span class="line">0x7C	JL/JNGE</span><br><span class="line">0x7D	JNL/JGE</span><br><span class="line">0x7E	JLE/JNG</span><br><span class="line">0x7F	JNLE/JG</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><figcaption><span>例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">004183D7 70 05   JO  SHORT 004183DE      ;  OF=1时跳转，向下跳5字节</span><br><span class="line"></span><br><span class="line">004183DC 71 FB   JNO SHORT 004183D9      ;  OF=0时跳转，向下跳5字节</span><br></pre></td></tr></table></figure>
+<h3 id="jcc段内近转移-0x0f-0x80-0x0f-0x8f系列"><a class="markdownIt-Anchor" href="#jcc段内近转移-0x0f-0x80-0x0f-0x8f系列"></a> jcc段内近转移 0x0F 0x80 - 0x0F 0x8F系列</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Jcc Jz（偏移）</span><br><span class="line"></span><br><span class="line">z Word for 16-bit operand-size or doubleword for 32 or 64-bit operand-size.</span><br></pre></td></tr></table></figure>
+<p>后面跟4个字节立即数的偏移。这个偏移当成有符号看</p>
+<ul>
+<li>00-7FFFFFFF，正数，向下/前（高地址）跳</li>
+<li>80-FFFFFFFF，负数，向上/后（低地址）跳</li>
+</ul>
+<p>跳转到的地址=当前指令的地址+当前指令长度+Id</p>
+<figure class="highlight plaintext"><figcaption><span>Long-displacement jump on condition</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">0x0F 0x80  		JO</span><br><span class="line">0x0F 0x81		JNO</span><br><span class="line">0x0F 0x82		JB/JNAE/JC</span><br><span class="line">0x0F 0x83		JNB/JAE/JNC</span><br><span class="line">0x0F 0x84		JZ/JE</span><br><span class="line">0x0F 0x85		JNZ/JNE</span><br><span class="line">0x0F 0x86		JBE/JNA</span><br><span class="line">0x0F 0x87		JNBE/JA</span><br><span class="line">0x0F 0x88		JS</span><br><span class="line">0x0F 0x89		JNS</span><br><span class="line">0x0F 0x8A		JP/JPE</span><br><span class="line">0x0F 0x8B		JNP/JPO</span><br><span class="line">0x0F 0x8C		JL/JNGE</span><br><span class="line">0x0F 0x8D		JNL/JGE</span><br><span class="line">0x0F 0x8E		JLE/JNG</span><br><span class="line">0x0F 0x8F		JNLE/JG</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><figcaption><span>例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">004183D7  0F82 05000000     jb  004183E2     ;向下跳5字节</span><br><span class="line"></span><br><span class="line">004183D7  0F83 F0FFFFFF     jnb 004183CD     ;向下跳10字节</span><br></pre></td></tr></table></figure>
+<h3 id="其他"><a class="markdownIt-Anchor" href="#其他"></a> 其他</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">0xE0  	LOOPNE/LOOPNZ Jb 			     共2字节						</span><br><span class="line">    非零跳转，执行这行指令时，相当于：</span><br><span class="line">        1.ECX = ECX - 1</span><br><span class="line">        2.if ECX &gt; 0 and ZF = 0, jump to destination  (跳转地址=当前指令地址 + 当前指令长度 + Jb)									</span><br><span class="line">		</span><br><span class="line"></span><br><span class="line">0XE1    LOOPE/LOOPZ Jb 			         共2字节		</span><br><span class="line">    相等跳转，执行这行指令时，相当于：</span><br><span class="line">        1.ECX = ECX - 1</span><br><span class="line">        2.if ECX &gt; 0 and ZF = 1, jump to destination  (跳转地址=当前指令地址 + 当前指令长度 + Jb)						</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">0XE2	LOOP Jb			                 共2字节		</span><br><span class="line">    执行这行指令时，相当于：</span><br><span class="line">        1.ECX = ECX - 1</span><br><span class="line">        2.如果ECX不等于0，跳转到目标地址  (跳转地址=当前指令地址 + 当前指令长度 + Jb)	</span><br><span class="line">					</span><br><span class="line"></span><br><span class="line">0XE3	JrCXZ Jb (在32位模式中,rCX为ECX)  共2字节	</span><br><span class="line">	    当 ECX = 0 时跳转到目标地址  (跳转地址=当前指令地址 + 当前指令长度 + Ib)							</span><br><span class="line">	    (自己控制步长)			</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">0xE8	CALL Jd (near call)  		共5字节						</span><br><span class="line">	CALL指令的下一条指令地址入栈后，跳转到目标地址  (跳转地址 = 当前指令地址 + 当前指令长度 + Jb)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">0xE9	JMP  Jd (near jmp) 		共5字节						</span><br><span class="line">	跳转到目标地址  (跳转地址 = 当前指令地址 + 当前指令长度 + Jb)</span><br></pre></td></tr></table></figure>
+<hr />
+<p>16位实模式下地址总线20位，而段寄存器只有16位，寻址方式是</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(段寄存器 &lt;&lt; 4) + offset</span><br></pre></td></tr></table></figure>
+<p>在32位保护模式下，除fs外其他段寄存器的Base都是0。段寄存器在32位模式中失去了16位实模式下限制寻址范围的功能，主要用于权限控制。对于16位实模式，<code>jmp far</code> 指令意味着跨段跳转。但在32位保护模式下，跨段的概念不再适用，因为Base都是0，也就不存在“跨段”的说法。</p>
+<p>A：直接地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">0xEA	JMP  Ap (far jmp) 		共7字节			(Ap：六字节长度的直接地址)		</span><br><span class="line">	JMP CS:Id  </span><br><span class="line">            Ap中的高2字节充当段选择子，赋给CS，</span><br><span class="line">            低4字节直接赋给EIP</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><figcaption><span>例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">004183D7 &gt;    EA 12345678 1B00   jmp     far 001B:78563412</span><br></pre></td></tr></table></figure>
+<hr />
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">0xEB	JMP Jb (short jmp)					</span><br><span class="line">    跳转到目标地址  (跳转地址 = 当前指令地址 + 当前指令长度 + Jb)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">0xC3 	RET	                    共1字节							</span><br><span class="line">	EIP出栈	</span><br><span class="line">        相当于pop eip</span><br><span class="line">									</span><br><span class="line">0xC2	RET Iw (near return )	共3字节							</span><br><span class="line">	EIP出栈后，ESP = ESP + Iw   内平栈比如ret 8</span><br><span class="line">        相当于1. pop eip </span><br><span class="line">              2. add esp,Iw</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">0XCB	RETF   (far return)     共1字节</span><br><span class="line">	出栈8个字节</span><br><span class="line">        低4个字节赋值给EIP，高4个字节中低2位（？待确认）充当段选择子，赋给CS</span><br><span class="line">        相当于1.pop eip</span><br><span class="line">              2.pop cs</span><br><span class="line">									</span><br><span class="line">0xCA	RETF Iw	                共3字节</span><br><span class="line">	出栈8个字节，</span><br><span class="line">        1. 低4个字节赋值给EIP，高4个字节中低2位（？待确认）充当段选择子，赋给CS</span><br><span class="line">        2. ESP = ESP + Iw</span><br></pre></td></tr></table></figure>
+<h2 id="变长指令"><a class="markdownIt-Anchor" href="#变长指令"></a> 变长指令</h2>
+<p>OpCode能确定整条指令长度的，称为定长指令；不能的，称为变长指令。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0x88  	MOV Eb, Gb		G：通用寄存器</span><br><span class="line">0x89	MOV Ev, Gv		E：寄存器/内存</span><br><span class="line">0x8A	MOV Gb, Eb		b：字节</span><br><span class="line">0x8B	MOV Gv, Ev		v：Word, doubleword or quadword</span><br><span class="line">                                        v是由当前CPU模式决定的：</span><br><span class="line">                                                (1)CPU模式为16位时是word</span><br><span class="line">                                                (2)CPU模式为32位时是dword</span><br><span class="line">                                                (3)CPU模式为64位时是qword</span><br></pre></td></tr></table></figure>
+<p>以0x88为例，将一个8位的通用寄存器移动到一个8位的寄存器/内存中。G指哪个通用寄存器？E指哪个寄存器或内存？所以需要在OpCode后附加一个字节来进行补充说明，这1字节就是Mod R/M。Mod R/M，1个字节，8位，分成三个部分</p>
+<ul>
+<li>R/M：位0-位2</li>
+<li>Reg/Opcode：位3-位5</li>
+<li>Mod：位6-位7</li>
+</ul>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%89%8D%E7%BC%80%E6%8C%87%E4%BB%A4/image-20240616143626459.png" alt="image-20240616143626459" /></p>
+<ul>
+<li>Reg/Opcode描述指令中的G，说明寄存器具体指哪个</li>
+<li>Mod和R/M描述指令中的E部分，说明寄存器/内存具体指哪个</li>
+</ul>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/../Typora_images/%E5%89%8D%E7%BC%80%E6%8C%87%E4%BB%A4/image-20240616165138065.png" alt="image-20240616165138065" /></p>
+<p>Reg就是上图最上面的表格，然后根据宽度，确认是哪个寄存器。比如REG=000，宽度是byte，那么就是读REG=000那列，r8(/r)那一行，即AL。<br />
+Mod有00，01，10，11四种可能，00，01，10都是[]通过寄存器进行内存寻址。11直接操作寄存器。</p>
+<p><strong>例1</strong></p>
+<p>还是以0x88为例，OpCode为0x88时，后面肯定还有1字节的Mod R/M，假设为01。那么0x88 0x01拆解如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0x88 0x01       MOV Eb, Gb</span><br><span class="line"></span><br><span class="line">1.操作数宽度是byte</span><br><span class="line">2.拆ModR/M</span><br><span class="line">        (1)Reg/Code为0，表示0号寄存器，再因为操作数宽度是byte，所以是AL</span><br><span class="line">        (2)Mod是00，内存寻址;R/M是1，1号寄存器，ECX(ecxm默认是ds作为段寄存器寻址)</span><br><span class="line">        </span><br><span class="line">综上，0x88 0x01表示的指令是 mov byte ptr ds:[ecx],al</span><br></pre></td></tr></table></figure>
+<p>上面是通过自己记的寄存器的顺序的出来的。也可以查表：</p>
+<ul>
+<li>Reg为0，宽度是字节，所以REG=000那一列，r8(/r)那行，查表得AL</li>
+<li>Mod是00，R/M是001，查表得[ECX]</li>
+</ul>
+<p>所以，0x88 0x01表示的指令是<code>mov byte ptr ds:[ecx],al</code></p>
+<p><strong>例2</strong></p>
+<p>0x88 0x15是什么指令？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0x88 0x15       MOV Eb, Gb</span><br><span class="line"></span><br><span class="line">1.操作数宽度是byte</span><br><span class="line">2.拆ModR/M  0001 0101-&gt;00 010 101</span><br><span class="line">        (1)Reg/Code为010，表示2号寄存器，再因为操作数宽度是byte，所以是dl</span><br><span class="line">        (2)Mod是00，以寄存器进行内存寻址;R/M是101，5号寄存器，ebp(ebp默认是用ss作为段寄存器进行寻址)</span><br><span class="line">        </span><br><span class="line">综上，0x88 0x15表示的指令是 mov byte ptr ss:[ebp],dl</span><br></pre></td></tr></table></figure>
+<p>上面是通过自己记的寄存器的顺序推算出来的，但是查表，发现Mmod=00，R/M=101那行是disp32。为什么呢？因为在栈帧中，EBP指向栈底，[ebp]通常存储上一个栈帧的EBP，所以[EBP]进行寻址取值没有意义，Intel将这个编码废弃，改为用32位的立即数进行寻址。也就是说88 15后还会再跟一个32位（4字节），放到[]中进行寻址。</p>
+<figure class="highlight plaintext"><figcaption><span>例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">88 15 12 34 56 78 的汇编指令为 MOV BYTE PTR DS:[78563412], DL</span><br></pre></td></tr></table></figure>
+<p>此外，在栈帧中，还有ESP，ESP指向栈顶，是浮动的，不确定的，Inter将这个编码废弃，由另外的格式来说明。在表格中查到的是<code>[--][--]</code>。</p>
+
+
+
+<div class="article-footer reveal fs14"></div>
+
+</article>
+
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/x86InstructionSet/%E5%BC%95%E8%A8%80_x86%E6%8C%87%E4%BB%A4%E6%A0%BC%E5%BC%8F.html">引言</a></div><div class="item" id="next"></div></section></div>
+
+
+
+  <div class='related-wrap md-text reveal' id="comments">
+    <section class='header cmt-title cap theme'>
+      快来参与讨论吧
+    </section>
+    <section class='body cmt-body twikoo'>
+      
+
+<div id="twikoo_container"><svg class="loading" style="vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2709"><path d="M832 512c0-176-144-320-320-320V128c211.2 0 384 172.8 384 384h-64zM192 512c0 176 144 320 320 320v64C300.8 896 128 723.2 128 512h64z" p-id="2710"></path></svg></div>
+    </section>
+  </div>
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期发布</a><a href="/categories/">分类</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">wiki</span><a href="/wiki/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a><a href="/wiki/tags/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/">安全技术</a><a href="/wiki/tags/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">环境搭建</a><a href="/wiki/tags/%E5%85%B6%E4%BB%96/">其他</a></div><div class="sitemap-group"><span class="fs14">关于</span><a href="/about/">关于</a></div></div><div class="text"><p>本站由 <a href="/">Misc0101</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0">Stellar 1.25.0</a> 主题创建。<br />
+本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    
+<script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.25.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.25.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js","memos":"/js/plugins/memos.js","marked":"/js/plugins/marked.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@10.3/swiper-bundle.min.css","js":"https://unpkg.com/swiper@10.3/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".fancybox img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied","toast":"复制成功"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+  <script>
+    function load_twikoo() {
+        if (!document.querySelectorAll("#twikoo_container")[0]) return;
+        stellar.loadScript('https://gcore.jsdelivr.net/npm/twikoo@1.6.8/dist/twikoo.all.min.js', {defer: true}).then(function () {
+            const el = document.getElementById("twikoo_container");
+            var path = el.getAttribute('comment_id');
+            if (!path) {
+                path = decodeURI(window.location.pathname);
+            }
+            twikoo.init(Object.assign({"js":"https://gcore.jsdelivr.net/npm/twikoo@1.6.8/dist/twikoo.all.min.js","envId":"https://twikooblogcomment-tkkws-projects-20e4cf59.vercel.app"}, {
+                el: '#twikoo_container',
+                path: path,
+            }));
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', (event) => {
+        load_twikoo();
+    });
+</script>
+
+
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>
