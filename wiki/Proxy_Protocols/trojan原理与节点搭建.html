@@ -213,7 +213,7 @@
 </ul>
 <h3 id="网站证书申请"><a class="markdownIt-Anchor" href="#网站证书申请"></a> 网站证书申请</h3>
 <p>.crt是证书（公钥在证书里），.key是私钥</p>
-<div class="tag-plugin tabs" align="center"id="tab_189"><div class="nav-tabs"><div class="tab active"><a href="#tab_189-1">已有域名</a></div><div class="tab"><a href="#tab_189-2">自签证书</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_189-1"><p>从网站下载sh并执行</p>
+<div class="tag-plugin tabs" align="center"id="tab_188"><div class="nav-tabs"><div class="tab active"><a href="#tab_188-1">已有域名</a></div><div class="tab"><a href="#tab_188-2">自签证书</a></div></div><div class="tab-content"><div class="tab-pane active" id="tab_188-1"><p>从网站下载sh并执行</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://get.acme.sh | sh</span><br></pre></td></tr></table></figure>
 <p>安装socat（使用独立模式要安装socat）</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt install socat</span><br></pre></td></tr></table></figure>
@@ -230,7 +230,7 @@
 <blockquote>
 <p>如果默认CA无法颁发，可以切换使用其他CA来申请证书</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">切换 Let’s Encrypt：</span></span><br><span class="line">acme.sh --set-default-ca --server letsencrypt</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">切换 Buypass：</span></span><br><span class="line">acme.sh --set-default-ca --server buypass</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">切换 ZeroSSL：</span></span><br><span class="line">acme.sh --set-default-ca --server zerossl</span><br></pre></td></tr></table></figure>
-</blockquote></div><div class="tab-pane" id="tab_189-2"><p>没域名的情况下，自签证书。</p>
+</blockquote></div><div class="tab-pane" id="tab_188-2"><p>没域名的情况下，自签证书。</p>
 <p>生成私钥</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl ecparam -genkey -name prime256v1 -out ca.key</span><br></pre></td></tr></table></figure>
 <p>生成证书</p>
